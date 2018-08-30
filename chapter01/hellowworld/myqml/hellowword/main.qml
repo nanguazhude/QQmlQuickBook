@@ -8,6 +8,8 @@ Window {
     height: 480;
     title: qsTr("Hellow Word！");
     color: Qt.rgba(0.8,0.8,0.8,1);
+    minimumHeight: 64;
+    minimumWidth: 256;
 
     MainText{
         z : 1 ;

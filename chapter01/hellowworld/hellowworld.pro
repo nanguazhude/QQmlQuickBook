@@ -31,3 +31,5 @@ DISTFILES += $$QMLSOURCES
     QMAKE_LFLAGS += -Wl,-rpath .
 }
 
+RESOURCES += $$PWD/../../qqmlquickglobal.qrc
+

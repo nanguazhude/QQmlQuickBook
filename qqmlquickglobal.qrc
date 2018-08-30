@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/qqmlquickglobal/image">
+        <file>load.png</file>
+    </qresource>
+</RCC>
