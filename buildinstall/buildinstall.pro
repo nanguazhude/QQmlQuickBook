@@ -7,13 +7,12 @@ TEMPLATE = app
 
 include($$PWD/../QQmlQuickBook.pri)
 
-DEFINES += FromDir=\\\"$$PWD\\\"
-DEFINES += ToDir=\\\"$$DESTDIR\\\"
-
 SOURCES += \
     main.cpp
 
 DESTDIR = $$RootDestDir
+DEFINES += FromDir=\\\"$$PWD\\\"
+DEFINES += ToDir=\\\"$$DESTDIR\\\"
 
 #xymoc_.input = HEADERS
 #xymoc_.depends += $$HEADERS
