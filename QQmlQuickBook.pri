@@ -7,6 +7,9 @@ win32-msvc*{
     CONFIG+=c++17
 }
 
+#set c version
+QMAKE_CFLAGS += -std=c11
+
 #set root install dir
 CONFIG(debug,debug|release){
     RootDestDir = $$PWD/bin
@@ -17,5 +20,4 @@ CONFIG(debug,debug|release){
     DEFINES += NDEBUG #assert
     DEFINES += QT_NO_DEBUG #Q_ASSERT,Q_ASSERT_X
 }
-
 
