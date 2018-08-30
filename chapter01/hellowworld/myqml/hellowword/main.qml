@@ -14,13 +14,14 @@ Window {
     MainText{
         z : 1 ;
         anchors.fill : parent;
-    }
+    }/*~MainText*/
 
     MainRectangle {
         z : 0 ;
         anchors.fill : parent;
-    }
-}
+    }/*~MainRectangle*/
+
+}/*~Window*/
 
 
 

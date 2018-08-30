@@ -11,3 +11,4 @@ bin
 *.filters
 *.stash
 *.qmlc
+*.autosave
