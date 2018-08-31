@@ -205,13 +205,13 @@ static inline bool check_is_utf8(const  QByteArray & arg) {
 #define CHECK_NEXT_CHAR(...) if (((++varPos)<varEnd)&&(((*(varPos)) & 0b0'1100'0000u) == 0b0'1000'0000u)) { __VA_ARGS__ } else { return false; }
 
     for (; varPos < varEnd; ++varPos) {
-        if ((*varPos) < 0b0'1000'0000u) {/*0xxxxxxx*/ continue; }
-        if ((*varPos) < 0b0'1100'0000u) {/*010xxxxx*/ return false; }
-        if ((*varPos) < 0b0'1110'0000u) {/*110xxxxx*/ CHECK_NEXT_CHAR(continue;); }
-        if ((*varPos) < 0b0'1111'0000u) {/*1110xxxx*/ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
-        if ((*varPos) < 0b0'1111'1000u) {/*11110xxx*/ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
-        if ((*varPos) < 0b0'1111'1100u) {/*111110xx*/ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
-        if ((*varPos) < 0b0'1111'1110u) {/*1111110x*/ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
+        if ((*varPos) < 0b0'1000'0000u) {/*0xxxxxxx */ continue; }
+        if ((*varPos) < 0b0'1100'0000u) {/*10xxxxxx */ return false; }
+        if ((*varPos) < 0b0'1110'0000u) {/*110xxxxx */ CHECK_NEXT_CHAR(continue;); }
+        if ((*varPos) < 0b0'1111'0000u) {/*1110xxxx */ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
+        if ((*varPos) < 0b0'1111'1000u) {/*11110xxx */ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
+        if ((*varPos) < 0b0'1111'1100u) {/*111110xx */ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
+        if ((*varPos) < 0b0'1111'1110u) {/*1111110x */ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
         return false;
     }
 
