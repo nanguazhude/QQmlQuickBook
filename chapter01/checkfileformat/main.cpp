@@ -9,6 +9,7 @@
 #include <cstdlib>
 
 #include "RootWindow.hpp"
+#include <sstd_memory.hpp>
 
 namespace {
 
@@ -37,7 +38,7 @@ int main(int argc, char ** argv) {
     /*初始化Qml/Quick引擎*/
     QQmlApplicationEngine varEngine;
     /*设置环境*/
-    varEngine.rootContext()->setContextProperty(QStringLiteral("rootWindow"),new RootWindow(&varEngine));
+    varEngine.rootContext()->setContextProperty(QStringLiteral("rootWindow"),sstdNew<RootWindow>(&varEngine));
     /*main.qml完整目录*/
     const static auto varMainQmlFileName =
         QDir(varApp.applicationDirPath())
