@@ -21,3 +21,6 @@ CONFIG(debug,debug|release){
     DEFINES += QT_NO_DEBUG #Q_ASSERT,Q_ASSERT_X
 }
 
+INCLUDEPATH += $$PWD/sstd_utility
+HEADERS += $$PWD/sstd_utility/sstd_memory.hpp
+
