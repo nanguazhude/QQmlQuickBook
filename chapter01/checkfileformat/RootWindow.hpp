@@ -14,6 +14,7 @@ public:
     RootWindow(QObject * parent = nullptr);
 public slots:
     void checkTheDir(QVariant);
+    void forceAddBom();
 public:
     Q_SIGNAL void finishedCheckTheDir();
 private:

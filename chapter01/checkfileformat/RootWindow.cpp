@@ -187,4 +187,80 @@ QHash<int, QByteArray> RootWindow::roleNames() const {
     return varAns;
 }
 
+static inline bool check_is_utf8(const  QByteArray & arg) {
+    if (arg.isEmpty()) { return true; }
+    /**
+    1字节 0xxx'xxxx
+          10xx'xxxx
+    2字节 110x'xxxx 10xxxxxx
+    3字节 1110'xxxx 10xxxxxx 10xxxxxx
+    4字节 1111'0xxx 10xxxxxx 10xxxxxx 10xxxxxx
+    5字节 1111'10xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+    6字节 1111'110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+    **/
+    auto varPos = reinterpret_cast<const std::uint8_t *>(arg.data());
+    const auto varEnd = varPos + arg.count();
+
+#define CHECK_NEXT_CHAR(...) if ((((*(++varPos)) & 0b0'1100'0000u) == 0b0'1000'0000u)&&(varPos<varEnd)) { __VA_ARGS__ } else { return false; }
+
+    for (; varPos < varEnd; ++varPos) {
+        if ((*varPos) < 0b0'1000'0000u) {/*0xxxxxxx*/ continue; }
+        if ((*varPos) < 0b0'1100'0000u) {/*010xxxxx*/ return false; }
+        if ((*varPos) < 0b0'1110'0000u) {/*110xxxxx*/ CHECK_NEXT_CHAR(continue;); }
+        if ((*varPos) < 0b0'1111'0000u) {/*1110xxxx*/ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
+        if ((*varPos) < 0b0'1111'1000u) {/*11110xxx*/ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
+        if ((*varPos) < 0b0'1111'1100u) {/*111110xx*/ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
+        if ((*varPos) < 0b0'1111'1110u) {/*1111110x*/ CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(); CHECK_NEXT_CHAR(continue;); }
+        return false;
+    }
+
+    return true;
+}
+
+static inline bool add_utf8_bom(const QString & argFileName) try {
+    const QByteArray varFileData = [&argFileName]() {
+        QFile varFile{ argFileName };
+        if (false == varFile.open(QIODevice::ReadOnly)) throw "i know the error pass it";
+        return varFile.readAll();
+    }();
+
+    const static constexpr char globalBom[] = "\xEF\xBB\xBF";
+    if (varFileData.size() > 2) {
+        if (std::memcmp(globalBom, varFileData.data(), 3) == 0) {
+            return true;
+        }
+    }
+
+    if (check_is_utf8(varFileData)) {
+        QFile varFile{ argFileName };
+        if (false == varFile.open(QIODevice::WriteOnly)) { return false; }
+        varFile.write(globalBom, 3);
+        varFile.write(varFileData);
+        if (varFileData.endsWith('\n')) { return true; }
+        varFile.write("\n", 1);
+        return true;
+    }
+
+    {
+        QFile varFile{ argFileName };
+        if (false == varFile.open(QIODevice::WriteOnly)) { return false; }
+        varFile.write(globalBom, 3);
+        varFile.write(QString::fromLocal8Bit(varFileData).toUtf8());
+        if (varFileData.endsWith('\n')) { return true; }
+        varFile.write("\n", 1);
+        return true;
+    }
+
+}
+catch (...) { return false; }
+
+void RootWindow::forceAddBom() {
+    if (std::as_const(_m_add_bom).empty())return;
+    auto varFR = QtConcurrent::filtered(std::as_const(_m_add_bom), [](const auto & arg) {return !add_utf8_bom(arg); });
+    _m_add_bom.clear();
+    _m_add_bom = varFR.results().toVector();
+    this->modelReset({});
+}
+
+
 
