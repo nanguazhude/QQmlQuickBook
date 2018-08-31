@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <sstd_memory.hpp>
 
-#include "SimpleDraw.hpp"
+#include <ConstructQSurface.hpp>
 #include "ApplicationEngine.hpp"
 
 namespace {
@@ -32,6 +32,8 @@ int main(int argc, char ** argv) {
     resetRandom();
     /*初始化Qt环境*/
     QApplication varApp(argc, argv);
+    /*设置opengl默认格式*/
+    sstd::setDefaultFormat();
     /*强制加载Qt插件*/
     loadQtPlugins();
     /*初始化Qml/Quick引擎*/

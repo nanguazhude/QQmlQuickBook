@@ -8,7 +8,6 @@ QT += quick
 QT += widgets
 QT += concurrent
 
-include($$PWD/../../sstd_utility/glew.pri)
 include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
 

@@ -23,4 +23,5 @@ CONFIG(debug,debug|release){
 
 INCLUDEPATH += $$PWD/sstd_utility
 HEADERS += $$PWD/sstd_utility/sstd_memory.hpp
+HEADERS += $$PWD/sstd_utility/ConstructQSurface.hpp
 

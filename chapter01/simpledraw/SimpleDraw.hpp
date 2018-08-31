@@ -3,24 +3,34 @@
 
 #include <sstd_memory.hpp>
 #include <QtQuick/qquickitem.h>
-#include <QtGui/qopenglcontext.h>
+#include <ConstructQSurface.hpp>
 
 class SimpleDraw : public QQuickItem {
     Q_OBJECT
 public:
     SimpleDraw(QQuickItem *parent = nullptr);
 private slots:
-    void setOpenGLWindow(QQuickWindow *window);
-    void clearOpenGL();
-    void openGLPaint();
-    void setViewPort();
+    void handleWindowChanged(QQuickWindow *);
+    void sync();
+    void cleanup();
 private:
-    bool _m_is_setviewport_first_run = true;
-    std::unique_ptr<QOpenGLContext> _m_glcontex;
 private:
     using Super = QQuickItem;
 private:
     SSTD_MEMORY_DEFINE(SimpleDraw)
+};
+
+class SimpleDrawOpenglRender : 
+    public QObject ,
+    public sstd::OpenGLFunctions {
+    Q_OBJECT
+public:
+    SimpleDrawOpenglRender();
+    ~SimpleDrawOpenglRender();
+private:
+    using Super = QObject;
+private:
+    SSTD_MEMORY_DEFINE(SimpleDrawOpenglRender)
 };
 
 #endif // SIMPLEDRAW_HPP
