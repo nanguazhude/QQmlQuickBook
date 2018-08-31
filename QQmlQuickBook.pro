@@ -14,3 +14,9 @@ SUBDIRS += checkfileformat
 memory.file = $$PWD/chapter01/memory/memory.pro
 memory.depends = buildinstall
 SUBDIRS += memory
+
+simpledraw.file = $$PWD/chapter01/simpledraw/simpledraw.pro
+simpledraw.depends = buildinstall
+SUBDIRS += simpledraw
+
+

@@ -31,7 +31,7 @@ ColumnLayout{
         Layout.preferredHeight: 28 ;
         text: qsTr("强制加BOM");
         font.pixelSize: 22;
-        onCanceled: { rootWindow.forceAddBom(); }
+        onClicked : { rootWindow.forceAddBom(); }
     }
 
 }
