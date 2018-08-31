@@ -201,7 +201,8 @@ static inline bool check_is_utf8(const  QByteArray & arg) {
     auto varPos = reinterpret_cast<const std::uint8_t *>(arg.data());
     const auto varEnd = varPos + arg.count();
 
-#define CHECK_NEXT_CHAR(...) if ((((*(++varPos)) & 0b0'1100'0000u) == 0b0'1000'0000u)&&(varPos<varEnd)) { __VA_ARGS__ } else { return false; }
+#undef CHECK_NEXT_CHAR
+#define CHECK_NEXT_CHAR(...) if (((++varPos)<varEnd)&&(((*(varPos)) & 0b0'1100'0000u) == 0b0'1000'0000u)) { __VA_ARGS__ } else { return false; }
 
     for (; varPos < varEnd; ++varPos) {
         if ((*varPos) < 0b0'1000'0000u) {/*0xxxxxxx*/ continue; }
@@ -214,13 +215,20 @@ static inline bool check_is_utf8(const  QByteArray & arg) {
         return false;
     }
 
+#undef CHECK_NEXT_CHAR
+
     return true;
 }
 
 static inline bool add_utf8_bom(const QString & argFileName) try {
     const QByteArray varFileData = [&argFileName]() {
         QFile varFile{ argFileName };
-        if (false == varFile.open(QIODevice::ReadOnly)) throw "i know the error pass it";
+        if (false == varFile.open(QIODevice::ReadOnly)) {
+            throw "i know the error pass it";
+        }
+        if (varFile.size() > (1024 * 1024 * 64)) {
+            throw "the file is too big!";
+        }
         return varFile.readAll();
     }();
 
@@ -256,7 +264,8 @@ catch (...) { return false; }
 
 void RootWindow::forceAddBom() {
     if (std::as_const(_m_add_bom).empty())return;
-    auto varFR = QtConcurrent::filtered(std::as_const(_m_add_bom), [](const auto & arg) {return !add_utf8_bom(arg); });
+    auto varFR = QtConcurrent::filtered(std::as_const(_m_add_bom),
+        [](const QString & arg)->bool {return !add_utf8_bom(arg); });
     _m_add_bom.clear();
     _m_add_bom = varFR.results().toVector();
     this->modelReset({});
