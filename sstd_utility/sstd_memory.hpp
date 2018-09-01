@@ -9,6 +9,11 @@
 #include <type_traits>
 #include <memory_resource>
 
+#include <string>
+#include <filesystem>
+#include <string_view>
+using namespace std::string_view_literals;
+
 namespace sstd {
     class SSTDMemory {
     public:
@@ -230,6 +235,10 @@ namespace sstd {
         return std::allocate_shared<Obj_, A_>(A_{}, std::forward<Args>(args)...);
     }
 
+}/*namespace sstd*/
+
+namespace sstd {
+    using string = std::basic_string<char,std::char_traits<char> , sstd::allocator<char> >;
 }/*namespace sstd*/
 
 using sstd::sstdNew;

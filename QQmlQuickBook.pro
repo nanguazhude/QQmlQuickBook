@@ -19,4 +19,10 @@ simpledraw.file = $$PWD/chapter01/simpledraw/simpledraw.pro
 simpledraw.depends = buildinstall
 SUBDIRS += simpledraw
 
+opengldrawtriangle.file = $$PWD/chapter02/opengldrawtriangle/opengldrawtriangle.pro
+opengldrawtriangle.depends = buildinstall
+SUBDIRS += opengldrawtriangle
+
+
+
 
