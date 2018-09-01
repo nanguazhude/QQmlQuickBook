@@ -12,6 +12,7 @@ LIBS+=-lXmu -lXi -lGL -lXext -lX11
 }
 
 SOURCES += $$PWD/glew_source/glew.c
+SOURCES += $$PWD/glew_source/qt_initializeglew.cpp
 INCLUDEPATH += $$PWD/glew_source/glew
 HEADERS += $$PWD/glew_source/glew/GL/glew.h
 HEADERS += $$PWD/glew_source/glew/GL/eglew.h

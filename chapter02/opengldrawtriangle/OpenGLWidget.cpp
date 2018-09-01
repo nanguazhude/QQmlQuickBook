@@ -246,6 +246,9 @@ void OpenGLWidget::initializeGL() {
         Q_ASSERT_X(_m_draw_data->_m_vao, __FILE__, "unkonw error!");
     }
 
+    auto varDestory = _m_draw_data;
+    connect(context(), &QOpenGLContext::aboutToBeDestroyed, context(), [varDestory]() {delete varDestory; },Qt::DirectConnection);
+
 }
 
 void OpenGLWidget::resizeGL(int w, int h) {
@@ -260,16 +263,6 @@ void OpenGLWidget::resizeGL(int w, int h) {
 
 void OpenGLWidget::paintGL() {
     if (nullptr == _m_draw_data) { return; }
-
-    if (bool(_m_draw_data->_m_program) == false) {
-        _m_draw_data->_m_program = getProgram(this);
-        Q_ASSERT_X(_m_draw_data->_m_program, __FILE__, "unkonw error!");
-    }
-   
-    if (bool(_m_draw_data->_m_vao) == false) {
-        _m_draw_data->_m_vao = getNamedVertexArrayObject(this);
-        Q_ASSERT_X(_m_draw_data->_m_vao, __FILE__, "unkonw error!");
-    }
 
     GLuint varFBOIndex = this->defaultFramebufferObject();
     GLuint varProgram = _m_draw_data->_m_program;
@@ -287,7 +280,7 @@ void OpenGLWidget::paintGL() {
 }
 
 OpenGLWidget::~OpenGLWidget() { 
-    delete _m_draw_data;
+    _m_draw_data = nullptr;
 }
 
 OpenGLWidget::OpenGLWidget(QWidget *parent, Qt::WindowFlags f) : Super(parent, f) {

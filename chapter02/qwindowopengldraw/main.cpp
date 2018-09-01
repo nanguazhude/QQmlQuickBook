@@ -39,9 +39,17 @@ int main(int argc, char ** argv) {
     sstd::setDefaultFormat();
     /*强制加载Qt插件*/
     loadQtPlugins();
-    /*显示窗口*/
-    OpenGLWindow varWindow;
-    varWindow.show();
+    {/*显示窗口*/
+        for (int i = 0; i < 10 ; ++i) {
+            auto varWindow = sstdNew<OpenGLWindow>();
+            const QRect varDesktopSize = varWindow->screen()->availableGeometry();
+            const auto varWidth = std::max(64, varDesktopSize.width());
+            const auto varHeight = std::max(64, varDesktopSize.height());
+            varWindow->setPosition(QPoint(varDesktopSize.x() + (std::rand() % varWidth) / 2 - 10,
+                varDesktopSize.y() + (std::rand() % varHeight) / 2 + 20));
+            varWindow->show();
+        }
+    }
     /*启动主线程事件循环程序*/
     return varApp.exec();
 }

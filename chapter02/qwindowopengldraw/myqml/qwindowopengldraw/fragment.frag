@@ -1,8 +1,11 @@
-﻿
-#version 450
+﻿#version 450
+
+in vec4 inoutcolor;
 out vec4 color;
+
 void main(void){
-    color = vec4(0.0, 0.8, 1.0, 1.0);
+    color = inoutcolor ;
 }
 
+/*测试中文注释*/
 

@@ -33,7 +33,7 @@ void RootWindow::checkTheDir(QVariant arg) {
     QList<QFileInfo> varAddBomInfo;
     QList<QFileInfo> varRemoveBomInfo;
     const static QRegularExpression varHasBomType{ QStringLiteral(
-    R"(^(h|hpp|c|cpp|qml)$)"),QRegularExpression::CaseInsensitiveOption };
+    R"(^(h|hpp|c|cpp|qml|vert|frag)$)"),QRegularExpression::CaseInsensitiveOption };
     const static QRegularExpression varIgnorType{ QStringLiteral(
     R"(^(user|log)$)"),QRegularExpression::CaseInsensitiveOption };
     const static QRegularExpression varIgnorHasBomType{ QStringLiteral(

@@ -15,7 +15,8 @@ DESTDIR = $$RootDestDir
 QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
 export(QMAKE_POST_LINK)
 
-DISTFILES += $$QMLSOURCES
+DISTFILES += $$PWD/myqml/qwindowopengldraw/fragment.frag \
+    $$PWD/myqml/qwindowopengldraw/vertex.vert
 
 #force add application dir to library search dir
 !win32 {
@@ -33,4 +34,5 @@ HEADERS += \
     $$PWD/OpenGLWindow.hpp
 
 include($$PWD/../../sstd_utility/glew.pri)
+include($$PWD/../../sstd_utility/glm.pri)
 
