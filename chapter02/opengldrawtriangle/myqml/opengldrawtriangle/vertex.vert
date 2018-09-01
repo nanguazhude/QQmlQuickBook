@@ -11,7 +11,7 @@ void main(void){
     gl_Position = vertices[gl_VertexID];
 }
 
-
+/*测试中文注释*/
 
 
 

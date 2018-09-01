@@ -178,14 +178,14 @@ namespace {
         }//2
 
         {//3
-            GLint testVal;
-            glF->glGetShaderiv(varShader[0], GL_COMPILE_STATUS, &testVal);
-            if (testVal == GL_FALSE) {
+            GLint varTestVal;
+            glF->glGetShaderiv(varShader[0], GL_COMPILE_STATUS, &varTestVal);
+            if (varTestVal == GL_FALSE) {
                 printErrorDetail(varShader[0]);
                 throw 1;
             }
-            glF->glGetShaderiv(varShader[1], GL_COMPILE_STATUS, &testVal);
-            if (testVal == GL_FALSE) {
+            glF->glGetShaderiv(varShader[1], GL_COMPILE_STATUS, &varTestVal);
+            if (varTestVal == GL_FALSE) {
                 printErrorDetail(varShader[1]);
                 throw 1;
             }

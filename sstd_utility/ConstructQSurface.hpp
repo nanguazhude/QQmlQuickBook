@@ -72,7 +72,8 @@ namespace sstd {
         std::streamsize c = 0) {
         const auto varU8Path = a.toUtf8();
         return load_file_remove_utf8(
-            std::filesystem::u8path(varU8Path.data(), varU8Path.data() + varU8Path.size()),
+            std::filesystem::u8path(varU8Path.data(),
+                                    varU8Path.data() + varU8Path.size()),
             b, c);
     }
 
