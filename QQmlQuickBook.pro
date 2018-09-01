@@ -23,6 +23,8 @@ opengldrawtriangle.file = $$PWD/chapter02/opengldrawtriangle/opengldrawtriangle.
 opengldrawtriangle.depends = buildinstall
 SUBDIRS += opengldrawtriangle
 
-
+qwindowopengldraw.file = $$PWD/chapter02/qwindowopengldraw/qwindowopengldraw.pro
+qwindowopengldraw.depends = buildinstall
+SUBDIRS += qwindowopengldraw
 
 

@@ -6,12 +6,6 @@
 #include <string_view>
 using namespace std::string_view_literals;
 
-OpenGLWidget::OpenGLWidget(QWidget *parent, Qt::WindowFlags f) : Super(parent, f) {
-    this->setMinimumWidth(64);
-    this->setMinimumHeight(64);
-    this->resize(512, 512);
-}
-
 namespace {
     class GLProgram {
         class Data {
@@ -230,22 +224,33 @@ private:
 };
 
 void OpenGLWidget::initializeGL() {
+
     if (_m_draw_data) { return; }
+    
     makeCurrent();
-    /*初始化OpenGL设备失败，更换你的硬件*/
-    Q_ASSERT_X(initializeOpenGLFunctions(), __FILE__, "opengl init error");
 
-    _m_draw_data = sstdNew<OpenGLWidget::DrawData>();
-    _m_draw_data->_m_program = getProgram(this);
-    Q_ASSERT_X(_m_draw_data->_m_program, __FILE__, "unkonw error!");
+    {
+        /*初始化OpenGL设备失败，更换你的硬件*/
+        const bool varIsInit = initializeOpenGLFunctions();
+        Q_ASSERT_X(varIsInit, __FILE__, "opengl init error");
+        _m_draw_data = sstdNew<OpenGLWidget::DrawData>();
+    }
 
-    _m_draw_data->_m_vao = getNamedVertexArrayObject(this);
-    Q_ASSERT_X(_m_draw_data->_m_vao, __FILE__, "unkonw error!");
+    {
+        _m_draw_data->_m_program = getProgram(this);
+        Q_ASSERT_X(_m_draw_data->_m_program, __FILE__, "unkonw error!");
+    }
+
+    {
+        _m_draw_data->_m_vao = getNamedVertexArrayObject(this);
+        Q_ASSERT_X(_m_draw_data->_m_vao, __FILE__, "unkonw error!");
+    }
 
 }
 
 void OpenGLWidget::resizeGL(int w, int h) {
     if (nullptr == _m_draw_data) { return; }
+
     glViewport(0, 0, w, h);
     _m_draw_data->_m_clear_color[0] = (std::rand() & 127) / 255.0f;
     _m_draw_data->_m_clear_color[1] = 0.4f;
@@ -254,6 +259,17 @@ void OpenGLWidget::resizeGL(int w, int h) {
 }
 
 void OpenGLWidget::paintGL() {
+    if (nullptr == _m_draw_data) { return; }
+
+    if (bool(_m_draw_data->_m_program) == false) {
+        _m_draw_data->_m_program = getProgram(this);
+        Q_ASSERT_X(_m_draw_data->_m_program, __FILE__, "unkonw error!");
+    }
+   
+    if (bool(_m_draw_data->_m_vao) == false) {
+        _m_draw_data->_m_vao = getNamedVertexArrayObject(this);
+        Q_ASSERT_X(_m_draw_data->_m_vao, __FILE__, "unkonw error!");
+    }
 
     GLuint varFBOIndex = this->defaultFramebufferObject();
     GLuint varProgram = _m_draw_data->_m_program;
@@ -274,4 +290,9 @@ OpenGLWidget::~OpenGLWidget() {
     delete _m_draw_data;
 }
 
+OpenGLWidget::OpenGLWidget(QWidget *parent, Qt::WindowFlags f) : Super(parent, f) {
+    this->setMinimumWidth(64);
+    this->setMinimumHeight(64);
+    this->resize(512, 512);
+}
 

@@ -7,7 +7,7 @@
 
 class OpenGLWidget :
         public QOpenGLWidget,
-        public sstd::OpenGLFunctions{
+        public sstd::OpenGLFunctions {
     Q_OBJECT
 public:
     OpenGLWidget(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());

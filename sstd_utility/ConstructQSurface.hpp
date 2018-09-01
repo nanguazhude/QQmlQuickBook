@@ -3,7 +3,7 @@
 #include <QtGui/qopenglcontext.h>
 #include <QtGui/qsurfaceformat.h>
 #include <QtGui/qopenglfunctions.h>
-#include <QtGui/qopenglfunctions_4_5_compatibility.h>
+#include <QtGui/qopenglfunctions_4_5_core.h>
 #include <fstream>
 #include "sstd_memory.hpp"
 
@@ -17,12 +17,12 @@ namespace sstd {
         if ((varFormat.majorVersion() == 4) && (varFormat.minorVersion() < 5)) {
             varFormat.setVersion(4, 5);
         }
-        varFormat.setProfile(QSurfaceFormat::CompatibilityProfile);
+        varFormat.setProfile(QSurfaceFormat::CoreProfile);
         varFormat.setSamples(4);
         QSurfaceFormat::setDefaultFormat(varFormat);
     }
 
-    using OpenGLFunctions = QOpenGLFunctions_4_5_Compatibility;
+    using OpenGLFunctions = QOpenGLFunctions_4_5_Core;
 
     inline sstd::string load_file_remove_utf8(const std::filesystem::path & arg,
         char * varTmpBuffer = nullptr,
