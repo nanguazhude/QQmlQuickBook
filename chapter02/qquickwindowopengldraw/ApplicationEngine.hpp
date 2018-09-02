@@ -10,7 +10,7 @@ public:
     ApplicationEngine(QObject * parent = nullptr);
 private:
     using Super = QQmlApplicationEngine;
-    SSTD_MEMORY_DEFINE(ApplicationEngine)
+    SSTD_MEMORY_QOBJECT_DEFINE(ApplicationEngine)
 };
 
 #endif // APPLICATIONENGINE_HPP

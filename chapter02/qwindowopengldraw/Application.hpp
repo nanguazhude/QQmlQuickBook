@@ -10,7 +10,7 @@ public:
 private:
     using Super = QApplication;
 private:
-    SSTD_MEMORY_DEFINE(Application)
+    SSTD_MEMORY_QOBJECT_DEFINE(Application)
 };
 
 

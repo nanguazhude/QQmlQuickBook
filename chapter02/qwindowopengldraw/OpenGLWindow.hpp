@@ -23,7 +23,7 @@ protected:
     class DrawData;
     DrawData * _m_draw_data = nullptr ;
 private:
-    SSTD_MEMORY_DEFINE(OpenGLWindow)
+    SSTD_MEMORY_QOBJECT_DEFINE(OpenGLWindow)
 };
 
 

@@ -22,7 +22,7 @@ private:
     using Super = QQuickItem;
     
 private:
-    SSTD_MEMORY_DEFINE(OpenglDrawWindowItem)
+    SSTD_MEMORY_QOBJECT_DEFINE(OpenglDrawWindowItem)
 };
 
 class OpenglDrawWindowItemRender : public QObject   {
@@ -44,7 +44,7 @@ private:
 private:
     using Super = QObject;
 private:
-    SSTD_MEMORY_DEFINE(OpenglDrawWindowItemRender)
+    SSTD_MEMORY_QOBJECT_DEFINE(OpenglDrawWindowItemRender)
 
 };
 

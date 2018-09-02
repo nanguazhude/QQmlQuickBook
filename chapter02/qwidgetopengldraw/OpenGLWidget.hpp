@@ -21,7 +21,7 @@ private:
     class DrawData;
     DrawData * _m_draw_data = nullptr ;
 private:
-    SSTD_MEMORY_DEFINE(OpenGLWidget)
+    SSTD_MEMORY_QOBJECT_DEFINE(OpenGLWidget)
 };
 
 #endif // OPENGLWIDGET_HPP

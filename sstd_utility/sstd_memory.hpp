@@ -39,8 +39,8 @@ namespace sstd {
     };
 }/*namespace sstd*/
 
-#ifndef SSTD_MEMORY_DEFINE
-#define SSTD_MEMORY_DEFINE(...) public : static constexpr inline std::size_t ___$p$class_size() noexcept {/*check __VA_ARGS__ : typename is right*/ return sizeof(__VA_ARGS__); } \
+#ifndef ____SSTD_MEMORY_DEFINE
+#define ____SSTD_MEMORY_DEFINE($M$) public : static constexpr inline std::size_t ___$p$class_size() noexcept {/*check __VA_ARGS__ : typename is right*/ return sizeof($M$); } \
 static inline void* operator new  (std::size_t count, void* ptr) { return sstd::SSTDMemory::operator new(count,ptr); } \
 static inline void* operator new[](std::size_t count, void* ptr) { return sstd::SSTDMemory::operator new[](count,ptr); } \
 static inline void* operator new (std::size_t count) { return sstd::SSTDMemory::operator new(count); } \
@@ -52,6 +52,32 @@ static inline void operator delete(void* ptr, std::align_val_t al) { return sstd
 static inline void* operator new[](std::size_t count, std::align_val_t al) { return sstd::SSTDMemory::operator new(count, al); } \
 static inline void operator delete[](void* ptr, std::align_val_t al) { return sstd::SSTDMemory::operator delete(ptr, al); }
 #endif
+
+#if defined(QT_CORE_LIB)/*defined(QT_CORE_LIB)*/
+
+#include <QtCore/qobject.h>
+
+#ifndef SSTD_MEMORY_QOBJECT_DEFINE
+#define SSTD_MEMORY_QOBJECT_DEFINE($M$) /**/    private: static inline  void ___test_is_qobject() \
+                                                { static_assert( std::is_base_of_v<QObject,$M$>, \
+                                                "please use SSTD_MEMORY_DEFINE" ); }/**/ \
+                                                ____SSTD_MEMORY_DEFINE($M$)
+#endif
+
+#ifndef SSTD_MEMORY_DEFIN
+#define SSTD_MEMORY_DEFINE($M$) /**/            private : static inline void ___test_is_qobject() \
+                                                { static_assert( !std::is_base_of_v<QObject,$M$>, \
+                                                "please use SSTD_MEMORY_QOBJECT_DEFINE" ); }/**/ \
+                                                ____SSTD_MEMORY_DEFINE($M$)
+#endif
+
+#else/*defined(QT_CORE_LIB)*/
+
+#ifndef SSTD_MEMORY_DEFINE
+#define SSTD_MEMORY_DEFINE($M$) ____SSTD_MEMORY_DEFINE($M$)
+#endif
+
+#endif/*defined(QT_CORE_LIB)*/
 
 namespace sstd {
 
@@ -103,7 +129,8 @@ namespace sstd {
 
     template<typename $T$, typename ... $T$Args>
     inline $T$ * sstdNew($T$Args && ... args) {
-        static_assert(std::is_reference_v<$T$> == false);
+        static_assert(std::is_reference_v<$T$> == false, "can not new reference");
+        static_assert(std::is_array_v <$T$> == false, "can not new array");
         using $T$ObjectSelect = _private::TypeSelect<std::remove_cv_t<$T$>/**/>;
         using $T$Object = typename $T$ObjectSelect::type;
         if constexpr ((false == HasOperatorNew_0<std::remove_cv_t<$T$>/**/>::value)
@@ -235,8 +262,10 @@ namespace sstd {
 
 namespace sstd {
 
-    template<class _Ty, class... _Types, std::enable_if_t<!std::is_array_v<_Ty>, int> = 0>
+    template<class _Ty, class... _Types>
     inline std::unique_ptr<_Ty> make_unique(_Types&&... _Args) {	// make a unique_ptr
+        static_assert(false == std::is_reference_v<_Ty>, "can not new reference");
+        static_assert(false == std::is_array_v<_Ty>, "can not new array");
         return (std::unique_ptr<_Ty>(sstdNew<_Ty>(std::forward<_Types>(_Args)...)));
     }
 
@@ -246,6 +275,8 @@ namespace sstd {
 
     template<typename _T, typename ... Args>
     std::shared_ptr<_T> make_shared(Args && ... args) {
+        static_assert(false == std::is_reference_v<_T >, "can not new reference");
+        static_assert(false == std::is_array_v<_T >, "can not new array");
         using Obj_ = std::remove_cv_t<_T>;
         using A_ = sstd::allocator<Obj_>;
         return std::allocate_shared<Obj_, A_>(A_{}, std::forward<Args>(args)...);
@@ -255,7 +286,7 @@ namespace sstd {
 
 namespace sstd {
     using string = std::basic_string<char, std::char_traits<char>, sstd::allocator<char>/**/>;
-    template<typename T_>using vector = std::vector<T_,sstd::allocator<T_>/**/>;
+    template<typename T_>using vector = std::vector<T_, sstd::allocator<T_>/**/>;
     template<typename T_>using list = std::list<T_, sstd::allocator<T_>/**/>;
     /*typedef int is_transparent;*/
     template<typename T_>using set = std::set<T_, std::less<void>, sstd::allocator<T_>/**/>;
