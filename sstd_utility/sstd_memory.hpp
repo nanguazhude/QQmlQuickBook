@@ -14,6 +14,11 @@
 #include <string_view>
 using namespace std::string_view_literals;
 
+#include <map>
+#include <set>
+#include <list>
+#include <vector>
+
 namespace sstd {
     class SSTDMemory {
     public:
@@ -249,7 +254,13 @@ namespace sstd {
 }/*namespace sstd*/
 
 namespace sstd {
-    using string = std::basic_string<char, std::char_traits<char>, sstd::allocator<char> >;
+    using string = std::basic_string<char, std::char_traits<char>, sstd::allocator<char>/**/>;
+    template<typename T_>using vector = std::vector<T_,sstd::allocator<T_>/**/>;
+    template<typename T_>using list = std::list<T_, sstd::allocator<T_>/**/>;
+    /*typedef int is_transparent;*/
+    template<typename T_>using set = std::set<T_, std::less<void>, sstd::allocator<T_>/**/>;
+    template<typename K_, typename T_> using map
+        = std::map<K_, T_, std::less<void>, std::pair<const K_, T_>/**/>;
 }/*namespace sstd*/
 
 using sstd::sstdNew;
