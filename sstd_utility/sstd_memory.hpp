@@ -23,6 +23,7 @@ using namespace std::string_view_literals;
 #include <vector>
 #include <iterator>
 #include <algorithm>
+#include <forward_list>
 
 namespace sstd {
     class SSTDMemory {
@@ -297,9 +298,11 @@ namespace sstd {
     template<typename T_>using set = std::set<T_, std::less<void>, sstd::allocator<T_>/**/>;
     template<typename K_, typename T_> using map
         = std::map<K_, T_, std::less<void>, std::pair<const K_, T_>/**/>;
+    template<typename T_>using forward_list = std::forward_list<T_, std::allocator<T_>/**/>;
 }/*namespace sstd*/
 
 using sstd::sstdNew;
 
 /**************************************************/
+#include "sstd_state_stack.hpp"
 
