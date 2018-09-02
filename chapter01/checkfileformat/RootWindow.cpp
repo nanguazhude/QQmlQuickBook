@@ -21,42 +21,53 @@ RootWindow::RootWindow(QObject *parent) : Super(parent) {
 
 void RootWindow::checkTheDir(QVariant arg) {
 
-    QUrl varDir = arg.value<QUrl>();
-    if (varDir.isValid() == false) { return; }
-
-    QDirIterator varIt{
-        varDir.toLocalFile(),
-        QDir::Files,
-        QDirIterator::Subdirectories
-    };
-
     QList<QFileInfo> varAddBomInfo;
     QList<QFileInfo> varRemoveBomInfo;
-    const static QRegularExpression varHasBomType{ QStringLiteral(
-    R"(^(h|hpp|c|cpp|qml|vert|frag)$)"),QRegularExpression::CaseInsensitiveOption };
-    const static QRegularExpression varIgnorType{ QStringLiteral(
-    R"(^(user|log)$)"),QRegularExpression::CaseInsensitiveOption };
-    const static QRegularExpression varIgnorHasBomType{ QStringLiteral(
-    R"(^(moc_|qrc_)[^/]*)"),QRegularExpression::CaseInsensitiveOption };
-    while (varIt.hasNext()) {
-        varIt.next();
-        const auto varFileInfo = varIt.fileInfo();
-        const auto varSuffix = varFileInfo.suffix();
-        if (varIgnorType.match(varSuffix).hasMatch()) { continue; }
-        if (varHasBomType.match(varSuffix).hasMatch()) {
-            if (varIgnorHasBomType.match(varFileInfo.fileName()).hasMatch()) {
-                continue;
+
+    {
+        QUrl varDir = arg.value<QUrl>();
+        if (varDir.isValid() == false) { return; }
+
+        const auto varSourceLocalFile = varDir.toLocalFile();
+        QDirIterator varIt{
+            varSourceLocalFile,
+            QDir::Files,
+            QDirIterator::Subdirectories
+        };
+
+        const static QRegularExpression varHasBomType{ QStringLiteral(
+        R"(^(h|hpp|c|cpp|qml|vert|frag)$)"),QRegularExpression::CaseInsensitiveOption };
+        const static QRegularExpression varIgnorType{ QStringLiteral(
+        R"(^(user|log)$)"),QRegularExpression::CaseInsensitiveOption };
+        const static QRegularExpression varIgnorHasBomType{ QStringLiteral(
+        R"(^(moc_|qrc_)[^/]*)"),QRegularExpression::CaseInsensitiveOption };
+        while (varIt.hasNext()) {
+#if defined(QT_DEBUG)
+            const auto varDebugPath__ =
+#else
+#endif
+            varIt.next();
+#if defined(QT_DEBUG)
+            (void)varDebugPath__;
+#endif
+            const auto varFileInfo = varIt.fileInfo();
+            const auto varSuffix = varFileInfo.suffix();
+            if (varIgnorType.match(varSuffix).hasMatch()) { continue; }
+            if (varHasBomType.match(varSuffix).hasMatch()) {
+                if (varIgnorHasBomType.match(varFileInfo.fileName()).hasMatch()) {
+                    continue;
+                }
+                varAddBomInfo.push_back(varFileInfo);
             }
-            varAddBomInfo.push_back(varFileInfo);
-        }
-        else {
-            varRemoveBomInfo.push_back(varFileInfo);
+            else {
+                varRemoveBomInfo.push_back(varFileInfo);
+            }
         }
     }
 
     const static constexpr char globalBom[] = "\xEF\xBB\xBF";
 
-    auto varNotAddBomInfo = QtConcurrent::filtered(varAddBomInfo, [](const QFileInfo & arg)->bool {
+    auto varCheckAdd = [](const QFileInfo & arg)->bool {
         /*find the file not has utf8 bom*/
         QFile varFile{ arg.absoluteFilePath() };
         varFile.open(QIODevice::ReadOnly);
@@ -64,9 +75,20 @@ void RootWindow::checkTheDir(QVariant arg) {
         const auto varSize = varFile.read(varBom, 3);
         if (varSize < 3) { return true; }
         return (0 != std::memcmp(globalBom, varBom, 3));
-    });
+    };
 
-    auto varNotRemoveBomInfo = QtConcurrent::filtered(varRemoveBomInfo, [](const QFileInfo & arg)->bool {
+#if defined(QT_DEBUG)
+
+    const auto varTmpAddBomInfo = std::move(varAddBomInfo);
+    for (const auto & varI : varTmpAddBomInfo) {
+        if (varCheckAdd(varI)) { varAddBomInfo.push_back(varI); }
+    }
+
+#else
+    auto varNotAddBomInfo = QtConcurrent::filtered(varAddBomInfo, varCheckAdd);
+#endif
+
+    auto varCheckRemove = [](const QFileInfo & arg)->bool {
         /*find the file has utf8 bom*/
         QFile varFile{ arg.absoluteFilePath() };
         varFile.open(QIODevice::ReadOnly);
@@ -74,10 +96,25 @@ void RootWindow::checkTheDir(QVariant arg) {
         const auto varSize = varFile.read(varBom, 3);
         if (varSize < 3) { return false; }
         return (0 == std::memcmp(globalBom, varBom, 3));
-    });
+    };
 
+#if defined(QT_DEBUG)
+
+    const auto varTmpRemoveBomInfo = std::move(varRemoveBomInfo);
+    for (const auto & varI : varTmpRemoveBomInfo) {
+        if (varCheckRemove(varI)) { varRemoveBomInfo.push_back(varI); }
+    }
+
+#else
+    auto varNotRemoveBomInfo = QtConcurrent::filtered(varRemoveBomInfo, varCheckRemove);
+#endif
+
+#if defined(QT_DEBUG)
+
+#else
     varAddBomInfo = varNotAddBomInfo.results();
     varRemoveBomInfo = varNotRemoveBomInfo.results();
+#endif
 
     for (const auto & varI : std::as_const(varAddBomInfo)) {
         _m_add_bom.push_back(varI.canonicalFilePath());
