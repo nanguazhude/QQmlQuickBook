@@ -1,5 +1,4 @@
-﻿#ifndef __SSTD_UTILITY_HPP
-#define __SSTD_UTILITY_HPP
+﻿#pragma once
 
 #include <array>
 #include <cmath>
@@ -58,14 +57,14 @@ static inline void operator delete[](void* ptr, std::align_val_t al) { return ss
 #include <QtCore/qobject.h>
 
 #ifndef SSTD_MEMORY_QOBJECT_DEFINE
-#define SSTD_MEMORY_QOBJECT_DEFINE($M$) /**/    private: static inline  void ___test_is_qobject() \
+#define SSTD_MEMORY_QOBJECT_DEFINE($M$) /**/    private: static inline  void ___$p$test_is_qobject() \
                                                 { static_assert( std::is_base_of_v<QObject,$M$>, \
                                                 "please use SSTD_MEMORY_DEFINE" ); }/**/ \
                                                 ____SSTD_MEMORY_DEFINE($M$)
 #endif
 
 #ifndef SSTD_MEMORY_DEFIN
-#define SSTD_MEMORY_DEFINE($M$) /**/            private : static inline void ___test_is_qobject() \
+#define SSTD_MEMORY_DEFINE($M$) /**/            private : static inline void ___$p$test_is_qobject() \
                                                 { static_assert( !std::is_base_of_v<QObject,$M$>, \
                                                 "please use SSTD_MEMORY_QOBJECT_DEFINE" ); }/**/ \
                                                 ____SSTD_MEMORY_DEFINE($M$)
@@ -296,6 +295,5 @@ namespace sstd {
 
 using sstd::sstdNew;
 
-#endif
-
+/**************************************************/
 

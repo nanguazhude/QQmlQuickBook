@@ -5,7 +5,7 @@
 #include "OpenglDrawWindow.hpp"
 #include <QtGui/qopenglcontext.h>
 #include <QtQuick/qquickwindow.h>
-#include <thread>
+
 extern bool glewInitialize();
 
 class OpenglDrawWindowItemRender::DrawData {
@@ -27,13 +27,15 @@ private:
 OpenglDrawWindowItem::OpenglDrawWindowItem(QQuickItem *parent) :Super(parent) {
     this->setFlag(QQuickItem::ItemHasContents, true);
     connect(this, &QQuickItem::windowChanged, this, &OpenglDrawWindowItem::handleWindowChanged);
+    this->setWidth(10);
+    this->setHeight(10);
 }
 
 OpenglDrawWindowItemRender::OpenglDrawWindowItemRender() {}
 
 void OpenglDrawWindowItem::handleWindowChanged(QQuickWindow * window) {
     if (window) {
-        window->setColor(QColor(0,0,0,255));
+        window->setColor(QColor(100, 100, 100, 255));
         connect(window, &QQuickWindow::beforeSynchronizing, this, &OpenglDrawWindowItem::sync, Qt::DirectConnection);
         connect(window, &QQuickWindow::sceneGraphInvalidated, this, &OpenglDrawWindowItem::cleanup, Qt::DirectConnection);
         window->setClearBeforeRendering(false);
@@ -68,6 +70,7 @@ void OpenglDrawWindowItemRender::initializeGL() {
     _m_window->openglContext()->makeCurrent(_m_window);
     _m_draw_data = sstdNew<DrawData>();
     /*******************************************/
+    
 }
 
 void OpenglDrawWindowItemRender::paintGL() {
@@ -81,11 +84,12 @@ void OpenglDrawWindowItemRender::paintGL() {
         ~ResetGLStateLock() { if constexpr (true) { _m->resetOpenGLState(); } }
     } varGLStateLock{ _m_window };
 
-
     GLuint varFBOIndex = _m_window->renderTargetId();
 
-    glViewport(0,0, _m_draw_data->$m$Width , _m_draw_data->$m$Height);
 
+    glViewport(0, 0, _m_draw_data->$m$Width, _m_draw_data->$m$Height);   
+    
+       
     GLfloat xxx[]{ 0.3,0.4,0.5,1 };
     glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, xxx);
     glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, xxx);
@@ -96,14 +100,14 @@ void OpenglDrawWindowItemRender::paintGL() {
 
 void OpenglDrawWindowItemRender::resizeGL(int w, int h) {
     if (_m_draw_data == nullptr) {
-        glClearColor(0,0,0,1);
+        glClearColor(0, 0, 0, 1);
         return;
     }
     _m_draw_data->$m$Height = h;
     _m_draw_data->$m$Width = w;
 }
 
-OpenglDrawWindowItemRender::~OpenglDrawWindowItemRender() { 
+OpenglDrawWindowItemRender::~OpenglDrawWindowItemRender() {
     delete _m_draw_data;
 }
 

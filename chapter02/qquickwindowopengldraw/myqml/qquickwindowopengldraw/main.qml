@@ -14,16 +14,8 @@ Window {
     minimumHeight: 64;
     minimumWidth: 256;
 
-    Rectangle {
-    anchors.fill : parent 
-    color : Qt.rgba(0.3,0.3,0.3,0)
- 
-   /*此对象获得QQUickWindow指针*/
+    /*此对象获得QQUickWindow指针*/
    OpenglDrawWindowItem{  }
-
-    
-
-    }
 
 }/*~Window*/
 
