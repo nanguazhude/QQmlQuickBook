@@ -51,10 +51,12 @@ static inline void operator delete[](void* ptr, std::align_val_t al) { return ss
 namespace sstd {
 
     namespace _private {
+
         template<typename $T$, bool = (true == std::is_class_v<$T$>) &&
             (false == std::is_final_v<$T$>) &&
             (true == std::has_virtual_destructor_v<$T$>)>
             class TypeSelect;
+
         template<typename $T$>
         class TypeSelect<$T$, true> {
         public:
@@ -87,12 +89,19 @@ namespace sstd {
 
     }/*_private*/
 
+    template<typename T, typename = void>
+    class HasOperatorNew_0 : public std::false_type {};
+
+    template<typename T>
+    class HasOperatorNew_0<T, std::void_t<decltype(
+        std::declval<T>().operator new(1))>/**/> : public std::true_type {};
+
     template<typename $T$, typename ... $T$Args>
     inline $T$ * sstdNew($T$Args && ... args) {
         static_assert(std::is_reference_v<$T$> == false);
         using $T$ObjectSelect = _private::TypeSelect<std::remove_cv_t<$T$>/**/>;
         using $T$Object = typename $T$ObjectSelect::type;
-        if constexpr (true
+        if constexpr ((false == HasOperatorNew_0<std::remove_cv_t<$T$>/**/>::value)
             && $T$ObjectSelect::value) {
             return new $T$Object(std::forward<$T$Args>(args)...);
         }
