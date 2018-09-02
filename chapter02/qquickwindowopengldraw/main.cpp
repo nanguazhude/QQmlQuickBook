@@ -11,6 +11,7 @@
 
 #include <ConstructQSurface.hpp>
 #include "ApplicationEngine.hpp"
+#include "Application.hpp"
 
 namespace {
 
@@ -31,7 +32,7 @@ int main(int argc, char ** argv) {
     /*重置随机数种子*/
     resetRandom();
     /*初始化Qt环境*/
-    QApplication varApp(argc, argv);
+    Application varApp(argc, argv);
     /*设置opengl默认格式*/
     sstd::setDefaultFormat();
     /*强制加载Qt插件*/

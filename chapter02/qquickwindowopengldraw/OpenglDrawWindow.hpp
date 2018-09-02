@@ -1,14 +1,14 @@
-﻿#ifndef SIMPLEDRAW_HPP
-#define SIMPLEDRAW_HPP
+﻿/*OpenglDrawWindow.hpp*/
+#pragma once
 
 #include <sstd_memory.hpp>
 #include <QtQuick/qquickitem.h>
 #include <ConstructQSurface.hpp>
 
-class SimpleDraw : public QQuickItem {
+class OpenglDrawWindow : public QQuickItem {
     Q_OBJECT
 public:
-    SimpleDraw(QQuickItem *parent = nullptr);
+    OpenglDrawWindow(QQuickItem *parent = nullptr);
 private slots:
     void handleWindowChanged(QQuickWindow *);
     void sync();
@@ -17,23 +17,23 @@ private:
 private:
     using Super = QQuickItem;
 private:
-    SSTD_MEMORY_DEFINE(SimpleDraw)
+    SSTD_MEMORY_DEFINE(OpenglDrawWindow)
 };
 
-class SimpleDrawOpenglRender : 
+class OpenglDrawWindowRender : 
     public QObject ,
     public sstd::OpenGLFunctions {
     Q_OBJECT
 public:
-    SimpleDrawOpenglRender();
-    ~SimpleDrawOpenglRender();
+    OpenglDrawWindowRender();
+    ~OpenglDrawWindowRender();
 private:
     using Super = QObject;
 private:
-    SSTD_MEMORY_DEFINE(SimpleDrawOpenglRender)
+    SSTD_MEMORY_DEFINE(OpenglDrawWindowRender)
 };
 
-#endif // SIMPLEDRAW_HPP
+/***************************/
 
 
 

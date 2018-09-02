@@ -1,4 +1,4 @@
-TARGET = $$qtLibraryTarget(simpledraw)
+TARGET = $$qtLibraryTarget(qquickwindowopengldraw)
 TEMPLATE = app
 
 QT += gui
@@ -13,13 +13,19 @@ DESTDIR = $$RootDestDir
 
 SOURCES += $$PWD/main.cpp \
     ApplicationEngine.cpp \
-    SimpleDraw.cpp
+    OpenglDrawWindow.cpp \
+    Application.cpp
+
+HEADERS += \
+    ApplicationEngine.hpp \
+    OpenglDrawWindow.hpp \
+    Application.hpp
 
 #buildinstall
 QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
 export(QMAKE_POST_LINK)
 
-QMLSOURCES += $$PWD/myqml/simpledraw/main.qml
+QMLSOURCES += $$PWD/myqml/qquickwindowopengldraw/main.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES
@@ -34,7 +40,4 @@ DISTFILES += $$QMLSOURCES
 
 RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 
-HEADERS += \
-    ApplicationEngine.hpp \
-    SimpleDraw.hpp
 

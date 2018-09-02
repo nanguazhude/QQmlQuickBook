@@ -15,9 +15,9 @@ memory.file = $$PWD/chapter01/memory/memory.pro
 memory.depends = buildinstall
 SUBDIRS += memory
 
-simpledraw.file = $$PWD/chapter01/simpledraw/simpledraw.pro
-simpledraw.depends = buildinstall
-SUBDIRS += simpledraw
+qquickwindowopengldraw.file = $$PWD/chapter02/qquickwindowopengldraw/qquickwindowopengldraw.pro
+qquickwindowopengldraw.depends = buildinstall
+SUBDIRS += qquickwindowopengldraw
 
 qwidgetopengldraw.file = $$PWD/chapter02/qwidgetopengldraw/qwidgetopengldraw.pro
 qwidgetopengldraw.depends = buildinstall

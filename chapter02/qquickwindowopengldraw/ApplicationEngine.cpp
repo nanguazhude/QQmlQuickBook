@@ -2,7 +2,7 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qcoreapplication.h>
-#include "SimpleDraw.hpp"
+#include "OpenglDrawWindow.hpp"
 
 /*this function should be just run once*/
 ApplicationEngine::ApplicationEngine(QObject *parent) : Super(parent) {
@@ -18,7 +18,7 @@ ApplicationEngine::ApplicationEngine(QObject *parent) : Super(parent) {
         QDir::setCurrent(qApp->applicationDirPath());
     }
     {/*注册类型*/
-        qmlRegisterType<SimpleDraw>("myqml.simpledraw", 1, 0, "SimpleDraw");
+        qmlRegisterType<OpenglDrawWindow>("myqml.simpledraw", 1, 0, "SimpleDraw");
     }
     /*main.qml完整目录*/
     const static auto varMainQmlFileName = QDir(qApp->applicationDirPath())
