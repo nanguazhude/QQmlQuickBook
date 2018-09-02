@@ -40,4 +40,6 @@ DISTFILES += $$QMLSOURCES
 
 RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 
+include($$PWD/../../sstd_utility/glew.pri)
+include($$PWD/../../sstd_utility/glm.pri)
 

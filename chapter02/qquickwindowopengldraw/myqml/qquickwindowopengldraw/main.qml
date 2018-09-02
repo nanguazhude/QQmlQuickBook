@@ -17,34 +17,11 @@ Window {
     Rectangle {
     anchors.fill : parent 
     color : Qt.rgba(0.3,0.3,0.3,0)
+ 
+   /*此对象获得QQUickWindow指针*/
+   OpenglDrawWindowItem{  }
 
-    SimpleDraw {
-        anchors.left: parent.left ;
-        anchors.top : parent.top ;
-         width : parent.width/2 
-         height : parent.height/2
-    }
-
-   SimpleDraw{
-        anchors.left: parent.left ;
-        anchors.bottom : parent.bottom ;
-         width : parent.width/2 
-         height : parent.height/2
-    }
-
-   SimpleDraw{
-        anchors.right : parent.right ;
-        anchors.top: parent.top ;
-          width : parent.width/2 
-         height : parent.height/2
-    }
-
-    SimpleDraw{
-        anchors.right : parent.right ;
-        anchors.bottom: parent.bottom ;
-          width : parent.width/2 
-         height : parent.height/2
-    }
+    
 
     }
 

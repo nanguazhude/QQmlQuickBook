@@ -1,13 +1,12 @@
 ﻿#include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 #include <QtCore/qdebug.h>
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qdir.h>
 #include "OpenGLWindow.hpp"
 #include <sstd_load_utf8_file.hpp>
-#include<glm/glm.hpp>
-#include<glm/gtc/matrix_transform.hpp>
-#include<glm/gtx/transform.hpp>
-
 
 extern bool glewInitialize();
 
@@ -406,7 +405,8 @@ void OpenGLWindow::initializeGL() {
     _m_draw_data->construct();
 
     auto varDestory = _m_draw_data;
-    connect(context(), &QOpenGLContext::aboutToBeDestroyed, context(), [varDestory]() {delete varDestory; },Qt::DirectConnection);
+    connect(context(), &QOpenGLContext::aboutToBeDestroyed, 
+        context(), [varDestory]() {delete varDestory; },Qt::DirectConnection);
 }
 
 void OpenGLWindow::paintGL() {
@@ -433,6 +433,7 @@ void OpenGLWindow::paintGL() {
     glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_SHORT, nullptr);
 
     if (varToCloseDepthTest)glDisable(GL_DEPTH_TEST);
+
 }
 
 void OpenGLWindow::resizeGL(int w, int h) {
