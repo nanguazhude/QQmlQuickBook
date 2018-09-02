@@ -1,4 +1,4 @@
-TARGET = $$qtLibraryTarget(opengldrawtriangle)
+TARGET = $$qtLibraryTarget(qwidgetopengldraw)
 TEMPLATE = app
 
 QT += gui

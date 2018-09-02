@@ -81,10 +81,10 @@ namespace {
         sstd::OpenGLFunctions * glF = argGLF;
         /*顶点着色器*/
         static auto vertex_shader_source = sstd::load_file_remove_utf8(
-            varAppDir.absoluteFilePath(QStringLiteral("myqml/opengldrawtriangle/vertex.vert")));
+            varAppDir.absoluteFilePath(QStringLiteral("myqml/qwidgetopengldraw/vertex.vert")));
         /*片段着色器*/
         static auto fragment_shader_source = sstd::load_file_remove_utf8(
-            varAppDir.absoluteFilePath(QStringLiteral("myqml/opengldrawtriangle/fragment.frag")));
+            varAppDir.absoluteFilePath(QStringLiteral("myqml/qwidgetopengldraw/fragment.frag")));
 
         /*错误输出函数*/
         auto printProgramInfo = [glF](GLuint e) {
@@ -227,7 +227,7 @@ void OpenGLWidget::initializeGL() {
 
     if (_m_draw_data) { return; }
     
-    makeCurrent();
+    this->makeCurrent();
 
     {
         /*初始化OpenGL设备失败，更换你的硬件*/
@@ -247,7 +247,9 @@ void OpenGLWidget::initializeGL() {
     }
 
     auto varDestory = _m_draw_data;
-    connect(context(), &QOpenGLContext::aboutToBeDestroyed, context(), [varDestory]() {delete varDestory; },Qt::DirectConnection);
+    connect(
+        context(), &QOpenGLContext::aboutToBeDestroyed, 
+        context(), [varDestory]() {delete varDestory; },Qt::DirectConnection);
 
 }
 
