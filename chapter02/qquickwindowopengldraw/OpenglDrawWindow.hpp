@@ -4,8 +4,8 @@
 #include <sstd_memory.hpp>
 #include <QtQuick/qquickitem.h>
 #include <ConstructQSurface.hpp>
-class QQuickWindow;
 
+class QQuickWindow;
 class  OpenglDrawWindowItemRender;
 
 class OpenglDrawWindowItem : public QQuickItem {
@@ -25,8 +25,7 @@ private:
     SSTD_MEMORY_DEFINE(OpenglDrawWindowItem)
 };
 
-class OpenglDrawWindowItemRender : 
-    public QObject   {
+class OpenglDrawWindowItemRender : public QObject   {
     Q_OBJECT
 public:
     OpenglDrawWindowItemRender();
@@ -46,6 +45,7 @@ private:
     using Super = QObject;
 private:
     SSTD_MEMORY_DEFINE(OpenglDrawWindowItemRender)
+
 };
 
 /***************************/

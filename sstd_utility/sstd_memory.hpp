@@ -84,6 +84,7 @@ namespace sstd {
             using type = $T$;
             constexpr const static bool value = false;
         };
+
     }/*_private*/
 
     template<typename $T$, typename ... $T$Args>
@@ -91,7 +92,8 @@ namespace sstd {
         static_assert(std::is_reference_v<$T$> == false);
         using $T$ObjectSelect = _private::TypeSelect<std::remove_cv_t<$T$>/**/>;
         using $T$Object = typename $T$ObjectSelect::type;
-        if constexpr ($T$ObjectSelect::value) {
+        if constexpr (true
+            && $T$ObjectSelect::value) {
             return new $T$Object(std::forward<$T$Args>(args)...);
         }
         else {
@@ -238,7 +240,7 @@ namespace sstd {
 }/*namespace sstd*/
 
 namespace sstd {
-    using string = std::basic_string<char,std::char_traits<char> , sstd::allocator<char> >;
+    using string = std::basic_string<char, std::char_traits<char>, sstd::allocator<char> >;
 }/*namespace sstd*/
 
 using sstd::sstdNew;
