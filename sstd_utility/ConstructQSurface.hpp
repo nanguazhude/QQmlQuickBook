@@ -19,7 +19,7 @@ namespace sstd {
             varFormat.setVersion(4, 5);
         }
         varFormat.setProfile(QSurfaceFormat::CoreProfile);
-        varFormat.setSamples(4);
+        varFormat.setSamples(3);
         varFormat.setAlphaBufferSize(8);
         varFormat.setBlueBufferSize(8);
         varFormat.setRedBufferSize(8);

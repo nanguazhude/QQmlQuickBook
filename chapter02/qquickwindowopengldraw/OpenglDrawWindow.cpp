@@ -271,28 +271,28 @@ namespace {
         varAns.$m$VAO = GLNamedVertexArrayObject{ varVAO };
         glBindVertexArray(varVAO);
 
+        std::random_device varRandomDevice;
+        std::mt19937 varRandomGen{ varRandomDevice() };
+        std::uniform_real_distribution<> varRandom(0, 1);
+
         class RowData {
         public:
             /*
-            x位置 ： 0
-            y位置 ： 1
-            旋转  ： 2
-            z数值 ： 3
+            x位置   ： 0
+            y位置   ： 1
+            旋转    ： 2
+            下降速度： 3
             */
             std::array<GLfloat, 4> $m$Data;
-            RowData() {
-                $m$Data[0] = (std::rand() & 255) / 256.0f;
-                $m$Data[1] = (std::rand() & 255) / 256.0f;
-                $m$Data[2] = (std::rand() & 255) / 256.0f;
-                $m$Data[3] = 1;
-            }
         };
 
-        RowData varInitData[getArraySize()*2];
+        RowData varInitData[getArraySize() * 2];
         {
-            double varIndex = 1;
             for (auto & varI : varInitData) {
-                varI.$m$Data[3] = std::fma((0.1 / 64), varIndex++, 0.5);
+                varI.$m$Data[3] = std::fmod(varRandom(varRandomGen) / 1.38f, 0.049f);
+                varI.$m$Data[0] = varRandom(varRandomGen);
+                varI.$m$Data[1] = varRandom(varRandomGen);
+                varI.$m$Data[2] = std::fmod(varRandom(varRandomGen), 0.05f);
             }
         }
 
@@ -300,21 +300,13 @@ namespace {
 
         glCreateBuffers(1, varBuffer);
         varAns.$m$InstanceBuffer = GLBuffer{ varBuffer[0] };
-              
-        glNamedBufferData(varBuffer[0], 
-            sizeof(varInitData), 
+
+        glNamedBufferData(varBuffer[0],
+            sizeof(varInitData),
             varInitData, GL_STATIC_DRAW);
 
-        /*上传数据*/
-        glNamedBufferStorage(varBuffer[0],
-            sizeof(varInitData), 
-            varInitData, 
-            0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, varBuffer[0]);
-                 
         /*将 point and color buffer 绑定到VAO*/
-        
+
         /*指定如何从Buffer中解出包*/
         glVertexArrayVertexBuffer(varVAO, 0, varBuffer[0], 0, sizeof(RowData));
         /*指定如何从包中获得数据*/
@@ -327,7 +319,7 @@ namespace {
         glEnableVertexArrayAttrib(varVAO, 0)/*instance*/;
 
         glEnableVertexAttribArray(0);
-        
+
 
         return std::move(varAns);
     }
@@ -478,7 +470,7 @@ public:
 
         $m$ClearDepth[0] = 1.0f;
 
-        //$m$Texture = getTexture();
+        $m$Texture = getTexture();
     }
 
     ~DrawData() {}
@@ -498,25 +490,43 @@ void OpenglDrawWindowItemRender::paintGL() {
     {
         class Row {
         public:
-            double $m$PosX;
-            double $m$PosY;
-            double $m$Rot;
-            double $m$Z;
+            GLfloat $m$PosX;
+            GLfloat $m$PosY;
+            GLfloat $m$Rot;
+            GLfloat $m$Z;
         };
         using Type = std::array<Row, getArraySize()>;
 
-        //auto varData = static_cast<Type *>(
-        //    glMapNamedBuffer(_m_draw_data->$m$VAOBuffer, GL_WRITE_ONLY));
-        //for (auto & varI : (*varData)) {/**update x ,y , and rotate **/
-        //    //qDebug() << varI.$m$Z;
-        //}
-        //glUnmapNamedBuffer(_m_draw_data->$m$VAOBuffer);
+        auto varData = static_cast<Type *>(
+            glMapNamedBuffer(_m_draw_data->$m$VAOBuffer, GL_READ_WRITE));
+        for (auto & varI : (*varData)) {/**update x ,y , and rotate **/
+
+            varI.$m$Z += 0.0001f;
+            varI.$m$Z = std::fmod(varI.$m$Z, 0.05f);
+            varI.$m$PosY += varI.$m$Z;
+            varI.$m$PosY = std::fmod(varI.$m$PosY, 1.22f);
+
+            varI.$m$Rot = std::fma(varI.$m$Rot, 2.0f, 0.005f);
+            varI.$m$Rot = std::fmod(varI.$m$Rot, 6.28f);
+
+        }
+        glUnmapNamedBuffer(_m_draw_data->$m$VAOBuffer);
     }
+
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+#if defined(QT_DEBUG)
+    {
+        GLint alphaBit = 1;
+        glGetIntegerv(GL_ALPHA_BITS, &alphaBit);
+        if (alphaBit == 0) { qDebug() << "blend not suppored!"; }
+    }
+#endif
 
     GLuint varFBOIndex = _m_window->renderTargetId();
     glViewport(0, 0, _m_draw_data->$m$Width, _m_draw_data->$m$Height);
-
-    //glEnable(GL_DEPTH_TEST);
 
     glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, _m_draw_data->$m$ClearColor.data());
     glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, _m_draw_data->$m$ClearDepth.data());
@@ -524,15 +534,14 @@ void OpenglDrawWindowItemRender::paintGL() {
     glUseProgram(_m_draw_data->$m$Program);
     glBindVertexArray(_m_draw_data->$m$VAO);
     glVertexArrayBindingDivisor(_m_draw_data->$m$VAO, 0, 1);
-    //glActiveTexture(GL_TEXTURE0 + 0);
-    //glBindTexture(GL_TEXTURE_2D_ARRAY, _m_draw_data->$m$Texture);
-    //glBindTextureUnit(0, _m_draw_data->$m$Texture);
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, _m_draw_data->$m$Texture);
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, getArraySize());
-
 
     glBindVertexArray(0);
     glUseProgram(0);
 
+    _m_window->resetOpenGLState();
 }
 
 OpenglDrawWindowItem::OpenglDrawWindowItem(QQuickItem *parent) :Super(parent) {
@@ -546,6 +555,9 @@ OpenglDrawWindowItemRender::OpenglDrawWindowItemRender() {}
 
 void OpenglDrawWindowItem::handleWindowChanged(QQuickWindow * window) {
     if (window) {
+        if (window->openglContext() == nullptr) {
+            window->setFormat(QSurfaceFormat::defaultFormat());
+        }
         window->setColor(QColor(100, 100, 100, 255));
         connect(window, &QQuickWindow::beforeSynchronizing, this, &OpenglDrawWindowItem::sync, Qt::DirectConnection);
         connect(window, &QQuickWindow::sceneGraphInvalidated, this, &OpenglDrawWindowItem::cleanup, Qt::DirectConnection);
