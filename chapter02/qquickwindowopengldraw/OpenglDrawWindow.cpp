@@ -256,6 +256,7 @@ namespace {
             x位置 ： 0
             y位置 ： 1
             旋转  ： 2
+            z数值 ： 3
             */
             std::array<GLdouble, 4> $m$Data;
             RowData() {
@@ -267,6 +268,12 @@ namespace {
         };
 
         RowData varInitData[getArraySize()];
+        {
+            double varIndex = 1;
+            for (auto & varI : varInitData) {
+                varInitData->$m$Data[3] = std::fma((0.1 / 64), varIndex++, 0.5);
+            }
+        }
 
         GLuint varBuffer[1];
 
