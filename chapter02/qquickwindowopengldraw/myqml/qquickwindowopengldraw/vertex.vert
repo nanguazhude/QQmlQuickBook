@@ -2,7 +2,7 @@
 
 layout(location=0) in vec4 ixyrz;
 
- out VS_OUT   {
+ out VS_OUT {
    flat int alien  ; /*纹理索引*/
    vec2 tc         ; /*纹理坐标*/
  } vs_out;
@@ -35,7 +35,7 @@ void main(void){
 
 /*测试中文注释*/
 //参考自：
-//opengl superbible
+//opengl superbible 7
 //alienrain
 
 

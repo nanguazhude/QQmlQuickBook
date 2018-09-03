@@ -14,4 +14,7 @@ void main(void){
 }
 
 /*测试中文注释*/
+//参考自：
+//opengl superbible 7
+//alienrain
 

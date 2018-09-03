@@ -248,7 +248,7 @@ namespace {
 
         GLuint varVAO = 0;
         glCreateVertexArrays(1, &varVAO);
-        varAns.$m$VAO = GLNamedVertexArrayObject{varVAO};
+        varAns.$m$VAO = GLNamedVertexArrayObject{ varVAO };
 
         class RowData {
         public:
@@ -282,7 +282,7 @@ namespace {
 
         /*上传数据*/
         glNamedBufferData(varBuffer[0], sizeof(varInitData), varInitData, GL_STATIC_DRAW);
-         
+
         /*绑定index buffer*/
         glVertexArrayElementBuffer(varVAO, varBuffer[1]);
         /*将 point and color buffer 绑定到VAO*/
@@ -295,7 +295,101 @@ namespace {
         glVertexArrayAttribBinding(varVAO, 0, 0);
 
         return std::move(varAns);
-    }         
+    }
+
+    void xxxx() {
+
+        const static QString varFileNames[] = {
+            QStringLiteral("myqml/qquickwindowopengldraw/01.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/02.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/03.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/04.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/05.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/06.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/07.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/08.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/09.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/10.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/11.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/12.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/13.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/14.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/15.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/16.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/17.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/18.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/19.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/20.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/21.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/22.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/23.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/24.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/25.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/26.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/27.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/28.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/29.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/30.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/31.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/32.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/33.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/34.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/35.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/36.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/37.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/38.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/39.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/40.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/41.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/42.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/43.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/44.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/45.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/46.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/47.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/48.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/49.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/50.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/51.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/52.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/53.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/54.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/55.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/56.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/57.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/58.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/59.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/60.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/61.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/62.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/63.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/64.png"),
+        };
+
+        {
+            int varWidth = 0;
+            int varHeight = 0;
+            std::array<QImage, std::size(varFileNames)> varImages;
+            {
+                const QDir varAppDir{ qApp->applicationDirPath() };
+                auto * varOut = varImages.data();
+                for (const auto & varF : varFileNames) {
+                    const auto varFileName = varAppDir.absoluteFilePath(varF);
+                    auto varImage = QImage{ varFileName };
+                    *varOut++ = std::move(varImage) ;
+                    varWidth = varImage.width();
+                    varHeight = varImage.height();
+                }
+            };
+
+            /*创建Texture Array*/
+
+            /*初始化数据*/
+
+            /*上传数据*/
+        }
+
+    }
 
 }/*namespace*/
 
@@ -342,21 +436,21 @@ void OpenglDrawWindowItemRender::paintGL() {
     sstd::StateStackBasic varGLState;
     varGLState.push_value(glIsEnabled(GL_DEPTH_TEST),
         [](auto && v) {if (v) { glEnable(GL_DEPTH_TEST); } else { glDisable(GL_DEPTH_TEST); }})/*保存OpenGL状态*/;
-         
+
     {
-        class Row { 
+        class Row {
         public:
             double $m$PosX;
             double $m$PosY;
             double $m$Rot;
             double $m$Z;
         };
-        using Type = std::array<Row, getArraySize()> ;
+        using Type = std::array<Row, getArraySize()>;
 
-        auto varData = static_cast<Type *>( 
-            glMapNamedBuffer(_m_draw_data->$m$VAOBuffer, GL_READ_WRITE) );
-        for ( auto & varI : (*varData) ) {/**update x ,y , and rotate **/
-            
+        auto varData = static_cast<Type *>(
+            glMapNamedBuffer(_m_draw_data->$m$VAOBuffer, GL_READ_WRITE));
+        for (auto & varI : (*varData)) {/**update x ,y , and rotate **/
+
         }
         glUnmapNamedBuffer(_m_draw_data->$m$VAOBuffer);
     }
@@ -366,11 +460,11 @@ void OpenglDrawWindowItemRender::paintGL() {
 
     glEnable(GL_DEPTH_TEST);
 
-    glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, _m_draw_data->$m$ClearColor.data() );
-    glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, _m_draw_data->$m$ClearColor.data() );
+    glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, _m_draw_data->$m$ClearColor.data());
+    glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, _m_draw_data->$m$ClearColor.data());
 
-    glUseProgram( _m_draw_data->$m$Program );
-    glBindVertexArray(_m_draw_data->$m$VAO );
+    glUseProgram(_m_draw_data->$m$Program);
+    glBindVertexArray(_m_draw_data->$m$VAO);
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, getArraySize());
 
     glBindVertexArray(0);
