@@ -31,7 +31,9 @@ lupdate_only{
     SOURCES += $$QMLSOURCES
 }
 
-DISTFILES += $$QMLSOURCES
+DISTFILES += $$QMLSOURCES \
+    $$PWD/myqml/qquickwindowopengldraw/fragment.frag \
+    $$PWD/myqml/qquickwindowopengldraw/vertex.vert
 
 #force add application dir to library search dir
 !win32 {
