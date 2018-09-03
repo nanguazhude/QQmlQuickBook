@@ -15,7 +15,14 @@ Window {
     minimumWidth: 256;
 
     /*此对象获得QQUickWindow指针*/
-   OpenglDrawWindowItem{  }
+   OpenglDrawWindowItem{ 
+        SequentialAnimation on updateValue {
+              NumberAnimation { to: 1; duration: 2500; easing.type: Easing.InQuad }
+              NumberAnimation { to: 0; duration: 2500; easing.type: Easing.OutQuad }
+              loops: Animation.Infinite
+              running: true
+          }
+   }
 
 }/*~Window*/
 

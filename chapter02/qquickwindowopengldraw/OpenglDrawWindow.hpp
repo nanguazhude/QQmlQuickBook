@@ -8,9 +8,14 @@ class QQuickWindow;
 class  OpenglDrawWindowItemRender;
 
 class OpenglDrawWindowItem : public QQuickItem {
-    Q_OBJECT
+    Q_OBJECT/**/
+    Q_PROPERTY(double updateValue READ getUpdateValue WRITE setUpdateValue NOTIFY updateValueChanged)
 public:
     OpenglDrawWindowItem(QQuickItem *parent = nullptr);
+
+    double getUpdateValue() const { return _m_update_value; }
+    void setUpdateValue(const double &);
+    Q_SIGNAL void updateValueChanged();
 private slots:
     void handleWindowChanged(QQuickWindow *)/*windows changed*/;
     void sync()/*update data before opengl draw*/;
@@ -19,7 +24,7 @@ private:
     OpenglDrawWindowItemRender * _m_render = nullptr;
 private:
     using Super = QQuickItem;
-    
+    double _m_update_value = 0;
 private:
     SSTD_MEMORY_QOBJECT_DEFINE(OpenglDrawWindowItem)
 };
@@ -36,6 +41,7 @@ public slots:
 public:
     inline void resizeGL(const QSize & arg) { resizeGL(arg.width(), arg.height()); }
     inline void setWindow(QQuickWindow * arg) { _m_window = arg; }
+
 private:
     QQuickWindow * _m_window = nullptr;
     class DrawData;

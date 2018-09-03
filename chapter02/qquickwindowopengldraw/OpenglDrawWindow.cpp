@@ -106,13 +106,13 @@ namespace {
     private:
         SSTD_MEMORY_DEFINE(GLNamedVertexArrayObject)
     };
-    
+
     class GLTexture : private BasicGLIndex<GLTexture> {
     private:
         using Super = BasicGLIndex<GLTexture>;
         template<typename T> friend class BasicGLIndex;
         static inline void _p_destory(const GLuint *a) {
-            glDeleteVertexArrays(1, a);
+            glDeleteTextures(1, a);
         }
     public:
         GLTexture() = default;
@@ -270,6 +270,8 @@ namespace {
         glCreateVertexArrays(1, &varVAO);
         varAns.$m$VAO = GLNamedVertexArrayObject{ varVAO };
 
+        return varAns;
+
         class RowData {
         public:
             /*
@@ -301,10 +303,11 @@ namespace {
         varAns.$m$InstanceBuffer = GLBuffer{ varBuffer[0] };
 
         /*上传数据*/
-        glNamedBufferData(varBuffer[0], sizeof(varInitData), varInitData, GL_STATIC_DRAW);
-
-        /*绑定index buffer*/
-        glVertexArrayElementBuffer(varVAO, varBuffer[1]);
+        glNamedBufferStorage(varBuffer[0],
+            sizeof(varInitData), 
+            varInitData, 
+            GL_MAP_WRITE_BIT| GL_MAP_READ_BIT| GL_DYNAMIC_STORAGE_BIT);
+                 
         /*将 point and color buffer 绑定到VAO*/
         glEnableVertexArrayAttrib(varVAO, 0)/*instance*/;
         /*指定如何从Buffer中解出包*/
@@ -314,10 +317,12 @@ namespace {
 
         glVertexArrayAttribBinding(varVAO, 0, 0);
 
+        glVertexArrayBindingDivisor(varVAO, 0, 1);
+
         return std::move(varAns);
     }
 
-    void xxxx() {
+    GLTexture getTexture() {
 
         const static QString varFileNames[] = {
             QStringLiteral("myqml/qquickwindowopengldraw/01.png"),
@@ -383,7 +388,7 @@ namespace {
             QStringLiteral("myqml/qquickwindowopengldraw/61.png"),
             QStringLiteral("myqml/qquickwindowopengldraw/62.png"),
             QStringLiteral("myqml/qquickwindowopengldraw/63.png"),
-            QStringLiteral("myqml/qquickwindowopengldraw/64.png"),
+            QStringLiteral("myqml/qquickwindowopengldraw/00.png"),
         };
 
         {
@@ -396,25 +401,39 @@ namespace {
                 for (const auto & varF : varFileNames) {
                     const auto varFileName = varAppDir.absoluteFilePath(varF);
                     auto varImage = QImage{ varFileName };
-                    *varOut++ = std::move(varImage) ;
                     varWidth = varImage.width();
                     varHeight = varImage.height();
+                    varImage = varImage.convertToFormat(QImage::Format_RGBA8888);
+                    *varOut++ = std::move(varImage);
+                    /*这仅仅是一个示例代码，数据大小和格式是固定的*/
+                    assert(varHeight == 256);
+                    assert(varWidth == 256);
                 }
             };
 
             /*这仅仅是一个示例代码，数据大小和格式是固定的*/
-            assert(varHeight == 256);
-            assert(varWidth == 256);
             assert(varImages.size() == 64);
             assert(varImages[0].format() == QImage::Format_RGBA8888);
 
             /*创建Texture Array*/
-
-            /*初始化数据*/
+            GLuint texture = 0;
+            glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &texture);
+            glTextureStorage3D(texture, 1, GL_RGBA8,
+                varWidth, varHeight,
+                static_cast<int>(varImages.size()/*depth*/));
 
             /*上传数据*/
+            for (int varI = 0; varI < varImages.size(); ++varI) {
+                glTextureSubImage3D(texture, 0/*level​*/, 0/*x*/, 0/*y*/, varI/*z*/,
+                    varWidth, varHeight, 1,
+                    GL_RGBA, GL_UNSIGNED_BYTE, varImages[varI].bits());
+            }
+
+            return GLTexture{ texture };
+
         }
 
+        return {};
     }
 
 }/*namespace*/
@@ -428,6 +447,7 @@ public:
     GLProgram $m$Program;
     GLNamedVertexArrayObject $m$VAO;
     GLBuffer $m$VAOBuffer;
+    GLTexture $m$Texture;
     std::array<GLfloat, 4> $m$ClearColor;
     std::array<GLfloat, 1> $m$ClearDepth;
 
@@ -447,6 +467,8 @@ public:
         $m$ClearColor[3] = 1.0f;
 
         $m$ClearDepth[0] = 1.0f;
+
+        //$m$Texture = getTexture();
     }
 
     ~DrawData() {}
@@ -473,25 +495,29 @@ void OpenglDrawWindowItemRender::paintGL() {
         };
         using Type = std::array<Row, getArraySize()>;
 
-        auto varData = static_cast<Type *>(
-            glMapNamedBuffer(_m_draw_data->$m$VAOBuffer, GL_READ_WRITE));
-        for (auto & varI : (*varData)) {/**update x ,y , and rotate **/
-
-        }
-        glUnmapNamedBuffer(_m_draw_data->$m$VAOBuffer);
+        //auto varData = static_cast<Type *>(
+        //    glMapNamedBuffer(_m_draw_data->$m$VAOBuffer, GL_READ_WRITE));
+        //for (auto & varI : (*varData)) {/**update x ,y , and rotate **/
+        //    //qDebug() << varI.$m$Z;
+        //}
+        //glUnmapNamedBuffer(_m_draw_data->$m$VAOBuffer);
     }
 
     GLuint varFBOIndex = _m_window->renderTargetId();
     glViewport(0, 0, _m_draw_data->$m$Width, _m_draw_data->$m$Height);
 
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
 
     glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, _m_draw_data->$m$ClearColor.data());
-    glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, _m_draw_data->$m$ClearColor.data());
+    glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, _m_draw_data->$m$ClearDepth.data());
 
     glUseProgram(_m_draw_data->$m$Program);
     glBindVertexArray(_m_draw_data->$m$VAO);
-    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, getArraySize());
+    //glActiveTexture(GL_TEXTURE0 + 0);
+    //glBindTexture(GL_TEXTURE_2D_ARRAY, _m_draw_data->$m$Texture);
+    //glBindTextureUnit(0, _m_draw_data->$m$Texture);
+    //glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, getArraySize());
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glBindVertexArray(0);
     glUseProgram(0);
@@ -560,6 +586,13 @@ OpenglDrawWindowItemRender::~OpenglDrawWindowItemRender() {
     delete _m_draw_data;
 }
 
+void OpenglDrawWindowItem::setUpdateValue(const double & arg) {
+    if (arg == _m_update_value) { return; }
+    _m_update_value = arg;
+    updateValueChanged();
+    if (window()) { window()->update(); }
+}
+
 /*****************************************************/
-//
+//https://www.khronos.org/opengl/wiki/Texture_Storage
 /*****************************************************/
