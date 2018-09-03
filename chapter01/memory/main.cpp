@@ -84,13 +84,13 @@ int main(int, char **) {
         int test = 1;
         {
             sstd::StateStackBasic sm;
-            if constexpr (false) {
+            if constexpr (true) {
                 sm.push(
                     [&test]() {return test; },
                     [&test](auto v) {test = v; });
             }
             else {
-                sm.push(test, [&test](auto v) {test = v; });
+                sm.push_value(test, [&test](auto v) {test = v; });
             }
             test = 2;
             assert(test == 2);

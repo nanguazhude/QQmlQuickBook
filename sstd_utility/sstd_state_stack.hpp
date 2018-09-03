@@ -32,9 +32,12 @@ namespace sstd {
 
     public:
 
-        template<typename FGet,
+        template<
+            typename FGet,
             typename = std::void_t< std::enable_if_t<std::is_invocable_v<FGet&&> > > ,
-            typename FReset>
+            typename FReset,
+            typename = std::result_of_t< FReset( std::result_of_t< FGet() > ) >
+        >
         inline void push(FGet && argFGEt, FReset && argFReset) {
             using T___ = std::result_of_t<FGet()>;
             using T__  = std::remove_reference_t<T___>;
@@ -44,11 +47,14 @@ namespace sstd {
                 std::forward<FReset>(argFReset)));
         }
 
-        template<typename T,
+        template< 
+            typename T,
             typename = void **,
-            typename = std::void_t< std::enable_if_t<!std::is_invocable_v<T> > >,
-            typename FReset>
-        inline void push(T && argFGEt, FReset && argFReset) {
+            typename = int **,
+            typename FReset,
+            typename =std::result_of_t<FReset(T&&)> 
+        >
+        inline void push_value(T && argFGEt, FReset && argFReset) {
             using T_ = std::remove_cv_t<std::remove_reference_t<T>/**/>;
             auto p = &argFGEt;
             stack_.push_front(sstd::make_unique< TypedState<T_> >(
