@@ -295,11 +295,7 @@ namespace {
         glVertexArrayAttribBinding(varVAO, 0, 0);
 
         return std::move(varAns);
-    }
-
-
-
-
+    }         
 
 }/*namespace*/
 
@@ -312,6 +308,8 @@ public:
     GLProgram $m$Program;
     GLNamedVertexArrayObject $m$VAO;
     GLBuffer $m$VAOBuffer;
+    std::array<GLfloat, 4> $m$ClearColor;
+    std::array<GLfloat, 1> $m$ClearDepth;
 
     DrawData() {
         glewInitialize();
@@ -323,8 +321,12 @@ public:
             $m$VAOBuffer = std::move(varTmp.$m$InstanceBuffer);
         }
 
+        $m$ClearColor[0] = 0.3f;
+        $m$ClearColor[1] = 0.4f;
+        $m$ClearColor[2] = 0.5f;
+        $m$ClearColor[3] = 1.0f;
 
-
+        $m$ClearDepth[0] = 1.0f;
     }
 
     ~DrawData() {}
@@ -337,24 +339,42 @@ void OpenglDrawWindowItemRender::paintGL() {
     if (_m_window == nullptr) { return; }
     initializeGL();
 
-    class ResetGLStateLock {
-        QQuickWindow * _m;
-    public:
-        ResetGLStateLock(QQuickWindow *l) :_m(l) {}
-        ~ResetGLStateLock() { if constexpr (true) { _m->resetOpenGLState(); } }
-    } varGLStateLock{ _m_window };
+    sstd::StateStackBasic varGLState;
+    varGLState.push_value(glIsEnabled(GL_DEPTH_TEST),
+        [](auto && v) {if (v) { glEnable(GL_DEPTH_TEST); } else { glDisable(GL_DEPTH_TEST); }})/*保存OpenGL状态*/;
+         
+    {
+        class Row { 
+        public:
+            double $m$PosX;
+            double $m$PosY;
+            double $m$Rot;
+            double $m$Z;
+        };
+        using Type = std::array<Row, getArraySize()> ;
+
+        auto varData = static_cast<Type *>( 
+            glMapNamedBuffer(_m_draw_data->$m$VAOBuffer, GL_READ_WRITE) );
+        for ( auto & varI : (*varData) ) {/**update x ,y , and rotate **/
+            
+        }
+        glUnmapNamedBuffer(_m_draw_data->$m$VAOBuffer);
+    }
 
     GLuint varFBOIndex = _m_window->renderTargetId();
-
-
     glViewport(0, 0, _m_draw_data->$m$Width, _m_draw_data->$m$Height);
 
+    glEnable(GL_DEPTH_TEST);
 
-    GLfloat xxx[]{ 0.3,0.4,0.5,1 };
-    glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, xxx);
-    glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, xxx);
+    glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, _m_draw_data->$m$ClearColor.data() );
+    glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, _m_draw_data->$m$ClearColor.data() );
 
+    glUseProgram( _m_draw_data->$m$Program );
+    glBindVertexArray(_m_draw_data->$m$VAO );
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, getArraySize());
+
+    glBindVertexArray(0);
+    glUseProgram(0);
 
 }
 
