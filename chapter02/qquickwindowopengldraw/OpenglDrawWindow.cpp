@@ -269,8 +269,7 @@ namespace {
         GLuint varVAO = 0;
         glCreateVertexArrays(1, &varVAO);
         varAns.$m$VAO = GLNamedVertexArrayObject{ varVAO };
-
-        return varAns;
+        glBindVertexArray(varVAO);
 
         class RowData {
         public:
@@ -280,7 +279,7 @@ namespace {
             旋转  ： 2
             z数值 ： 3
             */
-            std::array<GLdouble, 4> $m$Data;
+            std::array<GLfloat, 4> $m$Data;
             RowData() {
                 $m$Data[0] = (std::rand() & 255) / 256.0f;
                 $m$Data[1] = (std::rand() & 255) / 256.0f;
@@ -289,7 +288,7 @@ namespace {
             }
         };
 
-        RowData varInitData[getArraySize()];
+        RowData varInitData[getArraySize()*2];
         {
             double varIndex = 1;
             for (auto & varI : varInitData) {
@@ -301,23 +300,34 @@ namespace {
 
         glCreateBuffers(1, varBuffer);
         varAns.$m$InstanceBuffer = GLBuffer{ varBuffer[0] };
+              
+        glNamedBufferData(varBuffer[0], 
+            sizeof(varInitData), 
+            varInitData, GL_STATIC_DRAW);
 
         /*上传数据*/
         glNamedBufferStorage(varBuffer[0],
             sizeof(varInitData), 
             varInitData, 
-            GL_MAP_WRITE_BIT| GL_MAP_READ_BIT| GL_DYNAMIC_STORAGE_BIT);
+            0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, varBuffer[0]);
                  
         /*将 point and color buffer 绑定到VAO*/
-        glEnableVertexArrayAttrib(varVAO, 0)/*instance*/;
+        
         /*指定如何从Buffer中解出包*/
         glVertexArrayVertexBuffer(varVAO, 0, varBuffer[0], 0, sizeof(RowData));
         /*指定如何从包中获得数据*/
-        glVertexArrayAttribFormat(varVAO, 0, 4, GL_DOUBLE, false, 0);
+        glVertexArrayAttribFormat(varVAO, 0, 4, GL_FLOAT, false, 0);
 
         glVertexArrayAttribBinding(varVAO, 0, 0);
 
         glVertexArrayBindingDivisor(varVAO, 0, 1);
+
+        glEnableVertexArrayAttrib(varVAO, 0)/*instance*/;
+
+        glEnableVertexAttribArray(0);
+        
 
         return std::move(varAns);
     }
@@ -496,7 +506,7 @@ void OpenglDrawWindowItemRender::paintGL() {
         using Type = std::array<Row, getArraySize()>;
 
         //auto varData = static_cast<Type *>(
-        //    glMapNamedBuffer(_m_draw_data->$m$VAOBuffer, GL_READ_WRITE));
+        //    glMapNamedBuffer(_m_draw_data->$m$VAOBuffer, GL_WRITE_ONLY));
         //for (auto & varI : (*varData)) {/**update x ,y , and rotate **/
         //    //qDebug() << varI.$m$Z;
         //}
@@ -513,11 +523,12 @@ void OpenglDrawWindowItemRender::paintGL() {
 
     glUseProgram(_m_draw_data->$m$Program);
     glBindVertexArray(_m_draw_data->$m$VAO);
+    glVertexArrayBindingDivisor(_m_draw_data->$m$VAO, 0, 1);
     //glActiveTexture(GL_TEXTURE0 + 0);
     //glBindTexture(GL_TEXTURE_2D_ARRAY, _m_draw_data->$m$Texture);
     //glBindTextureUnit(0, _m_draw_data->$m$Texture);
-    //glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, getArraySize());
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, getArraySize());
+
 
     glBindVertexArray(0);
     glUseProgram(0);

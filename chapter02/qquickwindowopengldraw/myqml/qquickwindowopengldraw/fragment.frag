@@ -1,17 +1,12 @@
 ﻿#version 450
+smooth in vec2 tuv;
+flat in int tID;
 
+//layout(binding=0) uniform sampler2DArray texture_array_  ;
 out vec4 color;
-
-//in VS_OUT {
- //    flat int alien;
- //    vec2 tc;
-//} fs_in;
-
-//layout(binding=0) uniform sampler2DArray tex_aliens;  
-
-void main(void){
-    //color = texture(tex_aliens, vec3(fs_in.tc, float(fs_in.alien)));
-    color = vec4(1,1,1,1);
+void main(){
+    //color = texture( texture_array_ , vec3(tuv,tID) );
+    color = vec4(tuv.x,tuv.y,tuv.y,1);
 }
 
 /*测试中文注释*/

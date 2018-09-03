@@ -16,12 +16,13 @@ Window {
 
     /*此对象获得QQUickWindow指针*/
    OpenglDrawWindowItem{ 
-        SequentialAnimation on updateValue {
-              NumberAnimation { to: 1; duration: 2500; easing.type: Easing.InQuad }
-              NumberAnimation { to: 0; duration: 2500; easing.type: Easing.OutQuad }
-              loops: Animation.Infinite
-              running: true
+       
+
+          Timer{
+          interval: 500; running: true; repeat: true
+          onTriggered: parent.updateValue+=1
           }
+
    }
 
 }/*~Window*/

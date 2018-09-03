@@ -1,38 +1,22 @@
 ﻿#version 450
 
-//layout(location=0) in vec4 ixyrz ;
+uniform mat4 points=mat4(
+    0,0.25,0,1,       /*0,1*/
+    0,0,0,1,   /*0,0*/
+    0.25,0.25,0,1,    /*1,1*/
+    0.25,0,0,1 /*1,0*/
+);
 
- //out VS_OUT {
- //  flat int alien  ; /*纹理索引*/
- //  vec2 tc         ; /*纹理坐标*/
-// } vs_out;
+layout( location = 0 ) in vec4 offsetValue;
+smooth out vec2 tuv;
+flat out int tID;
 
-void main(void){
-
-     const vec2[4] position = vec2[4](
-                 vec2(-0.5, -0.5),
-                 vec2( 0.5, -0.5),
-                 vec2(-0.5,  0.5),
-                 vec2( 0.5,  0.5));
-
-//    vs_out.tc =  position[gl_VertexID].xy + vec2(0.5);
-   vec2 tc = position[gl_VertexID].xy + vec2(0.5);
-//    float co = cos(ixyrz[2]);
-//    float so = sin(ixyrz[2]);
-
-//    mat2 rot = mat2(vec2( co, so),
-//                    vec2(-so, co));
-
-//     vec2 pos = 0.25 * rot * position[gl_VertexID];
-
-//     gl_Position = vec4(pos.x + ixyrz[0],
-//                        pos.y + ixyrz[1],
-//                       ixyrz[3], 1.0);
-
-    gl_Position = vec4( tc.x , tc.y ,0.5,1 );
-
-//    vs_out.alien = gl_InstanceID % 64;
-
+void main(){
+    gl_Position = points[ gl_VertexID ];
+    tuv.x = gl_Position.x*4 ;
+    tuv.y = gl_Position.y*4 ;
+    tID = gl_InstanceID;
+    gl_Position.xy += offsetValue.xy   ;
 }
 
 /*测试中文注释*/
