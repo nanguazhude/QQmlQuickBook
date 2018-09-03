@@ -106,6 +106,26 @@ namespace {
     private:
         SSTD_MEMORY_DEFINE(GLNamedVertexArrayObject)
     };
+    
+    class GLTexture : private BasicGLIndex<GLTexture> {
+    private:
+        using Super = BasicGLIndex<GLTexture>;
+        template<typename T> friend class BasicGLIndex;
+        static inline void _p_destory(const GLuint *a) {
+            glDeleteVertexArrays(1, a);
+        }
+    public:
+        GLTexture() = default;
+        GLTexture&operator=(const GLTexture&) = default;
+        GLTexture&operator=(GLTexture &&) = default;
+        GLTexture(const GLTexture&) = default;
+        GLTexture(GLTexture &&) = default;
+        explicit GLTexture(GLuint a) :Super(a) {}
+        explicit operator bool() const { return Super::_p_to_bool(); }
+        operator GLuint() const { return Super::_p_get_data(); }
+    private:
+        SSTD_MEMORY_DEFINE(GLTexture)
+    };
 
     inline static GLProgram getProgram() try {
         const QDir varAppDir{ qApp->applicationDirPath() };
@@ -381,6 +401,12 @@ namespace {
                     varHeight = varImage.height();
                 }
             };
+
+            /*这仅仅是一个示例代码，数据大小和格式是固定的*/
+            assert(varHeight == 256);
+            assert(varWidth == 256);
+            assert(varImages.size() == 64);
+            assert(varImages[0].format() == QImage::Format_RGBA8888);
 
             /*创建Texture Array*/
 
