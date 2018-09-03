@@ -11,7 +11,7 @@
 namespace sstd {
 
     inline void setDefaultFormat() {
-        QSurfaceFormat varFormat = QSurfaceFormat::defaultFormat();
+        auto varFormat = QSurfaceFormat::defaultFormat();
         if (varFormat.majorVersion() < 4) {
             varFormat.setVersion(4, 5);
         }
@@ -25,6 +25,9 @@ namespace sstd {
         varFormat.setRedBufferSize(8);
         varFormat.setGreenBufferSize(8);
         varFormat.setDepthBufferSize(24);
+#if defined(ENABLE_GL_DEBUG)
+        varFormat.setOption(QSurfaceFormat::DebugContext,true);
+#endif
         QSurfaceFormat::setDefaultFormat(varFormat);
     }
 
