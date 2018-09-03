@@ -1,6 +1,84 @@
 ﻿#include <GL/glew.h>/*glew必须被第一个包含*/
 #include <mutex>
+#include "../sstd_memory.hpp"
 #include <QtWidgets/qmessagebox.h>
+#include <QtCore/qdebug.h>
+
+struct SimpleCallBack {
+
+    using mutex_type = std::recursive_mutex;
+    class string : public sstd::string {
+        using super = sstd::string;
+    public:
+        string(const std::string_view &arg) :
+            super(arg.data(), arg.size()) {}
+    };
+
+
+    static inline mutex_type & getMutex() {
+        static auto var = new mutex_type/*never delete*/;
+        return *var;
+    }
+
+    template<typename T>
+    struct Print {
+        static void print(const string & name, T value) {
+            qDebug()
+                << QString::fromUtf8(name.c_str())
+                << hex << value << ","
+                << dec << value;
+        }
+    };
+
+    static void GLAPIENTRY callback(
+        GLenum source,
+        GLenum type,
+        GLuint id,
+        GLenum severity,
+        GLsizei length,
+        const GLchar* message,
+        const void* /*userParam*/
+    ) {
+        std::unique_lock varLock{ getMutex() };
+        Print<GLenum>::print("source:"sv, source);
+        Print<GLenum>::print("type:"sv, type);
+        Print<GLuint>::print("id:"sv, id);
+        Print<GLenum>::print("severity:"sv, severity);
+        std::string mes(message, length);
+        qDebug() 
+            << QStringLiteral("message: ") 
+            << QString::fromUtf8(mes.c_str())
+            << endl
+            << QStringLiteral("--------------------------------------");
+    }
+
+};
+
+static inline void setSimpleCallbackFunction() {
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+    glDebugMessageControl(GL_DONT_CARE,
+        GL_DONT_CARE,
+        GL_DONT_CARE,
+        0,
+        0,
+        true);
+
+    glDebugMessageCallback(
+        &(SimpleCallBack::callback),
+        0);
+
+    GLint v = 0x01;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &v);
+    if (GL_CONTEXT_FLAG_DEBUG_BIT&v) {
+        qDebug() << "simple debug function set!";
+    }
+    else {
+        qDebug() << "debug function set failed!";
+    }
+}
 
 static inline bool __qWindowInitializeGlew() {
     glewExperimental = GL_TRUE;
@@ -11,6 +89,12 @@ static inline bool __qWindowInitializeGlew() {
         box.exec();
         return false;
     }/****/
+    /****************************************/
+    //OpengGL Debug Function
+#if defined(ENABLE_GL_DEBUG)
+    setSimpleCallbackFunction();
+#endif
+    /****************************************/
     return true;
 }
 
