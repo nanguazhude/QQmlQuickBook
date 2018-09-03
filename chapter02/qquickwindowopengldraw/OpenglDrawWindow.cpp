@@ -12,23 +12,9 @@
 
 extern bool glewInitialize();
 
-class OpenglDrawWindowItemRender::DrawData {
-public:
-
-    GLint $m$Width  = 0;
-    GLint $m$Height = 0;
-
-    DrawData() {
-        glewInitialize();
-    }
-
-    ~DrawData() {}
-
-private:
-    SSTD_MEMORY_DEFINE(OpenglDrawWindowItemRender::DrawData)
-};
-
 namespace {
+
+    constexpr const inline auto getArraySize() { return std::uint16_t(64); }
 
     template<typename _T_>
     class BasicGLIndex {
@@ -121,8 +107,249 @@ namespace {
         SSTD_MEMORY_DEFINE(GLNamedVertexArrayObject)
     };
 
+    inline static GLProgram getProgram() try {
+        const QDir varAppDir{ qApp->applicationDirPath() };
+
+        /*顶点着色器*/
+        static auto vertex_shader_source = sstd::load_file_remove_utf8(
+            varAppDir.absoluteFilePath(QStringLiteral("myqml/qquickwindowopengldraw/vertex.vert")));
+        /*片段着色器*/
+        static auto fragment_shader_source = sstd::load_file_remove_utf8(
+            varAppDir.absoluteFilePath(QStringLiteral("myqml/qquickwindowopengldraw/fragment.frag")));
+
+        /*错误输出函数*/
+        auto printProgramInfo = [](GLuint e) {
+            /*获得错误大小*/
+            GLint log_length = 0;
+            glGetProgramiv(e, GL_INFO_LOG_LENGTH, &log_length);
+            log_length += 16;
+
+            /*获得一段内存，并初始化为0*/
+            sstd::string infos_;
+            infos_.resize(log_length);
+
+            /*获得错误并输出*/
+            char * info = infos_.data();
+            glGetProgramInfoLog(e, 1024, nullptr, info);
+            qDebug() << info;
+        };
+
+        auto printError = [](const auto & a) {
+            qDebug() << a;
+        };
+
+        auto printErrorDetail = [](GLuint e) {
+            GLint log_length;
+            glGetShaderiv(e, GL_INFO_LOG_LENGTH, &log_length);
+            log_length += 16;
+
+            /*获得一段内存，并初始化为0*/
+            sstd::string infos_;
+            infos_.resize(log_length);
+
+            char * info = infos_.data();
+            glGetShaderInfoLog(e, log_length, nullptr, info);
+            qDebug() << info;
+        };
+
+        class ShaderFree {
+        public:
+            std::array<GLuint, 2> data;
+            inline ShaderFree() {
+                data[0] = 0;
+                data[1] = 0;
+            }
+            inline ~ShaderFree() {
+                glDeleteShader(data[1]);
+                glDeleteShader(data[0]);
+            }
+        } varShaders{};
+
+        GLuint * varShader = &(varShaders.data[0]);
+
+        {//1
+            varShader[0] = glCreateShader(GL_VERTEX_SHADER);
+            if (0 == (varShader[0])) {
+                printError("GL_VERTEX_SHADER not surported!");
+                throw 1;
+            }
+
+            varShader[1] = glCreateShader(GL_FRAGMENT_SHADER);
+            if (0 == (varShader[1])) {
+                printError("GL_FRAGMENT_SHADER not surported!");
+                throw 1;
+            }
+        }//1
+
+        {//2
+            const GLchar * sources[] = { vertex_shader_source.data(),fragment_shader_source.data() };
+            GLint lengths[] = {
+                (GLint)(vertex_shader_source.size()),
+                (GLint)(fragment_shader_source.size())
+            };
+
+            glShaderSource(varShader[0], 1, &sources[0], &lengths[0]);
+            glShaderSource(varShader[1], 1, &sources[1], &lengths[1]);
+
+            glCompileShader(varShader[0]);
+            glCompileShader(varShader[1]);
+
+        }//2
+
+        {//3
+            GLint varTestVal;
+            glGetShaderiv(varShader[0], GL_COMPILE_STATUS, &varTestVal);
+            if (varTestVal == GL_FALSE) {
+                printErrorDetail(varShader[0]);
+                throw 1;
+            }
+            glGetShaderiv(varShader[1], GL_COMPILE_STATUS, &varTestVal);
+            if (varTestVal == GL_FALSE) {
+                printErrorDetail(varShader[1]);
+                throw 1;
+            }
+        }//3
+
+        GLuint varProgram = glCreateProgram();
+        if (varProgram == 0) {
+            printError("can not create program!");
+            throw 1;
+        }
+
+        glAttachShader(varProgram, varShader[0]);
+        glAttachShader(varProgram, varShader[1]);
+        glLinkProgram(varProgram);
+
+        {
+            GLint testVal;
+            glGetProgramiv(varProgram, GL_LINK_STATUS, &testVal);
+            if (testVal == GL_FALSE)
+            {
+                printProgramInfo(varProgram);
+                glDeleteProgram(varProgram);
+                throw 1;
+            }
+        }
+
+        return GLProgram{ varProgram };
+    }
+    catch (...) {
+        return {};
+    }
+
+    class VertexArrayAndBuffer {
+    public:
+        GLBuffer $m$InstanceBuffer;
+        GLNamedVertexArrayObject $m$VAO;
+    };
+
+    inline static VertexArrayAndBuffer getNamedVertexArrayObject() {
+        VertexArrayAndBuffer varAns;
+
+        GLuint varVAO = 0;
+        glCreateVertexArrays(1, &varVAO);
+        varAns.$m$VAO = GLNamedVertexArrayObject{varVAO};
+
+        class RowData {
+        public:
+            /*
+            x位置 ： 0
+            y位置 ： 1
+            旋转  ： 2
+            */
+            std::array<GLdouble, 4> $m$Data;
+            RowData() {
+                $m$Data[0] = (std::rand() & 255) / 256.0f;
+                $m$Data[1] = (std::rand() & 255) / 256.0f;
+                $m$Data[2] = (std::rand() & 255) / 256.0f;
+                $m$Data[3] = 1;
+            }
+        };
+
+        RowData varInitData[getArraySize()];
+
+        GLuint varBuffer[1];
+
+        glCreateBuffers(1, varBuffer);
+        varAns.$m$InstanceBuffer = GLBuffer{ varBuffer[0] };
+
+        /*上传数据*/
+        glNamedBufferData(varBuffer[0], sizeof(varInitData), varInitData, GL_STATIC_DRAW);
+         
+        /*绑定index buffer*/
+        glVertexArrayElementBuffer(varVAO, varBuffer[1]);
+        /*将 point and color buffer 绑定到VAO*/
+        glEnableVertexArrayAttrib(varVAO, 0)/*instance*/;
+        /*指定如何从Buffer中解出包*/
+        glVertexArrayVertexBuffer(varVAO, 0, varBuffer[0], 0, sizeof(RowData));
+        /*指定如何从包中获得数据*/
+        glVertexArrayAttribFormat(varVAO, 0, 4, GL_DOUBLE, false, 0);
+
+        glVertexArrayAttribBinding(varVAO, 0, 0);
+
+        return std::move(varAns);
+    }
+
+
+
+
+
 }/*namespace*/
 
+class OpenglDrawWindowItemRender::DrawData {
+public:
+
+    GLint $m$Width = 0;
+    GLint $m$Height = 0;
+
+    GLProgram $m$Program;
+    GLNamedVertexArrayObject $m$VAO;
+    GLBuffer $m$VAOBuffer;
+
+    DrawData() {
+        glewInitialize();
+
+        $m$Program = getProgram();
+        {
+            auto varTmp = getNamedVertexArrayObject();
+            $m$VAO = std::move(varTmp.$m$VAO);
+            $m$VAOBuffer = std::move(varTmp.$m$InstanceBuffer);
+        }
+
+
+
+    }
+
+    ~DrawData() {}
+
+private:
+    SSTD_MEMORY_DEFINE(OpenglDrawWindowItemRender::DrawData)
+};
+
+void OpenglDrawWindowItemRender::paintGL() {
+    if (_m_window == nullptr) { return; }
+    initializeGL();
+
+    class ResetGLStateLock {
+        QQuickWindow * _m;
+    public:
+        ResetGLStateLock(QQuickWindow *l) :_m(l) {}
+        ~ResetGLStateLock() { if constexpr (true) { _m->resetOpenGLState(); } }
+    } varGLStateLock{ _m_window };
+
+    GLuint varFBOIndex = _m_window->renderTargetId();
+
+
+    glViewport(0, 0, _m_draw_data->$m$Width, _m_draw_data->$m$Height);
+
+
+    GLfloat xxx[]{ 0.3,0.4,0.5,1 };
+    glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, xxx);
+    glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, xxx);
+
+    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, getArraySize());
+
+}
 
 OpenglDrawWindowItem::OpenglDrawWindowItem(QQuickItem *parent) :Super(parent) {
     this->setFlag(QQuickItem::ItemHasContents, true);
@@ -170,31 +397,6 @@ void OpenglDrawWindowItemRender::initializeGL() {
     _m_window->openglContext()->makeCurrent(_m_window);
     _m_draw_data = sstdNew<DrawData>();
     /*******************************************/
-
-}
-
-void OpenglDrawWindowItemRender::paintGL() {
-    if (_m_window == nullptr) { return; }
-    initializeGL();
-
-    class ResetGLStateLock {
-        QQuickWindow * _m;
-    public:
-        ResetGLStateLock(QQuickWindow *l) :_m(l) {}
-        ~ResetGLStateLock() { if constexpr (true) { _m->resetOpenGLState(); } }
-    } varGLStateLock{ _m_window };
-
-    GLuint varFBOIndex = _m_window->renderTargetId();
-
-
-    glViewport(0, 0, _m_draw_data->$m$Width, _m_draw_data->$m$Height);
-
-
-    GLfloat xxx[]{ 0.3,0.4,0.5,1 };
-    glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, xxx);
-    glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, xxx);
-
-
 
 }
 
