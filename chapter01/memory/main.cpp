@@ -76,7 +76,27 @@ public:
     float c1;
 };
 
+#include <iostream>
+
 int main(int, char **) {
+
+    {
+        int test = 1;
+        {
+            sstd::StateStackBasic sm;
+            if constexpr (false) {
+                sm.push(
+                    [&test]() {return test; },
+                    [&test](auto v) {test = v; });
+            }
+            else {
+                sm.push(test, [&test](auto v) {test = v; });
+            }
+            test = 2;
+            assert(test == 2);
+        }
+        assert( test == 1 );
+    }
     
     {
         assert(0 == *sstd::make_unique<int>() );
