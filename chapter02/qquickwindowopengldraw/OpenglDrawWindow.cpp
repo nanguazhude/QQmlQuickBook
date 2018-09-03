@@ -291,7 +291,7 @@ namespace {
         {
             double varIndex = 1;
             for (auto & varI : varInitData) {
-                varInitData->$m$Data[3] = std::fma((0.1 / 64), varIndex++, 0.5);
+                varI.$m$Data[3] = std::fma((0.1 / 64), varIndex++, 0.5);
             }
         }
 
