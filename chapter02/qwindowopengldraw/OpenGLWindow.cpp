@@ -2,11 +2,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
+#include <sstd_load_utf8_file.hpp>
 #include <QtCore/qdebug.h>
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qdir.h>
 #include "OpenGLWindow.hpp"
-#include <sstd_load_utf8_file.hpp>
 
 extern bool glewInitialize();
 
@@ -412,28 +412,26 @@ void OpenGLWindow::initializeGL() {
 void OpenGLWindow::paintGL() {
     if (nullptr == _m_draw_data) { return; }
 
-    if constexpr (false) {
-        static std::size_t varDrawCall = 0;
-        qDebug() << "draw call : " << varDrawCall++;
-    }
-
+    sstd::StateStackBasic varGLState;
+    varGLState.push_value(glIsEnabled(GL_DEPTH_TEST) , 
+        [](auto && v) {if (v) { glEnable(GL_DEPTH_TEST); } else { glDisable(GL_DEPTH_TEST); }})/*保存OpenGL状态*/;
+      
     _m_draw_data->update_draw_data();
 
     const auto varFBOIndex = this->defaultFramebufferObject();
 
-    const auto varToCloseDepthTest = !glIsEnabled(GL_DEPTH_TEST);
-    if (varToCloseDepthTest)glEnable(GL_DEPTH_TEST);
-
+    glEnable(GL_DEPTH_TEST);
+    
     glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, _m_draw_data->_m_clean_color.data());
     glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, _m_draw_data->_m_clean_depth.data());
 
     glUseProgram(_m_draw_data->_m_program);
     glBindVertexArray(_m_draw_data->_m_named_vertex_array_object);
     glUniformMatrix4fv(2, 1, false, &(_m_draw_data->_m_mvp[0][0]));
-    glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_SHORT, nullptr);
+    glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_SHORT, nullptr);    
 
-    if (varToCloseDepthTest)glDisable(GL_DEPTH_TEST);
-
+    glBindVertexArray(0);
+    glUseProgram(0);
 }
 
 void OpenGLWindow::resizeGL(int w, int h) {

@@ -3,7 +3,6 @@
 
 #include <sstd_memory.hpp>
 #include <QtQuick/qquickitem.h>
-#include <ConstructQSurface.hpp>
 
 class QQuickWindow;
 class  OpenglDrawWindowItemRender;

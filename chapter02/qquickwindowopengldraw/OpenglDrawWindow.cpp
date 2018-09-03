@@ -2,6 +2,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
+#include <sstd_load_utf8_file.hpp>
+#include <QtCore/qdebug.h>
+#include <QtCore/qcoreapplication.h>
+#include <QtCore/qdir.h>
 #include "OpenglDrawWindow.hpp"
 #include <QtGui/qopenglcontext.h>
 #include <QtQuick/qquickwindow.h>
@@ -11,7 +15,7 @@ extern bool glewInitialize();
 class OpenglDrawWindowItemRender::DrawData {
 public:
 
-    GLint $m$Width = 0;
+    GLint $m$Width  = 0;
     GLint $m$Height = 0;
 
     DrawData() {
@@ -23,6 +27,102 @@ public:
 private:
     SSTD_MEMORY_DEFINE(OpenglDrawWindowItemRender::DrawData)
 };
+
+namespace {
+
+    template<typename _T_>
+    class BasicGLIndex {
+    protected:
+        class Data {
+        public:
+            GLuint const _m_index;
+            Data(GLuint x) :_m_index(x) {}
+            ~Data() {
+                _T_::_p_destory(&_m_index);
+            }
+        private:
+            SSTD_MEMORY_DEFINE(Data)
+        };
+        std::shared_ptr<Data> _m_data;
+        inline GLuint _p_get_data() const {
+            if (_m_data) {
+                return _m_data->_m_index;
+            }
+            return 0;
+        }
+        inline bool _p_to_bool() const {
+            if (_m_data) {
+                return true;
+            }
+            else { return false; }
+        }
+        BasicGLIndex() {}
+        BasicGLIndex(GLuint n) :_m_data(sstd::make_shared<Data>(n)) {
+        }
+    };
+
+    class GLProgram : private BasicGLIndex<GLProgram> {
+    private:
+        using Super = BasicGLIndex<GLProgram>;
+        template<typename T> friend class BasicGLIndex;
+        static inline void _p_destory(const GLuint *a) {
+            glDeleteProgram(*a);
+        }
+    public:
+        GLProgram() = default;
+        GLProgram&operator=(const GLProgram&) = default;
+        GLProgram&operator=(GLProgram &&) = default;
+        GLProgram(const GLProgram&) = default;
+        GLProgram(GLProgram &&) = default;
+        explicit GLProgram(GLuint a) :Super(a) {}
+        explicit operator bool() const { return Super::_p_to_bool(); }
+        operator GLuint() const { return Super::_p_get_data(); }
+    private:
+        SSTD_MEMORY_DEFINE(GLProgram)
+    };
+
+    class GLBuffer : private BasicGLIndex<GLBuffer> {
+    private:
+        using Super = BasicGLIndex<GLBuffer>;
+        template<typename T> friend class BasicGLIndex;
+        static inline void _p_destory(const GLuint *a) {
+            glDeleteBuffers(1, a);
+        }
+    public:
+        GLBuffer() = default;
+        GLBuffer&operator=(const GLBuffer&) = default;
+        GLBuffer&operator=(GLBuffer &&) = default;
+        GLBuffer(const GLBuffer&) = default;
+        GLBuffer(GLBuffer &&) = default;
+        explicit GLBuffer(GLuint a) :Super(a) {}
+        explicit operator bool() const { return Super::_p_to_bool(); }
+        operator GLuint() const { return Super::_p_get_data(); }
+    private:
+        SSTD_MEMORY_DEFINE(GLBuffer)
+    };
+
+    class GLNamedVertexArrayObject : private BasicGLIndex<GLNamedVertexArrayObject> {
+    private:
+        using Super = BasicGLIndex<GLNamedVertexArrayObject>;
+        template<typename T> friend class BasicGLIndex;
+        static inline void _p_destory(const GLuint *a) {
+            glDeleteVertexArrays(1, a);
+        }
+    public:
+        GLNamedVertexArrayObject() = default;
+        GLNamedVertexArrayObject&operator=(const GLNamedVertexArrayObject&) = default;
+        GLNamedVertexArrayObject&operator=(GLNamedVertexArrayObject &&) = default;
+        GLNamedVertexArrayObject(const GLNamedVertexArrayObject&) = default;
+        GLNamedVertexArrayObject(GLNamedVertexArrayObject &&) = default;
+        explicit GLNamedVertexArrayObject(GLuint a) :Super(a) {}
+        explicit operator bool() const { return Super::_p_to_bool(); }
+        operator GLuint() const { return Super::_p_get_data(); }
+    private:
+        SSTD_MEMORY_DEFINE(GLNamedVertexArrayObject)
+    };
+
+}/*namespace*/
+
 
 OpenglDrawWindowItem::OpenglDrawWindowItem(QQuickItem *parent) :Super(parent) {
     this->setFlag(QQuickItem::ItemHasContents, true);
@@ -70,7 +170,7 @@ void OpenglDrawWindowItemRender::initializeGL() {
     _m_window->openglContext()->makeCurrent(_m_window);
     _m_draw_data = sstdNew<DrawData>();
     /*******************************************/
-    
+
 }
 
 void OpenglDrawWindowItemRender::paintGL() {
@@ -87,9 +187,9 @@ void OpenglDrawWindowItemRender::paintGL() {
     GLuint varFBOIndex = _m_window->renderTargetId();
 
 
-    glViewport(0, 0, _m_draw_data->$m$Width, _m_draw_data->$m$Height);   
-    
-       
+    glViewport(0, 0, _m_draw_data->$m$Width, _m_draw_data->$m$Height);
+
+
     GLfloat xxx[]{ 0.3,0.4,0.5,1 };
     glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, xxx);
     glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, xxx);
