@@ -454,7 +454,9 @@ public:
     std::array<GLfloat, 1> $m$ClearDepth;
 
     DrawData() {
+       
         glewInitialize();
+        gl_debug_function_lock();
 
         $m$Program = getProgram();
         {
@@ -482,6 +484,8 @@ private:
 void OpenglDrawWindowItemRender::paintGL() {
     if (_m_window == nullptr) { return; }
     initializeGL();
+
+    gl_debug_function_lock();
 
     sstd::StateStackBasic varGLState;
     varGLState.push_value(glIsEnabled(GL_DEPTH_TEST),
@@ -516,15 +520,7 @@ void OpenglDrawWindowItemRender::paintGL() {
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-#if defined(QT_DEBUG)
-    {
-        GLint alphaBit = 1;
-        glGetIntegerv(GL_ALPHA_BITS, &alphaBit);
-        if (alphaBit == 0) { qDebug() << "blend not suppored!"; }
-    }
-#endif
-
+        
     GLuint varFBOIndex = _m_window->renderTargetId();
     glViewport(0, 0, _m_draw_data->$m$Width, _m_draw_data->$m$Height);
 
@@ -541,7 +537,7 @@ void OpenglDrawWindowItemRender::paintGL() {
     glBindVertexArray(0);
     glUseProgram(0);
 
-    _m_window->resetOpenGLState();
+    //_m_window->resetOpenGLState();
 }
 
 OpenglDrawWindowItem::OpenglDrawWindowItem(QQuickItem *parent) :Super(parent) {

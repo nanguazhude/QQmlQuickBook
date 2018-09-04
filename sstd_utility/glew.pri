@@ -22,7 +22,7 @@ HEADERS += $$PWD/glew_source/glew/GL/wglew.h
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/sstd_glew.hpp
 
-
+include($$PWD/glew_enable_gldebug.pri)
 
 
 

@@ -1,8 +1,9 @@
-﻿#include <GL/glew.h>/*glew必须被第一个包含*/
+﻿#include "../sstd_glew.hpp"
 #include <mutex>
 #include "../sstd_memory.hpp"
 #include <QtWidgets/qmessagebox.h>
 #include <QtCore/qdebug.h>
+#include <atomic>
 
 struct SimpleCallBack {
 
@@ -78,6 +79,11 @@ struct SimpleCallBack {
         return "Unknow Type"sv;
     }
 
+    static std::atomic<std::int64_t>& getDebugGroupCount() {
+        static auto * ans = new std::atomic<std::int64_t>{ 0 }/*never delete*/;
+        return *ans;
+    }
+
     static void GLAPIENTRY callback(
         GLenum source,
         GLenum type,
@@ -88,7 +94,28 @@ struct SimpleCallBack {
         const void* /*userParam*/
     ) {
 
-        if ((severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+        {/*加入或移出当前调试组*/
+            if ((source == GL_DEBUG_SOURCE_APPLICATION) &&
+                (id == sstd::$p$sstdGlewDebugGroupIndex())) {
+                if ((type == GL_DEBUG_TYPE_PUSH_GROUP)) {
+                    ++getDebugGroupCount();
+                    return;
+                }
+                else if (type == GL_DEBUG_TYPE_POP_GROUP) {
+                    --getDebugGroupCount();
+                    return;
+                }
+            }
+        }
+
+        /*不在当前调试组则退出*/
+        if (getDebugGroupCount().load() < 1) {
+            return;
+        }
+
+        /*忽略不需要的调试信息*/
+        if (((severity == GL_DEBUG_SEVERITY_NOTIFICATION) ||
+            (severity == GL_DEBUG_SEVERITY_LOW))
             && (source == GL_DEBUG_SOURCE_API)) {
             /*忽略来自显卡的提示信息*/
             return;
@@ -191,22 +218,22 @@ extern bool glewInitialize() {
 "--------------------------------------"
 */
 /**
-glPushDebugGroup pushes a debug group described by the string message​ 
-into the command stream, and emits a message as if glDebugMessageInsert 
-were called. The value of id​ specifies the ID of messages generated. 
-The parameter length​ contains the number of characters in message​. 
-If length​ is negative, it is implied that message​ contains a null 
-terminated string. The value of source​ must be 
-GL_DEBUG_SOURCE_APPLICATION or DEBUG_SOURCE_THIRD_PARTY. 
-The generated message will have the same source​ and id​; 
-the value of type​ will be GL_DEBUG_TYPE_PUSH_GROUP and the value 
-of severity​ will be GL_DEBUG_SEVERITY_NOTIFICATION. 
-The GL will put a new debug group on top of the debug group 
-stack which inherits the control of the volume of debug output 
-of the debug group previously residing on the top of the debug 
-group stack. Because debug groups are strictly hierarchical, 
-any additional control of the debug output volume will only apply 
-within the active debug group and the debug groups pushed on top 
+glPushDebugGroup pushes a debug group described by the string message​
+into the command stream, and emits a message as if glDebugMessageInsert
+were called. The value of id​ specifies the ID of messages generated.
+The parameter length​ contains the number of characters in message​.
+If length​ is negative, it is implied that message​ contains a null
+terminated string. The value of source​ must be
+GL_DEBUG_SOURCE_APPLICATION or DEBUG_SOURCE_THIRD_PARTY.
+The generated message will have the same source​ and id​;
+the value of type​ will be GL_DEBUG_TYPE_PUSH_GROUP and the value
+of severity​ will be GL_DEBUG_SEVERITY_NOTIFICATION.
+The GL will put a new debug group on top of the debug group
+stack which inherits the control of the volume of debug output
+of the debug group previously residing on the top of the debug
+group stack. Because debug groups are strictly hierarchical,
+any additional control of the debug output volume will only apply
+within the active debug group and the debug groups pushed on top
 of the active debug group.
 **/
 

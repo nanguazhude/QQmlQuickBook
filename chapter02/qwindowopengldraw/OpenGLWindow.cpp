@@ -399,6 +399,9 @@ void OpenGLWindow::initializeGL() {
 
     this->makeCurrent();
     glewInitialize();
+
+    gl_debug_function_lock();
+
     _m_draw_data = new DrawData;
     _m_draw_data->construct();
 
@@ -409,6 +412,8 @@ void OpenGLWindow::initializeGL() {
 
 void OpenGLWindow::paintGL() {
     if (nullptr == _m_draw_data) { return; }
+
+    gl_debug_function_lock();
 
     sstd::StateStackBasic varGLState;
     varGLState.push_value(glIsEnabled(GL_DEPTH_TEST) , 

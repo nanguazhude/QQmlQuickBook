@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <GL/glew.h>
+#include <cassert>
 extern bool glewInitialize();
 
 namespace sstd{
@@ -33,14 +34,28 @@ inline static void $p$sstdPopDebugGroup(){
 
 #if defined(ENABLE_GL_DEBUG)
 
-#define enable_gl_debug_function(...)  $p$sstdPushDebugGroup()
-#define disable_gl_debug_function(...) $p$sstdPopDebugGroup()
+#define enable_gl_debug_function(...)  sstd::$p$sstdPushDebugGroup()
+#define disable_gl_debug_function(...) sstd::$p$sstdPopDebugGroup()
 
+namespace sstd {
+    class ___$p$GLDL {
+    public:
+        ___$p$GLDL() {
+            enable_gl_debug_function();
+        }
+        ~___$p$GLDL() {
+            disable_gl_debug_function();
+        }
+    };
+}/*********/
+
+#define gl_debug_function_lock(...) sstd::___$p$GLDL ___$p$locker{}
 
 #else
 
-#define enable_gl_debug_function(...)
-#define disable_gl_debug_function(...)
+#define enable_gl_debug_function(...)   assert(true)
+#define disable_gl_debug_function(...)  assert(true)
+#define gl_debug_function_lock(...)     assert(true)
 
 #endif
 
