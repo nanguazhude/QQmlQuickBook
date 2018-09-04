@@ -37,7 +37,7 @@ int main(int argc, char ** argv) {
     QDir::setCurrent(varApp.applicationDirPath());
     /*设置opengl默认格式*/
     sstd::setDefaultFormat();
-    /*强制加载Qt插件*/
+    /*强制加载Qt插件,避免运行卡顿*/
     loadQtPlugins();
     /*显示窗口*/
     OpenGLWidget varWidget;

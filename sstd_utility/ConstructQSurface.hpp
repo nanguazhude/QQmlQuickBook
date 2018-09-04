@@ -35,8 +35,6 @@ namespace sstd {
 
     using OpenGLFunctions = QOpenGLFunctions_4_5_Core;
 
-    
-
 }/*****/
 
 #include "sstd_load_utf8_file.hpp"
