@@ -104,7 +104,7 @@ namespace sstd {
         public:
             class alignas($T$) $T$Destory final : public $T${
             public:
-                using $T$::$T$;
+                
                 template<typename A0_,typename = std::enable_if_t< std::is_constructible_v<$T$,A0_&&>/**/>/**/>
                 $T$Destory(A0_&&a0) :$T$(std::forward<A0_>(a0)) {}
                 template<typename A0_, typename = void *,typename = std::enable_if_t<false == std::is_constructible_v<$T$, A0_&&>/**/>/**/>
