@@ -489,7 +489,11 @@ void OpenglDrawWindowItemRender::paintGL() {
 
     sstd::StateStackBasic varGLState;
     varGLState.push_value(glIsEnabled(GL_DEPTH_TEST),
-        [](auto && v) {if (v) { glEnable(GL_DEPTH_TEST); } else { glDisable(GL_DEPTH_TEST); }})/*保存OpenGL状态*/;
+        [](auto && v) {if (v) { glEnable(GL_DEPTH_TEST); } else { glDisable(GL_DEPTH_TEST); }});
+    varGLState.push_value(glIsEnabled(GL_BLEND),
+        [](auto && v) {if (v) { glEnable(GL_BLEND); } else { glDisable(GL_BLEND); }});
+    varGLState.push([]() { GLint v; glGetIntegerv(GL_BLEND_SRC_ALPHA, &v); return v; },
+        [](auto && v) {glBlendFunc(GL_SRC_ALPHA, v); });
 
     {
         class Row {
@@ -537,7 +541,7 @@ void OpenglDrawWindowItemRender::paintGL() {
     glBindVertexArray(0);
     glUseProgram(0);
 
-    //_m_window->resetOpenGLState();
+    _m_window->resetOpenGLState();
 }
 
 OpenglDrawWindowItem::OpenglDrawWindowItem(QQuickItem *parent) :Super(parent) {
