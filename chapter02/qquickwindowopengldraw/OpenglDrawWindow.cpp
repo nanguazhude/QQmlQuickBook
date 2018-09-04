@@ -303,7 +303,7 @@ namespace {
 
         glNamedBufferData(varBuffer[0],
             sizeof(varInitData),
-            varInitData, GL_STATIC_DRAW);
+            varInitData, GL_DYNAMIC_DRAW);
 
         /*将 point and color buffer 绑定到VAO*/
 

@@ -27,6 +27,8 @@ namespace sstd {
         varFormat.setDepthBufferSize(24);
 #if defined(ENABLE_GL_DEBUG)
         varFormat.setOption(QSurfaceFormat::DebugContext,true);
+#else
+        varFormat.setOption(QSurfaceFormat::DebugContext, false);
 #endif
         QSurfaceFormat::setDefaultFormat(varFormat);
     }

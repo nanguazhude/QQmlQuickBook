@@ -1,12 +1,6 @@
 DEFINES *= GLEW_NO_GLU
 DEFINES *= GLEW_STATIC
 
-CONFIG(debug,debug|release){
-    DEFINES *= ENABLE_GL_DEBUG
-}else{
-
-}
-
 win32:{
 LIBS+= -lopengl32 -lgdi32 -luser32 -lkernel32
 }
