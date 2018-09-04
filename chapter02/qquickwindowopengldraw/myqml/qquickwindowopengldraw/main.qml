@@ -31,7 +31,7 @@ Window {
 
         Text {
             text: qsTr("名字很重要");
-            color: Qt.rgba(Math.random()/2.5,Math.random()/5,Math.random()/5,1);
+            color: Qt.rgba(Math.random()/1.5,Math.random()/5,Math.random()/5,1);
             font.pixelSize: Math.max(_id_window.width,_id_window.height)/5 - 12 ;
             verticalAlignment : Text.AlignVCenter;
             horizontalAlignment : Text.AlignHCenter;
