@@ -483,10 +483,13 @@ private:
 
 void OpenglDrawWindowItemRender::paintGL() {
     if (_m_window == nullptr) { return; }
+    /*初始化OpenGL环境*/
     initializeGL();
-
+    
+    /*将当前函数加入OpenGL Debug组*/
     gl_debug_function_lock();
 
+    /*保存当前OpenGL状态，并在退出函数后恢复状态*/
     sstd::StateStackBasic varGLState;
     varGLState.push_value(glIsEnabled(GL_DEPTH_TEST),
         [](auto && v) {if (v) { glEnable(GL_DEPTH_TEST); } else { glDisable(GL_DEPTH_TEST); }});
@@ -495,7 +498,7 @@ void OpenglDrawWindowItemRender::paintGL() {
     varGLState.push([]() { GLint v; glGetIntegerv(GL_BLEND_SRC_ALPHA, &v); return v; },
         [](auto && v) {glBlendFunc(GL_SRC_ALPHA, v); });
 
-    {
+    {/*更新显卡端数据*/
         class Row {
         public:
             GLfloat $m$PosX;
@@ -521,16 +524,21 @@ void OpenglDrawWindowItemRender::paintGL() {
         glUnmapNamedBuffer(_m_draw_data->$m$VAOBuffer);
     }
 
+    /*由于深度测试和混合冲突，这个小例子仅仅关闭深度测试*/
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         
+    /*获得FBO对象*/
     GLuint varFBOIndex = _m_window->renderTargetId();
+    /*指定绘制区域*/
     glViewport(0, 0, _m_draw_data->$m$Width, _m_draw_data->$m$Height);
 
+    /*清空颜色缓冲区和深度缓冲区*/
     glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, _m_draw_data->$m$ClearColor.data());
     glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, _m_draw_data->$m$ClearDepth.data());
 
+    /*进行实例化绘制*/
     glUseProgram(_m_draw_data->$m$Program);
     glBindVertexArray(_m_draw_data->$m$VAO);
     glVertexArrayBindingDivisor(_m_draw_data->$m$VAO, 0, 1);
@@ -538,9 +546,9 @@ void OpenglDrawWindowItemRender::paintGL() {
     glBindTexture(GL_TEXTURE_2D_ARRAY, _m_draw_data->$m$Texture);
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, getArraySize());
 
+    /*一些清理工作*/
     glBindVertexArray(0);
     glUseProgram(0);
-
     _m_window->resetOpenGLState();
 }
 
