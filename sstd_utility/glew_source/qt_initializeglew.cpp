@@ -30,6 +30,28 @@ struct SimpleCallBack {
         }
     };
 
+    template<>
+    struct Print<std::string_view> {
+        static void print(const string & name, const std::string_view & value) {
+            qDebug()
+                << QString::fromUtf8(name.c_str())
+                << QString::fromUtf8(value.data(), static_cast<int>(value.size()) );
+
+        }
+    };
+
+    static inline std::string_view severity_to_string(GLenum i) { 
+        switch (i)
+        {
+        case GL_DEBUG_SEVERITY_LOW:return "GL_DEBUG_SEVERITY_LOW"sv;
+        case GL_DEBUG_SEVERITY_MEDIUM:return "GL_DEBUG_SEVERITY_MEDIUM"sv;
+        case GL_DEBUG_SEVERITY_HIGH:return "GL_DEBUG_SEVERITY_HIGH"sv;
+        default:
+            break;
+        }
+        return "Unknow Severity"sv;
+    }
+
     static void GLAPIENTRY callback(
         GLenum source,
         GLenum type,
@@ -43,7 +65,7 @@ struct SimpleCallBack {
         Print<GLenum>::print("source:"sv, source);
         Print<GLenum>::print("type:"sv, type);
         Print<GLuint>::print("id:"sv, id);
-        Print<GLenum>::print("severity:"sv, severity);
+        Print<std::string_view>::print("severity:"sv, severity_to_string(severity));
         std::string mes(message, length);
         qDebug() 
             << QStringLiteral("message: ") 
@@ -59,9 +81,10 @@ static inline void setSimpleCallbackFunction() {
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
-    glDebugMessageControl(GL_DONT_CARE,
+    glDebugMessageControl(
         GL_DONT_CARE,
         GL_DONT_CARE,
+        GL_DEBUG_SEVERITY_HIGH,
         0,
         0,
         true);
