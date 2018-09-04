@@ -190,4 +190,23 @@ extern bool glewInitialize() {
 "message: " "GL_INVALID_ENUM error generated. <pname> requires feature(s) disabled in the current profile."
 "--------------------------------------"
 */
+/**
+glPushDebugGroup pushes a debug group described by the string message​ 
+into the command stream, and emits a message as if glDebugMessageInsert 
+were called. The value of id​ specifies the ID of messages generated. 
+The parameter length​ contains the number of characters in message​. 
+If length​ is negative, it is implied that message​ contains a null 
+terminated string. The value of source​ must be 
+GL_DEBUG_SOURCE_APPLICATION or DEBUG_SOURCE_THIRD_PARTY. 
+The generated message will have the same source​ and id​; 
+the value of type​ will be GL_DEBUG_TYPE_PUSH_GROUP and the value 
+of severity​ will be GL_DEBUG_SEVERITY_NOTIFICATION. 
+The GL will put a new debug group on top of the debug group 
+stack which inherits the control of the volume of debug output 
+of the debug group previously residing on the top of the debug 
+group stack. Because debug groups are strictly hierarchical, 
+any additional control of the debug output volume will only apply 
+within the active debug group and the debug groups pushed on top 
+of the active debug group.
+**/
 

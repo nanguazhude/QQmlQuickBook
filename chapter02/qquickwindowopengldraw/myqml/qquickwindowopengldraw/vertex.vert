@@ -12,7 +12,7 @@ smooth out vec2 tuv;
 flat out int tID;
 
 void main(){
-    float co = cos(offsetValue[2])                                   ;
+    float co = cos(offsetValue[2])                                 ;
     float so = sin(offsetValue[2])                                 ;
     mat2 rot = mat2(vec2(co, so),                                   
                     vec2(-so, co))                                 ;
@@ -21,10 +21,10 @@ void main(){
     tuv.y = positionPoint.y * 4                                    ; 
     tID   = gl_InstanceID                                          ;
     vec2 pos = positionPoint.xy;
-     pos -= vec2(0.125)                      ; 
+     pos -= vec2(0.125)                                            ; 
      pos = rot * pos ;
 
-    pos += 1.75*( offsetValue.xy - vec2(0.5))            ; 
+    pos += 1.75*( offsetValue.xy - vec2(0.5))                      ; 
    
    
     gl_Position.xy = pos                                           ;
