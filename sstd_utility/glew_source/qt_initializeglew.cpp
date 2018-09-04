@@ -95,6 +95,7 @@ struct SimpleCallBack {
         }
 
         std::unique_lock varLock{ getMutex() }/*防止多线程乱码*/;
+        static std::uint64_t varDebugIndex = 0;
         Print<std::string_view>::print("source:"sv, source, source_to_string(source));
         Print<std::string_view>::print("type:"sv, type, type_to_string(type));
         Print<GLuint>::print("id:"sv, id);
@@ -103,6 +104,9 @@ struct SimpleCallBack {
         qDebug()
             << QStringLiteral("message: ")
             << QString::fromUtf8(mes.c_str())
+            << endl
+            << "log index : "
+            << ++varDebugIndex
             << endl
             << QStringLiteral("--------------------------------------");
     }
@@ -177,5 +181,13 @@ extern bool glewInitialize() {
     }
 }
 
-
+/*
+"--------------------------------------"
+"source:" 8246 "," "GL_DEBUG_SOURCE_API"
+"type:" 824c "," "GL_DEBUG_TYPE_ERROR"
+"id:" 500 "," 1280
+"severity:" 9146 "," "GL_DEBUG_SEVERITY_HIGH"
+"message: " "GL_INVALID_ENUM error generated. <pname> requires feature(s) disabled in the current profile."
+"--------------------------------------"
+*/
 
