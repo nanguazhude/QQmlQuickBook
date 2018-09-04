@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+#if defined(_MSC_VER)
+#pragma warning (disable: 4291) 
+#endif
+
 #include <array>
 #include <cmath>
 #include <memory>
