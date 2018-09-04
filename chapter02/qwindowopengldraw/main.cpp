@@ -40,7 +40,7 @@ int main(int argc, char ** argv) {
     /*强制加载Qt插件*/
     loadQtPlugins();
     {/*显示窗口*/
-        for (int i = 0; i < 10 ; ++i) {
+        for (int i = 0; i < 10  ; ++i) {
             auto varWindow = sstdNew<OpenGLWindow>();
             const QRect varDesktopSize = varWindow->screen()->availableGeometry();
             const auto varWidth = std::max(64, varDesktopSize.width());
