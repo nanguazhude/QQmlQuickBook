@@ -1,4 +1,4 @@
-﻿#include <GL/glew.h>
+﻿#include <sstd_glew.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
@@ -7,8 +7,6 @@
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qdir.h>
 #include "OpenGLWindow.hpp"
-
-extern bool glewInitialize();
 
 namespace {
     template<typename _T_>

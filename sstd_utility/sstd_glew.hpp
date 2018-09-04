@@ -1,6 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include <GL/glew.h>
+extern bool glewInitialize();
 
 namespace sstd{
 
@@ -30,8 +31,18 @@ inline static void $p$sstdPopDebugGroup(){
 
 }/****************************/
 
+#if defined(ENABLE_GL_DEBUG)
+
+#define enable_gl_debug_function(...)  $p$sstdPushDebugGroup()
+#define disable_gl_debug_function(...) $p$sstdPopDebugGroup()
 
 
+#else
+
+#define enable_gl_debug_function(...)
+#define disable_gl_debug_function(...)
+
+#endif
 
 
 

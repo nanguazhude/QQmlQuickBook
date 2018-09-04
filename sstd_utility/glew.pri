@@ -19,8 +19,8 @@ HEADERS += $$PWD/glew_source/glew/GL/eglew.h
 HEADERS += $$PWD/glew_source/glew/GL/glxew.h
 HEADERS += $$PWD/glew_source/glew/GL/wglew.h
 
-
-
+INCLUDEPATH += $$PWD
+SOURCES += $$PWD/sstd_glew.hpp
 
 
 
