@@ -25,31 +25,57 @@ struct SimpleCallBack {
         static void print(const string & name, T value) {
             qDebug()
                 << QString::fromUtf8(name.c_str())
-                << hex << value << ","
+                << hex << value << QStringLiteral(",")
                 << dec << value;
         }
     };
 
     template<>
     struct Print<std::string_view> {
-        static void print(const string & name, const std::string_view & value) {
+        static void print(const string & name, GLenum s, const std::string_view & value) {
             qDebug()
                 << QString::fromUtf8(name.c_str())
-                << QString::fromUtf8(value.data(), static_cast<int>(value.size()) );
+                << hex << s << QStringLiteral(",")
+                << QString::fromUtf8(value.data(), static_cast<int>(value.size()));
 
         }
     };
 
-    static inline std::string_view severity_to_string(GLenum i) { 
-        switch (i)
-        {
+    static inline std::string_view severity_to_string(GLenum i) {
+        switch (i){
         case GL_DEBUG_SEVERITY_LOW:return "GL_DEBUG_SEVERITY_LOW"sv;
         case GL_DEBUG_SEVERITY_MEDIUM:return "GL_DEBUG_SEVERITY_MEDIUM"sv;
         case GL_DEBUG_SEVERITY_HIGH:return "GL_DEBUG_SEVERITY_HIGH"sv;
-        default:
-            break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION:return "GL_DEBUG_SEVERITY_NOTIFICATION"sv;
         }
         return "Unknow Severity"sv;
+    }
+
+    static inline std::string_view source_to_string(GLenum i) {
+        switch (i) {
+        case  GL_DEBUG_SOURCE_API:return "GL_DEBUG_SOURCE_API"sv;
+        case  GL_DEBUG_SOURCE_WINDOW_SYSTEM:"GL_DEBUG_SOURCE_WINDOW_SYSTEM"sv;
+        case  GL_DEBUG_SOURCE_SHADER_COMPILER:"GL_DEBUG_SOURCE_SHADER_COMPILER"sv;
+        case  GL_DEBUG_SOURCE_THIRD_PARTY: "GL_DEBUG_SOURCE_THIRD_PARTY"sv;
+        case  GL_DEBUG_SOURCE_APPLICATION: "GL_DEBUG_SOURCE_APPLICATION"sv;
+        case  GL_DEBUG_SOURCE_OTHER:"GL_DEBUG_SOURCE_OTHER"sv;
+        }
+        return "Unknow Source"sv;
+    }
+
+    static inline std::string_view type_to_string(GLenum i) {
+        switch (i) {
+        case  GL_DEBUG_TYPE_ERROR:return "GL_DEBUG_TYPE_ERROR"sv;
+        case  GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:return "GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR"sv;
+        case  GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:return "GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR"sv;
+        case  GL_DEBUG_TYPE_PORTABILITY:return "GL_DEBUG_TYPE_PORTABILITY"sv;
+        case  GL_DEBUG_TYPE_PERFORMANCE:return "GL_DEBUG_TYPE_PERFORMANCE"sv;
+        case  GL_DEBUG_TYPE_MARKER:return "GL_DEBUG_TYPE_MARKER"sv;
+        case  GL_DEBUG_TYPE_PUSH_GROUP:return "GL_DEBUG_TYPE_PUSH_GROUP"sv;
+        case  GL_DEBUG_TYPE_POP_GROUP:return "GL_DEBUG_TYPE_POP_GROUP"sv;
+        case  GL_DEBUG_TYPE_OTHER:return "GL_DEBUG_TYPE_OTHER"sv;
+        }
+        return "Unknow Type"sv;
     }
 
     static void GLAPIENTRY callback(
@@ -61,14 +87,20 @@ struct SimpleCallBack {
         const GLchar* message,
         const void* /*userParam*/
     ) {
+
+        if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
+            /*忽略提示*/
+            return;
+        }
+
         std::unique_lock varLock{ getMutex() };
-        Print<GLenum>::print("source:"sv, source);
-        Print<GLenum>::print("type:"sv, type);
+        Print<std::string_view>::print("source:"sv, source, source_to_string(source));
+        Print<std::string_view>::print("type:"sv, type, type_to_string(type));
         Print<GLuint>::print("id:"sv, id);
-        Print<std::string_view>::print("severity:"sv, severity_to_string(severity));
+        Print<std::string_view>::print("severity:"sv, severity, severity_to_string(severity));
         std::string mes(message, length);
-        qDebug() 
-            << QStringLiteral("message: ") 
+        qDebug()
+            << QStringLiteral("message: ")
             << QString::fromUtf8(mes.c_str())
             << endl
             << QStringLiteral("--------------------------------------");
@@ -82,11 +114,11 @@ static inline void setSimpleCallbackFunction() {
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
     glDebugMessageControl(
-        GL_DONT_CARE,
-        GL_DONT_CARE,
-        GL_DEBUG_SEVERITY_HIGH,
-        0,
-        0,
+        GL_DONT_CARE/*source*/,
+        GL_DONT_CARE/*type*/,
+        GL_DONT_CARE/*severity*/,
+        0/*count*/,
+        nullptr/*ids*/,
         true);
 
     glDebugMessageCallback(
@@ -143,4 +175,16 @@ extern bool glewInitialize() {
         return varAns;
     }
 }
+
+/****
+"source:" 8246 "," "GL_DEBUG_SOURCE_API"
+"type:" 8251 "," "GL_DEBUG_TYPE_OTHER"
+"id:" 20071 "," 131185
+"severity:" 826b "," "Unknow Severity"
+"message: " "Buffer detailed info: 
+Buffer object 1 (bound to GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING_ARB (0), 
+and GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING_ARB (1), 
+usage hint is GL_STATIC_DRAW) will use VIDEO memory as the source for buffer object operations."
+****/
+
 
