@@ -42,7 +42,7 @@ struct SimpleCallBack {
     };
 
     static inline std::string_view severity_to_string(GLenum i) {
-        switch (i){
+        switch (i) {
         case GL_DEBUG_SEVERITY_LOW:return "GL_DEBUG_SEVERITY_LOW"sv;
         case GL_DEBUG_SEVERITY_MEDIUM:return "GL_DEBUG_SEVERITY_MEDIUM"sv;
         case GL_DEBUG_SEVERITY_HIGH:return "GL_DEBUG_SEVERITY_HIGH"sv;
@@ -54,11 +54,11 @@ struct SimpleCallBack {
     static inline std::string_view source_to_string(GLenum i) {
         switch (i) {
         case  GL_DEBUG_SOURCE_API:return "GL_DEBUG_SOURCE_API"sv;
-        case  GL_DEBUG_SOURCE_WINDOW_SYSTEM:"GL_DEBUG_SOURCE_WINDOW_SYSTEM"sv;
-        case  GL_DEBUG_SOURCE_SHADER_COMPILER:"GL_DEBUG_SOURCE_SHADER_COMPILER"sv;
-        case  GL_DEBUG_SOURCE_THIRD_PARTY: "GL_DEBUG_SOURCE_THIRD_PARTY"sv;
-        case  GL_DEBUG_SOURCE_APPLICATION: "GL_DEBUG_SOURCE_APPLICATION"sv;
-        case  GL_DEBUG_SOURCE_OTHER:"GL_DEBUG_SOURCE_OTHER"sv;
+        case  GL_DEBUG_SOURCE_WINDOW_SYSTEM:return "GL_DEBUG_SOURCE_WINDOW_SYSTEM"sv;
+        case  GL_DEBUG_SOURCE_SHADER_COMPILER:return "GL_DEBUG_SOURCE_SHADER_COMPILER"sv;
+        case  GL_DEBUG_SOURCE_THIRD_PARTY:return "GL_DEBUG_SOURCE_THIRD_PARTY"sv;
+        case  GL_DEBUG_SOURCE_APPLICATION: return "GL_DEBUG_SOURCE_APPLICATION"sv;
+        case  GL_DEBUG_SOURCE_OTHER:return "GL_DEBUG_SOURCE_OTHER"sv;
         }
         return "Unknow Source"sv;
     }
@@ -88,12 +88,13 @@ struct SimpleCallBack {
         const void* /*userParam*/
     ) {
 
-        if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
-            /*忽略提示*/
+        if ((severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+            && (source == GL_DEBUG_SOURCE_API)) {
+            /*忽略来自显卡的提示信息*/
             return;
         }
 
-        std::unique_lock varLock{ getMutex() };
+        std::unique_lock varLock{ getMutex() }/*防止多线程乱码*/;
         Print<std::string_view>::print("source:"sv, source, source_to_string(source));
         Print<std::string_view>::print("type:"sv, type, type_to_string(type));
         Print<GLuint>::print("id:"sv, id);
@@ -163,7 +164,7 @@ static inline std::once_flag & __call_once_flag() {
 }
 
 extern bool glewInitialize() {
-    if constexpr (0) {
+    if constexpr (true) {
         /*如果使用者确信只有一个线程使用opengl，则采用此函数初始化opengl*/
         static bool ans = false;
         std::call_once(__call_once_flag(), &__run_once_wrap, &ans);
@@ -176,15 +177,5 @@ extern bool glewInitialize() {
     }
 }
 
-/****
-"source:" 8246 "," "GL_DEBUG_SOURCE_API"
-"type:" 8251 "," "GL_DEBUG_TYPE_OTHER"
-"id:" 20071 "," 131185
-"severity:" 826b "," "Unknow Severity"
-"message: " "Buffer detailed info: 
-Buffer object 1 (bound to GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING_ARB (0), 
-and GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING_ARB (1), 
-usage hint is GL_STATIC_DRAW) will use VIDEO memory as the source for buffer object operations."
-****/
 
 
