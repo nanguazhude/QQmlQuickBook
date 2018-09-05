@@ -10,7 +10,7 @@ class ThreadObject;
 class Window : public QWindow {
     Q_OBJECT
 public:
-    Window();
+    Window(QThread *);
 public:
     QOpenGLContext * getOpenGLContex() const { return $m$OpenGLContex; }
 public slots:

@@ -89,17 +89,6 @@ int main(int argc,char **argv) {
     window->resize(512,512);
     window->show();
        
-
-    {
-        auto window = new TestWindow;
-        window->setSurfaceType(QWindow::OpenGLSurface);
-        window->create();
-        auto thread = QThread::create([window]() {
-            window->deleteLater(); 
-        });
-        thread->start();
-    }
-
     varApp.exec();
 
 }

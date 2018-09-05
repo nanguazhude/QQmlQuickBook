@@ -6,10 +6,10 @@
 #include "ThreadObject.hpp"
 
 /*在主线程运行*/
-Window::Window(){
+Window::Window(QThread * argCreateThread){
     this->setSurfaceType(QWindow::OpenGLSurface);
     this->create();
-    if (QThread::currentThread() == qApp->thread()) {
+    if (argCreateThread == qApp->thread()) {
         constructInThisThread();
     }
 }

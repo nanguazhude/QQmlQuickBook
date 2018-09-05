@@ -78,7 +78,7 @@ void ThreadObject::$p$ConstructInThread() {
     assert(varCurrentThread);
     /*Window 只能在主线程创建*/
     if (varCurrentThread == varQAppThread) {
-        $m$Window = sstdNew<Window>();
+        $m$Window = sstdNew<Window>(varCurrentThread);
         getGlobalData()->$m$MainWindow = $m$Window;
         extern void constructMain();
         constructMain();
@@ -86,8 +86,8 @@ void ThreadObject::$p$ConstructInThread() {
     else {/*如果不在主线程，那么等待主线程创建*/
         std::promise<Window *> varWindow;
         auto varFuture = varWindow.get_future();;
-        QTimer::singleShot(0, qApp, [p = &varWindow, this]() {
-            p->set_value(sstdNew< Window >());
+        QTimer::singleShot(0, qApp, [p = &varWindow, this, varCurrentThread]() {
+            p->set_value(sstdNew< Window >(varCurrentThread));
         });
         $m$Window = varFuture.get();
     }
