@@ -10,7 +10,8 @@ class Window : public QWindow {
     Q_OBJECT
 public:
     Window();
-
+public:
+    QOpenGLContext * getOpenGLContex() const { return $m$OpenGLContex; }
 public slots:
      
 private:
