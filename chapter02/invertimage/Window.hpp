@@ -19,6 +19,7 @@ private:
     QOpenGLContext * $m$OpenGLContex = nullptr;
     friend class ThreadObject;
     void constructInThisThread();
+    void destoryInThread();
 };
 
 

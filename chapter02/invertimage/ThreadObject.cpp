@@ -98,7 +98,10 @@ void ThreadObject::$p$ConstructInThread() {
     {
         auto varWindow = $m$Window;
         connect(varCurrentThread, &QThread::finished,
-            $m$Window, [varWindow]() {delete varWindow; }, Qt::DirectConnection);
+            $m$Window, [varWindow]() {
+            varWindow->destoryInThread();
+            varWindow->deleteLater();
+        }, Qt::DirectConnection);
     }
 }
 

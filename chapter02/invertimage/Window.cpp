@@ -5,6 +5,7 @@
 #include <QtCore/qcoreapplication.h>
 #include "ThreadObject.hpp"
 
+/*在主线程运行*/
 Window::Window(){
     this->setSurfaceType(QWindow::OpenGLSurface);
     this->create();
@@ -13,6 +14,7 @@ Window::Window(){
     }
 }
 
+/*在创建线程运行*/
 void Window::constructInThisThread() {
     if ($m$OpenGLContex)return;
     $m$OpenGLContex = sstdNew<QOpenGLContext>(this);
@@ -25,5 +27,11 @@ void Window::constructInThisThread() {
     $m$OpenGLContex->create();
     $m$OpenGLContex->makeCurrent(this);
     glewInitialize();
+}
+
+/*在创建线程运行*/
+void Window::destoryInThread() {
+    delete $m$OpenGLContex;
+    $m$OpenGLContex = nullptr;
 }
 
