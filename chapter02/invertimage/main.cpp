@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <QtCore/qtimer.h>
 #include "Window.hpp"
+#include <future>
 
 /*仅仅用于*/
 class Application : public QGuiApplication {
@@ -86,17 +87,45 @@ int main(int argc,char **argv) {
 
    // return varApp.exec();
 
-    auto window = new QWindow;
-    window->setSurfaceType(QWindow::OpenGLSurface);
-    window->create();
-    auto thread = QThread::create([window]() {
+    //auto window = new QWindow;
+    //window->setSurfaceType(QWindow::OpenGLSurface);
+    //window->create();
+    auto thread = QThread::create([]() {
         extern bool glewInitialize();
+
+        std::promise<QWindow *> varPromise;
+        auto varFuture = varPromise.get_future();
+        QTimer::singleShot(0, qApp, [argPromise= &varPromise]()mutable {
+            /*call this in main thread*/
+            auto window = sstdNew<QWindow>();
+            window->setSurfaceType(QWindow::OpenGLSurface);
+            window->create();
+            argPromise->set_value(window);
+        });
+        std::unique_ptr<QWindow> window{ varFuture.get() };
+
         QOpenGLContext $m$OpenGLContex;
         $m$OpenGLContex.create();
-        $m$OpenGLContex.makeCurrent(window);
+        $m$OpenGLContex.makeCurrent(window.get());
         qDebug() << glewInitialize();
+
+        //window->moveToThread( QThread::currentThread() );
+        //QOpenGLContext $m$OpenGLContex;
+        //$m$OpenGLContex.create();
+        //auto w = new QWindow;
+        //w->setSurfaceType(QWindow::OpenGLSurface);
+        //$m$OpenGLContex.makeCurrent(window);
+        //qDebug() << glewInitialize();
+        //QOpenGLFunctions_4_5_Core varF;
+        //qDebug() << varF.initializeOpenGLFunctions();
+        //QOpenGLWindow window;
+        //window.makeCurrent();
+        //qDebug() << glewInitialize();
+        qApp->quit();
     });
 
+    thread->moveToThread(qApp->thread());
+    thread->connect(thread,&QThread::finished,thread,&QObject::deleteLater,Qt::QueuedConnection);
     thread->start();
 
     varApp.exec();
