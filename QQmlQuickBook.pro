@@ -27,4 +27,8 @@ qwindowopengldraw.file = $$PWD/chapter02/qwindowopengldraw/qwindowopengldraw.pro
 qwindowopengldraw.depends = buildinstall
 SUBDIRS += qwindowopengldraw
 
+invertimage.file = $$PWD/chapter02/invertimage/invertimage.pro
+invertimage.depends = buildinstall
+SUBDIRS += invertimage
+
 

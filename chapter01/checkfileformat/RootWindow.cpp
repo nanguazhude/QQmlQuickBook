@@ -36,7 +36,7 @@ void RootWindow::checkTheDir(QVariant arg) {
         };
 
         const static QRegularExpression varHasBomType{ QStringLiteral(
-        R"(^(h|hpp|c|cpp|qml|vert|frag)$)"),QRegularExpression::CaseInsensitiveOption };
+        R"(^(h|hpp|c|cpp|qml|vert|frag|cps)$)"),QRegularExpression::CaseInsensitiveOption };
         const static QRegularExpression varIgnorType{ QStringLiteral(
         R"(^(user|log)$)"),QRegularExpression::CaseInsensitiveOption };
         const static QRegularExpression varIgnorHasBomType{ QStringLiteral(
