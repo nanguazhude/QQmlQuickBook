@@ -29,9 +29,9 @@ namespace {
         };
         sstd::set<Item> $m$Data;
         QPointer< Window > $m$MainWindow;
-         
+
         std::shared_mutex $m$Mutex;
- 
+
         ThreadObject * insert_item(QThread * arg) {
             {/*lock for read*/
                 std::shared_lock varLock{ $m$Mutex };
@@ -57,7 +57,7 @@ namespace {
         }
 
     };
-    
+
     Global * getGlobalData() {
         static auto varAns = sstdNew<Global>();
         return varAns;
@@ -70,31 +70,39 @@ ThreadObject::ThreadObject() {
 }
 
 void ThreadObject::$p$ConstructInThread() {
+    /**/
     assert(qApp);
     const auto varQAppThread = qApp->thread();
     assert(varQAppThread);
     auto varCurrentThread = QThread::currentThread();
     assert(varCurrentThread);
+    /*Window 只能在主线程创建*/
     if (varCurrentThread == varQAppThread) {
         $m$Window = sstdNew<Window>();
         getGlobalData()->$m$MainWindow = $m$Window;
+        extern void constructMain();
+        constructMain();
     }
-    else {
+    else {/*如果不在主线程，那么等待主线程创建*/
         std::promise<Window *> varWindow;
         auto varFuture = varWindow.get_future();;
-        QTimer::singleShot(0, qApp, [p = &varWindow,this]() {
+        QTimer::singleShot(0, qApp, [p = &varWindow, this]() {
             p->set_value(sstdNew< Window >());
         });
         $m$Window = varFuture.get();
     }
+    $m$Window->constructInThisThread();
     connect(varCurrentThread, &QThread::finished, this, [varCurrentThread]() {
         getGlobalData()->erase(varCurrentThread);
-    });
+    }, Qt::DirectConnection);
+    {
+        auto varWindow = $m$Window;
+        connect(varCurrentThread, &QThread::finished,
+            $m$Window, [varWindow]() {delete varWindow; }, Qt::DirectConnection);
+    }
 }
 
-ThreadObject::~ThreadObject() {
-    delete $m$Window;
-}
+ThreadObject::~ThreadObject() {}
 
 ThreadObject * ThreadObject::getInThisThread() {
     /*判断当前线程中有无此对象...*/
@@ -104,7 +112,7 @@ ThreadObject * ThreadObject::getInThisThread() {
     return getGlobalData()->insert_item(QThread::currentThread());
 }
 
-Window * ThreadObject::getMainWindow(){
+Window * ThreadObject::getMainWindow() {
     return getGlobalData()->$m$MainWindow.data();
 }
 

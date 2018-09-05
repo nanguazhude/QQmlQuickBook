@@ -6,6 +6,7 @@
 #include <QtCore/qthread.h>
 #include <QtGui/qopenglcontext.h>
 
+class ThreadObject;
 class Window : public QWindow {
     Q_OBJECT
 public:
@@ -15,7 +16,9 @@ public:
 public slots:
      
 private:
-    QOpenGLContext * $m$OpenGLContex;
+    QOpenGLContext * $m$OpenGLContex = nullptr;
+    friend class ThreadObject;
+    void constructInThisThread();
 };
 
 

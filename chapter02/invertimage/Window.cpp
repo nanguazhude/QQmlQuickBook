@@ -8,9 +8,16 @@
 Window::Window(){
     this->setSurfaceType(QWindow::OpenGLSurface);
     this->create();
+    if (QThread::currentThread() == qApp->thread()) {
+        constructInThisThread();
+    }
+}
+
+void Window::constructInThisThread() {
+    if ($m$OpenGLContex)return;
     $m$OpenGLContex = sstdNew<QOpenGLContext>(this);
     assert(qApp);
-    if (QThread::currentThread()!=qApp->thread()) {
+    if (QThread::currentThread() != qApp->thread()) {
         auto varContx = ThreadObject::getMainWindow()->getOpenGLContex();
         assert(varContx);
         $m$OpenGLContex->setShareContext(varContx);
@@ -19,5 +26,4 @@ Window::Window(){
     $m$OpenGLContex->makeCurrent(this);
     glewInitialize();
 }
-
 

@@ -8,7 +8,8 @@
 #include "Window.hpp"
 #include <future>
 #include "ThreadObject.hpp"
-
+#include <thread>
+#include <iostream>
 /*仅仅用于*/
 class Application : public QGuiApplication {
 public:
@@ -76,15 +77,13 @@ int main(int argc,char **argv) {
             return -1;
         }
     }
-
+        
     auto varObject = ThreadObject::getInThisThread();
     auto window = ThreadObject::getMainWindow();
-    extern void constructMain();
-    extern void run(const QImage &, std::function<void(const QImage &)>);
-    constructMain();
-
+   
     window->resize(512,512);
     window->show();
+       
 
     varApp.exec();
 
