@@ -1,9 +1,19 @@
 ﻿#include "../sstd_glew.hpp"
 #include <mutex>
 #include "../sstd_memory.hpp"
+#if defined(QT_WIDGETS_LIB)
 #include <QtWidgets/qmessagebox.h>
+#endif
 #include <QtCore/qdebug.h>
 #include <atomic>
+#include <cstdlib>
+
+namespace {
+    /*如果一些平台不支持std::quick_exit,用std::exit代替*/
+    [[noreturn]] static inline void this_file_quick_exit() {
+        std::quick_exit(-1);
+    }/*this_file_quick_exit()*/
+}/**/
 
 struct SimpleCallBack {
 
@@ -171,9 +181,16 @@ static inline bool __qWindowInitializeGlew() {
     glewExperimental = GL_TRUE;
     int glewErr = glewInit();
     if (glewErr != GLEW_OK) {
+
+#if defined(QT_WIDGETS_LIB)
         QMessageBox box;
         box.setText("opengl/glew init error!");
         box.exec();
+#else
+        qDebug() << "opengl/glew init error!";
+#endif
+
+        this_file_quick_exit();
         return false;
     }/****/
     /****************************************/
@@ -208,15 +225,6 @@ extern bool glewInitialize() {
     }
 }
 
-/*
-"--------------------------------------"
-"source:" 8246 "," "GL_DEBUG_SOURCE_API"
-"type:" 824c "," "GL_DEBUG_TYPE_ERROR"
-"id:" 500 "," 1280
-"severity:" 9146 "," "GL_DEBUG_SEVERITY_HIGH"
-"message: " "GL_INVALID_ENUM error generated. <pname> requires feature(s) disabled in the current profile."
-"--------------------------------------"
-*/
 /**
 glPushDebugGroup pushes a debug group described by the string message​
 into the command stream, and emits a message as if glDebugMessageInsert
