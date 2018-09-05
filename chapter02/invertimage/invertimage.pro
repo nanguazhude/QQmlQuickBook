@@ -21,4 +21,9 @@ include($$PWD/../../sstd_utility/glew.pri)
 include($$PWD/../../sstd_utility/glm.pri)
 
 SOURCES += $$PWD/main.cpp
+SOURCES += $$PWD/Window.cpp
+HEADERS += $$PWD/Window.hpp
+
+
+
 
