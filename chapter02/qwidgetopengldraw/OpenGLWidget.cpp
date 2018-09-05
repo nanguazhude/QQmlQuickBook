@@ -269,7 +269,7 @@ void OpenGLWidget::paintGL() {
     GLuint varFBOIndex = this->defaultFramebufferObject();
     GLuint varProgram = _m_draw_data->_m_program;
     GLuint varVAO = _m_draw_data->_m_vao;
-
+    glBindFramebuffer(GL_FRAMEBUFFER, varFBOIndex);
     glClearNamedFramebufferfv(varFBOIndex,
         GL_COLOR,
         0/*draw buffer*/,

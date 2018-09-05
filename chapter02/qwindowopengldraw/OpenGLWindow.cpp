@@ -414,7 +414,7 @@ void OpenGLWindow::paintGL() {
     if (nullptr == _m_draw_data) { return; }
 
     gl_debug_function_lock();
-
+   
     sstd::StateStackBasic varGLState;
     varGLState.push_value(glIsEnabled(GL_DEPTH_TEST) , 
         [](auto && v) {if (v) { glEnable(GL_DEPTH_TEST); } else { glDisable(GL_DEPTH_TEST); }})/*保存OpenGL状态*/;
@@ -424,7 +424,7 @@ void OpenGLWindow::paintGL() {
     const auto varFBOIndex = this->defaultFramebufferObject();
 
     glEnable(GL_DEPTH_TEST);
-    
+    glBindFramebuffer(GL_FRAMEBUFFER, varFBOIndex);
     glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, _m_draw_data->_m_clean_color.data());
     glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, _m_draw_data->_m_clean_depth.data());
 

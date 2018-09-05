@@ -457,7 +457,7 @@ public:
        
         glewInitialize();
         gl_debug_function_lock();
-
+        
         $m$Program = getProgram();
         {
             auto varTmp = getNamedVertexArrayObject();
@@ -531,6 +531,7 @@ void OpenglDrawWindowItemRender::paintGL() {
         
     /*获得FBO对象*/
     GLuint varFBOIndex = _m_window->renderTargetId();
+    glBindFramebuffer(GL_FRAMEBUFFER, varFBOIndex);
     /*指定绘制区域*/
     glViewport(0, 0, _m_draw_data->$m$Width, _m_draw_data->$m$Height);
 
