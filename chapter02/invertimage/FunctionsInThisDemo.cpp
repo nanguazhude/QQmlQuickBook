@@ -1,0 +1,17 @@
+﻿#include <QtGui/qimage.h>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

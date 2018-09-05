@@ -22,6 +22,10 @@ include($$PWD/../../sstd_utility/glm.pri)
 
 SOURCES += $$PWD/main.cpp
 SOURCES += $$PWD/Window.cpp
+SOURCES += $$PWD/ThreadObject.cpp
+SOURCES += $$PWD/FunctionsInThisDemo.cpp
+
+HEADERS += $$PWD/ThreadObject.hpp
 HEADERS += $$PWD/Window.hpp
 
 
