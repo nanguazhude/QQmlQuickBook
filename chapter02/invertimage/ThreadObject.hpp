@@ -16,7 +16,7 @@ public:
 private:
     void $p$ConstructInThread();
 private:
-    Window * $m$Window;
+    Window * $m$Window = nullptr;
 private:
     SSTD_MEMORY_QOBJECT_DEFINE(ThreadObject)
 };

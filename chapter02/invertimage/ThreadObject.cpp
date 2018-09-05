@@ -1,5 +1,6 @@
 ﻿#include <mutex>
 #include <atomic>
+#include <shared_mutex>
 #include "Window.hpp"
 #include "ThreadObject.hpp"
 #include <QtCore/qtimer.h>
@@ -28,31 +29,29 @@ namespace {
         };
         sstd::set<Item> $m$Data;
         QPointer< Window > $m$MainWindow;
-
-        class spin_mutex {
-            std::atomic_flag flag = ATOMIC_FLAG_INIT;
-        public:
-            spin_mutex() = default;
-            spin_mutex(const spin_mutex&) = delete;
-            spin_mutex& operator= (const spin_mutex&) = delete;
-            void lock() {
-                while (flag.test_and_set(std::memory_order_acquire));
-            }
-            void unlock() {
-                flag.clear(std::memory_order_release);
-            }
-        } $m$Mutex;
-
+         
+        std::shared_mutex $m$Mutex;
+ 
         ThreadObject * insert_item(QThread * arg) {
-            std::unique_lock varLock{ $m$Mutex };
-            auto varPos = $m$Data.find(arg);
-            if (varPos == $m$Data.end()) {
-                return const_cast<ThreadObject *>(&($m$Data.emplace(arg).first->$m$Object));
+            {/*lock for read*/
+                std::shared_lock varLock{ $m$Mutex };
+                auto varPos = $m$Data.find(arg);
+                if (varPos != $m$Data.end()) {
+                    return const_cast<ThreadObject *>(&(varPos->$m$Object));
+                }
             }
-            return const_cast<ThreadObject *>(&(varPos->$m$Object));
+            {/*lock for write*/
+                std::unique_lock varLock{ $m$Mutex };
+                auto varPos = $m$Data.find(arg);
+                if (varPos == $m$Data.end()) {
+                    return const_cast<ThreadObject *>(&($m$Data.emplace(arg).first->$m$Object));
+                }
+                return const_cast<ThreadObject *>(&(varPos->$m$Object));
+            }
         }
 
         void erase(QThread * arg) {
+            /*lock for write*/
             std::unique_lock varLock{ $m$Mutex };
             $m$Data.erase(arg);
         }
@@ -71,6 +70,7 @@ ThreadObject::ThreadObject() {
 }
 
 void ThreadObject::$p$ConstructInThread() {
+    assert(qApp);
     const auto varQAppThread = qApp->thread();
     assert(varQAppThread);
     auto varCurrentThread = QThread::currentThread();

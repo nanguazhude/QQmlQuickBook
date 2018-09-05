@@ -35,6 +35,7 @@ int main(int argc,char **argv) {
 
     /*设置默认QSurfaceFormat*/
     sstd::setDefaultFormat();
+
    /*从文件读取Image*/
     QImage varImage;
     int varImageWidth = 0;
@@ -78,6 +79,10 @@ int main(int argc,char **argv) {
 
     auto varObject = ThreadObject::getInThisThread();
     auto window = ThreadObject::getMainWindow();
+    extern void constructMain();
+    extern void run(const QImage &, std::function<void(const QImage &)>);
+    constructMain();
+
     window->resize(512,512);
     window->show();
 
