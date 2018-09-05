@@ -61,7 +61,7 @@ static inline void operator delete[](void * ptr) { return sstd::SSTDMemory::oper
 static inline void* operator new(std::size_t count, std::align_val_t al) { return sstd::SSTDMemory::operator new(count, al); } \
 static inline void operator delete(void* ptr, std::align_val_t al) { return sstd::SSTDMemory::operator delete(ptr, al); } \
 static inline void* operator new[](std::size_t count, std::align_val_t al) { return sstd::SSTDMemory::operator new(count, al); } \
-static inline void operator delete[](void* ptr, std::align_val_t al) { return sstd::SSTDMemory::operator delete(ptr, al); }
+static inline void operator delete[](void* ptr, std::align_val_t al) { return sstd::SSTDMemory::operator delete(ptr, al); } 
 #endif
 
 #if defined(QT_CORE_LIB)/*defined(QT_CORE_LIB)*/
@@ -307,6 +307,11 @@ namespace sstd {
 }/*namespace sstd*/
 
 using sstd::sstdNew;
+
+#ifndef SSTD_MEMORY_FRIND
+#define SSTD_MEMORY_FRIND private:template<typename $T$T,bool $T$V> friend class sstd::_private::TypeSelect; \
+template<typename $T$, typename ... $T$Args> friend $T$ * sstd::sstdNew($T$Args && ...);
+#endif
 
 /**************************************************/
 #include "sstd_state_stack.hpp"

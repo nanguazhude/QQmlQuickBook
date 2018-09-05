@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <sstd_memory.hpp>
 #include <atomic>
 #include <memory>
 #include <QtGui/qwindow.h>
@@ -9,7 +10,7 @@
 class ThreadObject;
 class Window : public QWindow {
     Q_OBJECT
-public:
+private:
     Window(QThread *);
 public:
     QOpenGLContext * getOpenGLContex() const { return $m$OpenGLContex; }
@@ -20,6 +21,8 @@ private:
     friend class ThreadObject;
     void constructInThisThread();
     void destoryInThread();
+    SSTD_MEMORY_QOBJECT_DEFINE(Window)
+    SSTD_MEMORY_FRIND
 };
 
 
