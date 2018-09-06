@@ -92,7 +92,7 @@ void Window::paintGL() {
         return;
     }
 
-    {
+    {/*间隔超过1s才执行*/
         auto varCurrentTime = std::chrono::high_resolution_clock::now();
         if (std::chrono::abs(varCurrentTime - $m$DrawData->$m$LastDraw) > 1s) {
             $m$DrawData->$m$LastDraw = varCurrentTime;
