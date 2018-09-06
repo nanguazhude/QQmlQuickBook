@@ -62,7 +62,7 @@ void Window::initializeGL() {
 
     //编译连接glsl源码，生成程序
     const GLchar * varShaderSource[] = { u8R"___(
-/*为了照顾数学不好的孩子，这里只让显卡将输入加一*/
+/*为了照顾数学不好的孩子，这里只让显卡将输入加1*/
 #version 450
 layout (local_size_x = 1 , local_size_y = 1 , local_size_z = 1) in;
 
