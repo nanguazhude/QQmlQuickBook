@@ -36,7 +36,7 @@ void Window::initializeGL() {
     this->makeCurrent();
     glewInitialize();
 
-    enable_gl_debug_function();
+    gl_debug_function_lock();
 
     $m$DrawData = sstdNew<DrawData>();
     connect(context(), &QOpenGLContext::aboutToBeDestroyed,
@@ -103,7 +103,7 @@ void Window::paintGL() {
     }
 
     /*开启OpenGL调试环境*/
-    enable_gl_debug_function();
+    gl_debug_function_lock();
 
     /*为了照顾数学不好的孩子，这里只让显卡做2以内的加法*/
     GLfloat varInput[4];
@@ -160,6 +160,7 @@ void Window::resizeGL(int w, int h) {
 
 /***
 https://blog.csdn.net/z444_579/article/details/54138504
+https://www.cnblogs.com/vertexshader/articles/3022981.html
 ***/
 
 
