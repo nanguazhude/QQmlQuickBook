@@ -31,6 +31,10 @@ computeshaderaddbuffer.file = $$PWD/chapter02/computeshaderaddbuffer/computeshad
 computeshaderaddbuffer.depends = buildinstall
 SUBDIRS += computeshaderaddbuffer
 
+computeshaderfilterimage.file = $$PWD/chapter02/computeshaderfilterimage/computeshaderfilterimage.pro
+computeshaderfilterimage.depends = buildinstall
+SUBDIRS += computeshaderfilterimage
+
 invertimage.file = $$PWD/chapter02/invertimage/invertimage.pro
 invertimage.depends = buildinstall
 SUBDIRS += invertimage
