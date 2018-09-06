@@ -3,6 +3,7 @@
 win32-msvc*{
     QMAKE_CXXFLAGS += /std:c++latest
     QMAKE_CXXFLAGS += /await
+    CONFIG+=suppress_vcproj_warnings
 }else{
     CONFIG+=c++17
 }
