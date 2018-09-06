@@ -125,8 +125,13 @@ struct SimpleCallBack {
 
         /*忽略不需要的调试信息*/
         if (((severity == GL_DEBUG_SEVERITY_NOTIFICATION) ||
+#if 0
             (severity == GL_DEBUG_SEVERITY_LOW))
-            && (source == GL_DEBUG_SOURCE_API)) {
+            && (source == GL_DEBUG_SOURCE_API)
+#else
+            false)
+#endif
+            ) {
             /*忽略来自显卡的提示信息*/
             return;
         }
