@@ -1,14 +1,8 @@
 ﻿#include <ConstructQSurface.hpp>
 #include <QtCore>
 #include <QtGui>
-#include <optional>
-#include <fstream>
-#include <filesystem>
-#include <QtCore/qtimer.h>
 #include "Window.hpp"
-#include <future>
-#include <thread>
-#include <iostream>
+
 
 class Application : public QGuiApplication {
 public:
