@@ -12,8 +12,8 @@ include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
 
 #buildinstall
-#QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-#export(QMAKE_POST_LINK)
+QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
+export(QMAKE_POST_LINK)
 
 RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 
