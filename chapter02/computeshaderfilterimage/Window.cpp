@@ -3,6 +3,7 @@
 #include "Window.hpp"
 #include <QtCore/qdebug.h>
 #include <QtCore/qtimer.h>
+#include <QtCore/qeventloop.h>
 #include "ImageView.hpp"
 #include <chrono>
 
@@ -183,17 +184,30 @@ void Window::paintGL() {
     glDispatchCompute($m$DrawData->$m$ImageWidth, $m$DrawData->$m$ImageHeight, 1);
 
     /*等待显卡完成*/
-    {
+    if constexpr(true){
         auto varSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         glClientWaitSync(varSync, GL_SYNC_FLUSH_COMMANDS_BIT, 100);
-        GLint varResult[]{ GL_UNSIGNALED ,GL_UNSIGNALED ,GL_UNSIGNALED ,GL_UNSIGNALED };
+        GLint varResult[]{
+            GL_UNSIGNALED ,
+            GL_UNSIGNALED ,
+            GL_UNSIGNALED ,
+            GL_UNSIGNALED };
         GLsizei varResultLength = 0;
         do {
-            std::this_thread::sleep_for(500ns);
-            glGetSynciv(varSync, GL_SYNC_STATUS, 4, &varResultLength, varResult);
+            if constexpr (true) {
+                std::this_thread::sleep_for(500ns);
+                glGetSynciv(varSync, GL_SYNC_STATUS, 4, &varResultLength, varResult);
+            }
+            else {
+                varResult[0] = glClientWaitSync(varSync, GL_SYNC_FLUSH_COMMANDS_BIT, 100);
+            }
             varEndWaitTime = std::chrono::high_resolution_clock::now();
-        } while ((varResult[0] != GL_SIGNALED) && (std::chrono::abs(varEndWaitTime - varStartWaitTime) < 1s));
+        } while ((varResult[0] != GL_SIGNALED) &&
+            (std::chrono::abs(varEndWaitTime - varStartWaitTime) < 1s));
         glDeleteSync(varSync);
+    }
+    else {
+        glFinish();
     }
 
     {/*从显卡获得数据*/
