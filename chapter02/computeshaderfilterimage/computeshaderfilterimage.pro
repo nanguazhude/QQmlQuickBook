@@ -20,11 +20,13 @@ RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 include($$PWD/../../sstd_utility/glew.pri)
 include($$PWD/../../sstd_utility/glm.pri)
 
-SOURCES += $$PWD/main.cpp
+SOURCES += $$PWD/main.cpp \
+    ImageView.cpp
 SOURCES += $$PWD/Window.cpp
 
 
-HEADERS += $$PWD/Window.hpp
+HEADERS += $$PWD/Window.hpp \
+    ImageView.hpp
 
 
 

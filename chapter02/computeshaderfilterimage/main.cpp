@@ -1,11 +1,12 @@
 ﻿#include <ConstructQSurface.hpp>
 #include <QtCore>
 #include <QtGui>
+#include <QtWidgets>
 #include "Window.hpp"
 
-class Application : public QGuiApplication {
+class Application : public QApplication {
 public:
-    Application(int & a ,char ** b) :QGuiApplication(a,b) {}
+    Application(int & a ,char ** b) :QApplication(a,b) {}
     virtual ~Application() = default;
 };
 

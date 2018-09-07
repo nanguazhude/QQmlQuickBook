@@ -2,11 +2,22 @@
 #include "Window.hpp"
 #include <QtCore/qdebug.h>
 #include <QtCore/qtimer.h>
+#include "ImageView.hpp"
 #include <chrono>
 
 using namespace std::chrono_literals;
 
-Window::Window() {}
+Window::~Window() {
+    if ($m$ImageView) {
+        $m$ImageView->hide();
+        $m$ImageView->deleteLater();
+    }
+}
+
+Window::Window() {
+    $m$ImageView = sstdNew< ImageView >();
+    $m$ImageView->show();
+}
 
 class Window::DrawData : public QObject {
 public:
@@ -108,7 +119,7 @@ void Window::paintGL() {
     /*为了照顾数学不好的孩子，这里只让显卡做2以内的加法*/
     GLfloat varInput[4];
     GLfloat varOutput[4];
-    
+
     varInput[0] = std::rand() & 1;
     varInput[1] = std::rand() & 1;
     varInput[2] = std::rand() & 1;
