@@ -29,6 +29,7 @@ public:
     GLint  $m$ImageHeight = 0;
     QImage $m$OriginImageInput;
     QImage $m$LastImageInput;
+    std::array<GLuint, 2> $m$InputOutputOrder{ 0,1 };
 
     std::chrono::high_resolution_clock::time_point $m$LastDraw;
     QTimer * $m$Timer = nullptr;
@@ -160,7 +161,10 @@ void Window::paintGL() {
     /*开启OpenGL调试环境*/
     gl_debug_function_lock();
 
-    {
+    const auto varStartWaitTime = std::chrono::high_resolution_clock::now();
+    auto varEndWaitTime = std::chrono::high_resolution_clock::now();
+
+    if constexpr (false) {
         const auto & varImage = $m$DrawData->$m$LastImageInput;
         /*上传数据*/
         glTextureSubImage2D($m$DrawData->$m$InputImage,
@@ -174,8 +178,8 @@ void Window::paintGL() {
 
     glUseProgram($m$DrawData->$m$Program);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    glBindImageTexture(0, $m$DrawData->$m$InputImage, 0, false, 0, GL_READ_ONLY, GL_RGBA8UI);
-    glBindImageTexture(1, $m$DrawData->$m$OutputImage, 0, false, 0, GL_WRITE_ONLY, GL_RGBA8UI);
+    glBindImageTexture($m$DrawData->$m$InputOutputOrder[0], $m$DrawData->$m$InputImage, 0, false, 0, GL_READ_ONLY, GL_RGBA8UI);
+    glBindImageTexture($m$DrawData->$m$InputOutputOrder[1], $m$DrawData->$m$OutputImage, 0, false, 0, GL_WRITE_ONLY, GL_RGBA8UI);
     glDispatchCompute($m$DrawData->$m$ImageWidth, $m$DrawData->$m$ImageHeight, 1);
 
     /*等待显卡完成*/
@@ -184,28 +188,33 @@ void Window::paintGL() {
         glClientWaitSync(varSync, GL_SYNC_FLUSH_COMMANDS_BIT, 100);
         GLint varResult[]{ GL_UNSIGNALED ,GL_UNSIGNALED ,GL_UNSIGNALED ,GL_UNSIGNALED };
         GLsizei varResultLength = 0;
-        const auto varStartWaitTime = std::chrono::high_resolution_clock::now();
-              auto varEndWaitTime = std::chrono::high_resolution_clock::now();
         do {
             std::this_thread::sleep_for(500ns);
             glGetSynciv(varSync, GL_SYNC_STATUS, 4, &varResultLength, varResult);
             varEndWaitTime = std::chrono::high_resolution_clock::now();
-        } while ((varResult[0] != GL_SIGNALED)&&(std::chrono::abs(varEndWaitTime - varStartWaitTime)<1s));
+        } while ((varResult[0] != GL_SIGNALED) && (std::chrono::abs(varEndWaitTime - varStartWaitTime) < 1s));
         glDeleteSync(varSync);
-        qDebug() << "draw time less than : "<< std::chrono::duration_cast<
-            std::chrono::duration<double,std::milli>>(
-            std::chrono::abs(varEndWaitTime- varStartWaitTime)).count() << "ms";
     }
 
     {/*从显卡获得数据*/
         auto & varImageOutput = $m$DrawData->$m$LastImageInput;
-        glGetTextureImage($m$DrawData->$m$OutputImage, 0,
+        glGetTextureImage(
+            $m$DrawData->$m$InputOutputOrder[0] ?
+            $m$DrawData->$m$InputImage :
+            $m$DrawData->$m$OutputImage, 0,
             GL_RGBA, GL_UNSIGNED_BYTE,
             varImageOutput.byteCount(),
             varImageOutput.bits());
+
+        varEndWaitTime = std::chrono::high_resolution_clock::now();
+        qDebug() << "draw time less than : " << std::chrono::duration_cast<
+            std::chrono::duration<double, std::milli>>(std::chrono::abs(
+                varEndWaitTime - varStartWaitTime)).count() << "ms";
+
         $m$ImageView->showImage($m$DrawData->$m$OriginImageInput, varImageOutput);
     }
-
+    /*交换输入输出*/
+    std::swap($m$DrawData->$m$InputOutputOrder[0], $m$DrawData->$m$InputOutputOrder[1]);
 }
 
 void Window::resizeGL(int w, int h) {
