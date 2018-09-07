@@ -34,17 +34,17 @@ inline static void $p$sstdPopDebugGroup(){
 
 #if defined(ENABLE_GL_DEBUG)
 
-#define enable_gl_debug_function(...)  sstd::$p$sstdPushDebugGroup()
-#define disable_gl_debug_function(...) sstd::$p$sstdPopDebugGroup()
+#define _enable_gl_debug_function(...)  sstd::$p$sstdPushDebugGroup()
+#define _disable_gl_debug_function(...) sstd::$p$sstdPopDebugGroup()
 
 namespace sstd {
     class ___$p$GLDL {
     public:
         ___$p$GLDL() {
-            enable_gl_debug_function();
+            _enable_gl_debug_function();
         }
         ~___$p$GLDL() {
-            disable_gl_debug_function();
+            _disable_gl_debug_function();
         }
     };
 }/*********/
@@ -53,9 +53,9 @@ namespace sstd {
 
 #else
 
-#define enable_gl_debug_function(...)   assert(true)
-#define disable_gl_debug_function(...)  assert(true)
-#define gl_debug_function_lock(...)     assert(true)
+#define _enable_gl_debug_function(...)   assert(true)
+#define _disable_gl_debug_function(...)  assert(true)
+#define gl_debug_function_lock(...)      assert(true)
 
 #endif
 
