@@ -40,11 +40,11 @@ shared vec4 TmpData[9];
     ivec2 pos = ivec2( gl_WorkGroupID.xy ) - ivec2(1) ;
     pos += ivec2( gl_LocalInvocationID.xy );
 
-    /*像素超出边界则用最邻近替代*/
-    if(pos.x >= int(gl_NumWorkGroups.x) ){ pos.x = int(gl_NumWorkGroups.x) -1 ; }
-    if(pos.y >= int(gl_NumWorkGroups.y) ){ pos.y = int(gl_NumWorkGroups.y) -1 ; }
-    if(pos.x < 0){pos.x=0;}
-    if(pos.y < 0){pos.y=0;}
+     /*像素超出边界则用最邻近替代*/
+     if(pos.x >= int(gl_NumWorkGroups.x) ){ pos.x = int(gl_NumWorkGroups.x) -1 ; }
+     if(pos.y >= int(gl_NumWorkGroups.y) ){ pos.y = int(gl_NumWorkGroups.y) -1 ; }
+     if(pos.x < 0){pos.x=0;}
+     if(pos.y < 0){pos.y=0;}
 
     /*计算当前像素权重*/
     TmpData[gl_LocalInvocationIndex] = 

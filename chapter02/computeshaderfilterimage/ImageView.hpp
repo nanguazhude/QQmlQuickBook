@@ -19,6 +19,7 @@ protected:
     QImage $m$LeftImage;
     QImage $m$RightImage;
     void _update_image_pos() const;
+    std::int32_t $m$DrawImdex = 0;
 private:
     SSTD_MEMORY_QOBJECT_DEFINE(ImageView)
 };

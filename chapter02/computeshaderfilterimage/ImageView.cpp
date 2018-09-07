@@ -19,12 +19,14 @@ ImageView::ImageView() {
     this->setBackgroundBrush(QColor(100, 100, 100));
     this->setMinimumHeight(128);
     this->setMinimumWidth(128);
-    this->resize(1024, 800);
+    this->resize(1024, 399);
 }
 
 void ImageView::showImage(const QImage & s, const QImage & t) {
     $m$LeftImage = s;
     $m$RightImage = t;
+    this->setWindowTitle( QString::number(++$m$DrawImdex)+
+        QStringLiteral(" : compute shader filter image") );
     _update_image_pos();
 }
 

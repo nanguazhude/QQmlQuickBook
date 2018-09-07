@@ -143,13 +143,13 @@ void Window::paintGL() {
         return;
     }
 
-    if (bool($m$WatcherImageView)==false) {
+    if (bool($m$WatcherImageView) == false) {
         return;
     }
 
-    {/*间隔超过100s才执行*/
+    {/*间隔超过600ms才执行*/
         auto varCurrentTime = std::chrono::high_resolution_clock::now();
-        if (std::chrono::abs(varCurrentTime - $m$DrawData->$m$LastDraw) > 500ms) {
+        if (std::chrono::abs(varCurrentTime - $m$DrawData->$m$LastDraw) > 600ms) {
             $m$DrawData->$m$LastDraw = varCurrentTime;
         }
         else {
@@ -179,7 +179,23 @@ void Window::paintGL() {
     glDispatchCompute($m$DrawData->$m$ImageWidth, $m$DrawData->$m$ImageHeight, 1);
 
     /*等待显卡完成*/
-    glFinish();
+    {
+        auto varSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        glFlush();
+        GLint varResult[]{ GL_UNSIGNALED ,GL_UNSIGNALED ,GL_UNSIGNALED ,GL_UNSIGNALED };
+        GLsizei varResultLength = 0;
+        const auto varStartWaitTime = std::chrono::high_resolution_clock::now();
+              auto varEndWaitTime = std::chrono::high_resolution_clock::now();
+        do {
+            std::this_thread::sleep_for(10ns);
+            glGetSynciv(varSync, GL_SYNC_STATUS, 4, &varResultLength, varResult);
+            varEndWaitTime = std::chrono::high_resolution_clock::now();
+        } while ((varResult[0] != GL_SIGNALED)&&(std::chrono::abs(varEndWaitTime - varStartWaitTime)<1s));
+        glDeleteSync(varSync);
+        qDebug() << "draw time less than : "<< std::chrono::duration_cast<
+            std::chrono::duration<double,std::milli>>(
+            std::chrono::abs(varEndWaitTime- varStartWaitTime)).count() << "ms";
+    }
 
     {/*从显卡获得数据*/
         auto & varImageOutput = $m$DrawData->$m$LastImageInput;
@@ -196,7 +212,7 @@ void Window::resizeGL(int w, int h) {
     glViewport(0, 0, w, h);
 }
 
-bool Window::event(QEvent *argEvent)  {
+bool Window::event(QEvent *argEvent) {
 
     if (argEvent->type() == QEvent::Close) {
         this->deleteLater();
