@@ -19,7 +19,7 @@ ImageView::ImageView() {
     this->setBackgroundBrush(QColor(100, 100, 100));
     this->setMinimumHeight(128);
     this->setMinimumWidth(128);
-    this->resize( 512,512 );
+    this->resize( 1024,800 );
 }
 
 void ImageView::showImage(const QImage & s, const QImage & t) {
