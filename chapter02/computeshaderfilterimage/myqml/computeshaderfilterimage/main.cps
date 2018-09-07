@@ -16,14 +16,14 @@ x =
     0.0751    0.1238    0.0751
 **/
 
-uniform mat3 Gaussian(
+uniform mat3 Gaussian = mat3(
     0.0751 ,   0.1238 ,   0.0751,
     0.1238 ,   0.2042 ,   0.1238,
-    0.0751 ,   0.1238 ,   0.0751,
+    0.0751 ,   0.1238 ,   0.0751
 );
 
-layout(binding = 0,rgba8ui) readonly uniform image2D  ImageInput;
-layout(binding = 1,rgba8ui) writeonly uniform image2D ImageOutput;
+layout(binding = 0,rgba8ui) uniform readonly uimage2D  ImageInput;
+layout(binding = 1,rgba8ui) uniform writeonly uimage2D ImageOutput;
 
 shared vec4 TmpData[9];
 
@@ -33,15 +33,16 @@ shared vec4 TmpData[9];
 //gl_LocalInvocationID :此例子相当于当前滤波器像素位置
 //gl_LocalInvocationIndex : 是gl_LocalInvocationID的一种扁平化方式
 //gl_GlobalInvocationID ： gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID
+//
 
-void main(void){
+ void main(void)  {
     /*计算当前坐标*/
     ivec2 pos = ivec2( gl_WorkGroupID.xy ) - ivec2(1) ;
     pos += ivec2( gl_LocalInvocationID.xy );
 
     /*像素超出边界则用最邻近替代*/
-    if(pos.x >= gl_NumWorkGroups.x){pos.x = gl_NumWorkGroups.x-1;}
-    if(pos.y >= gl_NumWorkGroups.y){pos.y = gl_NumWorkGroups.y-1;}
+    if(pos.x >= int(gl_NumWorkGroups.x) ){ pos.x = int(gl_NumWorkGroups.x) -1 ; }
+    if(pos.y >= int(gl_NumWorkGroups.y) ){ pos.y = int(gl_NumWorkGroups.y) -1 ; }
     if(pos.x < 0){pos.x=0;}
     if(pos.y < 0){pos.y=0;}
 

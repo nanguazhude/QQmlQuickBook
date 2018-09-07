@@ -53,40 +53,59 @@ public:
             glShaderSource(varShader, 1, varS, &varSL);
         }
         glCompileShader(varShader);
+
+        auto printErrorDetail = [](GLuint e) {
+            GLint log_length;
+            glGetShaderiv(e, GL_INFO_LOG_LENGTH, &log_length);
+            log_length += 16;
+
+            /*获得一段内存，并初始化为0*/
+            sstd::string infos_;
+            infos_.resize(log_length);
+
+            char * info = infos_.data();
+            glGetShaderInfoLog(e, log_length, nullptr, info);
+            qDebug() << info;
+        };
+        printErrorDetail(varShader);
+
         $m$Program = glCreateProgram();
         glAttachShader($m$Program, varShader);
         glLinkProgram($m$Program);
-
         glDeleteShader(varShader);
     }
 
     void setTexture() {
 
-        glCreateTextures(GL_TEXTURE_2D, 1, &$m$InputImage);
-        glCreateTextures(GL_TEXTURE_2D, 1, &$m$OutputImage);
-
-        const QImage varImage = []() {
+        /*获得图片*/
+        $m$ImageInput = []() {
             return QImage(QStringLiteral("myqml/computeshaderfilterimage/test.png"))
                 .convertToFormat(QImage::Format_RGBA8888);
         }();
-
-        /*分配内存*/
-        glTextureStorage2D($m$InputImage, 0, GL_RGBA8UI, varImage.width(), varImage.height());
-        /*上传数据*/
-        glTextureSubImage2D($m$InputImage, 0,
-            0, 0,
-            varImage.width(), varImage.height(),
-            GL_BGRA,
-            GL_UNSIGNED_BYTE,
-            varImage.bits());
-
-        /*分配内存*/
-        glTextureStorage2D($m$OutputImage, 0, GL_RGBA8UI, varImage.width(), varImage.height());
+        const auto & varImage = $m$ImageInput;
 
         /*初始化长宽*/
         $m$ImageHeight = varImage.height();
         $m$ImageWidth = varImage.width();
-        $m$ImageInput = varImage;
+
+        /*创建Texture*/
+        glCreateTextures(GL_TEXTURE_2D, 1, &$m$InputImage);
+        
+        /*分配内存*/
+        glTextureStorage2D($m$InputImage, 1, GL_RGBA8 , $m$ImageWidth, $m$ImageHeight);
+        /*上传数据*/
+        glTextureSubImage2D($m$InputImage, 
+            0/*level*/,
+            0/*x*/, 0/*y*/,
+            $m$ImageWidth, $m$ImageHeight,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            varImage.bits());
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &$m$OutputImage);
+        /*分配内存*/
+        glTextureStorage2D($m$OutputImage, 1, GL_RGBA8, varImage.width(), varImage.height());
+               
 
     }
 
