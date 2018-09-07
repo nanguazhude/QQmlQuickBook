@@ -181,13 +181,13 @@ void Window::paintGL() {
     /*等待显卡完成*/
     {
         auto varSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-        glFlush();
+        glClientWaitSync(varSync, GL_SYNC_FLUSH_COMMANDS_BIT, 100);
         GLint varResult[]{ GL_UNSIGNALED ,GL_UNSIGNALED ,GL_UNSIGNALED ,GL_UNSIGNALED };
         GLsizei varResultLength = 0;
         const auto varStartWaitTime = std::chrono::high_resolution_clock::now();
               auto varEndWaitTime = std::chrono::high_resolution_clock::now();
         do {
-            std::this_thread::sleep_for(10ns);
+            std::this_thread::sleep_for(500ns);
             glGetSynciv(varSync, GL_SYNC_STATUS, 4, &varResultLength, varResult);
             varEndWaitTime = std::chrono::high_resolution_clock::now();
         } while ((varResult[0] != GL_SIGNALED)&&(std::chrono::abs(varEndWaitTime - varStartWaitTime)<1s));

@@ -202,6 +202,9 @@ static inline bool __qWindowInitializeGlew() {
     //OpengGL Debug Function
 #if defined(ENABLE_GL_DEBUG)
     setSimpleCallbackFunction();
+#else
+    glDisable(GL_DEBUG_OUTPUT);
+    glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 #endif
     /****************************************/
     return true;
