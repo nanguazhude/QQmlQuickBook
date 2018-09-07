@@ -13,10 +13,13 @@ public:
 int main(int argc,char ** argv){
     Application varApp{argc,argv};
 
+    {/*强制运行目录为程序所在目录*/
+        QDir::setCurrent(qApp->applicationDirPath());
+    }
     sstd::setDefaultFormat();
 
-    Window window;
-    window.show();
+    auto window = sstdNew<Window>();
+    window->show();
 
     return varApp.exec();
 }

@@ -19,7 +19,7 @@ ImageView::ImageView() {
     this->setBackgroundBrush(QColor(100, 100, 100));
     this->setMinimumHeight(128);
     this->setMinimumWidth(128);
-    this->resize( 1024,800 );
+    this->resize(1024, 800);
 }
 
 void ImageView::showImage(const QImage & s, const QImage & t) {
@@ -31,13 +31,14 @@ void ImageView::showImage(const QImage & s, const QImage & t) {
 void ImageView::_update_image_pos() const {
 
     const auto varSR = this->sceneRect();
-    const auto varSS = (varSR.size() * 0.5) + QSizeF{ 1.0,1.0 };
+    const auto varSS = QSizeF{ 0.5* varSR.width(),varSR.height() } +QSizeF{ 1.0,1.0 };
 
 #define ___ERROR_RETURN $m$Left->setPixmap({});$m$Right->setPixmap({}); return
 
     QSize varImageSize{ 1,1 };
 
     do {
+
         const auto varImageSizeSource = $m$LeftImage.size();
         if (varImageSizeSource.width() < 1) {
             ___ERROR_RETURN;
@@ -50,38 +51,43 @@ void ImageView::_update_image_pos() const {
         const auto varRateIT = varSS.width() / varSS.height();
 
         if (varRateIS == varRateIT) {
-            varImageSize = varImageSizeSource;
+            varImageSize = varSS.toSize();
             break;
         }
 
         if (varRateIS > varRateIT) {
             const auto varHeight = static_cast<int>((varSS.width() / varImageSizeSource.width())
                 *varImageSizeSource.height());
-            varImageSize = { varImageSizeSource.width() ,varHeight };
+            varImageSize = { static_cast<int>(varSS.width()) ,varHeight };
         }
         else {
             const auto varWidth = static_cast<int>((varSS.height() / varImageSizeSource.height())
                 * varImageSizeSource.width());
-            varImageSize = { varWidth,varImageSizeSource.height() };
+            varImageSize = { varWidth,static_cast<int>(varSS.height()) };
         }
 
     } while (false);
 
     {
-        const auto varImage = $m$LeftImage.scaled(varImageSize.width(), varImageSize.height(),
+        const auto varImage = $m$LeftImage.scaled(
+            varImageSize.width(),
+            varImageSize.height(),
             Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         $m$Left->setPixmap(QPixmap::fromImage(varImage));
     }
 
     {
-        const auto varImage = $m$RightImage.scaled(varImageSize.width(), varImageSize.height(),
+        const auto varImage = $m$RightImage.scaled(
+            varImageSize.width(),
+            varImageSize.height(),
             Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         $m$Right->setPixmap(QPixmap::fromImage(varImage));
     }
 
-    const auto varY = varImageSize.height()*0.5;
+    const auto varY = (-0.5)* varImageSize.height();
     $m$Left->setPos(-varImageSize.width(), varY);
     $m$Right->setPos(0, varY);
+
 }
 
 void ImageView::resizeEvent(QResizeEvent *event) {
@@ -109,7 +115,7 @@ void ImageView::resizeEvent(QResizeEvent *event) {
 bool ImageView::event(QEvent * argEvent) {
 
     if (argEvent->type() == QEvent::Close) {
-        this->hide();
+        this->deleteLater();
         argEvent->accept();
         return true;
     }

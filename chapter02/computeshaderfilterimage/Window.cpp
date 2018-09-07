@@ -8,16 +8,16 @@
 
 using namespace std::chrono_literals;
 
-Window::~Window() {
-    if ($m$ImageView) {
-        $m$ImageView->hide();
-        $m$ImageView->deleteLater();
-    }
-}
+Window::~Window() {}
 
 Window::Window() {
     $m$ImageView = sstdNew< ImageView >();
+    connect($m$ImageView, &QObject::destroyed, this, &QObject::deleteLater);
+    connect(this, &QObject::destroyed, $m$ImageView, &QObject::deleteLater);
+    $m$WatcherImageView = $m$ImageView;
     $m$ImageView->show();
+    const auto varPos = $m$ImageView->geometry().bottomRight();
+    this->setPosition(varPos);
 }
 
 class Window::DrawData : public QObject {
@@ -27,7 +27,8 @@ public:
     GLuint $m$Program = 0;
     GLint  $m$ImageWidth = 0;
     GLint  $m$ImageHeight = 0;
-    QImage $m$ImageInput;
+    QImage $m$OriginImageInput;
+    QImage $m$LastImageInput;
 
     std::chrono::high_resolution_clock::time_point $m$LastDraw;
     QTimer * $m$Timer = nullptr;
@@ -54,7 +55,7 @@ public:
             glShaderSource(varShader, 1, varS, &varSL);
             glCompileShader(varShader);
         }
-        
+
         if constexpr (false) {
             auto printErrorDetail = [](GLuint e) {
                 GLint log_length;
@@ -81,11 +82,12 @@ public:
     void setTexture() {
 
         /*获得图片*/
-        $m$ImageInput = []() {
+        $m$OriginImageInput = []() {
             return QImage(QStringLiteral("myqml/computeshaderfilterimage/test.png"))
                 .convertToFormat(QImage::Format_RGBA8888);
         }();
-        const auto & varImage = $m$ImageInput;
+        const auto & varImage = $m$OriginImageInput;
+        $m$LastImageInput = varImage;
 
         /*初始化长宽*/
         $m$ImageHeight = varImage.height();
@@ -93,11 +95,11 @@ public:
 
         /*创建Texture*/
         glCreateTextures(GL_TEXTURE_2D, 1, &$m$InputImage);
-        
+
         /*分配内存*/
-        glTextureStorage2D($m$InputImage, 1, GL_RGBA8 , $m$ImageWidth, $m$ImageHeight);
+        glTextureStorage2D($m$InputImage, 1, GL_RGBA8, $m$ImageWidth, $m$ImageHeight);
         /*上传数据*/
-        glTextureSubImage2D($m$InputImage, 
+        glTextureSubImage2D($m$InputImage,
             0/*level*/,
             0/*x*/, 0/*y*/,
             $m$ImageWidth, $m$ImageHeight,
@@ -108,7 +110,7 @@ public:
         glCreateTextures(GL_TEXTURE_2D, 1, &$m$OutputImage);
         /*分配内存*/
         glTextureStorage2D($m$OutputImage, 1, GL_RGBA8, varImage.width(), varImage.height());
-               
+
     }
 
 };
@@ -141,9 +143,13 @@ void Window::paintGL() {
         return;
     }
 
-    {/*间隔超过1s才执行*/
+    if (bool($m$WatcherImageView)==false) {
+        return;
+    }
+
+    {/*间隔超过100s才执行*/
         auto varCurrentTime = std::chrono::high_resolution_clock::now();
-        if (std::chrono::abs(varCurrentTime - $m$DrawData->$m$LastDraw) > 1s) {
+        if (std::chrono::abs(varCurrentTime - $m$DrawData->$m$LastDraw) > 500ms) {
             $m$DrawData->$m$LastDraw = varCurrentTime;
         }
         else {
@@ -154,24 +160,51 @@ void Window::paintGL() {
     /*开启OpenGL调试环境*/
     gl_debug_function_lock();
 
+    {
+        const auto & varImage = $m$DrawData->$m$LastImageInput;
+        /*上传数据*/
+        glTextureSubImage2D($m$DrawData->$m$InputImage,
+            0/*level*/,
+            0/*x*/, 0/*y*/,
+            $m$DrawData->$m$ImageWidth, $m$DrawData->$m$ImageHeight,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            varImage.bits());
+    }
+
     glUseProgram($m$DrawData->$m$Program);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
     glBindImageTexture(0, $m$DrawData->$m$InputImage, 0, false, 0, GL_READ_ONLY, GL_RGBA8UI);
-    glBindImageTexture(0, $m$DrawData->$m$OutputImage, 0, false, 0, GL_WRITE_ONLY, GL_RGBA8UI);
+    glBindImageTexture(1, $m$DrawData->$m$OutputImage, 0, false, 0, GL_WRITE_ONLY, GL_RGBA8UI);
     glDispatchCompute($m$DrawData->$m$ImageWidth, $m$DrawData->$m$ImageHeight, 1);
 
     /*等待显卡完成*/
     glFinish();
 
     {/*从显卡获得数据*/
-
+        auto & varImageOutput = $m$DrawData->$m$LastImageInput;
+        glGetTextureImage($m$DrawData->$m$OutputImage, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE,
+            varImageOutput.byteCount(),
+            varImageOutput.bits());
+        $m$ImageView->showImage($m$DrawData->$m$OriginImageInput, varImageOutput);
     }
-
-
 
 }
 
 void Window::resizeGL(int w, int h) {
     glViewport(0, 0, w, h);
+}
+
+bool Window::event(QEvent *argEvent)  {
+
+    if (argEvent->type() == QEvent::Close) {
+        this->deleteLater();
+        argEvent->accept();
+        return true;
+    }
+
+    return Super::event(argEvent);
 }
 
 /***
