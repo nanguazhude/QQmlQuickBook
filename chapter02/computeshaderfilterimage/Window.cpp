@@ -47,27 +47,30 @@ public:
         auto varShader = glCreateShader(GL_COMPUTE_SHADER);
         const auto varShaderSource =
             sstd::load_file_remove_utf8(QStringLiteral("myqml/computeshaderfilterimage/main.cps"));
+
         {
             GLint varSL = static_cast<GLint>(varShaderSource.size());
             const char *varS[]{ varShaderSource.c_str() };
             glShaderSource(varShader, 1, varS, &varSL);
+            glCompileShader(varShader);
         }
-        glCompileShader(varShader);
+        
+        if constexpr (false) {
+            auto printErrorDetail = [](GLuint e) {
+                GLint log_length;
+                glGetShaderiv(e, GL_INFO_LOG_LENGTH, &log_length);
+                log_length += 16;
 
-        auto printErrorDetail = [](GLuint e) {
-            GLint log_length;
-            glGetShaderiv(e, GL_INFO_LOG_LENGTH, &log_length);
-            log_length += 16;
+                /*获得一段内存，并初始化为0*/
+                sstd::string infos_;
+                infos_.resize(log_length);
 
-            /*获得一段内存，并初始化为0*/
-            sstd::string infos_;
-            infos_.resize(log_length);
-
-            char * info = infos_.data();
-            glGetShaderInfoLog(e, log_length, nullptr, info);
-            qDebug() << info;
-        };
-        printErrorDetail(varShader);
+                char * info = infos_.data();
+                glGetShaderInfoLog(e, log_length, nullptr, info);
+                qDebug() << info;
+            };
+            printErrorDetail(varShader);
+        }
 
         $m$Program = glCreateProgram();
         glAttachShader($m$Program, varShader);
@@ -106,7 +109,6 @@ public:
         /*分配内存*/
         glTextureStorage2D($m$OutputImage, 1, GL_RGBA8, varImage.width(), varImage.height());
                
-
     }
 
 };
