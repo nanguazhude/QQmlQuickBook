@@ -149,6 +149,8 @@ void Window::paintGL() {
         return;
     }
 
+    glDisable(GL_RASTERIZER_DISCARD);
+
     {/*间隔超过600ms才执行*/
         auto varCurrentTime = std::chrono::high_resolution_clock::now();
         if (std::chrono::abs(varCurrentTime - $m$DrawData->$m$LastDraw) > 600ms) {
@@ -195,7 +197,7 @@ void Window::paintGL() {
         GLsizei varResultLength = 0;
         do {
             if constexpr (true) {
-                std::this_thread::sleep_for(500ns);
+                std::this_thread::sleep_for(100ns);
                 glGetSynciv(varSync, GL_SYNC_STATUS, 4, &varResultLength, varResult);
             }
             else {
@@ -251,6 +253,10 @@ https://blog.csdn.net/z444_579/article/details/54138504
 https://www.cnblogs.com/vertexshader/articles/3022981.html
 ***/
 
+/***
+如果release比debug慢，可能是开启了垂直同步
+
+***/
 
 
 

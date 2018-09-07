@@ -11,16 +11,21 @@ linux:{
 LIBS+=-lXmu -lXi -lGL -lXext -lX11
 }
 
+INCLUDEPATH += $$PWD/glew_source/glew
+
 SOURCES += $$PWD/glew_source/glew.c
 SOURCES += $$PWD/glew_source/qt_initializeglew.cpp
-INCLUDEPATH += $$PWD/glew_source/glew
+SOURCES += $$PWD/glew_source/windows_vsync.cpp
+
 HEADERS += $$PWD/glew_source/glew/GL/glew.h
 HEADERS += $$PWD/glew_source/glew/GL/eglew.h
 HEADERS += $$PWD/glew_source/glew/GL/glxew.h
 HEADERS += $$PWD/glew_source/glew/GL/wglew.h
 
 INCLUDEPATH += $$PWD
-SOURCES += $$PWD/sstd_glew.hpp
+HEADERS += $$PWD/sstd_glew.hpp
+
+
 
 include($$PWD/glew_enable_gldebug.pri)
 
