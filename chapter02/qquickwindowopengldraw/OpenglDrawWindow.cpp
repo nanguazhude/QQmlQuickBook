@@ -543,8 +543,8 @@ void OpenglDrawWindowItemRender::paintGL() {
     glUseProgram(_m_draw_data->$m$Program);
     glBindVertexArray(_m_draw_data->$m$VAO);
     glVertexArrayBindingDivisor(_m_draw_data->$m$VAO, 0, 1);
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, _m_draw_data->$m$Texture);
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTextureUnit(1, _m_draw_data->$m$Texture);
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, getArraySize());
 
     /*一些清理工作*/

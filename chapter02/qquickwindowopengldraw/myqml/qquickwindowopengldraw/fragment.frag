@@ -2,7 +2,7 @@
 smooth in vec2 tuv;
 flat in int tID;
 
-layout(binding=0) uniform sampler2DArray texture_array_  ;
+layout(binding=1) uniform sampler2DArray texture_array_  ;
 out vec4 color;
 
 void main(){
