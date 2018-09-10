@@ -140,6 +140,12 @@ void Window::initializeGL() {
 }
 
 /******************************************/
+
+/***
+class SharedDataInAWorkGroup {
+
+};
+
 class InPut {
 public:
     std::array<std::uint32_t, 3> gl_NumWorkGroups;
@@ -148,6 +154,7 @@ public:
     std::array<std::uint32_t, 3> gl_LocalInvocationID;
     std::array<std::uint32_t, 3> gl_GlobalInvocationID;
     std::uint32_t gl_LocalInvocationIndex;
+    SharedDataInAWorkGroup * shread;
 };
 
 void dispatchCompute(
@@ -164,6 +171,7 @@ void dispatchCompute(
     for (std::uint32_t gx = 0; gx < num_groups_x; ++gx) {
         for (std::uint32_t gy = 0; gy < num_groups_y; ++gy) {
             for (std::uint32_t gz = 0; gz < num_groups_z; ++gz) {
+                SharedDataInAWorkGroup varSharedData;
                 for (std::uint32_t lx = 0; lx < local_size_x; ++lx) {
                     for (std::uint32_t ly = 0; ly < local_size_y; ++ly) {
                         for (std::uint32_t lz = 0; lz < local_size_z; ++lz) {
@@ -179,6 +187,7 @@ void dispatchCompute(
                             };
                             varInput.gl_LocalInvocationIndex = fma(local_size_x,
                                 fma(lz, local_size_y, ly), lx);
+                            varInput.shread = &varSharedData;
                             glslProgramMain(&varInput);
                         }
                     }
@@ -187,14 +196,7 @@ void dispatchCompute(
         }
     }
 }
-
-QImage paintInCPU(const QImage & arg) {
-    QImage varAns;
-    auto varGLSLFunction = [ argAns = &varAns , argInput = &arg ](const InPut * argIndex) {
-       
-    };
-    return std::move(varAns);
-}
+***/
 
 /******************************************/
 
