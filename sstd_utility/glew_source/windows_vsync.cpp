@@ -7,10 +7,12 @@
 extern void ___glEnableGLVSNC();
 extern void ___glDisableGLVSNC();
 
+/*打开垂直同步*/
 void ___glEnableGLVSNC() {
     wglSwapIntervalEXT(true);
 }
 
+/*关闭垂直同步*/
 void ___glDisableGLVSNC() {
     wglSwapIntervalEXT(false);
 }
@@ -18,7 +20,9 @@ void ___glDisableGLVSNC() {
 #endif
 
 
-/*http://www.itkeyword.com/doc/4782487057909779x120/how-to-enable-vsync-in-opengl*/
+/*
+http://www.itkeyword.com/doc/4782487057909779x120/how-to-enable-vsync-in-opengl
+*/
 //wglSwapIntervalEXT
 
 /**

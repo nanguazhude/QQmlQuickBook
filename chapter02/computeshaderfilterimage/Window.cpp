@@ -139,6 +139,65 @@ void Window::initializeGL() {
 
 }
 
+/******************************************/
+class InPut {
+public:
+    std::array<std::uint32_t, 3> gl_NumWorkGroups;
+    std::array<std::uint32_t, 3> gl_WorkGroupSize;
+    std::array<std::uint32_t, 3> gl_WorkGroupID;
+    std::array<std::uint32_t, 3> gl_LocalInvocationID;
+    std::array<std::uint32_t, 3> gl_GlobalInvocationID;
+    std::uint32_t gl_LocalInvocationIndex;
+};
+
+void dispatchCompute(
+    const std::uint32_t num_groups_x,
+    const std::uint32_t num_groups_y,
+    const std::uint32_t num_groups_z,
+    const std::uint32_t local_size_x,
+    const std::uint32_t local_size_y,
+    const std::uint32_t local_size_z,
+    std::function<void(const InPut *)> glslProgramMain) {
+
+    auto fma = [](auto x, auto y, auto z) {return x * y + z; };
+
+    for (std::uint32_t gx = 0; gx < num_groups_x; ++gx) {
+        for (std::uint32_t gy = 0; gy < num_groups_y; ++gy) {
+            for (std::uint32_t gz = 0; gz < num_groups_z; ++gz) {
+                for (std::uint32_t lx = 0; lx < local_size_x; ++lx) {
+                    for (std::uint32_t ly = 0; ly < local_size_y; ++ly) {
+                        for (std::uint32_t lz = 0; lz < local_size_z; ++lz) {
+                            InPut varInput;
+                            varInput.gl_NumWorkGroups = { num_groups_x ,num_groups_y ,num_groups_z };
+                            varInput.gl_WorkGroupSize = { local_size_x ,local_size_y,local_size_z };
+                            varInput.gl_WorkGroupID = { gx,gy,gz };
+                            varInput.gl_LocalInvocationID = { lx,ly,lz };
+                            varInput.gl_GlobalInvocationID = {
+                                fma(local_size_x,gx,lx),
+                                fma(local_size_y,gy,ly),
+                                fma(local_size_z,gz,lz),
+                            };
+                            varInput.gl_LocalInvocationIndex = fma(local_size_x,
+                                fma(lz, local_size_y, ly), lx);
+                            glslProgramMain(&varInput);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+QImage paintInCPU(const QImage & arg) {
+    QImage varAns;
+    auto varGLSLFunction = [ argAns = &varAns , argInput = &arg ](const InPut * argIndex) {
+       
+    };
+    return std::move(varAns);
+}
+
+/******************************************/
+
 void Window::paintGL() {
 
     if (nullptr == $m$DrawData) {
@@ -186,7 +245,7 @@ void Window::paintGL() {
     glDispatchCompute($m$DrawData->$m$ImageWidth, $m$DrawData->$m$ImageHeight, 1);
 
     /*等待显卡完成*/
-    if constexpr(true){
+    if constexpr (true) {
         auto varSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         glClientWaitSync(varSync, GL_SYNC_FLUSH_COMMANDS_BIT, 100);
         GLint varResult[]{
