@@ -25,6 +25,8 @@ namespace sstd {
         varFormat.setRedBufferSize(8);
         varFormat.setGreenBufferSize(8);
         varFormat.setDepthBufferSize(24);
+        varFormat.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+        varFormat.setSwapInterval(0)/*关闭垂直同步*/;
 #if defined(ENABLE_GL_DEBUG)
         varFormat.setOption(QSurfaceFormat::DebugContext,true);
 #else
