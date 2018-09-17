@@ -8,7 +8,7 @@ namespace sstd {
     class ChatViewPrivate;
     class ChatView : public QQuickItem {
         Q_OBJECT
-            /*此属性应当继承于TextEdit或者TextArea*/
+            /*此属性应当继承于TextArea:import QtQuick.Controls 1.4*/
         Q_PROPERTY(QQmlComponent * textEditDelegate READ getTextEditDelegate WRITE setTextEditDelegate NOTIFY textEditDelegateChanged)
             /*此属性用于定位TextFrame，最好是透明的*/
         Q_PROPERTY(QQmlComponent * textFrameDelegate READ getTextFrameDelegate WRITE setTextFrameDelegate NOTIFY textFrameDelegateChanged)

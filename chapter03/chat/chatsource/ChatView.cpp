@@ -43,6 +43,7 @@ namespace sstd {
             return;
         }
         thisp->$m$TextEditDelegate = arg;
+        $p$LoadTextEditDelegate();
         textEditDelegateChanged();
     }
 
@@ -71,13 +72,28 @@ namespace sstd {
         thisp->$m$TextEdit->setParent(this);
         thisp->$m$TextEdit->setParentItem(this);
         thisp->$m$TextEditDelegate->completeCreate();
+        {/*设置TextView的Width和Height*/
+            QQmlExpression varSetElementWidth(varContext, thisp->$m$TextEdit,
+                QStringLiteral(R"(
+ width = Qt.binding( function() { return parent.width }   );
+ height = Qt.binding( function() { return parent.height } );
+ )") );
+            varSetElementWidth.evaluate();
+        }
         /*获得文档*/
         auto varQuickTextDocument = thisp->$m$TextEdit->property("textDocument").value<QQuickTextDocument*>();
         assert(varQuickTextDocument);
         thisp->$m$Document = varQuickTextDocument->textDocument();
         assert(thisp->$m$Document);
         /*设置文档布局*/
-
+        auto varLayout = sstdNew<ChatDocumentLayout>(this,thisp->$m$Document);
+        thisp->$m$Document->setDocumentLayout(varLayout);
+        if constexpr (false) {
+            connect(varLayout, &QAbstractTextDocumentLayout::documentSizeChanged,
+                this, [this](const QSizeF & arg) {
+                this->setHeight(std::max(this->height(), arg.height()));
+            });
+        }
     }
 
     void ChatView::$p$LoadTextFrameDelegate() {
@@ -86,8 +102,8 @@ namespace sstd {
         assert(varContex);
     }
 
-    ChatDocumentLayout::ChatDocumentLayout(QTextDocument *doc):Super(doc){
-
+    ChatDocumentLayout::ChatDocumentLayout(ChatView * a,QTextDocument *doc):Super(doc){
+        $m$ChatView = a;
     }
 
 }/*namespace sstd*/

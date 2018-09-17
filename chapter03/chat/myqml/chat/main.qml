@@ -1,6 +1,7 @@
 ﻿import QtQuick 2.11
 import QtQuick.Window 2.11
-import QtQuick.Controls 2.4
+import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 import myqml.chat 1.0
 
 Window {
@@ -10,10 +11,17 @@ Window {
     title: qsTr("Hello World")
 
     SSTDChat{
+
         anchors.fill: parent ;
+
         textEditDelegate: TextArea{
-            width: parent.width;
             text: "sfdsafd"
+            style: TextAreaStyle {
+                     textColor: "#333"
+                     selectionColor: "steelblue"
+                     selectedTextColor: "#eee"
+                     backgroundColor: "#eee"
+                 }
         }
 
         textFrameDelegate: Rectangle{
