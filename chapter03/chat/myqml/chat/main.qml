@@ -15,7 +15,8 @@ Window {
         anchors.fill: parent ;
 
         textEditDelegate: TextArea{
-            text: "sfdsafd"
+            text:"sssss"
+            textMargin: 20;
             style: TextAreaStyle {
                      textColor: "#333"
                      selectionColor: "steelblue"

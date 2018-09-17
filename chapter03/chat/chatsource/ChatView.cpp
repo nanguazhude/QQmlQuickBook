@@ -72,6 +72,7 @@ namespace sstd {
         assert(thisp->$m$TextEdit);
         thisp->$m$TextEdit->setParent(this);
         thisp->$m$TextEdit->setParentItem(this);
+        thisp->$m$TextEdit->setProperty("textMargin",0);
         thisp->$m$TextEditDelegate->completeCreate();
         {/*设置TextView的Width和Height*/
             QQmlExpression varSetElementWidth(varContext, thisp->$m$TextEdit,

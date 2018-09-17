@@ -28,7 +28,8 @@ DISTFILES +=
     QMAKE_LFLAGS += -Wl,-rpath .
 }
 
-RESOURCES +=
+RESOURCES += \
+    chatsource/chatqmlsource.qrc
 
 SOURCES += $$PWD/Application.cpp \
     $$PWD/QmlApplicationEngine.cpp \

@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/chat/qml">
+        <file>SimpleReply.qml</file>
+        <file>SimpleRequest.qml</file>
+    </qresource>
+</RCC>

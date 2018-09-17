@@ -20,6 +20,8 @@ namespace sstd {
         void setTextFrame(QTextFrame * arg) { $m$TextFrame = arg; }
         double getContentTextWidth() const { return $m$RealTextWidth; }
         void setContentTextWidth(const double &arg) { $m$RealTextWidth = arg; }
+        double getContentTextHeight()const { return $m$RealTextHeight; }
+        void setContentTextHeigth(const double &arg) { $m$RealTextHeight = arg; }
     public:
         static void setTextData(QTextFrame *, TextFrameItem*);
         static TextFrameItem* getTextData(QTextFrame *);
@@ -36,7 +38,8 @@ namespace sstd {
     private:
         using Super = QObject;
         QTextFrame * $m$TextFrame = nullptr;
-        double $m$RealTextWidth = 1;
+        double $m$RealTextWidth = -1;
+        double $m$RealTextHeight = -1;
     };
 
 }/*namespace sstd*/
