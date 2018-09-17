@@ -18,7 +18,7 @@ template<typename T, bool F = false/*force dynamic_cast?*/, typename U>
 inline T sstd_dynamic_cast(U * arg) {
     if (arg == nullptr) { return nullptr; }
     using R = std::remove_cv_t< std::remove_reference_t<U> >;
-    static_assert(std::is_polymorphic<R>::value,"arg is not a polymorphic class");
+    static_assert(std::is_polymorphic<R>::value, "arg is not a polymorphic class");
     if constexpr (std::is_convertible_v<R*, T>) {/*up cast ?*/
         return static_cast<T>((R*)(arg));
     }
