@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <functional>
 #include <sstd_memory.hpp>
 
 #include <QtCore/qlist.h>
@@ -17,6 +18,11 @@ namespace sstd {
         TextFrameItem(QObject * /**/ = nullptr);
         QTextFrame * getTextFrame() const { return $m$TextFrame; }
         void setTextFrame(QTextFrame * arg) { $m$TextFrame = arg; }
+        double getContentTextWidth() const { return $m$RealTextWidth; }
+        void setContentTextWidth(const double &arg) { $m$RealTextWidth = arg; }
+    public:
+        static void setTextData(QTextFrame *, TextFrameItem*);
+        static TextFrameItem* getTextData(QTextFrame *);
     public:
         virtual QByteArray getQmlBackgroundDelegateData() const = 0;
         virtual QString getHtmlTitle() const = 0;
@@ -30,6 +36,7 @@ namespace sstd {
     private:
         using Super = QObject;
         QTextFrame * $m$TextFrame = nullptr;
+        double $m$RealTextWidth = 1;
     };
 
 }/*namespace sstd*/
