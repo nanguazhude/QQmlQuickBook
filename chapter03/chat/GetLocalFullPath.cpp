@@ -1,5 +1,7 @@
 ﻿#include <QtCore/qurl.h>
+#include <QtCore/qdir.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qcoreapplication.h>
 
 namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);

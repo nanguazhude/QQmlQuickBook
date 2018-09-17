@@ -32,14 +32,19 @@ RESOURCES +=
 
 SOURCES += $$PWD/Application.cpp \
     $$PWD/QmlApplicationEngine.cpp \
-    $$PWD/qml_chat_qtextdocumentlayout.cpp
+    $$PWD/chatsource/qml_chat_qtextdocumentlayout.cpp \
+    $$PWD/chatsource/TextFrameItem.cpp \
+    $$PWD/chatsource/ChatView.cpp
 
 SOURCES += $$PWD/GetLocalFullPath.cpp
 SOURCES += $$PWD/main.cpp
 
 HEADERS += $$PWD/Application.hpp \
     $$PWD/QmlApplicationEngine.hpp \
-    $$PWD/qml_chat_qtextdocumentlayout_p.h
+    $$PWD/chatsource/qml_chat_qtextdocumentlayout_p.h \
+    $$PWD/chatsource/TextFrameItem.hpp \
+    $$PWD/chatsource/ChatView.hpp \
+    $$PWD/chatsource/ChatViewPrivate.hpp
 
 QMLSOURCES += $$PWD/myqml/chat/main.qml
 
