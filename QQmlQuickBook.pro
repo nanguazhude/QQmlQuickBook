@@ -39,4 +39,6 @@ invertimage.file = $$PWD/chapter02/invertimage/invertimage.pro
 invertimage.depends = buildinstall
 SUBDIRS += invertimage
 
-
+chat.file = $$PWD/chapter03/chat/chat.pro
+chat.depends = buildinstall
+SUBDIRS += chat

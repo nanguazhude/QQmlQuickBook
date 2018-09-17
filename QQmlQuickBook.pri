@@ -15,6 +15,7 @@ QMAKE_CFLAGS += -std=c11
 CONFIG(debug,debug|release){
     RootDestDir = $$PWD/bin
     CONFIG += console
+    DEFINES *= _DEBUG
 }else{#release
     RootDestDir = $$PWD/bin
     CONFIG += console
