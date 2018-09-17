@@ -52,9 +52,9 @@
 //
 
 #include <QtGui/private/qtguiglobal_p.h>
-#include "QtGui/qabstracttextdocumentlayout.h"
-#include "QtGui/qtextoption.h"
-#include "QtGui/qtextobject.h"
+#include <QtGui/qabstracttextdocumentlayout.h>
+#include <QtGui/qtextoption.h>
+#include <QtGui/qtextobject.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -62,7 +62,7 @@ class QTextListFormat;
 class QTextTableCell;
 class QTextDocumentLayoutPrivate;
 
-class Q_GUI_EXPORT QTextDocumentLayout : public QAbstractTextDocumentLayout
+class QTextDocumentLayout : public QAbstractTextDocumentLayout
 {
     Q_DECLARE_PRIVATE(QTextDocumentLayout)
     Q_OBJECT

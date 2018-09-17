@@ -37,17 +37,17 @@
 **
 ****************************************************************************/
 
-#include "qtextdocumentlayout_p.h"
-#include "qtextdocument_p.h"
-#include "qtextimagehandler_p.h"
-#include "qtexttable.h"
-#include "qtextlist.h"
-#include "qtextengine_p.h"
-#include "private/qcssutil_p.h"
-#include "private/qguiapplication_p.h"
+#include "qml_chat_qtextdocumentlayout_p.h"
+#include <private/qtextdocument_p.h>
+#include <private/qtextimagehandler_p.h>
+#include <qtexttable.h>
+#include <qtextlist.h>
+#include <private/qtextengine_p.h>
+#include <private/qcssutil_p.h>
+#include <private/qguiapplication_p.h>
 
-#include "qabstracttextdocumentlayout_p.h"
-#include "qcssparser_p.h"
+#include <private/qabstracttextdocumentlayout_p.h>
+#include <private/qcssparser_p.h>
 
 #include <qpainter.h>
 #include <qmath.h>
@@ -57,11 +57,12 @@
 #include <qvarlengtharray.h>
 #include <limits.h>
 #include <qbasictimer.h>
-#include "private/qfunctions_p.h"
+#include <private/qfunctions_p.h>
 
 #include <algorithm>
 
 // #define LAYOUT_DEBUG
+#define QT_NO_CSSPARSER
 
 #ifdef LAYOUT_DEBUG
 #define LDEBUG qDebug()
@@ -3374,4 +3375,4 @@ QFixed QTextDocumentLayoutPrivate::scaleToDevice(QFixed value) const
 
 QT_END_NAMESPACE
 
-#include "moc_qtextdocumentlayout_p.cpp"
+//#include "moc_qtextdocumentlayout_p.cpp"
