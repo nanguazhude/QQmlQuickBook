@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <sstd_memory.hpp>
 #include <QtCore/qobject.h>

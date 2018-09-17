@@ -1,4 +1,4 @@
-#include "TextFrameItem.hpp"
+﻿#include "TextFrameItem.hpp"
 
 namespace sstd {
 

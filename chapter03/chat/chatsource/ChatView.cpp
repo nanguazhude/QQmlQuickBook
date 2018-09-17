@@ -1,4 +1,4 @@
-#include "ChatView.hpp"
+﻿#include "ChatView.hpp"
 #include "ChatViewPrivate.hpp"
 #include "qml_chat_qtextdocumentlayout_p.h"
 
