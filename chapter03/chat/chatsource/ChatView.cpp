@@ -1,4 +1,5 @@
 ﻿#include "ChatView.hpp"
+#include "TextFrameItem.hpp"
 #include "ChatViewPrivate.hpp"
 #include "ChatDocumentLayout.hpp"
 #include "qml_chat_qtextdocumentlayout_p.h"
@@ -61,9 +62,9 @@ namespace sstd {
         if (nullptr == thisp->$m$TextEditDelegate) { return; }
         auto varContext = thisp->$m$TextEditDelegate->creationContext();
         assert(varContext);
-        if (thisp->$m$TextEdit) { 
+        if (thisp->$m$TextEdit) {
             delete thisp->$m$TextEdit;
-            thisp->$m$TextEdit = nullptr; 
+            thisp->$m$TextEdit = nullptr;
         }
         /*创建TextEdit*/
         thisp->$m$TextEdit =
@@ -75,9 +76,9 @@ namespace sstd {
         {/*设置TextView的Width和Height*/
             QQmlExpression varSetElementWidth(varContext, thisp->$m$TextEdit,
                 QStringLiteral(R"(
- width = Qt.binding( function() { return parent.width }   );
+ width  = Qt.binding( function() { return parent.width  } );
  height = Qt.binding( function() { return parent.height } );
- )") );
+ )"));
             varSetElementWidth.evaluate();
         }
         /*获得文档*/
@@ -86,7 +87,7 @@ namespace sstd {
         thisp->$m$Document = varQuickTextDocument->textDocument();
         assert(thisp->$m$Document);
         /*设置文档布局*/
-        auto varLayout = sstdNew<ChatDocumentLayout>(this,thisp->$m$Document);
+        auto varLayout = sstdNew<ChatDocumentLayout>(this, thisp->$m$Document);
         thisp->$m$Document->setDocumentLayout(varLayout);
         if constexpr (false) {
             connect(varLayout, &QAbstractTextDocumentLayout::documentSizeChanged,
@@ -102,8 +103,19 @@ namespace sstd {
         assert(varContex);
     }
 
-    ChatDocumentLayout::ChatDocumentLayout(ChatView * a,QTextDocument *doc):Super(doc){
+    ChatDocumentLayout::ChatDocumentLayout(ChatView * a, QTextDocument *doc) :Super(doc) {
         $m$ChatView = a;
+    }
+
+    void ChatView::appendChatFrame(TextFrameItem*arg) {
+        assert(arg);
+        assert(arg->getTextFrame() == nullptr);
+
+        {
+            QTextCursor varTC{ thisp->$m$Document->rootFrame() };
+            varTC.movePosition(QTextCursor::End);
+        }
+
     }
 
 }/*namespace sstd*/

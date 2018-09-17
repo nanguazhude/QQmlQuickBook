@@ -5,6 +5,7 @@
 #include <QtGui/qtextdocument.h>
 
 namespace sstd {
+    class TextFrameItem;
     class ChatViewPrivate;
     class ChatView : public QQuickItem {
         Q_OBJECT
@@ -15,6 +16,7 @@ namespace sstd {
     public:
         ChatView(QQuickItem *parent = nullptr);
         static void registerChat();
+        void appendChatFrame(TextFrameItem*);
     public:
         QTextDocument * getTextDocument() const;
         QQuickItem * getTextEditObject() const;
