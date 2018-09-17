@@ -4,6 +4,10 @@
 
 namespace sstd {
 
+    ChatViewPrivate::ChatViewPrivate(ChatView *parent):Super(parent) {
+
+    }
+
     ChatView::ChatView(QQuickItem *parent):Super(parent){
         thisp = sstdNew<ChatViewPrivate>(this);
     }
