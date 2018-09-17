@@ -46,7 +46,8 @@ HEADERS += $$PWD/Application.hpp \
     $$PWD/chatsource/TextFrameItem.hpp \
     $$PWD/chatsource/ChatView.hpp \
     $$PWD/chatsource/ChatViewPrivate.hpp \
-    $$PWD/chatsource/ChatImageProvider.hpp
+    $$PWD/chatsource/ChatImageProvider.hpp \
+    $$PWD/chatsource/ChatDocumentLayout.hpp
 
 QMLSOURCES += $$PWD/myqml/chat/main.qml
 
