@@ -67,7 +67,7 @@ namespace sstd {
         }
         /*创建TextEdit*/
         thisp->$m$TextEdit =
-            dynamic_cast<QQuickItem *>(thisp->$m$TextEditDelegate->beginCreate(varContext));
+            sstd_dynamic_cast<QQuickItem *>(thisp->$m$TextEditDelegate->beginCreate(varContext));
         assert(thisp->$m$TextEdit);
         thisp->$m$TextEdit->setParent(this);
         thisp->$m$TextEdit->setParentItem(this);

@@ -81,6 +81,18 @@ public:
 int main(int, char **) {
 
     {
+        class A { public: virtual ~A() {} };
+        class B : public A{};
+        class C { public:virtual ~C() {}; };
+        A * a = new B;
+        B * b = sstd_dynamic_cast<B*>(a);
+        a = sstd_dynamic_cast<A*>(b);
+        C * c = sstd_dynamic_cast<C*>(a);
+        delete a;
+        (void)c;
+    }
+
+    {
         int test = 1;
         {
             sstd::StateStackBasic sm;

@@ -4,12 +4,16 @@
 #pragma warning (disable: 4291) 
 #endif
 
+#include <cassert>
+#include <cstdint>
+#include <cstddef>
+#include <charconv>
+
 #include <array>
 #include <cmath>
 #include <memory>
 #include <limits>
 #include <utility>
-#include <cstddef>
 #include <type_traits>
 #include <memory_resource>
 
@@ -315,4 +319,5 @@ template<typename $T$, typename ... $T$Args> friend $T$ * sstd::sstdNew($T$Args 
 
 /**************************************************/
 #include "sstd_state_stack.hpp"
+#include "sstd_dynamic_cast.hpp"
 
