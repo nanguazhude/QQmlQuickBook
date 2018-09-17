@@ -1,1 +1,6 @@
-﻿
+﻿#include "ChatSimpleRequest.hpp"
+
+
+
+
+

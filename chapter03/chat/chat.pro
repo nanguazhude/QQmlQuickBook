@@ -36,7 +36,9 @@ SOURCES += $$PWD/Application.cpp \
     $$PWD/chatsource/qml_chat_qtextdocumentlayout.cpp \
     $$PWD/chatsource/TextFrameItem.cpp \
     $$PWD/chatsource/ChatView.cpp \
-    $$PWD/chatsource/ChatImageProvider.cpp
+    $$PWD/chatsource/ChatImageProvider.cpp \
+    $$PWD/chatsource/ChatSimpleReply.cpp \
+    $$PWD/chatsource/ChatSimpleRequest.cpp
 
 SOURCES += $$PWD/GetLocalFullPath.cpp
 SOURCES += $$PWD/main.cpp
@@ -48,7 +50,9 @@ HEADERS += $$PWD/Application.hpp \
     $$PWD/chatsource/ChatView.hpp \
     $$PWD/chatsource/ChatViewPrivate.hpp \
     $$PWD/chatsource/ChatImageProvider.hpp \
-    $$PWD/chatsource/ChatDocumentLayout.hpp
+    $$PWD/chatsource/ChatDocumentLayout.hpp \
+    $$PWD/chatsource/ChatSimpleReply.hpp \
+    $$PWD/chatsource/ChatSimpleRequest.hpp
 
 QMLSOURCES += $$PWD/myqml/chat/main.qml
 
