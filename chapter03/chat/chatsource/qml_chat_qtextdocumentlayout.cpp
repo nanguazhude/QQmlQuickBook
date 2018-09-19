@@ -60,6 +60,7 @@
 #include <private/qfunctions_p.h>
 
 #include <algorithm>
+#include "TextFrameItem.hpp"
 
 // #define LAYOUT_DEBUG
 #define QT_NO_CSSPARSER
@@ -507,6 +508,8 @@ public:
     // calls the next one
     QRectF layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, QFixed parentY = 0);
     QRectF layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, QFixed frameWidth, QFixed frameHeight, QFixed parentY = 0);
+    template<bool,bool>
+    QRectF _layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, QFixed frameWidth, QFixed frameHeight, QFixed parentY = 0, sstd::TextFrameItem*  =nullptr);
 
     void layoutBlock(const QTextBlock &bl, int blockPosition, const QTextBlockFormat &blockFormat,
                      QTextLayoutStruct *layoutStruct, int layoutFrom, int layoutTo, const QTextBlockFormat *previousBlockFormat);
@@ -2095,7 +2098,36 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     return layoutFrame(f, layoutFrom, layoutTo, width, height, parentY);
 }
 
-QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, QFixed frameWidth, QFixed frameHeight, QFixed parentY)
+QRectF QTextDocumentLayoutPrivate::layoutFrame(
+    QTextFrame *f, 
+    int layoutFrom, 
+    int layoutTo, 
+    QFixed frameWidth, 
+    QFixed frameHeight, 
+    QFixed parentY) {
+    auto varTextItem = sstd::TextFrameItem::getTextData(f);
+    if (varTextItem) {
+        if (varTextItem->getPureLeftEmpty()) {
+            _layoutFrame<true, true>(f, layoutFrom, layoutTo, frameWidth, frameHeight, parentY, varTextItem);
+            return _layoutFrame<true, false>(f, layoutFrom, layoutTo, frameWidth, frameHeight, parentY, varTextItem);
+        }
+        else {
+            return _layoutFrame<true, false>(f, layoutFrom, layoutTo, frameWidth, frameHeight, parentY, varTextItem);
+        }
+    }
+    else {
+        return _layoutFrame<false,false>(f,layoutFrom,layoutTo,frameWidth,frameHeight,parentY,nullptr);
+    }
+}
+
+template<bool IsTextItem,bool AboutRunAgain>
+QRectF QTextDocumentLayoutPrivate::_layoutFrame(QTextFrame *f, 
+    int layoutFrom, 
+    int layoutTo, 
+    QFixed frameWidth, 
+    QFixed frameHeight, 
+    QFixed parentY,
+    sstd::TextFrameItem*varTextItem)
 {
     LDEBUG << "layoutFrame from=" << layoutFrom << "to=" << layoutTo;
     Q_ASSERT(data(f)->sizeDirty);
@@ -2107,6 +2139,9 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     bool fullLayout = false;
     {
         QTextFrameFormat fformat = f->frameFormat();
+        if constexpr (AboutRunAgain) {
+            fformat = varTextItem->getFrameFormat();
+        }
         // set sizes of this frame from the format
         QFixed tm = QFixed::fromReal(fformat.topMargin());
         if (tm != fd->topMargin) {
@@ -2231,8 +2266,30 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     fd->size.height = fd->contentsHeight == -1
                  ? layoutStruct.y + fd->border + fd->padding + fd->bottomMargin
                  : fd->contentsHeight + 2*(fd->border + fd->padding) + fd->topMargin + fd->bottomMargin;
+    
+    if constexpr(IsTextItem) {
+        /*获得文字的真实宽度*/
+        varTextItem->setContentTextWidth(layoutStruct.contentsWidth.toReal());
+        /*获得文字的真实高度*/
+        varTextItem->setContentTextHeigth(
+            (fd->size.height-(2 * (fd->border + fd->padding) + fd->topMargin + fd->bottomMargin))
+            .toReal());
+        /*设置最小高度*/
+        const auto varMinHeight = QFixed::fromReal(varTextItem->getFrameMinHeight());
+        if (fd->size.height < varMinHeight) {
+            fd->size.height = varMinHeight;
+        }
+    }
+
     fd->size.width = actualWidth + marginWidth;
-    fd->sizeDirty = false;
+
+    if constexpr (AboutRunAgain) {
+        fd->sizeDirty = true;
+    }
+    else {
+        fd->sizeDirty = false;
+    }
+
     if (layoutStruct.updateRectForFloats.isValid())
         layoutStruct.updateRect |= layoutStruct.updateRectForFloats;
     return layoutStruct.updateRect;
