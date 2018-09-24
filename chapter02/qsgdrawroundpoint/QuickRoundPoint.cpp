@@ -76,14 +76,13 @@ namespace sstd {
             };
 
             PointNode() {
-
                 mmm_QSGGeometry = sstdNew<Geometry>();
                 this->setGeometry( mmm_QSGGeometry );
                 this->setFlag(QSGNode::OwnsGeometry);
                 mmm_Material = sstdNew<sstd::quickroundpoint::QSGVertexColorMaterial>();
                 this->setMaterial(mmm_Material);
                 this->setFlag(QSGNode::OwnsMaterial);
-
+                this->setFlag(QSGNode::UsePreprocess);
             }
 
             void updateData(qreal s, const QColor & varColor) {
@@ -92,11 +91,12 @@ namespace sstd {
                     varColor.green(),
                     varColor.blue(),
                     varColor.alpha());
-                mmm_Material->setFlag(QSGMaterial::Blending);
+                mmm_Material->setFlag(QSGMaterial::Blending,true);
                 this->markDirty(QSGNode::DirtyGeometry | QSGNode::DirtyMaterial);
             }
-
+                       
         private:
+            using Super = QSGGeometryNode;
             Geometry * mmm_QSGGeometry = nullptr;
             sstd::quickroundpoint::QSGVertexColorMaterial * mmm_Material = nullptr;
         private:

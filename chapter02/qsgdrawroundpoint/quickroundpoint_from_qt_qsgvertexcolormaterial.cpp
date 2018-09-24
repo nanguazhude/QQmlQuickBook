@@ -15,6 +15,7 @@ namespace  sstd {
 
             const char * fragmentShader() const override { 
                 return u8R"(
+
 #version 330 
 in  vec4 color ;
 out vec4 finalColor ;
@@ -27,6 +28,7 @@ void main() {
     if( ansA < 0 ){ ansA = 0 ; }
     else if( ansA < 0.2 ){ ansA *= ansA; ansA *= ansA; ansA *= ansA; }
     else{ ansA *= ansA; }
+
     finalColor = vec4( color.r , color.g , color.b , color.a * ansA ) ;
 
 }
@@ -66,10 +68,15 @@ void main() {
                
         
         void QSGVertexColorMaterialShader::updateState(const RenderState &state, QSGMaterial * /*newEffect*/, QSGMaterial *) {
-            if (state.isOpacityDirty())
+            
+            if (state.isOpacityDirty()) {
                 program()->setUniformValue(m_opacity_id, state.opacity());
-            if (state.isMatrixDirty())
+            }
+
+            if (state.isMatrixDirty()) {
                 program()->setUniformValue(m_matrix_id, state.combinedMatrix());
+            }
+
         }
 
         char const *const *QSGVertexColorMaterialShader::attributeNames() const {
@@ -83,7 +90,7 @@ void main() {
         }
 
         QSGVertexColorMaterial::QSGVertexColorMaterial() {
-            setFlag(Blending, true);
+            setFlag(Blending , true);
         }
 
         int QSGVertexColorMaterial::compare(const QSGMaterial * /* other */) const {
