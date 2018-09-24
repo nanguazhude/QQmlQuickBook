@@ -20,9 +20,24 @@ export(QMAKE_POST_LINK)
 
 RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 
-SOURCES += $$PWD/main.cpp
+SOURCES += $$PWD/main.cpp \
+    $$PWD/Application.cpp \
+    $$PWD/GetLocalFullPath.cpp \
+    $$PWD/main.cpp \
+    $$PWD/QmlApplicationEngine.cpp
 
+HEADERS += \
+    $$PWD/Application.hpp \
+    $$PWD/QmlApplicationEngine.hpp
 
+DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
+
+QMLSOURCES += $$PWD/myqml/qsgdrawtriangle/main.qml
+
+lupdate_only{
+    SOURCES += $$QMLSOURCES
+}
+DISTFILES += $$QMLSOURCES
 
 
 
