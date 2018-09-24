@@ -199,9 +199,6 @@ static inline bool __qWindowInitializeGlew() {
         return false;
     }/****/
 
-     /*关闭垂直同步*/
-    glDisableGLVSNC();
-
     /****************************************/
     //OpengGL Debug Function
 #if defined(ENABLE_GL_DEBUG)

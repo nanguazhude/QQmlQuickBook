@@ -15,7 +15,6 @@ INCLUDEPATH += $$PWD/glew_source/glew
 
 SOURCES += $$PWD/glew_source/glew.c
 SOURCES += $$PWD/glew_source/qt_initializeglew.cpp
-SOURCES += $$PWD/glew_source/windows_vsync.cpp
 
 HEADERS += $$PWD/glew_source/glew/GL/glew.h
 HEADERS += $$PWD/glew_source/glew/GL/eglew.h
@@ -26,12 +25,7 @@ INCLUDEPATH += $$PWD
 HEADERS += $$PWD/sstd_glew.hpp
 
 
-
 include($$PWD/glew_enable_gldebug.pri)
-
-
-
-
 
 
 
