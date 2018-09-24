@@ -32,7 +32,7 @@ HEADERS += \
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
-QMLSOURCES += $$PWD/myqml/qsgdrawpoints/main.qml
+QMLSOURCES += $$PWD/myqml/qsgdrawpoint/main.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES

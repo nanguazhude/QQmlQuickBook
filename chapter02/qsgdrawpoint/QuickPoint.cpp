@@ -9,43 +9,95 @@ namespace sstd {
 
     QuickPoint::QuickPoint(QQuickItem * p) :Super(p) {
         connect(this, &QuickPoint::pointColorChanged, this, &QuickPoint::ppp_ColorChanged, Qt::QueuedConnection);
-        connect(this, &QuickPoint::pointPositionChanged, this, &QuickPoint::ppp_PositionChanged, Qt::QueuedConnection);
         connect(this, &QuickPoint::pointSizeChanged, this, &QuickPoint::ppp_PointSizeChanged, Qt::QueuedConnection);
-        this->setFlag(QQuickItem::ItemHasContents ,true);
+        this->setFlag(QQuickItem::ItemHasContents, true);
     }
-       
+
     namespace {
-        class PointNode : public QSGGeometry {
+
+        class PointNode : public QSGGeometryNode {
         public:
-            PointNode() :QSGGeometry(QSGGeometry::defaultAttributes_Point2D(),1){
-                mmm_Point[0] = static_cast<GLfloat>(0);
-                mmm_Point[1] = static_cast<GLfloat>(0);
-                mmm_Point[2] = static_cast<GLfloat>(0);
-                mmm_Point[3] = static_cast<GLfloat>(1);
-                this->setDrawingMode(QSGGeometry::DrawPoints);
-                {
-                    mmm_PointNode = sstdNew<QSGGeometryNode>();
-                    mmm_PointNode->setGeometry(this);
-                    mmm_PointNode->setFlag(QSGNode::OwnsGeometry);
-                }
-                {
-                    mmm_PointColor = sstdNew<QSGFlatColorMaterial>();
-                    mmm_PointNode->setMaterial(mmm_PointColor);
-                    mmm_PointNode->setFlag(QSGNode::OwnsMaterial);
-                }
+
+            class XYAndColor {
+            public:
+                GLfloat x;
+                GLfloat y;
+                GLfloat r;
+                GLfloat g;
+                GLfloat b;
+                GLfloat a;
+            };
+
+            static const QSGGeometry::AttributeSet & getThisAttributeSet() {
+                const static std::array<QSGGeometry::Attribute, 2> varAttributes{
+                    QSGGeometry::Attribute::create(0, 2, GL_FLOAT, QSGGeometry::PositionAttribute),
+                    QSGGeometry::Attribute::create(1, 4, GL_FLOAT, QSGGeometry::ColorAttribute),
+                };
+                const static auto varAns = QSGGeometry::AttributeSet{
+                    2,
+                    sizeof(XYAndColor),
+                    varAttributes.data()
+                };
+                return varAns;
             }
 
-            void updateData( qreal s, const QColor & varColor) {
-                mmm_PointSize[0] = static_cast<GLfloat>(s);
-                mmm_PointColor->setColor(varColor);
-                mmm_PointNode->markDirty(QSGNode::DirtyGeometry | QSGNode::DirtyMaterial);
+            class Geometry : public QSGGeometry {
+                using Super = QSGGeometry;
+            public:
+                Geometry() : QSGGeometry(getThisAttributeSet(),
+                    1/*vertex count */,
+                    0/*index count  */,
+                    QSGGeometry::UnsignedShortType/*index type*/) {
+
+                    this->setDrawingMode(QSGGeometry::DrawPoints);
+                    this->updateData(1,1,1,1,1);
+
+                }
+
+                void updateData(qreal s, GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
+
+                    this->setLineWidth(s)/*set point size*/;
+                    auto varData = static_cast<XYAndColor *>(this->vertexData());
+                    varData[0].x = 0;
+                    varData[0].y = 0;
+
+                    const constexpr auto varK = (1.0f / 255);
+                    varData[0].r = varK * r;
+                    varData[0].g = varK * g;
+                    varData[0].b = varK * b;
+                    varData[0].a = varK * a;
+                     
+                }
+
+            private:
+                SSTD_MEMORY_DEFINE(Geometry)
+            };
+
+            PointNode() {
+
+                mmm_QSGGeometry = sstdNew<Geometry>();
+                this->setGeometry( mmm_QSGGeometry );
+                this->setFlag(QSGNode::OwnsGeometry);
+
+                auto * varMaterial = new QSGVertexColorMaterial;
+                this->setMaterial(varMaterial);
+                this->setFlag(QSGNode::OwnsMaterial);
+
             }
 
+            void updateData(qreal s, const QColor & varColor) {
+
+                mmm_QSGGeometry->updateData(s,
+                    varColor.red(),
+                    varColor.green(),
+                    varColor.blue(),
+                    varColor.alpha());
+
+                this->markDirty(QSGNode::DirtyGeometry);
+            }
+            
         private:
-            GLfloat mmm_Point[4];
-            GLfloat mmm_PointSize[1];
-            QSGGeometryNode *      mmm_PointNode = nullptr;
-            QSGFlatColorMaterial * mmm_PointColor = nullptr;
+            Geometry * mmm_QSGGeometry = nullptr;
         private:
             SSTD_MEMORY_DEFINE(PointNode)
         };
@@ -54,35 +106,27 @@ namespace sstd {
     QSGNode * QuickPoint::updatePaintNode(
         QSGNode * oldNode,
         QQuickItem::UpdatePaintNodeData *) {
-        
-        PointNode * varNode = static_cast<PointNode *>(oldNode);
-        if (oldNode==nullptr) {
-            varNode = sstdNew<PointNode>();
+
+        auto varPointNode = static_cast<PointNode*>(oldNode);
+        if (oldNode == nullptr) {
+            varPointNode = sstdNew<PointNode>();
         }
-        
-        varNode->updateData( this->mmm_PointSize,this->mmm_PointColor );
-        
-        return varNode;
+
+        varPointNode->updateData(mmm_PointSize, mmm_PointColor);
+
+        return varPointNode;
+
     }
 
     void QuickPoint::ppp_ColorChanged() {
         this->update();
     }
-
-    void QuickPoint::ppp_PositionChanged() {
-        ppp_UpdatePointSizeAnsPosition();
-    }
-
+    
     void QuickPoint::ppp_PointSizeChanged() {
         ppp_UpdatePointSizeAnsPosition();
     }
 
     void QuickPoint::ppp_UpdatePointSizeAnsPosition() {
-        auto varLeftTop = mmm_PointPosition;
-        varLeftTop.setX(mmm_PointPosition.x() - mmm_PointSize * 0.5f);
-        varLeftTop.setY(mmm_PointPosition.y() - mmm_PointSize * 0.5f);
-        this->setX( varLeftTop.x() );
-        this->setY( varLeftTop.y() );
         this->setWidth(mmm_PointSize);
         this->setHeight(mmm_PointSize);
     }
