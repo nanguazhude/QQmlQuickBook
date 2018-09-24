@@ -42,9 +42,8 @@ lupdate_only{
 DISTFILES += $$QMLSOURCES
 
 SOURCES += $$PWD/QuickRoundPoint.cpp
-SOURCES += $$PWD/quickroundpoint_from_qt_qsgvertexcolormaterial.cpp
 HEADERS += $$PWD/QuickRoundPoint.hpp
-HEADERS += $$PWD/quickroundpoint_from_qt_qsgvertexcolormaterial.h
+
 
 
 

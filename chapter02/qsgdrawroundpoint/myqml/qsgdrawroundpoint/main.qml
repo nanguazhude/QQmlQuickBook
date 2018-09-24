@@ -1,4 +1,4 @@
-import QtQuick 2.11
+﻿import QtQuick 2.11
 import QtQuick.Window 2.11
 import myqml.qsgdrawroundpoint 1.0
 

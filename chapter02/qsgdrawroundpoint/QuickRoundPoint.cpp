@@ -6,7 +6,7 @@
 
 #include <ConstructQSurface.hpp>
 #include "QuickRoundPoint.hpp"
-#include "quickroundpoint_from_qt_qsgvertexcolormaterial.h"
+
 
 namespace sstd {
 
