@@ -98,7 +98,15 @@ namespace sstd {
 
     namespace _private {
 
+        template<typename T, typename = void>
+        class HasOperatorNew_0 : public std::false_type {};
+
+        template<typename T>
+        class HasOperatorNew_0<T, std::void_t<decltype(
+            std::declval<T>().operator new(1))>/**/> : public std::true_type {};
+
         template<typename $T$, bool = (true == std::is_class_v<$T$>) &&
+            (false == HasOperatorNew_0<std::remove_cv_t<$T$>/**/>::value) &&
             (false == std::is_final_v<$T$>) &&
             (true == std::has_virtual_destructor_v<$T$>)>
             class TypeSelect;
@@ -133,14 +141,7 @@ namespace sstd {
             constexpr const static bool value = false;
         };
 
-    }/*_private*/
-
-    template<typename T, typename = void>
-    class HasOperatorNew_0 : public std::false_type {};
-
-    template<typename T>
-    class HasOperatorNew_0<T, std::void_t<decltype(
-        std::declval<T>().operator new(1))>/**/> : public std::true_type {};
+    }/*_private*/      
 
     template<typename $T$, typename ... $T$Args>
     inline $T$ * sstdNew($T$Args && ... args) {
@@ -148,8 +149,7 @@ namespace sstd {
         static_assert(std::is_array_v <$T$> == false, "can not new array");
         using $T$ObjectSelect = _private::TypeSelect<std::remove_cv_t<$T$>/**/>;
         using $T$Object = typename $T$ObjectSelect::type;
-        if constexpr ((false == HasOperatorNew_0<std::remove_cv_t<$T$>/**/>::value)
-            && $T$ObjectSelect::value) {
+        if constexpr ($T$ObjectSelect::value) {
             return new $T$Object(std::forward<$T$Args>(args)...);
         }
         else {
