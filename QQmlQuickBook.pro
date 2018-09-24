@@ -51,9 +51,9 @@ qsgdrawlines.file = $$PWD/chapter02/qsgdrawlines/qsgdrawlines.pro
 qsgdrawlines.depends = buildinstall
 SUBDIRS += qsgdrawlines
 
-qsgdrawtriangle.file = $$PWD/chapter02/qsgdrawtriangle/qsgdrawtriangle.pro
-qsgdrawtriangle.depends = buildinstall
-SUBDIRS += qsgdrawtriangle
+qsgdrawroundpoint.file = $$PWD/chapter02/qsgdrawroundpoint/qsgdrawroundpoint.pro
+qsgdrawroundpoint.depends = buildinstall
+SUBDIRS += qsgdrawroundpoint
 
 
 

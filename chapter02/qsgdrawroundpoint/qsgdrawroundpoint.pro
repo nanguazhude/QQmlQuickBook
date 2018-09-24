@@ -26,13 +26,15 @@ SOURCES += $$PWD/main.cpp \
     $$PWD/main.cpp \
     $$PWD/QmlApplicationEngine.cpp
 
+
 HEADERS += \
     $$PWD/Application.hpp \
     $$PWD/QmlApplicationEngine.hpp
 
+
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
-QMLSOURCES += $$PWD/myqml/qsgdrawlines/main.qml
+QMLSOURCES += $$PWD/myqml/qsgdrawroundpoint/main.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES
@@ -40,5 +42,11 @@ lupdate_only{
 DISTFILES += $$QMLSOURCES
 
 SOURCES += $$PWD/QuickRoundPoint.cpp
+SOURCES += $$PWD/quickroundpoint_from_qt_qsgvertexcolormaterial.cpp
 HEADERS += $$PWD/QuickRoundPoint.hpp
+HEADERS += $$PWD/quickroundpoint_from_qt_qsgvertexcolormaterial.h
+
+
+
+
 

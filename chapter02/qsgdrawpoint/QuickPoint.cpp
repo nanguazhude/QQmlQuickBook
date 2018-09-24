@@ -79,7 +79,7 @@ namespace sstd {
                 this->setGeometry( mmm_QSGGeometry );
                 this->setFlag(QSGNode::OwnsGeometry);
 
-                auto * varMaterial = new QSGVertexColorMaterial;
+                auto * varMaterial = sstdNew<QSGVertexColorMaterial>();
                 this->setMaterial(varMaterial);
                 this->setFlag(QSGNode::OwnsMaterial);
 
