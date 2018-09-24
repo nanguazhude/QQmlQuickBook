@@ -42,3 +42,22 @@ SUBDIRS += invertimage
 chat.file = $$PWD/chapter03/chat/chat.pro
 chat.depends = buildinstall
 SUBDIRS += chat
+
+qsgdrawpoints.file = $$PWD/chapter02/qsgdrawpoints/qsgdrawpoints.pro
+qsgdrawpoints.depends = buildinstall
+SUBDIRS += qsgdrawpoints
+
+qsgdrawlines.file = $$PWD/chapter02/qsgdrawlines/qsgdrawlines.pro
+qsgdrawlines.depends = buildinstall
+SUBDIRS += qsgdrawlines
+
+qsgdrawtriangle.file = $$PWD/chapter02/qsgdrawtriangle/qsgdrawtriangle.pro
+qsgdrawtriangle.depends = buildinstall
+SUBDIRS += qsgdrawtriangle
+
+
+
+
+
+
+
