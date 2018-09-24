@@ -8,6 +8,7 @@ namespace sstd {
 }
 
 namespace sstd {
+    QUrl getLocalFileFullPath(const QString & arg){
 
 #if defined(_DEBUG)
         const QDir varRootDir{ CURRENT_DEBUG_PATH };
