@@ -43,9 +43,9 @@ chat.file = $$PWD/chapter03/chat/chat.pro
 chat.depends = buildinstall
 SUBDIRS += chat
 
-qsgdrawpoints.file = $$PWD/chapter02/qsgdrawpoints/qsgdrawpoints.pro
-qsgdrawpoints.depends = buildinstall
-SUBDIRS += qsgdrawpoints
+qsgdrawpoint.file = $$PWD/chapter02/qsgdrawpoint/qsgdrawpoint.pro
+qsgdrawpoint.depends = buildinstall
+SUBDIRS += qsgdrawpoint
 
 qsgdrawlines.file = $$PWD/chapter02/qsgdrawlines/qsgdrawlines.pro
 qsgdrawlines.depends = buildinstall

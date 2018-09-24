@@ -8,9 +8,7 @@ Window {
     height: 480
     title: qsTr("qsgdrawlines")
 
-
-
-}
+}/*Window*/
 
 
 

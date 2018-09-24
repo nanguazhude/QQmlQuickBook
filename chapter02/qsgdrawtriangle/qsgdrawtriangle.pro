@@ -39,6 +39,6 @@ lupdate_only{
 }
 DISTFILES += $$QMLSOURCES
 
-
-
+SOURCES += $$PWD/QuickTriangle.cpp
+HEADERS += $$PWD/QuickTriangle.hpp
 

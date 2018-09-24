@@ -39,3 +39,6 @@ lupdate_only{
 }
 DISTFILES += $$QMLSOURCES
 
+SOURCES += $$PWD/QuickLines.cpp
+HEADERS += $$PWD/QuickLines.hpp
+

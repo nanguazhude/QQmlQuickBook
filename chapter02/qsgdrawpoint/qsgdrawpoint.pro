@@ -1,4 +1,4 @@
-TARGET = $$qtLibraryTarget(qsgdrawpoints)
+TARGET = $$qtLibraryTarget(qsgdrawpoint)
 TEMPLATE = app
 
 QT += gui
@@ -39,7 +39,8 @@ lupdate_only{
 }
 DISTFILES += $$QMLSOURCES
 
-
+SOURCES += $$PWD/QuickPoint.cpp
+HEADERS += $$PWD/QuickPoint.hpp
 
 
 

@@ -6,7 +6,7 @@ namespace sstd {
 
 QmlApplicationEngine::QmlApplicationEngine(QObject * parent):Super(parent){
     this->load( sstd::getLocalFileFullPath(
-                    QStringLiteral(R"(myqml/qsgdrawpoints/main.qml)") ) );
+                    QStringLiteral(R"(myqml/qsgdrawpoint/main.qml)") ) );
 }
 
 
