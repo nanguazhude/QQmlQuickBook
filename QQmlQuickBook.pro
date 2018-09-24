@@ -47,9 +47,9 @@ qsgdrawpoint.file = $$PWD/chapter02/qsgdrawpoint/qsgdrawpoint.pro
 qsgdrawpoint.depends = buildinstall
 SUBDIRS += qsgdrawpoint
 
-qsgdrawlines.file = $$PWD/chapter02/qsgdrawlines/qsgdrawlines.pro
-qsgdrawlines.depends = buildinstall
-SUBDIRS += qsgdrawlines
+qsgdraw3dpoints.file = $$PWD/chapter02/qsgdraw3dpoints/qsgdraw3dpoints.pro
+qsgdraw3dpoints.depends = buildinstall
+SUBDIRS += qsgdraw3dpoints
 
 qquickframebufferobjectdrawroundpoint.file = $$PWD/chapter02/qquickframebufferobjectdrawroundpoint/qquickframebufferobjectdrawroundpoint.pro
 qquickframebufferobjectdrawroundpoint.depends = buildinstall
