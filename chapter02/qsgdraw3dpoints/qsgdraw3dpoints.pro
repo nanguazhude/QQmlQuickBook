@@ -1,4 +1,4 @@
-TARGET = $$qtLibraryTarget(qsgdrawtriangle)
+TARGET = $$qtLibraryTarget(qsgdraw3dpoints)
 TEMPLATE = app
 
 QT += gui
@@ -32,7 +32,7 @@ HEADERS += \
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
-QMLSOURCES += $$PWD/myqml/qsgdrawtriangle/main.qml
+QMLSOURCES += $$PWD/myqml/qsgdraw3dpoints/main.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES
