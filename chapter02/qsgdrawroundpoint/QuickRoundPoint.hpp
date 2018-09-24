@@ -1,35 +1,44 @@
 ﻿#pragma once
 
+#include <mutex>
+#include <shared_mutex>
 #include <QtCore/qpoint.h>
 #include <QtGui/qcolor.h>
 #include <sstd_memory.hpp>
 #include <QtQuick/qquickitem.h>
+#include <QtQuick/qquickframebufferobject.h>
 
 namespace sstd {
 
-    class QuickRoundPoint :public QQuickItem {
+    class QuickRoundPoint :public QQuickFramebufferObject {
         Q_OBJECT
         Q_PROPERTY(qreal pointSize READ getPointSize WRITE setPointSize NOTIFY pointSizeChanged)
         Q_PROPERTY(QColor pointColor READ getPointColor WRITE setPointColor NOTIFY pointColorChanged)
     public:
-        qreal getPointSize() const { return mmm_PointSize; }
-        void setPointSize(qreal a) { if (a < 0)a = 0; if (a == mmm_PointSize)return; mmm_PointSize = a; pointSizeChanged(); }
+        qreal getPointSize() const; 
+        void setPointSize(qreal a);  
         Q_SIGNAL void pointSizeChanged();
 
-        QColor getPointColor() const { return mmm_PointColor; }
-        void setPointColor(const QColor & arg) { if (arg == mmm_PointColor)return; mmm_PointColor = arg; pointColorChanged(); }
+        QColor getPointColor() const;  
+        void setPointColor(const QColor & arg);  
         Q_SIGNAL void pointColorChanged();
     public:
         QuickRoundPoint(QQuickItem *parent = nullptr);
     protected:
-        QSGNode * updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData) override;
+        Renderer *createRenderer() const override;
+    public:
+        class DrawData {
+        public:
+            std::shared_mutex mmm_ReadWriteLock;
+            QColor  mmm_PointColor;
+            qreal   mmm_PointSize{ 1.0 };
+        };
     private:
-        QColor  mmm_PointColor;
-        qreal   mmm_PointSize{ 1.0 };
-        using Super = QQuickItem;
+        std::shared_ptr<DrawData> mmm_DrawData;
         Q_SLOT void ppp_ColorChanged();
         Q_SLOT void ppp_PointSizeChanged();
         void ppp_UpdatePointSizeAnsPosition();
+        using Super = QQuickFramebufferObject;
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(QuickRoundPoint)
     };
