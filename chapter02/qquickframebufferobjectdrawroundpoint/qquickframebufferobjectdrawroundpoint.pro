@@ -1,4 +1,4 @@
-TARGET = $$qtLibraryTarget(qsgdrawroundpoint)
+TARGET = $$qtLibraryTarget(qquickframebufferobjectdrawroundpoint)
 TEMPLATE = app
 
 QT += gui
@@ -34,7 +34,7 @@ HEADERS += \
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
-QMLSOURCES += $$PWD/myqml/qsgdrawroundpoint/main.qml
+QMLSOURCES += $$PWD/myqml/qquickframebufferobjectdrawroundpoint/main.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES

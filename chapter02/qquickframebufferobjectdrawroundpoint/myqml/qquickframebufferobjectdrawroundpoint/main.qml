@@ -1,13 +1,13 @@
 ﻿import QtQuick 2.11
 import QtQuick.Window 2.11
-import myqml.qsgdrawroundpoint 1.0
+import myqml.qquickframebufferobjectdrawroundpoint 1.0
 
 Window {
 
     visible: true
     width: 640
     height: 480
-    title: qsTr("qsgdrawlines")
+    title: qsTr("qquickframebufferobjectdrawroundpoint")
     id : _window;
     color: Qt.rgba(0.3,0.35,0.35,1)
 

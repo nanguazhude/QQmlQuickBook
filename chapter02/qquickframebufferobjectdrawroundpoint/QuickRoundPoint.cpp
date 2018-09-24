@@ -295,7 +295,7 @@ void main() {
     }
 
     static inline void registerThis() {
-        qmlRegisterType<QuickRoundPoint>("myqml.qsgdrawroundpoint", 1, 0, "QuickRoundPoint");
+        qmlRegisterType<QuickRoundPoint>("myqml.qquickframebufferobjectdrawroundpoint", 1, 0, "QuickRoundPoint");
     }
     Q_COREAPP_STARTUP_FUNCTION(registerThis)
 
