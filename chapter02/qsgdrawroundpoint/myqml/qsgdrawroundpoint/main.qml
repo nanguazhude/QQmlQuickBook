@@ -9,12 +9,14 @@ Window {
     height: 480
     title: qsTr("qsgdrawlines")
     id : _window;
+    color: Qt.rgba(0.3,0.35,0.35,1)
 
     Component{
         id : _dynamic_object_componet
         QuickRoundPoint{
 
             Text{
+                color: Qt.rgba(0.11+Math.random()/7 , 0.12+Math.random()/7 , 0.13+Math.random()/7 , 0.985)
                 anchors.fill: parent
                 text: parent.iCount
                 font.pointSize: 24
@@ -28,7 +30,7 @@ Window {
             property double zRate : 1;
             pointSize:  128
             antialiasing :true
-            pointColor: Qt.rgba( Math.random(),Math.random(),Math.random(),1 )
+            pointColor: Qt.rgba( 0.3+Math.random()/1.5,0.3+Math.random()/1.5,0.3+Math.random()/1.5,1 )
 
         }
     }

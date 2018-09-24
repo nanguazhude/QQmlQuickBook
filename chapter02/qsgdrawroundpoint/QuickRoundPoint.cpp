@@ -90,7 +90,7 @@ void main() {
        ansA = 35*ansA - 7 ;
      } 
      else{ ansA = 0; }
-    finalColor = vec4( 1 , color.g , color.b , ansA ) ;
+    finalColor = vec4( color.r , color.g , color.b , ansA ) ;
 
 }
 
@@ -126,22 +126,7 @@ void main() {
                     GL_DYNAMIC_DRAW);
 
                 glEnableVertexAttribArray(0);
-/**
-void glVertexArrayVertexBuffer( 	
-    GLuint vaobj,
-    GLuint bindingindex,
-    GLuint buffer,
-    GLintptr offset,
-    GLsizei stride);**/
                 glVertexArrayVertexBuffer(mmm_VAO,  0, mmm_Buffer , 0, sizeof(RowData));
-                /**
-void glVertexArrayAttribFormat( 	
-    GLuint vaobj,
-    GLuint attribindex,
-    GLint size,
-    GLenum type,
-    GLboolean normalized,
-    GLuint relativeoffset);**/
                 glVertexArrayAttribFormat(mmm_VAO,  0, 4, GL_FLOAT, false, 0);
                 glVertexArrayAttribBinding(mmm_VAO, 0, 0);
 
@@ -246,8 +231,8 @@ void glVertexArrayAttribFormat(
 
             QOpenGLFramebufferObject * createFramebufferObject(const QSize &size) override {
                 QOpenGLFramebufferObjectFormat format;
-                format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-                format.setInternalTextureFormat(GL_RGBA8);
+                format.setAttachment(QOpenGLFramebufferObject::NoAttachment);
+                format.setInternalTextureFormat(GL_RGBA32F);
                 format.setSamples(4);
                 return sstdNew<QOpenGLFramebufferObject>(size, format);
             }
