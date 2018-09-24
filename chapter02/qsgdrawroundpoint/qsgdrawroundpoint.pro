@@ -1,4 +1,4 @@
-TARGET = $$qtLibraryTarget(qsgdrawlines)
+TARGET = $$qtLibraryTarget(qsgdrawroundpoint)
 TEMPLATE = app
 
 QT += gui
@@ -39,6 +39,6 @@ lupdate_only{
 }
 DISTFILES += $$QMLSOURCES
 
-SOURCES += $$PWD/QuickLines.cpp
-HEADERS += $$PWD/QuickLines.hpp
+SOURCES += $$PWD/QuickRoundPoint.cpp
+HEADERS += $$PWD/QuickRoundPoint.hpp
 
