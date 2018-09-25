@@ -32,7 +32,7 @@ namespace sstd{
     private:
         QColor  mmm_PointColor;
         qreal   mmm_PointSize{1.0};
-        QString mmm_ImageIndex;
+        QString mmm_ImageIndex{QStringLiteral("000.png")};
         const QImage * mmm_ImageSource = nullptr;
         using Super = QQuickItem;
         Q_SLOT void ppp_ColorChanged();
