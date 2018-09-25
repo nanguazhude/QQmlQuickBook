@@ -19,7 +19,7 @@ Window {
             property double yRate : 1;
             property double zRate : 1;
             pointSize : 128
-            pointColor :  Qt.rgba( 0.3+Math.random()/1.5,0.3+Math.random()/1.5,0.3+Math.random()/1.5,1 )
+            pointColor : Qt.rgba( 0.3+Math.random()/1.5,0.3+Math.random()/1.5,0.3+Math.random()/1.5,1 )
         }
     }
 

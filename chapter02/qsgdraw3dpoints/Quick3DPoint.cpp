@@ -4,8 +4,8 @@
 #include <QtQml>
 #include <QtQuick>
 #include "Quick3DPoint.hpp"
-#include "WindowOpenGLDrawControl.hpp"
 #include <cassert>
+#include <map>
 
 namespace sstd {
     namespace quick3dpoint {
@@ -23,6 +23,7 @@ namespace sstd {
 
 namespace  sstd {
     namespace quick3dpoint {
+
         class QSGVertexColorMaterialShader : public QSGMaterialShader {
         public:
             QSGVertexColorMaterialShader();
@@ -108,7 +109,7 @@ void main() {
         void QSGVertexColorMaterialShader::activate() {
             /*保存OpengGL状态*/
             const auto varFunctions = QOpenGLContext::currentContext()->functions();
-            varFunctions->glGetIntegerv(GL_BLEND_SRC_RGB,&mmm_GL_BLEND_SRC_RGB);
+            varFunctions->glGetIntegerv(GL_BLEND_SRC_RGB, &mmm_GL_BLEND_SRC_RGB);
             varFunctions->glGetIntegerv(GL_BLEND_SRC_ALPHA, &mmm_GL_BLEND_SRC_ALPHA);
             varFunctions->glGetIntegerv(GL_BLEND_DST_RGB, &mmm_GL_BLEND_DST_RGB);
             varFunctions->glGetIntegerv(GL_BLEND_DST_ALPHA, &mmm_GL_BLEND_DST_ALPHA);
@@ -119,8 +120,8 @@ void main() {
             /*恢复OpengGL状态*/
             const auto varFunctions = QOpenGLContext::currentContext()->functions();
             varFunctions->glBlendFuncSeparate(
-                mmm_GL_BLEND_SRC_RGB, 
-                mmm_GL_BLEND_DST_RGB, 
+                mmm_GL_BLEND_SRC_RGB,
+                mmm_GL_BLEND_DST_RGB,
                 mmm_GL_BLEND_SRC_ALPHA,
                 mmm_GL_BLEND_DST_ALPHA);
             return Super::deactivate();
@@ -142,7 +143,7 @@ void main() {
 
         int QSGVertexColorMaterial::compare(const QSGMaterial * other) const {
             assert(other && (other->type() == this->type()));
-            if constexpr (true) {
+            if constexpr (false) {
                 /*所有数据来自顶点着色器，因而片段着色器总是相同*/
                 return 0;
             }
@@ -288,6 +289,39 @@ namespace sstd {
     void Quick3DPoint::ppp_UpdatePointSizeAnsPosition() {
         this->setWidth(mmm_PointSize);
         this->setHeight(mmm_PointSize);
+    }
+
+    static inline std::pair<const QString, const QImage> operator""_load_qimage(const char * a, std::size_t b) {
+        const QString varFileName(QString::fromUtf8(a, static_cast<int>(b)));
+        const QDir varDir{ qApp->applicationDirPath() };
+        const auto varImageFileName = varDir.absoluteFilePath(QStringLiteral("") + QChar('/') + varFileName);
+        QImage varImage{ varImageFileName };
+        varImage = varImage.convertToFormat(QImage::Format_RGBA8888);
+        return { varFileName,std::move(varImage) };
+    }
+
+    static inline void loadResource(const QString & arg, const QImage * & source) {
+        using map = std::map<QString,
+            const QImage,
+            std::less<void>,
+            sstd::allocator< std::pair<const QString, const QImage> > >;
+        const static map varResources = []()->map {
+            map varAns;
+            return std::move(varAns);
+        }();
+        auto varPos = varResources.find(arg);
+        if (varPos == varResources.end()) {
+            varPos = varResources.begin();
+        }
+        source = &(varPos->second);
+    }
+
+    void Quick3DPoint::ppp_ImageIndexChanged() {
+        /***************************************************/
+        //这仅仅是一个演示示例，仅仅支持受限的资源索引
+        loadResource(this->mmm_ImageIndex, this->mmm_ImageSource);
+        /***************************************************/
+        this->update();
     }
 
     static inline void registerThis() {
