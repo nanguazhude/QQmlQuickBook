@@ -43,10 +43,7 @@ void main() {
 
     vec2 p = gl_PointCoord * 2.0 - vec2(1.0);
     float ansA = sqrt( dot(p,p) ) ;
-    ansA = color.a * sin( 3 * ansA );
-    if( ansA < 0 ){ ansA = 0 ; }
-    else if( ansA < 0.2 ){ ansA *= ansA; ansA *= ansA; ansA *= ansA; }
-    else{ ansA *= ansA; }
+    
 
     finalColor = vec4( color.r , color.g , color.b , color.a * ansA ) ;
 
@@ -90,11 +87,13 @@ void main() {
 
         QSGVertexColorMaterialShader::QSGVertexColorMaterialShader() { }
 
-
+        GLint mmm_GL_BLEND_SRC_RGB, mmm_GL_BLEND_SRC_ALPHA, mmm_GL_BLEND_DST_RGB, mmm_GL_BLEND_DST_ALPHA;
         void QSGVertexColorMaterialShader::updateState(const RenderState &state, QSGMaterial * /*newEffect*/, QSGMaterial *) {
 
             const auto varFunctions = state.context()->functions();
-            varFunctions->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE );
+            /*进行RGB混色，但是不改变Alpha值*/
+            /*因为QQuickWindow的背景颜色的Alpha是1，所以最终结果的Alpha也是1*/
+            varFunctions->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
 
             if (state.isOpacityDirty()) {
                 program()->setUniformValue(m_opacity_id, state.opacity());
@@ -107,11 +106,23 @@ void main() {
         }
 
         void QSGVertexColorMaterialShader::activate() {
+            /*保存OpengGL状态*/
+            const auto varFunctions = QOpenGLContext::currentContext()->functions();
+            varFunctions->glGetIntegerv(GL_BLEND_SRC_RGB,&mmm_GL_BLEND_SRC_RGB);
+            varFunctions->glGetIntegerv(GL_BLEND_SRC_ALPHA, &mmm_GL_BLEND_SRC_ALPHA);
+            varFunctions->glGetIntegerv(GL_BLEND_DST_RGB, &mmm_GL_BLEND_DST_RGB);
+            varFunctions->glGetIntegerv(GL_BLEND_DST_ALPHA, &mmm_GL_BLEND_DST_ALPHA);
             return Super::activate();
         }
 
         void QSGVertexColorMaterialShader::deactivate() {
+            /*恢复OpengGL状态*/
             const auto varFunctions = QOpenGLContext::currentContext()->functions();
+            varFunctions->glBlendFuncSeparate(
+                mmm_GL_BLEND_SRC_RGB, 
+                mmm_GL_BLEND_DST_RGB, 
+                mmm_GL_BLEND_SRC_ALPHA,
+                mmm_GL_BLEND_DST_ALPHA);
             return Super::deactivate();
         }
 
@@ -254,7 +265,7 @@ namespace sstd {
     QSGNode * Quick3DPoint::updatePaintNode(
         QSGNode * oldNode,
         QQuickItem::UpdatePaintNodeData *) {
-        
+
         auto varPointNode = static_cast<PointNode*>(oldNode);
         if (oldNode == nullptr) {
             varPointNode = sstdNew<PointNode>();
