@@ -115,24 +115,24 @@ void main() {
                     glLinkProgram(mmm_Program);
                 }
 
-                glCreateVertexArrays(1,&mmm_VAO);
+                glCreateVertexArrays(1, &mmm_VAO);
                 glBindVertexArray(mmm_VAO);
 
                 /*init opengl data*/
-                glCreateBuffers(1, &mmm_Buffer );
+                glCreateBuffers(1, &mmm_Buffer);
                 glNamedBufferData(mmm_Buffer,
                     sizeof(RowData),
                     mmm_GLDrawData.data.data(),
                     GL_DYNAMIC_DRAW);
 
                 glEnableVertexAttribArray(0);
-                glVertexArrayVertexBuffer(mmm_VAO,  0, mmm_Buffer , 0, sizeof(RowData));
-                glVertexArrayAttribFormat(mmm_VAO,  0, 4, GL_FLOAT, false, 0);
+                glVertexArrayVertexBuffer(mmm_VAO, 0, mmm_Buffer, 0, sizeof(RowData));
+                glVertexArrayAttribFormat(mmm_VAO, 0, 4, GL_FLOAT, false, 0);
                 glVertexArrayAttribBinding(mmm_VAO, 0, 0);
 
                 glEnableVertexAttribArray(1);
-                glVertexArrayVertexBuffer(mmm_VAO,  1, mmm_Buffer, (sizeof(RowData)>>1), sizeof(RowData));
-                glVertexArrayAttribFormat(mmm_VAO,  1, 4, GL_FLOAT, false, 0);
+                glVertexArrayVertexBuffer(mmm_VAO, 1, mmm_Buffer, (sizeof(RowData) >> 1), sizeof(RowData));
+                glVertexArrayAttribFormat(mmm_VAO, 1, 4, GL_FLOAT, false, 0);
                 glVertexArrayAttribBinding(mmm_VAO, 1, 1);
 
             }
@@ -184,7 +184,7 @@ void main() {
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 /*开启程序控制点大小*/
                 glEnable(GL_PROGRAM_POINT_SIZE);
-                 
+
                 {/*设置点大小*/
                     GLfloat varPointSize = 1;
                     {
@@ -209,7 +209,7 @@ void main() {
                             varColor = mmm_DrawData->mmm_PointColor;
                         }
                         int r, g, b, a;
-                        varColor.getRgb(&r,&g,&b,&a);
+                        varColor.getRgb(&r, &g, &b, &a);
                         constexpr const static auto varK = 1.0f / 255.0f;
                         mmm_GLDrawData.data[0 + 4] = r * varK;
                         mmm_GLDrawData.data[1 + 4] = g * varK;
@@ -217,12 +217,12 @@ void main() {
                         mmm_GLDrawData.data[3 + 4] = a * varK;
                     }
 
-                    auto varData = static_cast<GLfloat *>( glMapNamedBuffer(mmm_Buffer, GL_WRITE_ONLY));
+                    auto varData = static_cast<GLfloat *>(glMapNamedBuffer(mmm_Buffer, GL_WRITE_ONLY));
                     std::memcpy(varData, mmm_GLDrawData.data.data(), sizeof(mmm_GLDrawData));
                     glUnmapNamedBuffer(mmm_Buffer);
 
                 }
-                
+
                 /*使用VAO*/
                 glBindVertexArray(mmm_VAO);
                 /*绘制数据*/

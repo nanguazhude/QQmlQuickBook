@@ -4,6 +4,7 @@
 #include <QtQml>
 #include <QtQuick>
 #include "Quick3DPoint.hpp"
+#include "WindowOpenGLDrawControl.hpp"
 #include <cassert>
 
 namespace sstd {
@@ -15,6 +16,7 @@ namespace sstd {
         protected:
             QSGMaterialType *type() const override;
             QSGMaterialShader *createShader() const override;
+            SSTD_MEMORY_DEFINE(QSGVertexColorMaterial)
         };
     }
 }/****/
@@ -73,10 +75,15 @@ void main() {
 )";
             }
 
+            void activate() override;
+            void deactivate() override;
+
         private:
             void initialize() override;
             int m_matrix_id;
             int m_opacity_id;
+            using Super = QSGMaterialShader;
+            SSTD_MEMORY_DEFINE(QSGVertexColorMaterialShader)
         };
 
         QSGMaterialType QSGVertexColorMaterialShader::type;
@@ -86,6 +93,9 @@ void main() {
 
         void QSGVertexColorMaterialShader::updateState(const RenderState &state, QSGMaterial * /*newEffect*/, QSGMaterial *) {
 
+            const auto varFunctions = state.context()->functions();
+            varFunctions->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE );
+
             if (state.isOpacityDirty()) {
                 program()->setUniformValue(m_opacity_id, state.opacity());
             }
@@ -94,6 +104,15 @@ void main() {
                 program()->setUniformValue(m_matrix_id, state.combinedMatrix());
             }
 
+        }
+
+        void QSGVertexColorMaterialShader::activate() {
+            return Super::activate();
+        }
+
+        void QSGVertexColorMaterialShader::deactivate() {
+            const auto varFunctions = QOpenGLContext::currentContext()->functions();
+            return Super::deactivate();
         }
 
         char const *const *QSGVertexColorMaterialShader::attributeNames() const {
@@ -107,13 +126,20 @@ void main() {
         }
 
         QSGVertexColorMaterial::QSGVertexColorMaterial() {
-            setFlag(Blending , true);
+            setFlag(Blending, true);
         }
 
         int QSGVertexColorMaterial::compare(const QSGMaterial * other) const {
-            assert( other && ( other->type() == this->type() ) );
-            return  static_cast<int>( reinterpret_cast<const char *>( dynamic_cast<const void *>(this) ) -
-                    reinterpret_cast<const char *>( dynamic_cast<const void *>(other) ) ) ;
+            assert(other && (other->type() == this->type()));
+            if constexpr (true) {
+                /*所有数据来自顶点着色器，因而片段着色器总是相同*/
+                return 0;
+            }
+            else {
+                return static_cast<int>
+                    (reinterpret_cast<const char *>(dynamic_cast<const void *>(this)) -
+                    (reinterpret_cast<const char *>(dynamic_cast<const void *>(other))));
+            }
         }
 
         QSGMaterialType *QSGVertexColorMaterial::type() const {
@@ -172,7 +198,7 @@ namespace sstd {
                     QSGGeometry::UnsignedShortType/*index type*/) {
 
                     this->setDrawingMode(QSGGeometry::DrawPoints);
-                    this->updateData(1,1,1,1,1);
+                    this->updateData(1, 1, 1, 1, 1);
 
                 }
 
@@ -198,10 +224,10 @@ namespace sstd {
             PointNode() {
 
                 mmm_QSGGeometry = sstdNew<Geometry>();
-                this->setGeometry( mmm_QSGGeometry );
+                this->setGeometry(mmm_QSGGeometry);
                 this->setFlag(QSGNode::OwnsGeometry);
 
-                auto * varMaterial = sstdNew<QSGVertexColorMaterial>();
+                auto * varMaterial = sstdNew<sstd::quick3dpoint::QSGVertexColorMaterial>();
                 this->setMaterial(varMaterial);
                 this->setFlag(QSGNode::OwnsMaterial);
 
@@ -215,7 +241,7 @@ namespace sstd {
                     varColor.blue(),
                     varColor.alpha());
 
-                this->markDirty(QSGNode::DirtyGeometry);
+                this->markDirty(QSGNode::DirtyGeometry | DirtyMaterial);
             }
 
         private:
@@ -228,7 +254,7 @@ namespace sstd {
     QSGNode * Quick3DPoint::updatePaintNode(
         QSGNode * oldNode,
         QQuickItem::UpdatePaintNodeData *) {
-
+        
         auto varPointNode = static_cast<PointNode*>(oldNode);
         if (oldNode == nullptr) {
             varPointNode = sstdNew<PointNode>();
@@ -254,7 +280,7 @@ namespace sstd {
     }
 
     static inline void registerThis() {
-        qmlRegisterType<Quick3DPoint>("myqml.qsgdrawpoint", 1, 0, "QuickPoint");
+        qmlRegisterType<Quick3DPoint>("myqml.qsgdrawpoint", 1, 0, "Quick3DPoint");
     }
     Q_COREAPP_STARTUP_FUNCTION(registerThis)
 

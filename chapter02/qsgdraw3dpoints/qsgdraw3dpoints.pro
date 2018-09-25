@@ -26,9 +26,11 @@ SOURCES += $$PWD/main.cpp \
     $$PWD/main.cpp \
     $$PWD/QmlApplicationEngine.cpp
 
+
 HEADERS += \
     $$PWD/Application.hpp \
     $$PWD/QmlApplicationEngine.hpp
+
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
@@ -41,4 +43,10 @@ DISTFILES += $$QMLSOURCES
 
 SOURCES += $$PWD/Quick3DPoint.cpp
 HEADERS += $$PWD/Quick3DPoint.hpp
+
+SOURCES += $$PWD/WindowOpenGLDrawControl.cpp
+HEADERS += $$PWD/WindowOpenGLDrawControl.hpp
+
+
+
 
