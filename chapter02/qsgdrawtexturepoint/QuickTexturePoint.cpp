@@ -3,18 +3,20 @@
 #include <QtGui>
 #include <QtQml>
 #include <QtQuick>
-#include "Quick3DPoint.hpp"
+#include "QuickTexturePoint.hpp"
 #include <cassert>
 #include <map>
 
 namespace sstd {
-    namespace quick3dpoint {
+    namespace texturepoint {
         class TexturePointMaterialShader;
         class TexturePointMaterial : public QSGMaterial {
         public:
             TexturePointMaterial(QQuickItem *);
             int compare(const QSGMaterial *other) const override;
             void loadImage(const QImage *);
+            void reloadImage();
+            void releaseTexture();
         protected:
             friend class TexturePointMaterialShader;
             QQuickItem * const super;
@@ -28,11 +30,11 @@ namespace sstd {
 }/****/
 
 namespace  sstd {
-    namespace quick3dpoint {
+    namespace texturepoint {
 
         class TexturePointMaterialShader : public QSGMaterialShader {
         public:
-            TexturePointMaterialShader();
+            TexturePointMaterialShader(TexturePointMaterial *);
 
             void updateState(const RenderState &state, QSGMaterial *newEffect, QSGMaterial *oldEffect) override;
             char const *const *attributeNames() const override;
@@ -43,17 +45,36 @@ namespace  sstd {
                 return u8R"(
 
 #version 330
-in  vec4 color ;
+in  vec4 color      ;
 out vec4 finalColor ;
+
 uniform sampler2D qt_Texture;
 
 void main() {
-
-    vec2 p = gl_PointCoord * 2.0 - vec2(1.0);
-    float ansA = sqrt( dot(p,p) ) ;
     
-
-    finalColor = vec4( color.r , color.g , color.b , color.a * ansA ) ;
+    vec4 texture_color = texture2D( qt_Texture ,gl_PointCoord );
+           
+    vec2 p = gl_PointCoord * 2.0 - vec2(1.0);
+    float ansA = 1 -  sqrt( dot(p,p) )  ;
+    if( ansA > 0.3 ){ 
+        ansA = 1;
+     } else if( ansA > 0.25){
+        ansA = 2*ansA + 0.4 ;
+    }else if( ansA > 0.22  ){
+        ansA = 6.667*ansA -0.7667 ;
+    }
+    else if( ansA > 0.2) {
+        ansA = 35*ansA - 7 ;
+    } 
+    else{ 
+        ansA = 0;
+    }
+    
+    if( texture_color.a < 0.00001 ){
+        finalColor = vec4( color.r , color.g , color.b , ansA );
+    }else{
+        finalColor = vec4( texture_color.r , texture_color.g , texture_color.b ,  ansA );
+    }
 
 }
 
@@ -87,15 +108,16 @@ void main() {
             void initialize() override;
             int m_matrix_id;
             int m_opacity_id;
+            GLint mmm_GL_BLEND_SRC_RGB, mmm_GL_BLEND_SRC_ALPHA, mmm_GL_BLEND_DST_RGB, mmm_GL_BLEND_DST_ALPHA;
+            TexturePointMaterial * m_parent = nullptr;
             using Super = QSGMaterialShader;
             SSTD_MEMORY_DEFINE(TexturePointMaterialShader)
         };
 
         QSGMaterialType TexturePointMaterialShader::type;
 
-        TexturePointMaterialShader::TexturePointMaterialShader() { }
+        TexturePointMaterialShader::TexturePointMaterialShader(TexturePointMaterial * arg) : m_parent(arg) { }
 
-        GLint mmm_GL_BLEND_SRC_RGB, mmm_GL_BLEND_SRC_ALPHA, mmm_GL_BLEND_DST_RGB, mmm_GL_BLEND_DST_ALPHA;
         void TexturePointMaterialShader::updateState(
             const RenderState &state,
             QSGMaterial * varNew,
@@ -112,10 +134,10 @@ void main() {
                 if (varOld == nullptr) {
                     varTexture->bind();
                 }
-                else if (false == bool( static_cast<TexturePointMaterial*>(varOld)->mmm_Image)) {
+                else if (false == bool(static_cast<TexturePointMaterial*>(varOld)->mmm_Image)) {
                     varTexture->bind();
                 }
-                else if (static_cast<TexturePointMaterial*>(varOld)->mmm_Image->bits()!=
+                else if (static_cast<TexturePointMaterial*>(varOld)->mmm_Image->bits() !=
                     static_cast<TexturePointMaterial*>(varNew)->mmm_Image->bits()) {
                     varTexture->bind();
                 }
@@ -142,10 +164,17 @@ void main() {
             varFunctions->glGetIntegerv(GL_BLEND_SRC_ALPHA, &mmm_GL_BLEND_SRC_ALPHA);
             varFunctions->glGetIntegerv(GL_BLEND_DST_RGB, &mmm_GL_BLEND_DST_RGB);
             varFunctions->glGetIntegerv(GL_BLEND_DST_ALPHA, &mmm_GL_BLEND_DST_ALPHA);
+
+            /*尝试重新加载资源到显卡*/
+            if (false == bool(this->m_parent->mmm_Texture)) {
+                m_parent->reloadImage();
+            }
+
             return Super::activate();
         }
 
         void TexturePointMaterialShader::deactivate() {
+
             /*恢复OpengGL状态*/
             const auto varFunctions = QOpenGLContext::currentContext()->functions();
             varFunctions->glBlendFuncSeparate(
@@ -153,6 +182,10 @@ void main() {
                 mmm_GL_BLEND_DST_RGB,
                 mmm_GL_BLEND_SRC_ALPHA,
                 mmm_GL_BLEND_DST_ALPHA);
+
+            /*释放显卡Texture资源*/
+            this->m_parent->releaseTexture();
+
             return Super::deactivate();
         }
 
@@ -177,11 +210,14 @@ void main() {
                 return;
             }
             mmm_Image = std::make_shared<const QImage>(*arg);
+            reloadImage();
+        }
+
+        void TexturePointMaterial::reloadImage() {
             auto varWindow = super->window();
-            if (mmm_Texture) {
-                mmm_Texture.release()->deleteLater();
-            }
+            releaseTexture();
             mmm_Texture.reset(varWindow->createTextureFromImage(*mmm_Image));
+            mmm_Texture->setFiltering(QSGTexture::Nearest);
 
         }
 
@@ -193,7 +229,8 @@ void main() {
             }
             else {
                 auto varOther = static_cast<const TexturePointMaterial *>(other);
-                return static_cast<int>(this->mmm_Image->bits() - varOther->mmm_Image->bits());
+                return static_cast<int>((this->mmm_Image ? this->mmm_Image->bits() : nullptr) -
+                    (varOther->mmm_Image ? varOther->mmm_Image->bits() : nullptr));
             }
         }
 
@@ -202,7 +239,13 @@ void main() {
         }
 
         QSGMaterialShader *TexturePointMaterial::createShader() const {
-            return sstdNew<TexturePointMaterialShader>();
+            return sstdNew<TexturePointMaterialShader>(const_cast<TexturePointMaterial*>(this));
+        }
+
+        void TexturePointMaterial::releaseTexture() {
+            if (this->mmm_Texture) {
+                mmm_Texture.release()->deleteLater();
+            }
         }
 
     }/*namespace quick3dpoint*/
@@ -210,10 +253,10 @@ void main() {
 
 namespace sstd {
 
-    Quick3DPoint::Quick3DPoint(QQuickItem * p) :Super(p) {
-        connect(this, &Quick3DPoint::imageIndexChanged, this, &Quick3DPoint::ppp_ImageIndexChanged, Qt::QueuedConnection);
-        connect(this, &Quick3DPoint::pointColorChanged, this, &Quick3DPoint::ppp_ColorChanged, Qt::QueuedConnection);
-        connect(this, &Quick3DPoint::pointSizeChanged, this, &Quick3DPoint::ppp_PointSizeChanged, Qt::QueuedConnection);
+    QuickTexturePoint::QuickTexturePoint(QQuickItem * p) :Super(p) {
+        connect(this, &QuickTexturePoint::imageIndexChanged, this, &QuickTexturePoint::ppp_ImageIndexChanged, Qt::QueuedConnection);
+        connect(this, &QuickTexturePoint::pointColorChanged, this, &QuickTexturePoint::ppp_ColorChanged, Qt::QueuedConnection);
+        connect(this, &QuickTexturePoint::pointSizeChanged, this, &QuickTexturePoint::ppp_PointSizeChanged, Qt::QueuedConnection);
         this->setFlag(QQuickItem::ItemHasContents, true);
         ppp_ImageIndexChanged();
     }
@@ -285,7 +328,7 @@ namespace sstd {
                 this->setGeometry(mmm_QSGGeometry);
                 this->setFlag(QSGNode::OwnsGeometry);
 
-                mmm_Material = sstdNew<sstd::quick3dpoint::TexturePointMaterial>(arg);
+                mmm_Material = sstdNew<sstd::texturepoint::TexturePointMaterial>(arg);
                 this->setMaterial(mmm_Material);
                 this->setFlag(QSGNode::OwnsMaterial);
 
@@ -309,13 +352,13 @@ namespace sstd {
 
         private:
             Geometry * mmm_QSGGeometry = nullptr;
-            sstd::quick3dpoint::TexturePointMaterial * mmm_Material = nullptr;
+            sstd::texturepoint::TexturePointMaterial * mmm_Material = nullptr;
         private:
             SSTD_MEMORY_DEFINE(PointNode)
         };
     }
 
-    QSGNode * Quick3DPoint::updatePaintNode(
+    QSGNode * QuickTexturePoint::updatePaintNode(
         QSGNode * oldNode,
         QQuickItem::UpdatePaintNodeData *) {
 
@@ -331,15 +374,15 @@ namespace sstd {
 
     }
 
-    void Quick3DPoint::ppp_ColorChanged() {
+    void QuickTexturePoint::ppp_ColorChanged() {
         this->update();
     }
 
-    void Quick3DPoint::ppp_PointSizeChanged() {
+    void QuickTexturePoint::ppp_PointSizeChanged() {
         ppp_UpdatePointSizeAnsPosition();
     }
 
-    void Quick3DPoint::ppp_UpdatePointSizeAnsPosition() {
+    void QuickTexturePoint::ppp_UpdatePointSizeAnsPosition() {
         this->setWidth(mmm_PointSize);
         this->setHeight(mmm_PointSize);
     }
@@ -347,7 +390,7 @@ namespace sstd {
     static inline std::pair<const QString, const QImage> operator""_load_qimage(const char * a, std::size_t b) {
         const QString varFileName(QString::fromUtf8(a, static_cast<int>(b)));
         const QDir varDir{ qApp->applicationDirPath() };
-        const auto varImageFileName = varDir.absoluteFilePath(QStringLiteral("myqml/qsgdraw3dpoints/") + varFileName);
+        const auto varImageFileName = varDir.absoluteFilePath(QStringLiteral("myqml/qsgdrawtexturepoint/") + varFileName);
         QImage varImage{ varImageFileName };
         varImage = varImage.convertToFormat(QImage::Format_RGBA8888);
         assert(varImage.width() > 0);
@@ -449,7 +492,7 @@ namespace sstd {
         source = &(varPos->second);
     }
 
-    void Quick3DPoint::ppp_ImageIndexChanged() {
+    void QuickTexturePoint::ppp_ImageIndexChanged() {
         /***************************************************/
         //这仅仅是一个演示示例，仅仅支持受限的资源索引
         loadResource(this->mmm_ImageIndex, this->mmm_ImageSource);
@@ -463,7 +506,7 @@ namespace sstd {
             const QImage * arg = nullptr;
             loadResource(QStringLiteral("any"), arg);
         }
-        qmlRegisterType<Quick3DPoint>("myqml.qsgdrawpoint", 1, 0, "Quick3DPoint");
+        qmlRegisterType<QuickTexturePoint>("myqml.qsgdrawpoint", 1, 0, "QuickTexturePoint");
     }
     Q_COREAPP_STARTUP_FUNCTION(registerThis)
 

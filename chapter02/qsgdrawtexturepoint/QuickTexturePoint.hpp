@@ -8,7 +8,7 @@ class QImage;
 
 namespace sstd{
 
-    class Quick3DPoint :public QQuickItem {
+    class QuickTexturePoint :public QQuickItem {
         Q_OBJECT
         Q_PROPERTY(qreal   pointSize  READ getPointSize  WRITE setPointSize  NOTIFY pointSizeChanged)
         Q_PROPERTY(QColor  pointColor READ getPointColor WRITE setPointColor NOTIFY pointColorChanged)
@@ -26,7 +26,7 @@ namespace sstd{
         void setImageIndex(const QString &arg){if(arg==mmm_ImageIndex){return;}mmm_ImageIndex=arg;imageIndexChanged();}
         Q_SIGNAL void imageIndexChanged();
     public:
-        Quick3DPoint(QQuickItem *parent = nullptr);
+        QuickTexturePoint(QQuickItem *parent = nullptr);
     protected:
         QSGNode * updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData) override;
     private:
@@ -40,7 +40,7 @@ namespace sstd{
         Q_SLOT void ppp_ImageIndexChanged();
         void ppp_UpdatePointSizeAnsPosition();
     private:
-        SSTD_MEMORY_QOBJECT_DEFINE(Quick3DPoint)
+        SSTD_MEMORY_QOBJECT_DEFINE(QuickTexturePoint)
     };
 
 }/*sstd*/

@@ -1,4 +1,4 @@
-TARGET = $$qtLibraryTarget(qsgdraw3dpoints)
+TARGET = $$qtLibraryTarget(qsgdrawtexturepoint)
 TEMPLATE = app
 
 QT += gui
@@ -34,15 +34,15 @@ HEADERS += \
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
-QMLSOURCES += $$PWD/myqml/qsgdraw3dpoints/main.qml
+QMLSOURCES += $$PWD/myqml/qsgdrawtexturepoint/main.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES
 }
 DISTFILES += $$QMLSOURCES
 
-SOURCES += $$PWD/Quick3DPoint.cpp
-HEADERS += $$PWD/Quick3DPoint.hpp
+SOURCES += $$PWD/QuickTexturePoint.cpp
+HEADERS += $$PWD/QuickTexturePoint.hpp
 
 
 
