@@ -30,8 +30,8 @@ namespace sstd {
 
             static const QSGGeometry::AttributeSet & getThisAttributeSet() {
                 const static std::array<QSGGeometry::Attribute, 2> varAttributes{
-                    QSGGeometry::Attribute::create(0, 2, GL_FLOAT, QSGGeometry::PositionAttribute),
-                    QSGGeometry::Attribute::create(1, 4, GL_FLOAT, QSGGeometry::ColorAttribute),
+                    QSGGeometry::Attribute::createWithAttributeType(0, 2, GL_FLOAT, QSGGeometry::PositionAttribute),
+                    QSGGeometry::Attribute::createWithAttributeType(1, 4, GL_FLOAT, QSGGeometry::ColorAttribute),
                 };
                 const static auto varAns = QSGGeometry::AttributeSet{
                     2,
