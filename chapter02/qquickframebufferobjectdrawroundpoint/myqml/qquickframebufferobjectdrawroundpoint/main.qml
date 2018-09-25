@@ -24,6 +24,7 @@ Window {
                 verticalAlignment :Text.AlignVCenter
             }
 
+            clip : true
             property int iCount : 0
             property double xRate : 1;
             property double yRate : 1;
@@ -32,6 +33,17 @@ Window {
             antialiasing :true
             pointColor: Qt.rgba( 0.3+Math.random()/1.5,0.3+Math.random()/1.5,0.3+Math.random()/1.5,1 )
 
+        }
+    }
+
+    /*用于调试坐标是否正确*/
+    Component{
+        id : _draw_border
+        Rectangle{
+            anchors.fill: parent
+            color: Qt.rgba(0,0,0,0)
+            border.width: 2
+            border.color: Qt.rgba(0,0,0,1)
         }
     }
     
@@ -46,6 +58,7 @@ Window {
             obj.x = Qt.binding( function(){ return _window.width  * this.xRate - this.height/2 ; } )
             obj.z = Qt.binding( function(){ return this.zRate; } )
             obj.iCount = i
+            //_draw_border.createObject(obj)/*用于调试坐标是否正确*/;
         }
 
     }

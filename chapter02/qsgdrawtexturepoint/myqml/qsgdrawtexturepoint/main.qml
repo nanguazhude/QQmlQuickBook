@@ -14,12 +14,24 @@ Window {
     Component{
         id : _dynamic_object_componet
         QuickTexturePoint{
+            clip : true
             property int iCount : 0
             property double xRate : 1;
             property double yRate : 1;
             property double zRate : 1;
             pointSize : 128
             pointColor : Qt.rgba( 0.3+Math.random()/1.5,0.3+Math.random()/1.5,0.3+Math.random()/1.5,1 )
+        }
+    }
+
+    /*用于调试坐标是否正确*/
+    Component{
+        id : _draw_border
+        Rectangle{
+            anchors.fill: parent
+            color: Qt.rgba(0,0,0,0)
+            border.width: 2
+            border.color: Qt.rgba(0,0,0,1)
         }
     }
 
@@ -31,16 +43,17 @@ Window {
             return num.toString() + ".png"              ;
         }
 
-        for( var i =0; i<256 ; ++i ){
+        for( var i =0; i<128 ; ++i ){
             var obj = _dynamic_object_componet.createObject(_window);
             obj.xRate = 0.8 * (Math.random()-0.5) + 0.5 ;
             obj.yRate = 0.8 * (Math.random()-0.5) + 0.5 ;
             obj.zRate = Math.random();
-            obj.y = Qt.binding( function(){ return _window.height * this.yRate   ; } )
-            obj.x = Qt.binding( function(){ return _window.width  * this.xRate   ; } )
+            obj.y = Qt.binding( function(){ return _window.height * this.yRate - this.width/2  ; } )
+            obj.x = Qt.binding( function(){ return _window.width  * this.xRate - this.height/2  ; } )
             obj.z = Qt.binding( function(){ return this.zRate; } )
             obj.iCount = i
             obj.imageIndex = numberToImageIndex( (i%78)/*最多到077.png*/ );
+            //_draw_border.createObject(obj)/*用于调试坐标是否正确*/;
         }
 
     }

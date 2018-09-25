@@ -58,9 +58,9 @@ void main() {
     float ansA = 1 -  sqrt( dot(p,p) )  ;
     if( ansA > 0.3 ){ 
         ansA = 1;
-     } else if( ansA > 0.25){
+     } else if( ansA > 0.25) {
         ansA = 2*ansA + 0.4 ;
-    }else if( ansA > 0.22  ){
+    }else if( ansA > 0.22  ) {
         ansA = 6.667*ansA -0.7667 ;
     }
     else if( ansA > 0.2) {
@@ -306,8 +306,8 @@ namespace sstd {
 
                     this->setLineWidth(s)/*set point size*/;
                     auto varData = static_cast<XYAndColor *>(this->vertexData());
-                    varData[0].x = 0;
-                    varData[0].y = 0;
+                    varData[0].x = s * 0.5f;
+                    varData[0].y = s * 0.5f;
 
                     const constexpr auto varK = (1.0f / 255);
                     varData[0].r = varK * r;
