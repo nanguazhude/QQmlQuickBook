@@ -14,13 +14,14 @@ namespace sstd {
         public:
             TexturePointMaterial(QQuickItem *);
             int compare(const QSGMaterial *other) const override;
-            void loadImage(const QImage *);
+            void loadImage(qreal,const QImage *);
             void reloadImage();
             void releaseTexture();
         protected:
             friend class TexturePointMaterialShader;
+            qreal mmm_Rotate=0;
             QQuickItem * const super;
-            std::unique_ptr< QSGTexture> mmm_Texture{ nullptr };
+            std::unique_ptr< QSGTexture   > mmm_Texture{ nullptr };
             std::shared_ptr< const QImage > mmm_Image;
             QSGMaterialType *type()                   const override;
             QSGMaterialShader *createShader()         const override;
@@ -45,16 +46,17 @@ namespace  sstd {
                 return u8R"(
 
 #version 330
-in  vec4 color      ;
-out vec4 finalColor ;
+in  vec4 color             ;
+out vec4 finalColor        ;
+uniform mat2 pointRotateMat;
 
 uniform sampler2D qt_Texture;
 
 void main() {
     
-    vec4 texture_color = texture2D( qt_Texture ,gl_PointCoord );
+    vec4 texture_color = texture2D( qt_Texture , pointRotateMat * (gl_PointCoord-vec2(0.5))+vec2(0.5) );
            
-    vec2 p = gl_PointCoord * 2.0 - vec2(1.0);
+    vec2 p =    gl_PointCoord  * 2.0 - vec2(1.0)  ;
     float ansA = 1 -  sqrt( dot(p,p) )  ;
     if( ansA > 0.3 ){ 
         ansA = 1;
@@ -71,7 +73,7 @@ void main() {
     }
     
     if( texture_color.a < 0.00001 ){
-        finalColor = vec4( color.r , color.g , color.b , ansA );
+        finalColor = vec4( color.r , color.g , color.b , ansA )/*进行背景颜色替换*/;
     }else{
         finalColor = vec4( texture_color.r , texture_color.g , texture_color.b ,  ansA );
     }
@@ -88,7 +90,7 @@ void main() {
 in vec4 vertexCoord;
 in vec4 vertexColor;
 
-uniform mat4  matrix;
+uniform mat4  matrix ;
 uniform float opacity;
 
 out vec4 color;
@@ -108,6 +110,7 @@ void main() {
             void initialize() override;
             int m_matrix_id;
             int m_opacity_id;
+            int m_rotate_matrix_id;
             GLint mmm_GL_BLEND_SRC_RGB, mmm_GL_BLEND_SRC_ALPHA, mmm_GL_BLEND_DST_RGB, mmm_GL_BLEND_DST_ALPHA;
             TexturePointMaterial * m_parent = nullptr;
             using Super = QSGMaterialShader;
@@ -155,6 +158,15 @@ void main() {
                 program()->setUniformValue(m_matrix_id, state.combinedMatrix());
             }
 
+            QMatrix4x4 varMatrix;
+            varMatrix.rotate(static_cast<TexturePointMaterial*>(varNew)->mmm_Rotate, { 0,0,1 });
+            QMatrix2x2 varTo;
+            varTo(0,0)  = varMatrix(0,0);
+            varTo(1, 1) = varMatrix(1, 1);
+            varTo(1, 0) = varMatrix(1, 0);
+            varTo(0, 1) = varMatrix(0, 1);
+            program()->setUniformValue(m_rotate_matrix_id, varTo);
+
         }
 
         void TexturePointMaterialShader::activate() {
@@ -195,15 +207,17 @@ void main() {
         }
 
         void TexturePointMaterialShader::initialize() {
-            m_matrix_id = program()->uniformLocation("matrix");
+            m_matrix_id  =  program()->uniformLocation("matrix");
             m_opacity_id = program()->uniformLocation("opacity");
+            m_rotate_matrix_id = program()->uniformLocation("pointRotateMat");
         }
 
         TexturePointMaterial::TexturePointMaterial(QQuickItem * arg) : super(arg) {
             setFlag(Blending, true);
         }
 
-        void TexturePointMaterial::loadImage(const QImage *arg) {
+        void TexturePointMaterial::loadImage(qreal r,const QImage *arg) {
+            mmm_Rotate = r;
             /***********************************************/
             //比较两个图片是否相等
             if (bool(mmm_Image) && ((mmm_Image->bits()) == (arg->bits()))) {
@@ -229,6 +243,9 @@ void main() {
             }
             else {
                 auto varOther = static_cast<const TexturePointMaterial *>(other);
+                if (this->mmm_Rotate != varOther->mmm_Rotate ) {
+                    return (this->mmm_Rotate - varOther->mmm_Rotate) < 0.001 ? -1 : 1;
+                }
                 return static_cast<int>((this->mmm_Image ? this->mmm_Image->bits() : nullptr) -
                     (varOther->mmm_Image ? varOther->mmm_Image->bits() : nullptr));
             }
@@ -254,6 +271,7 @@ void main() {
 namespace sstd {
 
     QuickTexturePoint::QuickTexturePoint(QQuickItem * p) :Super(p) {
+        connect(this, SIGNAL(rotationChanged()),this,SLOT(ppp_ColorChanged()),Qt::QueuedConnection);
         connect(this, &QuickTexturePoint::imageIndexChanged, this, &QuickTexturePoint::ppp_ImageIndexChanged, Qt::QueuedConnection);
         connect(this, &QuickTexturePoint::pointColorChanged, this, &QuickTexturePoint::ppp_ColorChanged, Qt::QueuedConnection);
         connect(this, &QuickTexturePoint::pointSizeChanged, this, &QuickTexturePoint::ppp_PointSizeChanged, Qt::QueuedConnection);
@@ -314,7 +332,7 @@ namespace sstd {
                     varData[0].g = varK * g;
                     varData[0].b = varK * b;
                     varData[0].a = varK * a;
-
+                                        
                 }
 
             private:
@@ -334,8 +352,8 @@ namespace sstd {
 
             }
 
-            void updateData(qreal s, const QColor & varColor, const QImage * varImage) {
-
+            void updateData(qreal r,qreal s, const QColor & varColor, const QImage * varImage) {
+                                
                 /*更新顶点着色器*/
                 mmm_QSGGeometry->updateData(s,
                     varColor.red(),
@@ -344,7 +362,7 @@ namespace sstd {
                     varColor.alpha());
 
                 /*更新片段着色器*/
-                mmm_Material->loadImage(varImage);
+                mmm_Material->loadImage(r,varImage);
 
                 this->markDirty(QSGNode::DirtyGeometry | DirtyMaterial);
 
@@ -366,9 +384,9 @@ namespace sstd {
         if (oldNode == nullptr) {
             varPointNode = sstdNew<PointNode>(this);
         }
-
+         
         assert(mmm_ImageSource);
-        varPointNode->updateData(mmm_PointSize, mmm_PointColor, mmm_ImageSource);
+        varPointNode->updateData(this->rotation(),mmm_PointSize, mmm_PointColor, mmm_ImageSource);
 
         return varPointNode;
 

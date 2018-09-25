@@ -21,6 +21,21 @@ Window {
             property double zRate : 1;
             pointSize : 128
             pointColor : Qt.rgba( 0.3+Math.random()/1.5,0.3+Math.random()/1.5,0.3+Math.random()/1.5,1 )
+            rotation : Math.random() * 180
+
+            Timer{
+                interval: 800+Math.random()*300
+                repeat: true
+                running: true
+                onTriggered: {
+                    var rotationTmp = parent.rotation;
+                    rotationTmp += ((Math.random())>0.5?1:-1)*(Math.random()*5+1);
+                    if(rotationTmp>360){    rotationTmp-=360; }
+                    else if(rotationTmp<0){ rotationTmp+=360; }
+                    parent.rotation = rotationTmp ;
+                }
+            }
+
         }
     }
 
