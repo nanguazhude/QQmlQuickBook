@@ -307,6 +307,84 @@ namespace sstd {
             sstd::allocator< std::pair<const QString, const QImage> > >;
         const static map varResources = []()->map {
             map varAns;
+            varAns.insert("00.png"_load_qimage);
+            varAns.insert("01.png"_load_qimage);
+            varAns.insert("02.png"_load_qimage);
+            varAns.insert("03.png"_load_qimage);
+            varAns.insert("04.png"_load_qimage);
+            varAns.insert("05.png"_load_qimage);
+            varAns.insert("06.png"_load_qimage);
+            varAns.insert("07.png"_load_qimage);
+            varAns.insert("08.png"_load_qimage);
+            varAns.insert("09.png"_load_qimage);
+            varAns.insert("10.png"_load_qimage);
+            varAns.insert("11.png"_load_qimage);
+            varAns.insert("12.png"_load_qimage);
+            varAns.insert("13.png"_load_qimage);
+            varAns.insert("14.png"_load_qimage);
+            varAns.insert("15.png"_load_qimage);
+            varAns.insert("16.png"_load_qimage);
+            varAns.insert("17.png"_load_qimage);
+            varAns.insert("18.png"_load_qimage);
+            varAns.insert("19.png"_load_qimage);
+            varAns.insert("20.png"_load_qimage);
+            varAns.insert("21.png"_load_qimage);
+            varAns.insert("22.png"_load_qimage);
+            varAns.insert("23.png"_load_qimage);
+            varAns.insert("24.png"_load_qimage);
+            varAns.insert("25.png"_load_qimage);
+            varAns.insert("26.png"_load_qimage);
+            varAns.insert("27.png"_load_qimage);
+            varAns.insert("28.png"_load_qimage);
+            varAns.insert("29.png"_load_qimage);
+            varAns.insert("30.png"_load_qimage);
+            varAns.insert("31.png"_load_qimage);
+            varAns.insert("32.png"_load_qimage);
+            varAns.insert("33.png"_load_qimage);
+            varAns.insert("34.png"_load_qimage);
+            varAns.insert("35.png"_load_qimage);
+            varAns.insert("36.png"_load_qimage);
+            varAns.insert("37.png"_load_qimage);
+            varAns.insert("38.png"_load_qimage);
+            varAns.insert("39.png"_load_qimage);
+            varAns.insert("40.png"_load_qimage);
+            varAns.insert("41.png"_load_qimage);
+            varAns.insert("42.png"_load_qimage);
+            varAns.insert("43.png"_load_qimage);
+            varAns.insert("44.png"_load_qimage);
+            varAns.insert("45.png"_load_qimage);
+            varAns.insert("46.png"_load_qimage);
+            varAns.insert("47.png"_load_qimage);
+            varAns.insert("48.png"_load_qimage);
+            varAns.insert("49.png"_load_qimage);
+            varAns.insert("50.png"_load_qimage);
+            varAns.insert("51.png"_load_qimage);
+            varAns.insert("52.png"_load_qimage);
+            varAns.insert("53.png"_load_qimage);
+            varAns.insert("54.png"_load_qimage);
+            varAns.insert("55.png"_load_qimage);
+            varAns.insert("56.png"_load_qimage);
+            varAns.insert("57.png"_load_qimage);
+            varAns.insert("58.png"_load_qimage);
+            varAns.insert("59.png"_load_qimage);
+            varAns.insert("60.png"_load_qimage);
+            varAns.insert("61.png"_load_qimage);
+            varAns.insert("62.png"_load_qimage);
+            varAns.insert("63.png"_load_qimage);
+            varAns.insert("64.png"_load_qimage);
+            varAns.insert("65.png"_load_qimage);
+            varAns.insert("66.png"_load_qimage);
+            varAns.insert("67.png"_load_qimage);
+            varAns.insert("68.png"_load_qimage);
+            varAns.insert("69.png"_load_qimage);
+            varAns.insert("70.png"_load_qimage);
+            varAns.insert("71.png"_load_qimage);
+            varAns.insert("72.png"_load_qimage);
+            varAns.insert("73.png"_load_qimage);
+            varAns.insert("74.png"_load_qimage);
+            varAns.insert("75.png"_load_qimage);
+            varAns.insert("76.png"_load_qimage);
+            varAns.insert("77.png"_load_qimage);
             return std::move(varAns);
         }();
         auto varPos = varResources.find(arg);
@@ -325,6 +403,10 @@ namespace sstd {
     }
 
     static inline void registerThis() {
+        {/*强制资源载入*/
+            const QImage * arg = nullptr;
+            loadResource(QStringLiteral("any"), arg);
+        }
         qmlRegisterType<Quick3DPoint>("myqml.qsgdrawpoint", 1, 0, "Quick3DPoint");
     }
     Q_COREAPP_STARTUP_FUNCTION(registerThis)
