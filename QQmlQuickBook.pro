@@ -55,7 +55,9 @@ qquickframebufferobjectdrawroundpoint.file = $$PWD/chapter02/qquickframebufferob
 qquickframebufferobjectdrawroundpoint.depends = buildinstall
 SUBDIRS += qquickframebufferobjectdrawroundpoint
 
-
+qsgdrawuserender.file = $$PWD/chapter02/qsgdrawuserender/qsgdrawuserender.pro
+qsgdrawuserender.depends = buildinstall
+SUBDIRS += qsgdrawuserender
 
 
 
