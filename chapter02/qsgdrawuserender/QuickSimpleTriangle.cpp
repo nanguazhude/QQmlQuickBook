@@ -29,7 +29,7 @@ namespace sstd {
     }
 
     QRectF QuickSimpleTriangleNode::rect() const {
-        return Super::rect();
+        return {0,0,mmm_Item ->width(),mmm_Item ->height()};
     }
 
     void QuickSimpleTriangleNode::render(const QSGRenderNode::RenderState *state) {
@@ -39,11 +39,30 @@ namespace sstd {
         }
 
         const auto varVP = u8R"(/*顶点着色器*/
+
 #version 450
+
+layout (location =0) in vec4 argPosition       ;
+layout (location =1) in vec4 argColor          ;
+layout (location =2) uniform mat4 argMVPMatrix ;
+
+out vec4 passColor;
+
+void main(){
+    gl_Position = argMVPMatrix * argPosition ;
+    passColor   = argColor                   ;
+}
 
 )"sv;
         const auto varFP = u8R"(/*片段着色器*/
 #version 450
+
+in  vec4 passColor;
+out vec4 color;
+
+void main(void){
+    color = passColor ;
+}
 
 )"sv;
 
@@ -51,7 +70,12 @@ namespace sstd {
         if (mmm_Buffer == 0) { ppp_InitBuffer(); }
         if (mmm_VAO == 0) { ppp_InitVAO(); }
         
+        glUseProgram(mmm_Program);
+        glBindVertexArray(mmm_VAO);
+        glUniformMatrix4fv(2, 1, false, state->projectionMatrix()->data());
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
+        ppp_Clean();
 
     }
 
@@ -101,11 +125,23 @@ namespace sstd {
     };
     void QuickSimpleTriangleNode::ppp_InitBuffer() {
 
-        RowData varDrawData[3];
+        const auto varWidth = static_cast<GLfloat>(mmm_Item->width());
+        const auto varHeight = static_cast<GLfloat>(mmm_Item->height());
+        const auto varX = static_cast<GLfloat>(mmm_Item->x());
+        const auto varY = static_cast<GLfloat>(mmm_Item->y());
+
+        auto varGetRandom = []()->GLfloat {
+            return std::fmaf( (std::rand() & 255) ,(1 / 512.0f) , 0.5f );
+        };
+
+        RowData varDrawData[3]{{ std::fmaf(0.5f,varWidth,varX) ,std::fmaf(0.0f,varHeight,varY),0,1,/**/varGetRandom(),0,0,1},
+        {std::fmaf(1.0f,varWidth,varX) ,std::fmaf(0.5f,varHeight,varY),0,1,/**/0,varGetRandom(),0,1},
+        {std::fmaf(0.0f,varWidth,varX) ,std::fmaf(1.0f,varHeight,varY),0,1,/**/0,0,varGetRandom(),1}
+        };
 
         glCreateBuffers(1, &mmm_Buffer);
         glNamedBufferData(mmm_Buffer,
-            sizeof(RowData),
+            sizeof(varDrawData),
             varDrawData[0].data.data(),
             GL_STATIC_DRAW);
         
@@ -138,12 +174,31 @@ namespace sstd {
         mmm_VAO = 0;
     }
 
+    QuickSimpleTriangleNode::QuickSimpleTriangleNode(QQuickItem * arg):mmm_Item(arg) {}
+
     QuickSimpleTriangleNode::~QuickSimpleTriangleNode() {
         ppp_Clean();
     }
 
     void QuickSimpleTriangleNode::releaseResources() {
         ppp_Clean();
+    }
+
+    QuickSimpleTriangle::QuickSimpleTriangle(Super * parent) : Super(parent) {
+        this->setFlag(QQuickItem::ItemHasContents, true);
+    }
+
+    QSGNode * QuickSimpleTriangle::updatePaintNode(
+        QSGNode *oldNode, 
+        QQuickItem::UpdatePaintNodeData *) {
+
+        auto * varNode = static_cast<QuickSimpleTriangleNode*>(oldNode);
+        if (varNode == nullptr) { 
+            varNode = sstdNew<QuickSimpleTriangleNode>(this);
+        }
+
+        return varNode;
+
     }
 
     static inline void registerThis() {

@@ -15,7 +15,9 @@ Window {
         y :      100
         width :  200
         height : 200
+        rotation: 0
     }
+    
 
 }
 

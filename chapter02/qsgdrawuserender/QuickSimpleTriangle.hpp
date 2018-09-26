@@ -19,8 +19,9 @@ namespace sstd {
         void render(const QSGRenderNode::RenderState *state) override;
         void releaseResources() override;
         ~QuickSimpleTriangleNode();
-
+        QuickSimpleTriangleNode(QQuickItem *);
     private:
+        QQuickItem * mmm_Item = nullptr;
         GLuint mmm_Program = 0;
         GLuint mmm_Buffer = 0;
         GLuint mmm_VAO = 0;
@@ -34,8 +35,11 @@ namespace sstd {
 
     class QuickSimpleTriangle : public QQuickItem {
         Q_OBJECT
+    private:
+        using Super = QQuickItem;
     public:
-
+        QuickSimpleTriangle(Super * parent = nullptr);
+        QSGNode * updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData) override;
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(QuickSimpleTriangle)
     };
