@@ -45,12 +45,13 @@ namespace sstd {
 layout (location =0) in vec4 argPosition       ;
 layout (location =1) in vec4 argColor          ;
 layout (location =2) uniform mat4 argMVPMatrix ;
+layout (location =3) uniform float argOpacity  ;
 
 out vec4 passColor;
 
 void main(){
     gl_Position = argMVPMatrix * argPosition ;
-    passColor   = argColor                   ;
+    passColor   = argColor * argOpacity      ;
 }
 
 )"sv;
@@ -75,8 +76,11 @@ void main(void){
         /**************************************************************/
         /*get model view project matrix*/
         const auto varMatrix = (*(state->projectionMatrix())) * (*(this->matrix()));
+        glUniformMatrix4fv(2, 1, false, varMatrix.data());
         /**************************************************************/
-        glUniformMatrix4fv(2, 1, false,varMatrix.data());
+        const GLfloat varOpacity = static_cast<GLfloat>( this->inheritedOpacity() );
+        glUniform1f(3,varOpacity);
+        /**************************************************************/
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         ppp_Clean();

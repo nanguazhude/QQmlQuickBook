@@ -16,6 +16,8 @@ Window {
         width :  200
         height : 200
         rotation: 0
+        opacity : 1
+        scale :   1
     }
 
     QuickSimpleTriangle {
@@ -24,6 +26,8 @@ Window {
         width :  200
         height : 200
         rotation: 10
+        opacity : 0.6
+        scale :   0.8
     }
 
     QuickSimpleTriangle {
@@ -32,6 +36,8 @@ Window {
         width :  200
         height : 200
         rotation: 40
+        opacity : 0.3
+        scale :   1.2
     }
 
 
