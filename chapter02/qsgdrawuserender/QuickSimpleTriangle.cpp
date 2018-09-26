@@ -72,7 +72,12 @@ void main(void){
         
         glUseProgram(mmm_Program);
         glBindVertexArray(mmm_VAO);
-        glUniformMatrix4fv(2, 1, false, state->projectionMatrix()->data());
+        /**************************************************************/
+        QMatrix4x4 varMatrix;
+        varMatrix.rotate(mmm_Item->rotation(), { 0,0,1 });
+        varMatrix =     (*(state->projectionMatrix()))  * varMatrix;
+        /**************************************************************/
+        glUniformMatrix4fv(2, 1, false,varMatrix.data());
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         ppp_Clean();
