@@ -28,6 +28,7 @@ namespace sstd{
     public:
         QuickTexturePoint(QQuickItem *parent = nullptr);
     protected:
+        void itemChange(QQuickItem::ItemChange change, const QQuickItem::ItemChangeData &value) override;
         QSGNode * updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData) override;
     private:
         QColor  mmm_PointColor;
