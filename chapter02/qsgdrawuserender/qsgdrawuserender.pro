@@ -1,4 +1,4 @@
-TARGET = $$qtLibraryTarget(qsgdrawtexturepoint)
+TARGET = $$qtLibraryTarget(qsgdrawuserender)
 TEMPLATE = app
 
 QT += gui
@@ -34,7 +34,7 @@ HEADERS += \
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
-QMLSOURCES += $$PWD/myqml/qsgdrawtexturepoint/main.qml
+QMLSOURCES += $$PWD/myqml/qsgdrawuserender/main.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES

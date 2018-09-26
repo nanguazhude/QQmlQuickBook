@@ -37,8 +37,8 @@ using namespace std::string_view_literals;
 namespace sstd {
     class SSTDMemory {
     public:
-        static inline void* operator new  (std::size_t, void* ptr) { return ptr; }
-        static inline void* operator new[](std::size_t, void* ptr) { return ptr; }
+        static inline void* operator new  (std::size_t, void* ptr) noexcept { return ptr; }
+        static inline void* operator new[](std::size_t, void* ptr) noexcept { return ptr; }
     public:
         static inline void* operator new (std::size_t count) { return ::operator new(count); }
         static inline void operator delete(void * ptr) { return ::operator delete(ptr); }
