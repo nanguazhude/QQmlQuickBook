@@ -29,7 +29,20 @@ namespace {
 
 }/*namespace*/
 
+#include <cstdlib>
+
 int main(int argc, char ** argv) {
+
+#if defined(NDEBUG)
+#else
+    if constexpr (true) {
+        //qputenv("QSG_RENDERER_DEBUG", "render");
+        //qputenv("QSG_RENDERER_DEBUG", "dump");
+        //qputenv("QML_IMPORT_TRACE","1");
+        //qputenv("QML_DISABLE_DISK_CACHE","true");
+    }
+#endif
+
     /*高分屏支持*/
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     /*重置随机数种子*/
@@ -55,7 +68,9 @@ int main(int argc, char ** argv) {
     return varApp.exec();
 }
 
-
+/*
+ * https://zhuanlan.zhihu.com/p/25769561
+*/
 
 
 

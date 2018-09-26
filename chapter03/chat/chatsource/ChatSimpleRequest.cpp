@@ -1,4 +1,5 @@
 ﻿#include "ChatSimpleRequest.hpp"
+#include <QtCore/qfile.h>
 
 namespace {
     inline QByteArray getData(){

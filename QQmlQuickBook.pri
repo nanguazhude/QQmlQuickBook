@@ -12,13 +12,12 @@ win32-msvc*{
 QMAKE_CFLAGS += -std=c11
 
 #set root install dir
+CONFIG += console
 CONFIG(debug,debug|release){
     RootDestDir = $$PWD/bin
-    CONFIG += console
     DEFINES *= _DEBUG
 }else{#release
     RootDestDir = $$PWD/bin
-    CONFIG += console
     DEFINES += NDEBUG #assert
     DEFINES += QT_NO_DEBUG #Q_ASSERT,Q_ASSERT_X
 }
