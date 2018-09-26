@@ -5,6 +5,9 @@
 #include <QtQuick>
 #include "QuickSimpleTriangle.hpp"
 
+#include <iostream>
+#include "ThreadPrint.hpp"
+
 namespace sstd {
 
     QSGRenderNode::RenderingFlags QuickSimpleTriangleNode::flags() const {
@@ -34,6 +37,8 @@ namespace sstd {
 
     void QuickSimpleTriangleNode::render(const QSGRenderNode::RenderState *state) {
         
+        debug_call_once([]() {std::cout << "node render thread id : " << std::this_thread::get_id() << std::endl;});
+
         if ( this->isInitialized()==false ) {
             this->initializeOpenGLFunctions();
         }
@@ -198,6 +203,8 @@ void main(void){
     QSGNode * QuickSimpleTriangle::updatePaintNode(
         QSGNode *oldNode, 
         QQuickItem::UpdatePaintNodeData *) {
+
+        debug_call_once([]() {std::cout << "update paint node thread id : " << std::this_thread::get_id() << std::endl; });
 
         auto * varNode = static_cast<QuickSimpleTriangleNode*>(oldNode);
         if (varNode == nullptr) { 

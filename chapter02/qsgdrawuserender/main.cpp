@@ -13,6 +13,9 @@
 #include <ConstructQSurface.hpp>
 #include "QmlApplicationEngine.hpp"
 
+#include <iostream>
+#include "ThreadPrint.hpp"
+
 namespace {
 
     inline void resetRandom() {
@@ -41,6 +44,9 @@ int main(int argc, char ** argv) {
     loadQtPlugins();
     /*加载Qml环境*/
     QmlApplicationEngine varQmlApplicationEngine;
+
+    debug_call_once([]() {std::cout << "main thread id : " << std::this_thread::get_id() << std::endl; });
+
     /*检查Qml是否加载成功*/
     if (varQmlApplicationEngine.rootObjects().empty()) {
         return -1;
