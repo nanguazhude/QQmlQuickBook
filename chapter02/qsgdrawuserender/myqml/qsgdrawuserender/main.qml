@@ -11,27 +11,27 @@ Window {
     title: qsTr("qsgdrawpoint")
 
     QuickSimpleTriangle {
-        x :      300
-        y :      300
+        x :      200
+        y :      200
         width :  200
         height : 200
         rotation: 0
     }
 
     QuickSimpleTriangle {
-        x :      300
-        y :      300
+        x :      200
+        y :      200
         width :  200
         height : 200
         rotation: 10
     }
 
     QuickSimpleTriangle {
-        x :      300
-        y :      300
+        x :      200
+        y :      200
         width :  200
         height : 200
-        rotation: 20
+        rotation: 40
     }
 
 

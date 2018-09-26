@@ -73,9 +73,8 @@ void main(void){
         glUseProgram(mmm_Program);
         glBindVertexArray(mmm_VAO);
         /**************************************************************/
-        QMatrix4x4 varMatrix;
-        varMatrix.rotate(mmm_Item->rotation(), { 0,0,1 });
-        varMatrix =     (*(state->projectionMatrix()))  * varMatrix;
+        /*get model view project matrix*/
+        const auto varMatrix = (*(state->projectionMatrix())) * (*(this->matrix()));
         /**************************************************************/
         glUniformMatrix4fv(2, 1, false,varMatrix.data());
         glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -132,16 +131,15 @@ void main(void){
 
         const auto varWidth = static_cast<GLfloat>(mmm_Item->width());
         const auto varHeight = static_cast<GLfloat>(mmm_Item->height());
-        const auto varX = static_cast<GLfloat>(mmm_Item->x());
-        const auto varY = static_cast<GLfloat>(mmm_Item->y());
 
         auto varGetRandom = []()->GLfloat {
             return std::fmaf( (std::rand() & 255) ,(1 / 512.0f) , 0.5f );
         };
 
-        RowData varDrawData[3]{{ std::fmaf(0.5f,varWidth,varX) ,std::fmaf(0.0f,varHeight,varY),0,1,/**/varGetRandom(),0,0,1},
-        {std::fmaf(1.0f,varWidth,varX) ,std::fmaf(0.5f,varHeight,varY),0,1,/**/0,varGetRandom(),0,1},
-        {std::fmaf(0.0f,varWidth,varX) ,std::fmaf(1.0f,varHeight,varY),0,1,/**/0,0,varGetRandom(),1}
+        RowData varDrawData[3]{
+            {  (0.5f*varWidth ) , (0.0f*varHeight ),0,1,/**/varGetRandom(),0,0,1},
+            {  (1.0f*varWidth ) , (0.5f*varHeight ),0,1,/**/0,varGetRandom(),0,1},
+            {  (0.0f*varWidth ) , (1.0f*varHeight ),0,1,/**/0,0,varGetRandom(),1}
         };
 
         glCreateBuffers(1, &mmm_Buffer);
