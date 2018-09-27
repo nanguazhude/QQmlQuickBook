@@ -4,10 +4,12 @@
 #include <thread>
 #include <memory>
 
-#if defined(NDEBUG)
+#define _disable_debug_call_once 1
+
+#if defined(_disable_debug_call_once) 
 
 #ifndef debug_call_once
-#define debug_call_once(...)/*just do nothing*/
+#define debug_call_once(...)/*just do nothing*/((void)0)
 #endif
 
 #else
@@ -24,7 +26,7 @@ void __private_call_once(T && f) {
 
 #endif
 
-
+ 
 
 
 
