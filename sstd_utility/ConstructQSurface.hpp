@@ -3,14 +3,19 @@
 #include <QtCore/qstring.h>
 #include <QtGui/qopenglcontext.h>
 #include <QtGui/qsurfaceformat.h>
+#if defined(__glew_h__)||defined(__GLEW_H__)
+/***********************/
+#else
 #include <QtGui/qopenglfunctions.h>
 #include <QtGui/qopenglfunctions_4_5_core.h>
+#endif
+
 #include <fstream>
 #include "sstd_memory.hpp"
 
 namespace sstd {
 
-    inline void setDefaultFormat() {
+    inline QSurfaceFormat getDefaultOpenGLFormat() {
         auto varFormat = QSurfaceFormat::defaultFormat();
         if (varFormat.majorVersion() < 4) {
             varFormat.setVersion(4, 5);
@@ -28,14 +33,22 @@ namespace sstd {
         varFormat.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
         varFormat.setSwapInterval(0)/*关闭垂直同步*/;
 #if defined(ENABLE_GL_DEBUG)
-        varFormat.setOption(QSurfaceFormat::DebugContext,true);
+        varFormat.setOption(QSurfaceFormat::DebugContext, true);
 #else
         varFormat.setOption(QSurfaceFormat::DebugContext, false);
 #endif
-        QSurfaceFormat::setDefaultFormat(varFormat);
+        return varFormat;
     }
 
+    inline void setDefaultFormat() {
+        QSurfaceFormat::setDefaultFormat(sstd::getDefaultOpenGLFormat());
+    }
+
+#if defined(__glew_h__)||defined(__GLEW_H__)
+
+#else
     using OpenGLFunctions = QOpenGLFunctions_4_5_Core;
+#endif
 
 }/*****/
 

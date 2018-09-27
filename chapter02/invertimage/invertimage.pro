@@ -4,9 +4,8 @@ TEMPLATE = app
 QT += gui
 QT += qml
 QT += core
-#QT += quick #in this demo we do not need quick
-#QT += widgets #in this demo we do not need widgets
-#QT += concurrent # in this demo we do not need concurrent
+QT += quick
+QT += widgets
 
 include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
@@ -21,13 +20,25 @@ include($$PWD/../../sstd_utility/glew.pri)
 include($$PWD/../../sstd_utility/glm.pri)
 
 SOURCES += $$PWD/main.cpp
-SOURCES += $$PWD/Window.cpp
-SOURCES += $$PWD/ThreadObject.cpp
-SOURCES += $$PWD/FunctionsInThisDemo.cpp
 
-HEADERS += $$PWD/ThreadObject.hpp
-HEADERS += $$PWD/Window.hpp
+SOURCES += $$PWD/GetLocalFullPath.cpp
 
+SOURCES += $$PWD/RenderThread.cpp
+HEADERS += $$PWD/RenderThread.hpp
 
+SOURCES += $$PWD/QmlApplicationEngine.cpp
+HEADERS += $$PWD/QmlApplicationEngine.hpp
+
+SOURCES += $$PWD/Application.cpp
+HEADERS += $$PWD/Application.hpp
+
+QMLSOURCES += $$PWD/myqml/invertimage/main.qml
+
+lupdate_only{
+    SOURCES += $$QMLSOURCES
+}
+DISTFILES += $$QMLSOURCES
+
+DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
 
