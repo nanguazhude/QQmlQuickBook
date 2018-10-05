@@ -9,7 +9,8 @@ namespace {
     public:
         FINAL_CLASS_TYPE_ASSIGN(ImageType, QImage);
         FINAL_CLASS_TYPE_ASSIGN(ImageKeyType, QString);
-        std::map<ImageKeyType, ImageType, std::less<void>> mmm_Map;
+        std::map<ImageKeyType, ImageType, std::less<void>,
+            sstd::allocator<std::pair<const ImageKeyType, ImageType>>> mmm_Map;
         std::shared_mutex mmm_Mutex;
 
         void erase(const QString & arg) {
