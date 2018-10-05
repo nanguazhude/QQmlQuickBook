@@ -54,10 +54,10 @@ namespace sstd {
     inline _TypeName_()=default; \
     inline _TypeName_& operator=(const _TypeName_ &) = default; \
     inline _TypeName_& operator=(_TypeName_ &&) = default; \
-    inline _TypeName_(const aswr<const std::remove_cv_t<__VA_ARGS__> &> & arg) : _1_Super_(arg.value()) {} \
-    inline _TypeName_(const aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) : _1_Super_( std::move( arg.value() ) ) {} \
-    inline _TypeName_&operator=(const aswr<const std::remove_cv_t<__VA_ARGS__> &> & arg) { _1_Super_::operator=(arg.value());return *this; } \
-    inline _TypeName_&operator=(const aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) { _1_Super_::operator=( std::move( arg.value() ) );return *this; } \
+    inline _TypeName_(const sstd::aswr<const std::remove_cv_t<__VA_ARGS__> &> & arg) : _1_Super_(arg.value()) {} \
+    inline _TypeName_(const sstd::aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) : _1_Super_( std::move( arg.value() ) ) {} \
+    inline _TypeName_&operator=(const sstd::aswr<const std::remove_cv_t<__VA_ARGS__> &> & arg) { _1_Super_::operator=(arg.value());return *this; } \
+    inline _TypeName_&operator=(const sstd::aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) { _1_Super_::operator=( std::move( arg.value() ) );return *this; } \
 } \
     /*FINAL_CLASS_TYPE_ASSIGN*/
     
@@ -71,8 +71,8 @@ namespace sstd {
     inline _TypeName_()=default; \
     inline _TypeName_& operator=(const _TypeName_ &) = default; \
     inline _TypeName_& operator=(_TypeName_ &&) = default; \
-    inline _TypeName_(const aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) : _1_Super_( std::move( arg.value() ) ) {} \
-    inline _TypeName_&operator=(const aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) { _1_Super_::operator=( std::move( arg.value() ) );return *this; } \
+    inline _TypeName_(const sstd::aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) : _1_Super_( std::move( arg.value() ) ) {} \
+    inline _TypeName_&operator=(const sstd::aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) { _1_Super_::operator=( std::move( arg.value() ) );return *this; } \
 } \
     /*FINAL_CLASS_TYPE_MOVE_ASSIGN*/
 

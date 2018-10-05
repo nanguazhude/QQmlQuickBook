@@ -26,6 +26,9 @@ SOURCES += $$PWD/GetLocalFullPath.cpp
 SOURCES += $$PWD/RenderThread.cpp
 HEADERS += $$PWD/RenderThread.hpp
 
+HEADERS += $$PWD/QuickImageProvider.hpp
+SOURCES += $$PWD/QuickImageProvider.cpp
+
 SOURCES += $$PWD/QmlApplicationEngine.cpp
 HEADERS += $$PWD/QmlApplicationEngine.hpp
 
