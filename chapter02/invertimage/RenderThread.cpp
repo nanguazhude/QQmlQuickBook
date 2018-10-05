@@ -9,26 +9,27 @@
 #include <QtQuick/qquickwindow.h>
 #include <QtQuick/qquickrendercontrol.h>
 #include <QtGui/qopenglcontext.h>
+#include <QtGui/qoffscreensurface.h>
 #include <ConstructQSurface.hpp>
 extern bool glewInitialize();
 
-/*thread完成时自删除*/
 sstd::RenderThread::RenderThread() {
     assert(qApp);
-    this->moveToThread(qApp->thread());
-    connect(this, &QThread::finished, this, &QThread::deleteLater);
-    connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
-        if (this->isRunning()) {
-            this->quit();
-            return;
-        }
-        this->deleteLater();
-    });
+    {
+        /*thread完成时自删除*/
+        this->moveToThread(qApp->thread());
+        connect(this, &QThread::finished, this, &QThread::deleteLater);
+        connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
+            if (this->isRunning()) {
+                this->quit();
+                return;
+            }
+            this->deleteLater();
+        });
+    }
     /*此函数必须在main thread 或 gui thread 调用*/
-    mmm_Surface = sstdNew<QWindow>();
-    mmm_Surface->setSurfaceType(QWindow::OpenGLSurface);
+    mmm_Surface = sstdNew<QOffscreenSurface>();
     mmm_Surface->setFormat(sstd::getDefaultOpenGLFormat());
-    mmm_Surface->resize(1, 1);
     mmm_Surface->create();
 }
 
@@ -43,13 +44,16 @@ namespace {
         QOpenGLContext * mmm_OpenGLContex = nullptr;
     public:
         Render(sstd::RenderThread * arg) {
+            /*this function will run in any thread*/
             mmm_OpenGLContex = sstdNew<QOpenGLContext>();
             mmm_OpenGLContex->setFormat(sstd::getDefaultOpenGLFormat());
             mmm_OpenGLContex->create();
             mmm_OpenGLContex->makeCurrent(arg->getSurface());
             glewInitialize();
         }
-        ~Render() { delete mmm_OpenGLContex; }
+        ~Render() {
+            delete mmm_OpenGLContex;
+        }
     };
 
 }/*namespace*/
@@ -72,10 +76,31 @@ void sstd::RenderThread::run() try {
 
         ~RenderState() { super->renderFinished(image); }
 
-    }varState(this,[this]() { return QImage(this->mmm_ImageFileName); }());
-
+    }varState(this, [this]() { return QImage(this->mmm_ImageFileName); }());
     varState.checkImageFormat();
+
     std::unique_ptr<Render> varRender{ sstdNew<Render>(this) };
+    using OpenGLResourceData = std::tuple<GLuint, GLuint>;
+    class OpenGLResource : public OpenGLResourceData {
+    public:
+        enum {
+            Program = 0,
+            ImageTexture
+        };
+        OpenGLResource() :OpenGLResourceData(0, 0) {}
+        ~OpenGLResource() {
+            glDeleteProgram(std::get<Program>(*this));
+            glDeleteTextures(1, &std::get<ImageTexture>(*this));
+        }
+    };
+
+    OpenGLResource varOpenGLResource;
+
+    /*初始化OpenGL Program*/
+
+    /*初始化ImageTexture*/
+
+    /*反转像素*/
 
 
 

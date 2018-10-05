@@ -2,8 +2,10 @@
 
 #include <sstd_memory.hpp>
 #include <QtCore/qthread.h>
+
 class QImage;
 class QWindow;
+class QOffscreenSurface;
 
 namespace sstd{
 
@@ -13,7 +15,7 @@ namespace sstd{
     private:
         using Super = QThread;
         QString mmm_ImageFileName;
-        QWindow * mmm_Surface=nullptr;
+        QOffscreenSurface * mmm_Surface=nullptr;
     public:
         RenderThread();
         ~RenderThread();
