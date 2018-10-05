@@ -18,7 +18,9 @@ namespace {
 
         void erase(const QString & arg) {
             std::unique_lock varLock{ mmm_Mutex };
-            mmm_Map.erase(mmm_Map.find(arg));
+            const auto varPos = mmm_Map.find(arg);
+            if (varPos == mmm_Map.end()) { return; }
+            mmm_Map.erase(varPos);
         }
 
         void add(const QString & argk, const QImage & argv) {

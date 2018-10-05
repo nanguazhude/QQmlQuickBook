@@ -30,7 +30,11 @@ QmlApplicationEngine::QmlApplicationEngine(QObject * parent) :Super(parent) {
         const auto varTestImagePath = sstd::getLocalFileFullPath(
             QStringLiteral("myqml/invertimage/test.png")).toLocalFile();
         const auto varSourceImageID = sstd::QuickImageProvider::getNextIndexHeader();
+        /*erase old image*/
+        sstd::QuickImageProvider::addImage(QQmlProperty::read(mmm_ImageSource, QStringLiteral("source")).toString(), {});
+        /*add new image*/
         sstd::QuickImageProvider::addImage(varSourceImageID, QImage(varTestImagePath));
+        /*udpate image*/
         QQmlProperty::write(mmm_ImageSource, QStringLiteral("source"), varSourceImageID);
     }
 
@@ -39,9 +43,13 @@ QmlApplicationEngine::QmlApplicationEngine(QObject * parent) :Super(parent) {
         connect(varThread, &sstd::RenderThread::renderFinished,
             this, [this](const QImage & argImage) {
             const auto varTargetImageID = sstd::QuickImageProvider::getNextIndexHeader();
+            /*erase old image*/
+            sstd::QuickImageProvider::addImage(QQmlProperty::read(mmm_ImageTarget, QStringLiteral("source")).toString(), {});
+            /*add new image*/
             sstd::QuickImageProvider::addImage(varTargetImageID, argImage);
+            /*udpate image*/
             QQmlProperty::write(mmm_ImageTarget, QStringLiteral("source"), varTargetImageID);
-        });
+        },Qt::QueuedConnection);
         varThread->start(sstd::getLocalFileFullPath(
             QStringLiteral("myqml/invertimage/test.png")).toLocalFile());
     }
