@@ -11,6 +11,7 @@ namespace sstd {
         QuickImageProvider();
         QImage requestImage(const QString &id, QSize *size, const QSize& requestedSize) override;
     public:
+        static QString getIndexHeader();
         static QString getNextIndexHeader();
         static void addImage(const QString &,const QImage &);
         static QuickImageProvider * instance();

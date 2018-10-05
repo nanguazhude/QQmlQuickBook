@@ -10,7 +10,7 @@ namespace {
         FINAL_CLASS_TYPE_ASSIGN(ImageType, QImage);
         FINAL_CLASS_TYPE_ASSIGN(ImageKeyType, QString);
         std::map<ImageKeyType, ImageType, std::less<void>,
-            sstd::allocator<std::pair<const ImageKeyType, ImageType>>> mmm_Map;
+        sstd::allocator<std::pair<const ImageKeyType, ImageType>>> mmm_Map;
         std::shared_mutex mmm_Mutex;
 
         void erase(const QString & arg) {
@@ -53,8 +53,8 @@ sstd::QuickImageProvider::QuickImageProvider() : Super(QQmlImageProviderBase::Im
 
 /** image://quickqimage/[a-z]{32}/ **/
 QImage sstd::QuickImageProvider::requestImage(const QString &id,
-    QSize *size,
-    const QSize& requestedSize) {
+                                              QSize *size,
+                                              const QSize& requestedSize) {
     const auto varAns = instanceMap()->get(id);
     if (size) { *size = varAns.size(); }
     return varAns;
@@ -73,14 +73,14 @@ namespace {
         class SpinMutex {
             std::atomic_flag flag = ATOMIC_FLAG_INIT;
         public:  SpinMutex() = default;
-                 SpinMutex(const SpinMutex&) = delete;
-                 SpinMutex& operator= (const SpinMutex&) = delete;
-                 inline void lock() {
-                     while (flag.test_and_set(std::memory_order_acquire));
-                 }
-                 inline void unlock() {
-                     flag.clear(std::memory_order_release);
-                 }
+            SpinMutex(const SpinMutex&) = delete;
+            SpinMutex& operator= (const SpinMutex&) = delete;
+            inline void lock() {
+                while (flag.test_and_set(std::memory_order_acquire));
+            }
+            inline void unlock() {
+                flag.clear(std::memory_order_release);
+            }
         };
         static SpinMutex varMutex;
 
@@ -104,11 +104,19 @@ namespace {
 
 }/*namespace*/
 
-QString sstd::QuickImageProvider::getNextIndexHeader() {
+QString sstd::QuickImageProvider::getIndexHeader() {
+    return QStringLiteral("quickqimage");
+}
+
+QString sstd::QuickImageProvider::getNextIndexHeader(const QString & arg) {
     const auto varIndex = getIndex();
-    return  QStringLiteral("image://quickqimage/") +
-        QString::fromUtf16(varIndex.data(), 32) +
-        QChar('/');
+    const auto varAns =  QStringLiteral("image://quickqimage/") +
+            QString::fromUtf16(varIndex.data(), 32) ;
+    if( arg.isEmpty() ){ return varAns; }
+    if(arg.startsWith(QChar('/'))){
+        return varAns + arg;
+    }
+    return varAns +QChar('/') + arg;
 }
 
 void sstd::QuickImageProvider::addImage(const QString & argID, const QImage & argValue) {
