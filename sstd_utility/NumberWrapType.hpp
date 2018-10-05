@@ -13,11 +13,13 @@ namespace sstd {
 #define FINAL_CLASS_TYPE(_TypeName_,...) \
     class _TypeName_ final : public __VA_ARGS__ { \
     public: \
-    using _Super_ = __VA_ARGS__; \
-    using _Super_::_Super_; \
+    using _1_Super_ = __VA_ARGS__; \
+    using _1_Super_::_1_Super_; \
     inline _TypeName_(const _TypeName_ &) = default; \
     inline _TypeName_(_TypeName_ &&) = default; \
     inline _TypeName_()=default; \
+    inline _TypeName_& operator=(const _TypeName_ &) = default; \
+    inline _TypeName_& operator=(_TypeName_ &&) = default; \
 } \
     /*FINAL_CLASS_TYPE*/
 
@@ -93,6 +95,10 @@ namespace sstd {
     public:
         inline constexpr operator const type & () const { return mmm_value; }
         inline constexpr operator type & () { return mmm_value; }
+        inline constexpr const type & value() const { return mmm_value; }
+        inline constexpr const type & get() const { return mmm_value; }
+        inline constexpr type & value() { return mmm_value; }
+        inline constexpr type & get() { return mmm_value; }
     public:
         explicit inline constexpr  operator bool() const { return mmm_value; }
     public:
