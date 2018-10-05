@@ -71,7 +71,7 @@ namespace {
             'z','z','z','z','z','z','z','z',
         };
         class SpinMutex {
-            std::atomic_flag flag = ATOMIC_FLAG_INIT;
+            std::atomic_flag flag { ATOMIC_FLAG_INIT };
         public:  SpinMutex() = default;
             SpinMutex(const SpinMutex&) = delete;
             SpinMutex& operator= (const SpinMutex&) = delete;
@@ -129,7 +129,7 @@ void sstd::QuickImageProvider::addImage(const QString & argID, const QImage & ar
 }
 
 sstd::QuickImageProvider * sstd::QuickImageProvider::instance() {
-    auto varAns = sstd::make_unique<QuickImageProvider>();
+    static auto varAns = sstd::make_unique<QuickImageProvider>();
     return varAns.get();
 }
 
