@@ -10,6 +10,27 @@ namespace sstd {
     template<typename T>
     using get_type = typename T::type;
 
+    template<typename T>
+    class aswr/*assign wrap reference*/ final {
+        static_assert(std::is_reference_v<T>,"T must be reference");
+        T && mmm_Value;
+    public:
+        T && value() const { return std::forward<T>(mmm_Value); }
+        aswr(T && arg):mmm_Value(std::forward<T>(arg)) {}
+    private:
+        aswr() = delete;
+        aswr(const aswr &)=delete;
+        aswr(aswr &&)=delete;
+        aswr&operator=(const aswr &) = delete;
+        aswr&operator=(aswr &&) = delete;
+    };
+
+    template<typename T>
+    aswr(const T & )->aswr<const T &>;
+
+    template<typename T>
+    aswr(T &&)->aswr<T &&>;
+
 #define FINAL_CLASS_TYPE(_TypeName_,...) \
     class _TypeName_ final : public __VA_ARGS__ { \
     public: \
@@ -22,6 +43,38 @@ namespace sstd {
     inline _TypeName_& operator=(_TypeName_ &&) = default; \
 } \
     /*FINAL_CLASS_TYPE*/
+
+#define FINAL_CLASS_TYPE_ASSIGN(_TypeName_,...) \
+    class _TypeName_ final : public __VA_ARGS__ { \
+    public: \
+    using _1_Super_ = __VA_ARGS__; \
+    using _1_Super_::_1_Super_; \
+    inline _TypeName_(const _TypeName_ &) = default; \
+    inline _TypeName_(_TypeName_ &&) = default; \
+    inline _TypeName_()=default; \
+    inline _TypeName_& operator=(const _TypeName_ &) = default; \
+    inline _TypeName_& operator=(_TypeName_ &&) = default; \
+    inline _TypeName_(const aswr<const std::remove_cv_t<__VA_ARGS__> &> & arg) : _1_Super_(arg.value()) {} \
+    inline _TypeName_(const aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) : _1_Super_( std::move( arg.value() ) ) {} \
+    inline _TypeName_&operator=(const aswr<const std::remove_cv_t<__VA_ARGS__> &> & arg) { _1_Super_::operator=(arg.value());return *this; } \
+    inline _TypeName_&operator=(const aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) { _1_Super_::operator=( std::move( arg.value() ) );return *this; } \
+} \
+    /*FINAL_CLASS_TYPE_ASSIGN*/
+    
+#define FINAL_CLASS_TYPE_MOVE_ASSIGN(_TypeName_,...) \
+    class _TypeName_ final : public __VA_ARGS__ { \
+    public: \
+    using _1_Super_ = __VA_ARGS__; \
+    using _1_Super_::_1_Super_; \
+    inline _TypeName_(const _TypeName_ &) = default; \
+    inline _TypeName_(_TypeName_ &&) = default; \
+    inline _TypeName_()=default; \
+    inline _TypeName_& operator=(const _TypeName_ &) = default; \
+    inline _TypeName_& operator=(_TypeName_ &&) = default; \
+    inline _TypeName_(const aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) : _1_Super_( std::move( arg.value() ) ) {} \
+    inline _TypeName_&operator=(const aswr<std::remove_cv_t<__VA_ARGS__> &&> & arg) { _1_Super_::operator=( std::move( arg.value() ) );return *this; } \
+} \
+    /*FINAL_CLASS_TYPE_MOVE_ASSIGN*/
 
     template<typename>class NumberWrapType;
     template<typename A, typename B, typename >

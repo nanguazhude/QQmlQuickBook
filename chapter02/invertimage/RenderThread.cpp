@@ -81,8 +81,8 @@ void sstd::RenderThread::run() try {
 
     std::unique_ptr<Render> varRender{ sstdNew<Render>(this) };
 
-    FINAL_CLASS_TYPE(ProgramType, sstd::NumberWrapType<GLuint>);
-    FINAL_CLASS_TYPE(ImageTextureType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ProgramType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ImageTextureType, sstd::NumberWrapType<GLuint>);
 
     using OpenGLResourceData = std::tuple<ImageTextureType, ProgramType>;
     class OpenGLResource : public OpenGLResourceData {
