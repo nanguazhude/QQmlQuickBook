@@ -27,7 +27,7 @@ sstd::RenderThread::RenderThread() {
             this->deleteLater();
         });
     }
-    /*此函数必须在main thread 或 gui thread 调用*/
+    /*此函数必须在main thread调用*/
     mmm_Surface = sstdNew<QOffscreenSurface>();
     mmm_Surface->setFormat(sstd::getDefaultOpenGLFormat());
     mmm_Surface->create();
@@ -79,6 +79,7 @@ void sstd::RenderThread::run() try {
     }varState(this, [this]() { return QImage(this->mmm_ImageFileName); }());
     varState.checkImageFormat();
 
+    /*create a render ... */
     std::unique_ptr<Render> varRender{ sstdNew<Render>(this) };
 
     FINAL_CLASS_TYPE_ASSIGN(ProgramType, sstd::NumberWrapType<GLuint>);
@@ -102,7 +103,8 @@ void sstd::RenderThread::run() try {
 
     /*反转像素*/
 
-
+    /*wait for ...*/
+    glFlush();
 
 }
 catch (...) {
