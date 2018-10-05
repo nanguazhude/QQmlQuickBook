@@ -13,14 +13,13 @@ namespace sstd {
     public:
         static QString getIndexHeader();
         static QString getNextIndexHeader();
-        static void addImage(const QString &,const QImage &);
+        static void addImage(const QString &, const QImage &);
         static QuickImageProvider * instance();
     private:
         using Super = QQuickImageProvider;
     private:
         SSTD_MEMORY_DEFINE(QuickImageProvider)
     };
-
 
 } // namespace sstd
 

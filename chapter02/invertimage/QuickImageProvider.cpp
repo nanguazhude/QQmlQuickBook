@@ -5,6 +5,9 @@
 #include <shared_mutex>
 
 namespace {
+
+    inline auto image_header() { return QStringLiteral("image://quickqimage/"); }
+
     class Map {
     public:
         FINAL_CLASS_TYPE_ASSIGN(ImageType, QImage);
@@ -55,7 +58,7 @@ sstd::QuickImageProvider::QuickImageProvider() : Super(QQmlImageProviderBase::Im
 QImage sstd::QuickImageProvider::requestImage(const QString &id,
                                               QSize *size,
                                               const QSize& requestedSize) {
-    const auto varAns = instanceMap()->get(id);
+    const auto varAns = instanceMap()->get(image_header()+id);
     if (size) { *size = varAns.size(); }
     return varAns;
     (void)requestedSize;
@@ -108,15 +111,11 @@ QString sstd::QuickImageProvider::getIndexHeader() {
     return QStringLiteral("quickqimage");
 }
 
-QString sstd::QuickImageProvider::getNextIndexHeader(const QString & arg) {
+QString sstd::QuickImageProvider::getNextIndexHeader() {
     const auto varIndex = getIndex();
-    const auto varAns =  QStringLiteral("image://quickqimage/") +
+    const auto varAns = image_header() +
             QString::fromUtf16(varIndex.data(), 32) ;
-    if( arg.isEmpty() ){ return varAns; }
-    if(arg.startsWith(QChar('/'))){
-        return varAns + arg;
-    }
-    return varAns +QChar('/') + arg;
+    return varAns;
 }
 
 void sstd::QuickImageProvider::addImage(const QString & argID, const QImage & argValue) {
@@ -129,7 +128,7 @@ void sstd::QuickImageProvider::addImage(const QString & argID, const QImage & ar
 }
 
 sstd::QuickImageProvider * sstd::QuickImageProvider::instance() {
-    static auto varAns = sstd::make_unique<QuickImageProvider>();
-    return varAns.get();
+    auto varAns = sstd::make_unique<QuickImageProvider>();
+    return varAns.release();
 }
 

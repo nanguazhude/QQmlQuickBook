@@ -26,7 +26,6 @@ namespace {
 
 }/*namespace*/
 
-#include "RenderThread.hpp"
 namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
 }
@@ -51,10 +50,6 @@ int main(int argc, char ** argv) {
     if (varQmlApplicationEngine.rootObjects().empty()) {
         return -1;
     }
-
-    auto varThread = new sstd::RenderThread;
-    varThread->start( sstd::getLocalFileFullPath(
-                          QStringLiteral("myqml/invertimage/test.png") ).toLocalFile() );
 
     /*启动主线程事件循环程序*/
     return varApp.exec();
