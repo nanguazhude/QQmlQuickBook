@@ -99,6 +99,8 @@ namespace sstd {
         inline constexpr const type & get() const { return mmm_value; }
         inline constexpr type & value() { return mmm_value; }
         inline constexpr type & get() { return mmm_value; }
+        inline constexpr auto pointer() const { return &mmm_value; }
+        inline constexpr auto pointer() { return &mmm_value; }
     public:
         explicit inline constexpr  operator bool() const { return mmm_value; }
     public:

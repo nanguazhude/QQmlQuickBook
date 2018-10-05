@@ -80,17 +80,17 @@ void sstd::RenderThread::run() try {
     varState.checkImageFormat();
 
     std::unique_ptr<Render> varRender{ sstdNew<Render>(this) };
-    using OpenGLResourceData = std::tuple<GLuint, GLuint>;
+
+    FINAL_CLASS_TYPE(ProgramType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE(ImageTextureType, sstd::NumberWrapType<GLuint>);
+
+    using OpenGLResourceData = std::tuple<ImageTextureType, ProgramType>;
     class OpenGLResource : public OpenGLResourceData {
     public:
-        enum {
-            Program = 0,
-            ImageTexture
-        };
         OpenGLResource() :OpenGLResourceData(0, 0) {}
         ~OpenGLResource() {
-            glDeleteProgram(std::get<Program>(*this));
-            glDeleteTextures(1, &std::get<ImageTexture>(*this));
+            glDeleteProgram(std::get<ProgramType>(*this).value());
+            glDeleteTextures(1, std::get<ImageTextureType>(*this).pointer());
         }
     };
 
