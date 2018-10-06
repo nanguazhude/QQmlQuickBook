@@ -15,7 +15,7 @@ namespace {
         FINAL_CLASS_TYPE_ASSIGN(ImageType, QImage);
         FINAL_CLASS_TYPE_ASSIGN(ImageKeyType, QString);
         std::map<ImageKeyType, ImageType, std::less<void>,
-        sstd::allocator<std::pair<const ImageKeyType, ImageType>>> mmm_Map;
+            sstd::allocator<std::pair<const ImageKeyType, ImageType>>> mmm_Map;
         std::shared_mutex mmm_Mutex;
 
         void erase(const QString & arg) {
@@ -60,9 +60,9 @@ sstd::QuickImageProvider::QuickImageProvider() : Super(QQmlImageProviderBase::Im
 
 /** image://quickqimage/[a-z]{32}/ **/
 QImage sstd::QuickImageProvider::requestImage(const QString &id,
-                                              QSize *size,
-                                              const QSize& requestedSize) {
-    const auto varAns = instanceMap()->get(image_header()+id);
+    QSize *size,
+    const QSize& requestedSize) {
+    const auto varAns = instanceMap()->get(image_header() + id);
     if (size) { *size = varAns.size(); }
     return varAns;
     (void)requestedSize;
@@ -71,7 +71,6 @@ QImage sstd::QuickImageProvider::requestImage(const QString &id,
 namespace {
 
     std::array< char16_t, 32 > getIndex() {
-        /*26^32次方，几乎不用考虑名称重叠*/
         static std::array< char16_t, 32 > varData{
             'z','z','z','z','z','z','z','z',
             'z','z','z','z','z','z','z','z',
@@ -79,16 +78,16 @@ namespace {
             'z','z','z','z','z','z','z','z',
         };
         class SpinMutex {
-            std::atomic_flag flag { ATOMIC_FLAG_INIT };
+            std::atomic_flag flag{ ATOMIC_FLAG_INIT };
         public:  SpinMutex() = default;
-            SpinMutex(const SpinMutex&) = delete;
-            SpinMutex& operator= (const SpinMutex&) = delete;
-            inline void lock() {
-                while (flag.test_and_set(std::memory_order_acquire));
-            }
-            inline void unlock() {
-                flag.clear(std::memory_order_release);
-            }
+                 SpinMutex(const SpinMutex&) = delete;
+                 SpinMutex& operator= (const SpinMutex&) = delete;
+                 inline void lock() {
+                     while (flag.test_and_set(std::memory_order_acquire));
+                 }
+                 inline void unlock() {
+                     flag.clear(std::memory_order_release);
+                 }
         };
         static SpinMutex varMutex;
 
@@ -118,8 +117,15 @@ QString sstd::QuickImageProvider::getIndexHeader() {
 
 QString sstd::QuickImageProvider::getNextIndexHeader() {
     const auto varIndex = getIndex();
+    const static auto varRandomBasic = std::chrono::high_resolution_clock::now();
+    const auto varRandomCount = std::chrono::abs(std::chrono::high_resolution_clock::now() - varRandomBasic).count();
+    /*使用 
+    一个计数器+时间戳
+    由于计数器非常大，在时间戳精度范围内不可能重复
+    */
     const auto varAns = image_header() +
-            QString::fromUtf16(varIndex.data(), static_cast<int>(varIndex.size())) ;
+        QString::fromUtf16(varIndex.data(), static_cast<int>(varIndex.size())) +
+        QStringLiteral("%1").arg(varRandomCount, 16, 10, QChar('_'));
     return varAns;
 }
 
