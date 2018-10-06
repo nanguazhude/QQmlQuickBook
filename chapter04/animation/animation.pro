@@ -28,6 +28,7 @@ DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 QMLSOURCES += $$PWD/myqml/animation/main.qml
 QMLSOURCES += $$PWD/myqml/animation/main_private/MainListItem.qml
 QMLSOURCES += $$PWD/myqml/animation/main_private/MainListModel.qml
+QMLSOURCES += $$PWD/myqml/animation/main_private/MainListView.qml
 
 QMLSOURCES += $$PWD/myqml/animation/DemoBasic.qml
 QMLSOURCES += $$PWD/myqml/animation/DemoPropertyAnimation.qml

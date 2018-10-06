@@ -1,4 +1,5 @@
-﻿import QtQuick 2.11
+﻿/*ListView 的代理*/
+import QtQuick 2.11
 import QtQuick.Controls 1.4
 
 Button {
