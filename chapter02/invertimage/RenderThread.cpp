@@ -207,9 +207,9 @@ void main(void) {
         for (;;) {
             auto varCount = reinterpret_cast<volatile GLuint *>(glMapNamedBuffer(varAtomicCount, GL_READ_ONLY));
             const auto varAllPixCount = static_cast<GLuint>(varImageHeight*varImageWidth);
-            if ((*varCount) < varAllPixCount) {
-                qDebug() << "...";
+            if ((*varCount) != varAllPixCount) {
                 glUnmapNamedBuffer(varAtomicCount);
+                qDebug() << "...";
                 std::this_thread::sleep_for(10ms);
             }
             else {
