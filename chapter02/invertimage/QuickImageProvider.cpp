@@ -6,7 +6,9 @@
 
 namespace {
 
-    inline auto image_header() { return QStringLiteral("image://quickqimage/"); }
+    static inline auto image_header() {
+        return QStringLiteral("image://quickqimage/");
+    }
 
     class Map {
     public:
@@ -69,6 +71,7 @@ QImage sstd::QuickImageProvider::requestImage(const QString &id,
 namespace {
 
     std::array< char16_t, 32 > getIndex() {
+        /*26^32次方，几乎不用考虑名称重叠*/
         static std::array< char16_t, 32 > varData{
             'z','z','z','z','z','z','z','z',
             'z','z','z','z','z','z','z','z',
@@ -116,7 +119,7 @@ QString sstd::QuickImageProvider::getIndexHeader() {
 QString sstd::QuickImageProvider::getNextIndexHeader() {
     const auto varIndex = getIndex();
     const auto varAns = image_header() +
-            QString::fromUtf16(varIndex.data(), 32) ;
+            QString::fromUtf16(varIndex.data(), static_cast<int>(varIndex.size())) ;
     return varAns;
 }
 
