@@ -86,20 +86,23 @@ void sstd::RenderThread::run() try {
 
     FINAL_CLASS_TYPE_ASSIGN(ProgramType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(ImageTextureType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(AtomicCountType, sstd::NumberWrapType<GLuint>);
 
-    using OpenGLResourceData = std::tuple<ImageTextureType, ProgramType>;
+    using OpenGLResourceData = std::tuple<ImageTextureType, ProgramType, AtomicCountType>;
     class OpenGLResource : public OpenGLResourceData {
     public:
-        OpenGLResource() :OpenGLResourceData(0, 0) {}
+        OpenGLResource() :OpenGLResourceData(0, 0, 0) {}
         ~OpenGLResource() {
             glDeleteProgram(std::get<ProgramType>(*this).value());
             glDeleteTextures(1, std::get<ImageTextureType>(*this).pointer());
+            glDeleteBuffers(1, std::get<AtomicCountType>(*this).pointer());
         }
     };
 
     OpenGLResource varOpenGLResource;
     auto & varTexture = std::get<ImageTextureType>(varOpenGLResource);
     auto & varProgram = std::get<ProgramType>(varOpenGLResource);
+    auto & varAtomicCount = std::get<AtomicCountType>(varOpenGLResource);
 
     /*初始化OpenGL Program*/
     {
@@ -111,18 +114,19 @@ layout(local_size_x = 1       ,
        local_size_z = 1    ) in ;
 
 layout(binding = 0,rgba8ui) uniform uimage2D argImageInputOutput;
+layout(binding = 1,offset = 0 ) uniform atomic_uint argRenderCount ;
 
 void main(void) {
-
     ivec2 varPos = ivec2( gl_WorkGroupID.xy ) ;
     uvec4 varColor = imageLoad(argImageInputOutput,varPos);
     varColor.r = 255 - varColor.r;
     varColor.g = 255 - varColor.g;
     varColor.b = 255 - varColor.b;
     imageStore(argImageInputOutput,varPos,varColor);
-
+    atomicCounterIncrement(argRenderCount);
 }
 /*一个简单的图像取反shader*/
+
 )___"sv;
 
         auto varShader = glCreateShader(GL_COMPUTE_SHADER);
@@ -173,23 +177,54 @@ void main(void) {
             varImage.bits());
 
     }
+    {
+        glCreateBuffers(1, varAtomicCount.pointer());
+        {
+            const std::array<GLuint, 4> varTmpInitData{ 0,0,0,0 };
+            glNamedBufferStorage(varAtomicCount,
+                sizeof(varTmpInitData),
+                varTmpInitData.data(),
+                GL_MAP_READ_BIT | GL_MAP_WRITE_BIT | GL_DYNAMIC_STORAGE_BIT);
+        }
+    }
     /*开启OpenGL调试环境*/
     gl_debug_function_lock();
+    /*更新数据*/
+    {
+        *reinterpret_cast<GLuint *>(glMapNamedBuffer(varAtomicCount, GL_WRITE_ONLY)) = 0;
+        glUnmapNamedBuffer(varAtomicCount);
+    }
     /*进行绘制*/
     {
         glUseProgram(varProgram);
-        glMemoryBarrier(GL_ALL_BARRIER_BITS);
+        glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
         glBindImageTexture(0, varTexture, 0, false, 0, GL_READ_ONLY, GL_RGBA8UI);
+        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, varAtomicCount);
         glDispatchCompute(varImageWidth, varImageHeight, 1);
     }
     /*等待绘制完成*/
-    {
+    if constexpr (true) {
+        for (;;) {
+            auto varCount = reinterpret_cast<volatile GLuint *>(glMapNamedBuffer(varAtomicCount, GL_READ_ONLY));
+            const auto varAllPixCount = static_cast<GLuint>(varImageHeight*varImageWidth);
+            if ((*varCount) < varAllPixCount) {
+                qDebug() << "...";
+                glUnmapNamedBuffer(varAtomicCount);
+                std::this_thread::sleep_for(10ms);
+            }
+            else {
+                glUnmapNamedBuffer(varAtomicCount);
+                break;
+            }
+        }
+    }
+    else {
         glFlush();
     }
     /*取回数据*/
     {
         glGetTextureImage(
-            varTexture, 
+            varTexture,
             0,
             GL_RGBA, GL_UNSIGNED_BYTE,
             varImage.byteCount(),

@@ -2,17 +2,30 @@
 #include "QuickImageProvider.hpp"
 #include <QtQuick/qquickitem.h>
 #include <QtQml/qqmlproperty.h>
+#include <QtQuick/qquickwindow.h>
+#include <QtGui/qopenglfunctions.h>
+#include <QtGui/qopenglcontext.h>
 #include "RenderThread.hpp"
 
 namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
 }
 
+void QmlApplicationEngine::ppp_ObjectCreated(QObject *object, const QUrl &url) {
+    auto varWindow = qobject_cast<QQuickWindow *>(object);
+    if ( varWindow ) {
+        qDebug() << varWindow;
+    }
+    (void)url;
+}
+
 QmlApplicationEngine::QmlApplicationEngine(QObject * parent) :Super(parent) {
+    connect(this,&Super::objectCreated,this, &QmlApplicationEngine::ppp_ObjectCreated);
     this->addImageProvider(sstd::QuickImageProvider::getIndexHeader(),
         sstd::QuickImageProvider::instance());
     this->load(sstd::getLocalFileFullPath(
         QStringLiteral(R"(myqml/invertimage/main.qml)")));
+
     {
         const auto varRoots = this->rootObjects();
         assert(varRoots.size());
@@ -53,6 +66,8 @@ QmlApplicationEngine::QmlApplicationEngine(QObject * parent) :Super(parent) {
         varThread->start(sstd::getLocalFileFullPath(
             QStringLiteral("myqml/invertimage/test.png")).toLocalFile());
     }
+
+
 
 }
 

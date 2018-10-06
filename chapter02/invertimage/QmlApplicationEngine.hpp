@@ -11,6 +11,7 @@ public:
 private:
     QQuickItem * mmm_ImageSource{ nullptr };
     QQuickItem * mmm_ImageTarget{ nullptr };
+    Q_SLOT void ppp_ObjectCreated(QObject *object, const QUrl &url);
 private:
     using Super = QQmlApplicationEngine;
     SSTD_MEMORY_QOBJECT_DEFINE(QmlApplicationEngine)

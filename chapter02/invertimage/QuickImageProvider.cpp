@@ -3,6 +3,7 @@
 #include <mutex>
 #include <atomic>
 #include <shared_mutex>
+#include <QtCore/qdebug.h>
 
 namespace {
 
@@ -64,7 +65,10 @@ QImage sstd::QuickImageProvider::requestImage(const QString &id,
     const QSize& requestedSize) {
     const auto varAns = instanceMap()->get(image_header() + id);
     if (size) { *size = varAns.size(); }
-    return varAns;
+    if (requestedSize.isValid()) {
+        return varAns.scaled(requestedSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    }
+    return varAns; 
     (void)requestedSize;
 }
 
