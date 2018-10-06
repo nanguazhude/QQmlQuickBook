@@ -120,8 +120,9 @@ QString sstd::QuickImageProvider::getNextIndexHeader() {
     const static auto varRandomBasic = std::chrono::high_resolution_clock::now();
     const auto varRandomCount = std::chrono::abs(std::chrono::high_resolution_clock::now() - varRandomBasic).count();
     /*使用 
-    一个计数器+时间戳
-    由于计数器非常大，在时间戳精度范围内不可能重复
+    一个全局计数器+时间戳
+    由于计数器非常大(26^32)，在时间戳精度范围内不可能重复
+    因而，在现有硬件能力下，返回值是不可能重复的
     */
     const auto varAns = image_header() +
         QString::fromUtf16(varIndex.data(), static_cast<int>(varIndex.size())) +
