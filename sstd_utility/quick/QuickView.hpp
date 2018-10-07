@@ -40,6 +40,7 @@ namespace sstd {
             void load(const QUrl &);
             sstd::LoadState status() const;
             void setTitle(const QString &);
+            void setClearColor(const QColor &);
             _WindowPrivate();
         private:
             using Super = QuickViewWindow;
@@ -55,6 +56,7 @@ namespace sstd {
             void load(const QUrl &);
             sstd::LoadState status() const;
             void setTitle(const QString &);
+            void setClearColor(const QColor &);
             _WidgetPrivate();
         private:
             using Super = QuickViewWidget;
@@ -71,7 +73,7 @@ namespace sstd {
     class RootWindow<WindowType::QtQuickWindow> :
         public _private_sstd::_WindowPrivate {};
 
-#if 1/*选择使用QQuickWidget还是QQuickView作为显示窗口*/
+#if !defined(_DEBUG)/*选择使用QQuickWidget还是QQuickView作为显示窗口*/
     using DefaultRoowWindow = RootWindow<sstd::WindowType::QtWidget>;
 #else
     using DefaultRoowWindow = RootWindow<sstd::WindowType::QtQuickWindow>;

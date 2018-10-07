@@ -72,6 +72,14 @@ namespace sstd::_private_sstd {
         Super::setTitle(arg);
     }
 
+    void _WindowPrivate::setClearColor(const QColor & arg) {
+        Super::setColor(arg);
+    }
+
+    void _WidgetPrivate::setClearColor(const QColor & arg) {
+        Super::setClearColor(arg);
+    }
+
 }/**/
 
 
