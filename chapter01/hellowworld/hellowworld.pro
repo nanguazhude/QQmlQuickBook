@@ -24,8 +24,8 @@ QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
 export(QMAKE_POST_LINK)
 
 QMLSOURCES += $$PWD/myqml/hellowword/main.qml
-QMLSOURCES += $$PWD/myqml/hellowword/MainText.qml
-QMLSOURCES += $$PWD/myqml/hellowword/MainRectangle.qml
+QMLSOURCES += $$PWD/myqml/hellowword/main_private/MainText.qml
+QMLSOURCES += $$PWD/myqml/hellowword/main_private/MainRectangle.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES

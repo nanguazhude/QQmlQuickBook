@@ -1,6 +1,7 @@
 ﻿/*main.qml*/
 import QtQuick 2.9
 import QtQuick.Window 2.2
+import "main_private" as MainPrivate
 
 Rectangle {
     visible: true;
@@ -8,12 +9,12 @@ Rectangle {
     height: 480;
     color: Qt.rgba(0.8,0.8,0.8,1);
 
-    MainText{
+    MainPrivate.MainText{
         z : 1 ;
         anchors.fill : parent;
     }/*~MainText*/
 
-    MainRectangle {
+    MainPrivate.MainRectangle {
         z : 0 ;
         anchors.fill : parent;
     }/*~MainRectangle*/
