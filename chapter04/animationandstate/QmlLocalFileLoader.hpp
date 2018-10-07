@@ -7,7 +7,7 @@
 class QmlLocalFileLoader : public QObject {
     Q_OBJECT
 public:
-    Q_SLOT QObject * getSource(QObject *, const QString &,const QString & arg) const ;
+    Q_SLOT QObject * createRootView(QObject *, const QString &,const QString & arg) const ;
     static QmlLocalFileLoader * instance();
 private:
     SSTD_MEMORY_QOBJECT_DEFINE(QmlLocalFileLoader)

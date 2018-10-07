@@ -11,7 +11,7 @@
 #include <atomic>
 #include "RootWindow.hpp"
 
-QObject * QmlLocalFileLoader::getSource(QObject * parent,const QString & name, const QString & arg) const {
+QObject * QmlLocalFileLoader::createRootView(QObject * parent,const QString & name, const QString & arg) const {
     QQmlContext * varParentContex;
     QUrl varLocalFileNameUrl;
     {

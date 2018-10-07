@@ -11,7 +11,7 @@ Button {
     tooltip: qsTr("案例所在文件：") + programSource ;
 
     function loadSourceFunction(){
-        var obj = QmlLocalFileLoader.getSource(_id_button,programName,programSource);
+        var obj = QmlLocalFileLoader.createRootView(_id_button,programName,programSource);
         if(obj){
             obj.show();
         }
