@@ -24,7 +24,7 @@ QmlApplicationEngine::QmlApplicationEngine(QObject * parent) :Super(parent) {
     this->addImageProvider(sstd::QuickImageProvider::getIndexHeader(),
         sstd::QuickImageProvider::instance());
     this->load(sstd::getLocalFileFullPath(
-        QStringLiteral(R"(myqml/invertimage/main.qml)")));
+        QStringLiteral(R"(myqml/computeshaderinvertimage/main.qml)")));
 
     {
         const auto varRoots = this->rootObjects();
@@ -41,7 +41,7 @@ QmlApplicationEngine::QmlApplicationEngine(QObject * parent) :Super(parent) {
 
     {
         const auto varTestImagePath = sstd::getLocalFileFullPath(
-            QStringLiteral("myqml/invertimage/test.png")).toLocalFile();
+            QStringLiteral("myqml/computeshaderinvertimage/test.png")).toLocalFile();
         const auto varSourceImageID = sstd::QuickImageProvider::getNextIndexHeader();
         /*erase old image*/
         sstd::QuickImageProvider::addImage(QQmlProperty::read(mmm_ImageSource, QStringLiteral("source")).toString(), {});
@@ -64,7 +64,7 @@ QmlApplicationEngine::QmlApplicationEngine(QObject * parent) :Super(parent) {
             QQmlProperty::write(mmm_ImageTarget, QStringLiteral("source"), varTargetImageID);
         },Qt::QueuedConnection);
         varThread->start(sstd::getLocalFileFullPath(
-            QStringLiteral("myqml/invertimage/test.png")).toLocalFile());
+            QStringLiteral("myqml/computeshaderinvertimage/test.png")).toLocalFile());
     }
 
 

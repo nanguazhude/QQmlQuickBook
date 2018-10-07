@@ -1,4 +1,4 @@
-TARGET = $$qtLibraryTarget(invertimage)
+TARGET = $$qtLibraryTarget(computeshaderinvertimage)
 TEMPLATE = app
 
 QT += gui
@@ -35,7 +35,7 @@ HEADERS += $$PWD/QmlApplicationEngine.hpp
 SOURCES += $$PWD/Application.cpp
 HEADERS += $$PWD/Application.hpp
 
-QMLSOURCES += $$PWD/myqml/invertimage/main.qml
+QMLSOURCES += $$PWD/myqml/computeshaderinvertimage/main.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES

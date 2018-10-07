@@ -35,9 +35,9 @@ computeshaderfilterimage.file = $$PWD/chapter02/computeshaderfilterimage/compute
 computeshaderfilterimage.depends = buildinstall
 SUBDIRS += computeshaderfilterimage
 
-invertimage.file = $$PWD/chapter02/invertimage/invertimage.pro
-invertimage.depends = buildinstall
-SUBDIRS += invertimage
+computeshaderinvertimage.file = $$PWD/chapter02/computeshaderinvertimage/computeshaderinvertimage.pro
+computeshaderinvertimage.depends = buildinstall
+SUBDIRS += computeshaderinvertimage
 
 chat.file = $$PWD/chapter03/chat/chat.pro
 chat.depends = buildinstall

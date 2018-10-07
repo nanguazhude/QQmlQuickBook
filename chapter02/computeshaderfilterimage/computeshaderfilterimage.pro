@@ -1,4 +1,3 @@
-
 TARGET = $$qtLibraryTarget(computeshaderfilterimage)
 TEMPLATE = app
 QT += gui
