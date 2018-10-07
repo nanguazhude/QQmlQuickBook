@@ -1,7 +1,6 @@
 ﻿import QtQuick 2.11
 
 DemoBasic {
-    title: qsTr("DemoPropertyAnimation")
 
     Item {
         anchors.fill: parent ;

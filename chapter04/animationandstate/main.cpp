@@ -11,9 +11,13 @@
 
 #include "Application.hpp"
 #include <ConstructQSurface.hpp>
-#include "QmlApplicationEngine.hpp"
+#include "RootWindow.hpp"
 
 #include <iostream>
+
+namespace sstd {
+    extern QUrl getLocalFileFullPath(const QString & arg);
+}
 
 namespace {
 
@@ -39,15 +43,24 @@ int main(int argc, char ** argv) {
     sstd::setDefaultFormat();
     /*初始化Qt环境*/
     Application varApp{ argc,argv };
-    /*强制运行目录为程序所在目录*/
-    QDir::setCurrent(varApp.applicationDirPath());
     /*强制加载Qt插件*/
     loadQtPlugins();
     /*加载Qml环境*/
-    QmlApplicationEngine varQmlApplicationEngine;
-    /*检查Qml是否加载成功*/
-    if (varQmlApplicationEngine.rootObjects().empty()) {
-        return -1;
+    RootWindow varWindow;
+    {
+        /*main.qml完整目录*/
+        const auto varMainQmlFileName = sstd::getLocalFileFullPath(
+                    QStringLiteral(R"(myqml/animationandstate/main.qml)") );
+        /*加载main.qml*/
+        varWindow.load(varMainQmlFileName);
+        /*检查并报错*/
+        if (varWindow.status() != sstd::LoadState::Ready) {
+            qDebug() << "can not load : " << varMainQmlFileName;
+            return -1;
+        }
+        else {
+            varWindow.show();
+        }
     }
     /*启动主线程事件循环程序*/
     return varApp.exec();

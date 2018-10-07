@@ -3,7 +3,6 @@ import QtQuick.Controls 1.4
 import QtQml.StateMachine 1.11 as QSM
 
 DemoBasic {
-    title: qsTr("DemoParallelStateAnimation")
 
     Row{
         anchors.top: parent.top;

@@ -3,14 +3,10 @@ import QtQuick.Window 2.11
 import "main_private" as MainPrivate
 
 DemoBasic {
-
-    id : _id_window;
-    title: qsTr("animationandstate")
-
+   id : _id_window;
    MainPrivate.MainListView{
        anchors.fill: parent ;
    }
-
 }/*Window*/
 
 

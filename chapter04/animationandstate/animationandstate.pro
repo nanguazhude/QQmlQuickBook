@@ -11,6 +11,7 @@ QT += widgets
 QT += concurrent
 
 include($$PWD/../../QQmlQuickBook.pri)
+include($$PWD/../../sstd_utility/sstd_quick.pri)
 DESTDIR = $$RootDestDir
 
 QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
@@ -39,9 +40,6 @@ lupdate_only{
 }
 DISTFILES += $$QMLSOURCES
 
-HEADERS += $$PWD/QmlApplicationEngine.hpp
-SOURCES += $$PWD/QmlApplicationEngine.cpp
-
 HEADERS += $$PWD/QmlLocalFileLoader.hpp
 SOURCES += $$PWD/QmlLocalFileLoader.cpp
 
@@ -51,7 +49,8 @@ SOURCES += $$PWD/Application.cpp
 SOURCES += $$PWD/main.cpp
 SOURCES += $$PWD/GetLocalFullPath.cpp
 
-
+SOURCES += $$PWD/RootWindow.cpp
+HEADERS += $$PWD/RootWindow.hpp
 
 
 

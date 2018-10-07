@@ -9,9 +9,9 @@
 #include <array>
 #include <mutex>
 #include <atomic>
+#include "RootWindow.hpp"
 
 QObject * QmlLocalFileLoader::getSource(QObject * parent, const QString & arg) const {
-    QByteArray varData;
     QQmlContext * varParentContex;
     QUrl varLocalFileNameUrl;
     {
@@ -25,30 +25,10 @@ QObject * QmlLocalFileLoader::getSource(QObject * parent, const QString & arg) c
             return{};
         }
         varLocalFileNameUrl = varParentContex->resolvedUrl(arg);
-        const auto varLocalFileName = varLocalFileNameUrl.toLocalFile();
-        QFile varFile{ varLocalFileName };
-        if (false == varFile.open(QIODevice::ReadOnly)) {
-            qDebug() << (QStringLiteral("can not open : ") + varLocalFileName);
-            return {};
-        }
-
-        QTextStream varStream{ &varFile };
-        varData = varStream.readAll().toUtf8();
     }
-
-    if (varData.isEmpty()) {
-        qDebug() << (QStringLiteral("can not read : "));
-        return {};
-    }
-    auto varAnsComponent = sstdNew< QQmlComponent >(varParentContex->engine());
-    varAnsComponent->deleteLater();
-    varAnsComponent->setData(varData, varLocalFileNameUrl);
-    auto varAns = varAnsComponent->create();
-    if (varAns == nullptr) {
-        qDebug() << varAnsComponent->errorString();
-        return {};
-    }
-    return varAns;
+    auto varAnsComponent = sstdNew< RootWindow >( );
+    varAnsComponent->load(varLocalFileNameUrl);
+    return varAnsComponent;
 }/****/
 
 QmlLocalFileLoader * QmlLocalFileLoader::instance() {
