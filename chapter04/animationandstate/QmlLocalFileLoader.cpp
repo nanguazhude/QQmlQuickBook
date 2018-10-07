@@ -11,7 +11,7 @@
 #include <atomic>
 #include "RootWindow.hpp"
 
-QObject * QmlLocalFileLoader::getSource(QObject * parent, const QString & arg) const {
+QObject * QmlLocalFileLoader::getSource(QObject * parent,const QString & name, const QString & arg) const {
     QQmlContext * varParentContex;
     QUrl varLocalFileNameUrl;
     {
@@ -26,9 +26,10 @@ QObject * QmlLocalFileLoader::getSource(QObject * parent, const QString & arg) c
         }
         varLocalFileNameUrl = varParentContex->resolvedUrl(arg);
     }
-    auto varAnsComponent = sstdNew< RootWindow >( );
-    varAnsComponent->load(varLocalFileNameUrl);
-    return varAnsComponent;
+    auto varRootWindow = sstdNew< RootWindow >( );
+    varRootWindow->load(varLocalFileNameUrl);
+    varRootWindow->setTitle(name);
+    return varRootWindow;
 }/****/
 
 QmlLocalFileLoader * QmlLocalFileLoader::instance() {
