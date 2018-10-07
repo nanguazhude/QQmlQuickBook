@@ -80,9 +80,20 @@ namespace sstd::_private_sstd {
         Super::setClearColor(arg);
     }
 
+    void _WidgetPrivate::show() {
+        Super::show();
+    }
+
+    void _WindowPrivate::show() {
+        Super::show();
+    }
+
 }/**/
 
-
+namespace sstd{
+    AbstractRootWindow::~AbstractRootWindow() {
+    }
+}/**/
 
 
 

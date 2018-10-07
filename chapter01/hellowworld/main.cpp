@@ -41,7 +41,7 @@ int main(int argc, char ** argv) {
     RootWindow varWindow;
     {
         /*main.qml完整目录*/
-        const static auto varMainQmlFileName =
+        const auto varMainQmlFileName =
             sstd::getLocalFileFullPath(QStringLiteral("myqml/hellowword/main.qml"));
         /*加载main.qml*/
         varWindow.load(varMainQmlFileName);

@@ -27,20 +27,33 @@ namespace sstd {
         Error,
     };
 
+    class AbstractRootWindow {
+    public:
+        virtual void setResizeMode(sstd::ResizeMode)=0;
+        virtual void load(const QUrl &)=0;
+        virtual sstd::LoadState status() const=0;
+        virtual void setTitle(const QString &)=0;
+        virtual void setClearColor(const QColor &)=0;
+        virtual void show()=0;
+        virtual ~AbstractRootWindow();
+    };
+
     template <WindowType>
     class RootWindow;
 
     namespace _private_sstd {
 
-        class _WindowPrivate : public QuickViewWindow {
+        class _WindowPrivate : public QuickViewWindow ,
+            public virtual AbstractRootWindow {
             Q_OBJECT
         public:
             using QuickViewWindow::QuickViewWindow;
-            void setResizeMode(sstd::ResizeMode);
-            void load(const QUrl &);
-            sstd::LoadState status() const;
-            void setTitle(const QString &);
-            void setClearColor(const QColor &);
+            void setResizeMode(sstd::ResizeMode) override;
+            void load(const QUrl &) override;
+            sstd::LoadState status() const override;
+            void setTitle(const QString &) override;
+            void setClearColor(const QColor &) override;
+            void show() override;
             _WindowPrivate();
         private:
             using Super = QuickViewWindow;
@@ -48,15 +61,17 @@ namespace sstd {
             SSTD_MEMORY_QOBJECT_DEFINE(_WindowPrivate)
         };
 
-        class _WidgetPrivate :public QuickViewWidget {
+        class _WidgetPrivate :public QuickViewWidget,
+            public virtual AbstractRootWindow {
             Q_OBJECT
         public:
             using QuickViewWidget::QuickViewWidget;
-            void setResizeMode(sstd::ResizeMode);
-            void load(const QUrl &);
-            sstd::LoadState status() const;
-            void setTitle(const QString &);
-            void setClearColor(const QColor &);
+            void setResizeMode(sstd::ResizeMode) override;
+            void load(const QUrl &) override;
+            sstd::LoadState status() const override;
+            void setTitle(const QString &) override;
+            void setClearColor(const QColor &) override;
+            void show() override;
             _WidgetPrivate();
         private:
             using Super = QuickViewWidget;
