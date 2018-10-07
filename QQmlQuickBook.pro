@@ -59,8 +59,8 @@ qsgdrawuserender.file = $$PWD/chapter02/qsgdrawuserender/qsgdrawuserender.pro
 qsgdrawuserender.depends = buildinstall
 SUBDIRS += qsgdrawuserender
 
-animation.file = $$PWD/chapter04/animation/animation.pro
-animation.depends = buildinstall
-SUBDIRS += animation
+animationandstate.file = $$PWD/chapter04/animationandstate/animationandstate.pro
+animationandstate.depends = buildinstall
+SUBDIRS += animationandstate
 
 

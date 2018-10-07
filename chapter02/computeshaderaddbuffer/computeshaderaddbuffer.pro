@@ -26,7 +26,7 @@ SOURCES += $$PWD/Window.cpp
 
 HEADERS += $$PWD/Window.hpp
 
-
+DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
 
 

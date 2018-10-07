@@ -27,6 +27,7 @@ SOURCES += $$PWD/Window.cpp
 HEADERS += $$PWD/Window.hpp \
     ImageView.hpp
 
+DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
 
 

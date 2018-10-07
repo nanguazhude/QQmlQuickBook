@@ -5,7 +5,7 @@ import "main_private" as MainPrivate
 DemoBasic {
 
     id : _id_window;
-    title: qsTr("animation")
+    title: qsTr("animationandstate")
 
    MainPrivate.MainListView{
        anchors.fill: parent ;

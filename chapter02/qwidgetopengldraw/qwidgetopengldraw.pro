@@ -32,5 +32,5 @@ HEADERS += \
     $$PWD/Application.hpp \
     $$PWD/OpenGLWidget.hpp
 
-
+DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 

@@ -45,3 +45,4 @@ RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 include($$PWD/../../sstd_utility/glew.pri)
 include($$PWD/../../sstd_utility/glm.pri)
 
+DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"

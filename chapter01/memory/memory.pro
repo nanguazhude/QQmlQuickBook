@@ -17,5 +17,5 @@ SOURCES += $$PWD/main.cpp
     QMAKE_LFLAGS += -Wl,-rpath .
 }
 
- 
+DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 

@@ -7,7 +7,7 @@ namespace sstd {
 
 QmlApplicationEngine::QmlApplicationEngine(QObject * parent):Super(parent){
     this->load( sstd::getLocalFileFullPath(
-                    QStringLiteral(R"(myqml/animation/main.qml)") ) );
+                    QStringLiteral(R"(myqml/animationandstate/main.qml)") ) );
 }
 
 

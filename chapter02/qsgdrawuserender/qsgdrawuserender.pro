@@ -26,11 +26,9 @@ SOURCES += $$PWD/main.cpp \
     $$PWD/main.cpp \
     $$PWD/QmlApplicationEngine.cpp
 
-
 HEADERS += \
     $$PWD/Application.hpp \
     $$PWD/QmlApplicationEngine.hpp
-
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
@@ -40,7 +38,6 @@ lupdate_only{
     SOURCES += $$QMLSOURCES
 }
 DISTFILES += $$QMLSOURCES
-
 
 SOURCES += $$PWD/QuickSimpleTriangle.cpp
 HEADERS += $$PWD/QuickSimpleTriangle.hpp

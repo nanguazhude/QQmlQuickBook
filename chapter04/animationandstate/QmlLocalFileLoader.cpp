@@ -57,7 +57,7 @@ QmlLocalFileLoader * QmlLocalFileLoader::instance() {
 }
 
 static inline void registerThis() {
-    qmlRegisterSingletonType<QmlLocalFileLoader>("myqml.animation",
+    qmlRegisterSingletonType<QmlLocalFileLoader>("myqml.animationandstate",
         1, 0,
         "QmlLocalFileLoader",
         [](QQmlEngine *engine, QJSEngine *scriptEngine)->QObject * {

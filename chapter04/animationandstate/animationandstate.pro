@@ -1,6 +1,6 @@
-#qml animation all in one
+#qml animationandstate all in one
 
-TARGET =   $$qtLibraryTarget(animation)
+TARGET =   $$qtLibraryTarget(animationandstate)
 TEMPLATE = app
 
 QT += gui
@@ -25,14 +25,14 @@ RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
-QMLSOURCES += $$PWD/myqml/animation/main.qml
-QMLSOURCES += $$PWD/myqml/animation/main_private/MainListItem.qml
-QMLSOURCES += $$PWD/myqml/animation/main_private/MainListModel.qml
-QMLSOURCES += $$PWD/myqml/animation/main_private/MainListView.qml
+QMLSOURCES += $$PWD/myqml/animationandstate/main.qml
+QMLSOURCES += $$PWD/myqml/animationandstate/main_private/MainListItem.qml
+QMLSOURCES += $$PWD/myqml/animationandstate/main_private/MainListModel.qml
+QMLSOURCES += $$PWD/myqml/animationandstate/main_private/MainListView.qml
 
-QMLSOURCES += $$PWD/myqml/animation/DemoBasic.qml
-QMLSOURCES += $$PWD/myqml/animation/DemoPropertyAnimation.qml
-QMLSOURCES += $$PWD/myqml/animation/DemoParallelStateAnimation.qml
+QMLSOURCES += $$PWD/myqml/animationandstate/DemoBasic.qml
+QMLSOURCES += $$PWD/myqml/animationandstate/DemoPropertyAnimation.qml
+QMLSOURCES += $$PWD/myqml/animationandstate/DemoParallelStateAnimation.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES

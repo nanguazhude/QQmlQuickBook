@@ -1,7 +1,7 @@
 ﻿/*ListView 的代理*/
 import QtQuick 2.11
 import QtQuick.Controls 1.4
-import myqml.animation 1.0
+import myqml.animationandstate 1.0
 
 Button {
 

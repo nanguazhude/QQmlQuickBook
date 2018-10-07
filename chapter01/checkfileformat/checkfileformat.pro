@@ -37,3 +37,6 @@ RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 
 HEADERS += \
     RootWindow.hpp
+
+DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
+
