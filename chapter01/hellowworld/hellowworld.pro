@@ -2,15 +2,22 @@ TARGET = $$qtLibraryTarget(hellowworld)
 TEMPLATE = app
 
 QT += gui
-QT += qml
 QT += core
+QT += qml
 QT += quick
 QT += widgets
 
 include($$PWD/../../QQmlQuickBook.pri)
+include($$PWD/../../sstd_utility/sstd_quick.pri)
 DESTDIR = $$RootDestDir
 
 SOURCES += $$PWD/main.cpp
+
+SOURCES += $$PWD/RootWindow.cpp
+HEADERS += $$PWD/RootWindow.hpp
+
+SOURCES += $$PWD/Application.cpp
+HEADERS += $$PWD/Application.hpp
 
 #buildinstall
 QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
@@ -32,4 +39,7 @@ DISTFILES += $$QMLSOURCES
 }
 
 RESOURCES += $$PWD/../../qqmlquickglobal.qrc
+
+DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
+SOURCES += $$PWD/GetLocalFullPath.cpp
 

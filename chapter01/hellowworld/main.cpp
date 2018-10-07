@@ -8,6 +8,13 @@
 #include <ctime>
 #include <cstdlib>
 
+#include "RootWindow.hpp"
+#include "Application.hpp"
+
+namespace sstd {
+    extern QUrl getLocalFileFullPath(const QString & arg);
+}
+
 namespace {
 
     inline void resetRandom() {
@@ -27,23 +34,25 @@ int main(int argc, char ** argv) {
     /*重置随机数种子*/
     resetRandom();
     /*初始化Qt环境*/
-    QApplication varApp(argc, argv);
-    /*强制运行目录为程序所在目录*/
-    QDir::setCurrent(varApp.applicationDirPath());
+    Application varApp(argc, argv);
     /*强制加载Qt插件*/
     loadQtPlugins();
     /*初始化Qml/Quick引擎*/
-    QQmlApplicationEngine varEngine;
-    /*main.qml完整目录*/
-    const static auto varMainQmlFileName =
-        QDir(varApp.applicationDirPath())
-        .absoluteFilePath(QStringLiteral("myqml/hellowword/main.qml"));
-    /*加载main.qml*/
-    varEngine.load(varMainQmlFileName);
-    /*检查并报错*/
-    if (varEngine.rootObjects().isEmpty()) {
-        qDebug() << "can not load : " << varMainQmlFileName;
-        return -1;
+    RootWindow varWindow;
+    {
+        /*main.qml完整目录*/
+        const static auto varMainQmlFileName =
+            sstd::getLocalFileFullPath(QStringLiteral("myqml/hellowword/main.qml"));
+        /*加载main.qml*/
+        varWindow.load(varMainQmlFileName);
+        /*检查并报错*/
+        if (varWindow.status() != sstd::LoadState::Ready) {
+            qDebug() << "can not load : " << varMainQmlFileName;
+            return -1;
+        }
+        else {
+            varWindow.show();
+        }
     }
     /*启动主线程事件循环程序*/
     return varApp.exec();
