@@ -99,7 +99,11 @@ DemoBasic {
 
 }/*Window*/
 
-
+/**
+  https://stackoverflow.com/questions/30818886/qml-window-resize-move-flicker
+  https://stackoverflow.com/questions/34267979/qt-openglwindow-flicker-on-resizing
+  https://forum.qt.io/topic/81785/resizing-of-qquickview-very-slow-and-flickering/3
+**/
 
 
 

@@ -20,10 +20,10 @@ namespace sstd {
         if (varFormat.majorVersion() < 4) {
             varFormat.setVersion(4, 5);
         }
-        if ((varFormat.majorVersion() == 4) && (varFormat.minorVersion() < 5)) {
+        else if ((varFormat.majorVersion() == 4) && (varFormat.minorVersion() < 5)) {
             varFormat.setVersion(4, 5);
         }
-        varFormat.setProfile(QSurfaceFormat::CoreProfile);
+        varFormat.setProfile(QSurfaceFormat::CompatibilityProfile);
         varFormat.setSamples(4);
         varFormat.setAlphaBufferSize(8);
         varFormat.setBlueBufferSize(8);
@@ -31,6 +31,8 @@ namespace sstd {
         varFormat.setGreenBufferSize(8);
         varFormat.setDepthBufferSize(24);
         varFormat.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+        varFormat.setRenderableType(QSurfaceFormat::OpenGL);
+        varFormat.setColorSpace(QSurfaceFormat::sRGBColorSpace);
         varFormat.setSwapInterval(0)/*关闭垂直同步*/;
 #if defined(ENABLE_GL_DEBUG)
         varFormat.setOption(QSurfaceFormat::DebugContext, true);
