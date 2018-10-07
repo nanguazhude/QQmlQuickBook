@@ -41,6 +41,9 @@ DISTFILES += $$QMLSOURCES
 HEADERS += $$PWD/QmlApplicationEngine.hpp
 SOURCES += $$PWD/QmlApplicationEngine.cpp
 
+HEADERS += $$PWD/QmlLocalFileLoader.hpp
+SOURCES += $$PWD/QmlLocalFileLoader.cpp
+
 HEADERS += $$PWD/Application.hpp
 SOURCES += $$PWD/Application.cpp
 
