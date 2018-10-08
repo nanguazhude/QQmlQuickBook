@@ -34,6 +34,7 @@ QMLSOURCES += $$PWD/myqml/animationandstate/main_private/MainListView.qml
 QMLSOURCES += $$PWD/myqml/animationandstate/DemoBasic.qml
 QMLSOURCES += $$PWD/myqml/animationandstate/DemoPropertyAnimation.qml
 QMLSOURCES += $$PWD/myqml/animationandstate/DemoParallelStateAnimation.qml
+QMLSOURCES += $$PWD/myqml/animationandstate/DemoParallelStateSelectRun.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES

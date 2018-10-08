@@ -26,6 +26,7 @@ DemoBasic {
         width : 100 ;
         height : 100 ;
         border.width: 10;
+        color : Qt.rgba(0,0,0,0);
         Behavior on color {
             PropertyAnimation{}
         }

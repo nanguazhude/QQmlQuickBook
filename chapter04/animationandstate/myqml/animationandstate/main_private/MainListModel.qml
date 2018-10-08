@@ -15,5 +15,11 @@ ListModel {
         programSource : "../DemoParallelStateAnimation.qml";
     }
 
+    /****/
+    ListElement{
+        programName : "DemoParallelStateSelectRun"
+        programSource : "../DemoParallelStateSelectRun.qml"
+    }
+
 }
 

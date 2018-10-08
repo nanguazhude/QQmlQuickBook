@@ -37,15 +37,23 @@ namespace sstd::_private_sstd {
     }
 
     _WindowPrivate::_WindowPrivate() {
+        this->setClearColor(QColor(0, 0, 0, 255));
         this->setResizeMode(sstd::ResizeMode::SizeRootObjectToView);
     }
 
     _WidgetPrivate::_WidgetPrivate() {
+        this->setClearColor(QColor(0, 0, 0, 255));
         this->setResizeMode(sstd::ResizeMode::SizeRootObjectToView);
+        {
+            auto varP = this->palette();
+            varP.setBrush(QPalette::Background, QColor(0, 0, 0, 255));
+            this->setPalette(varP);
+            this->setAutoFillBackground(true);
+        }
     }
 
     sstd::LoadState _WidgetPrivate::status() const {
-        switch (Super::status()){
+        switch (Super::status()) {
         case Super::Null:return sstd::LoadState::Null;
         case Super::Ready:return sstd::LoadState::Ready;
         case Super::Loading:return sstd::LoadState::Loading;
@@ -90,7 +98,7 @@ namespace sstd::_private_sstd {
 
 }/**/
 
-namespace sstd{
+namespace sstd {
     AbstractRootWindow::~AbstractRootWindow() {
     }
 }/**/
