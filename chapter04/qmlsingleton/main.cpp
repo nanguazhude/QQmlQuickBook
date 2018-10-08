@@ -61,8 +61,8 @@ int main(int argc, char ** argv) {
             }
             else {
                 varWindow->show();
-                varWindow->setX(std::max(16, varWindow->x() + (std::rand() & 511) - 255));
-                varWindow->setY(std::max(16, varWindow->y() + (std::rand() & 511) - 255));
+                varWindow->setX(std::max(32, varWindow->x() + (std::rand() & 511) - 255));
+                varWindow->setY(std::max(32, varWindow->y() + (std::rand() & 511) - 255));
             }
         }
     }
