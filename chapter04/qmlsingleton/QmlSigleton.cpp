@@ -3,12 +3,12 @@
 #include <QtCore/qcoreapplication.h>
 #include <QtQml/qqmlengine.h>
 
-QmlSigleton::QmlSigleton(){
+QmlSigleton::QmlSigleton() {
     /*cplusplus own the data ... */
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 }
 
-inline QObject * QmlSigleton::instance(){
+inline QObject * QmlSigleton::instance() {
     static auto varAns = sstd::make_unique<QmlSigleton>();
     return varAns.get();
 }
