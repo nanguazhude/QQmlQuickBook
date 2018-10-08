@@ -10,16 +10,23 @@ Rectangle {
     height: 640
 
     ColorDialog {
-         id: _id_colorDialog
-         title: qsTr( "Please choose a color" )
-         onAccepted: {
-             QmlSigleton.myColor = _id_colorDialog.color ;
-             _id_colorDialog.visible = false ;
-         }
-         onRejected: {
-             _id_colorDialog.visible = false ;
-         }
-     }
+        id: _id_colorDialog
+        title: qsTr( "Please choose a color" )
+        onAccepted: {
+            QmlSigleton.myColor = _id_colorDialog.color ;
+            _id_colorDialog.visible = false ;
+        }
+        onRejected: {
+            _id_colorDialog.visible = false ;
+        }
+    }
+
+    Text{
+        z : 12 ;
+        text : qsTr( "点我变色！" )
+        font.pixelSize: 64 ;
+        anchors.centerIn: parent
+    }
 
     MouseArea{
         anchors.fill: parent ;
