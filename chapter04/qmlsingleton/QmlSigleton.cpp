@@ -3,12 +3,6 @@
 #include <QtCore/qcoreapplication.h>
 #include <QtQml/qqmlengine.h>
 
-namespace sstd{
-    namespace qmlsigleton{
-        extern template class DataItem<QColor>;
-    }/*qmlsigleton*/
-}/*sstd*/
-
 QmlSigleton::QmlSigleton(){
     /*cplusplus own the data ... */
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);

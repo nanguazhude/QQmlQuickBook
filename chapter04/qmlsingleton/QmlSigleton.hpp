@@ -63,7 +63,11 @@ private:
     SSTD_MEMORY_QOBJECT_DEFINE(QmlSigleton)
 };
 
-
+namespace sstd {
+    namespace qmlsigleton {
+        extern template class DataItem<QColor>;
+    }/*qmlsigleton*/
+}/*sstd*/
 
 
 
