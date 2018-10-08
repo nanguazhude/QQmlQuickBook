@@ -35,6 +35,8 @@ namespace sstd {
         virtual void setTitle(const QString &)=0;
         virtual void setClearColor(const QColor &)=0;
         virtual void show()=0;
+        virtual void setX(int)=0;
+        virtual void setY(int)=0;
         virtual ~AbstractRootWindow();
     };
 
@@ -54,6 +56,8 @@ namespace sstd {
             void setTitle(const QString &) override;
             void setClearColor(const QColor &) override;
             void show() override;
+            void setX(int) override;
+            void setY(int) override;
             _WindowPrivate();
         private:
             using Super = QuickViewWindow;
@@ -72,6 +76,8 @@ namespace sstd {
             void setTitle(const QString &) override;
             void setClearColor(const QColor &) override;
             void show() override;
+            void setX(int) override;
+            void setY(int) override;
             _WidgetPrivate();
         private:
             using Super = QuickViewWidget;

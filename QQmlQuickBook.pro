@@ -63,4 +63,7 @@ animationandstate.file = $$PWD/chapter04/animationandstate/animationandstate.pro
 animationandstate.depends = buildinstall
 SUBDIRS += animationandstate
 
+qmlsingleton.file = $$PWD/chapter04/qmlsingleton/qmlsingleton.pro
+qmlsingleton.depends = buildinstall
+SUBDIRS += qmlsingleton
 

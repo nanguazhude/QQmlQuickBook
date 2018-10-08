@@ -96,6 +96,24 @@ namespace sstd::_private_sstd {
         Super::show();
     }
 
+    void _WindowPrivate::setX(int arg) {
+        Super::setX(arg);
+    }
+
+    void _WindowPrivate::setY(int arg) {
+        Super::setY(arg);
+    }
+
+    void _WidgetPrivate::setX(int arg) {
+        const auto varGeomety = Super::geometry();
+        Super::setGeometry(arg, varGeomety.y(), varGeomety.width(), varGeomety.height());
+    }
+
+    void _WidgetPrivate::setY(int arg) {
+        const auto varGeomety = Super::geometry();
+        Super::setGeometry(varGeomety.x(), arg, varGeomety.width(), varGeomety.height());
+    }
+
 }/**/
 
 namespace sstd {
