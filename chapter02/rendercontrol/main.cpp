@@ -45,25 +45,21 @@ int main(int argc, char ** argv) {
     Application varApp{ argc,argv };
     /*强制加载Qt插件*/
     loadQtPlugins();
-    for (int i = 0; i < 10; ++i) {
-        /*加载Qml环境*/
-        auto varWindow = sstdNew<RootWindow>();
-        {
-            /*main.qml完整目录*/
-            const auto varMainQmlFileName = sstd::getLocalFileFullPath(
-                QStringLiteral(R"(myqml/qmlsingleton/main.qml)"));
-            /*加载main.qml*/
-            varWindow->load(varMainQmlFileName);
-            /*检查并报错*/
-            if (varWindow->status() != sstd::LoadState::Ready) {
-                qDebug() << "can not load : " << varMainQmlFileName;
-                return -1;
-            }
-            else {
-                varWindow->show();
-                varWindow->setX(std::max(32, varWindow->x() + (std::rand() & 511) - 255));
-                varWindow->setY(std::max(32, varWindow->y() + (std::rand() & 511) - 255));
-            }
+    /*加载Qml环境*/
+    auto varWindow = sstdNew<RootWindow>();
+    {
+        /*main.qml完整目录*/
+        const auto varMainQmlFileName = sstd::getLocalFileFullPath(
+                    QStringLiteral(R"(myqml/rendercontrol/main.qml)"));
+        /*加载main.qml*/
+        varWindow->load(varMainQmlFileName);
+        /*检查并报错*/
+        if (varWindow->status() != sstd::LoadState::Ready) {
+            qDebug() << "can not load : " << varMainQmlFileName;
+            return -1;
+        }
+        else {
+            varWindow->show();
         }
     }
     /*启动主线程事件循环程序*/

@@ -50,14 +50,14 @@ namespace sstd {
             Q_OBJECT
         public:
             using QuickViewWindow::QuickViewWindow;
-            void setResizeMode(sstd::ResizeMode) override;
-            void load(const QUrl &) override;
-            sstd::LoadState status() const override;
-            void setTitle(const QString &) override;
-            void setClearColor(const QColor &) override;
-            void show() override;
-            void setX(int) override;
-            void setY(int) override;
+            Q_SLOT void setResizeMode(sstd::ResizeMode) override;
+            Q_SLOT void load(const QUrl &) override;
+            Q_SLOT sstd::LoadState status() const override;
+            Q_SLOT void setTitle(const QString &) override;
+            Q_SLOT void setClearColor(const QColor &) override;
+            Q_SLOT void show() override;
+            Q_SLOT void setX(int) override;
+            Q_SLOT void setY(int) override;
             _WindowPrivate();
         private:
             using Super = QuickViewWindow;
@@ -70,14 +70,14 @@ namespace sstd {
             Q_OBJECT
         public:
             using QuickViewWidget::QuickViewWidget;
-            void setResizeMode(sstd::ResizeMode) override;
-            void load(const QUrl &) override;
-            sstd::LoadState status() const override;
-            void setTitle(const QString &) override;
-            void setClearColor(const QColor &) override;
-            void show() override;
-            void setX(int) override;
-            void setY(int) override;
+            Q_SLOT void setResizeMode(sstd::ResizeMode) override;
+            Q_SLOT void load(const QUrl &) override;
+            Q_SLOT sstd::LoadState status() const override;
+            Q_SLOT void setTitle(const QString &) override;
+            Q_SLOT void setClearColor(const QColor &) override;
+            Q_SLOT void show() override;
+            Q_SLOT void setX(int) override;
+            Q_SLOT void setY(int) override;
             _WidgetPrivate();
         private:
             using Super = QuickViewWidget;
