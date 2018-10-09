@@ -3,7 +3,6 @@
 #include <sstd_memory.hpp>
 #include <QtGui/qopenglwindow.h>
 
-
 class Window : public QOpenGLWindow {
     Q_OBJECT
 public:
@@ -14,7 +13,7 @@ protected:
     virtual void resizeGL(int w, int h);
 private:
     class DrawData;
-    DrawData * $m$DrawData = nullptr ;
+    DrawData * mmm_DrawData = nullptr ;
 public:
     SSTD_MEMORY_QOBJECT_DEFINE(Window)
 };

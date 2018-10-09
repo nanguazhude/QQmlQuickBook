@@ -2,12 +2,7 @@
 #include <QtCore>
 #include <QtGui>
 #include "Window.hpp"
-
-class Application : public QGuiApplication {
-public:
-    Application(int & a ,char ** b) :QGuiApplication(a,b) {}
-    virtual ~Application() = default;
-};
+#include "Application.hpp"
 
 namespace {
 
@@ -31,10 +26,6 @@ int main(int argc,char ** argv){
     resetRandom();
 
     Application varApp{argc,argv};
-
-    {/*强制运行目录为程序所在目录*/
-        QDir::setCurrent(qApp->applicationDirPath());
-    }
 
     /*设置opengl默认格式*/
     sstd::setDefaultFormat();

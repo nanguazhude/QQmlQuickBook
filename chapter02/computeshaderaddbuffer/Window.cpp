@@ -10,21 +10,21 @@ Window::Window() {}
 
 class Window::DrawData : public QObject {
 public:
-    GLuint $m$InputBuffer = 0;
-    GLuint $m$OutputBuffer = 0;
-    GLuint $m$Program = 0;
-    std::chrono::high_resolution_clock::time_point $m$LastDraw;
-    QTimer * $m$Timer = nullptr;
+    GLuint mmm_InputBuffer = 0;
+    GLuint mmm_OutputBuffer = 0;
+    GLuint mmm_Program = 0;
+    std::chrono::high_resolution_clock::time_point mmm_LastDraw;
+    QTimer * mmm_Timer = nullptr;
     void deleteThisObject() {
-        $m$Timer->stop();
-        glDeleteBuffers(1, &$m$InputBuffer);
-        glDeleteBuffers(1, &$m$OutputBuffer);
-        glDeleteProgram($m$Program);
+        mmm_Timer->stop();
+        glDeleteBuffers(1, &mmm_InputBuffer);
+        glDeleteBuffers(1, &mmm_OutputBuffer);
+        glDeleteProgram(mmm_Program);
         delete this;
     }
 
     DrawData() {
-        $m$Timer = sstdNew<QTimer>(this);
+        mmm_Timer = sstdNew<QTimer>(this);
     }
 
 };
@@ -32,30 +32,30 @@ public:
 void Window::initializeGL() {
     /*************************************************************************/
     //标准开头
-    if ($m$DrawData) { return; }
+    if (mmm_DrawData) { return; }
     this->makeCurrent();
     glewInitialize();
 
     gl_debug_function_lock();
 
-    $m$DrawData = sstdNew<DrawData>();
+    mmm_DrawData = sstdNew<DrawData>();
     connect(context(), &QOpenGLContext::aboutToBeDestroyed,
-        $m$DrawData, &DrawData::deleteThisObject, Qt::DirectConnection);
-    connect($m$DrawData->$m$Timer, &QTimer::timeout,
+        mmm_DrawData, &DrawData::deleteThisObject, Qt::DirectConnection);
+    connect(mmm_DrawData->mmm_Timer, &QTimer::timeout,
         this, [this]() {update(); });
-    $m$DrawData->$m$Timer->start(10);
+    mmm_DrawData->mmm_Timer->start(10);
     /*************************************************************************/
     const static constexpr GLfloat varInitData[]{ 1,2,3,4 };
     //在显卡上创建输入缓冲区
-    glCreateBuffers(1, &($m$DrawData->$m$InputBuffer));
-    glNamedBufferStorage($m$DrawData->$m$InputBuffer,
+    glCreateBuffers(1, &(mmm_DrawData->mmm_InputBuffer));
+    glNamedBufferStorage(mmm_DrawData->mmm_InputBuffer,
         sizeof(varInitData),
         varInitData,
         GL_DYNAMIC_STORAGE_BIT | GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
 
     //在显卡上创建输出缓冲区
-    glCreateBuffers(1, &($m$DrawData->$m$OutputBuffer));
-    glNamedBufferStorage($m$DrawData->$m$OutputBuffer,
+    glCreateBuffers(1, &(mmm_DrawData->mmm_OutputBuffer));
+    glNamedBufferStorage(mmm_DrawData->mmm_OutputBuffer,
         sizeof(varInitData),
         varInitData,
         GL_CLIENT_STORAGE_BIT | GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
@@ -77,9 +77,9 @@ void main(void){
     auto varShader = glCreateShader(GL_COMPUTE_SHADER);
     glShaderSource(varShader, 1, varShaderSource, nullptr);
     glCompileShader(varShader);
-    $m$DrawData->$m$Program = glCreateProgram();
-    glAttachShader($m$DrawData->$m$Program, varShader);
-    glLinkProgram($m$DrawData->$m$Program);
+    mmm_DrawData->mmm_Program = glCreateProgram();
+    glAttachShader(mmm_DrawData->mmm_Program, varShader);
+    glLinkProgram(mmm_DrawData->mmm_Program);
 
     glDeleteShader(varShader);
 
@@ -87,14 +87,14 @@ void main(void){
 
 void Window::paintGL() {
 
-    if (nullptr == $m$DrawData) {
+    if (nullptr == mmm_DrawData) {
         return;
     }
 
     {/*间隔超过1s才执行*/
         auto varCurrentTime = std::chrono::high_resolution_clock::now();
-        if (std::chrono::abs(varCurrentTime - $m$DrawData->$m$LastDraw) > 1s) {
-            $m$DrawData->$m$LastDraw = varCurrentTime;
+        if (std::chrono::abs(varCurrentTime - mmm_DrawData->mmm_LastDraw) > 1s) {
+            mmm_DrawData->mmm_LastDraw = varCurrentTime;
         }
         else {
             return;
@@ -115,14 +115,14 @@ void Window::paintGL() {
 
     {/*向显卡上传数据*/
         const auto varInputGL = static_cast<GLfloat*>(
-            glMapNamedBuffer($m$DrawData->$m$InputBuffer, GL_WRITE_ONLY));
+            glMapNamedBuffer(mmm_DrawData->mmm_InputBuffer, GL_WRITE_ONLY));
         std::memcpy(varInputGL, varInput, sizeof(varInput));
-        glUnmapNamedBuffer($m$DrawData->$m$InputBuffer);
+        glUnmapNamedBuffer(mmm_DrawData->mmm_InputBuffer);
     }
 
-    glUseProgram($m$DrawData->$m$Program);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, $m$DrawData->$m$InputBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, $m$DrawData->$m$OutputBuffer);
+    glUseProgram(mmm_DrawData->mmm_Program);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mmm_DrawData->mmm_InputBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mmm_DrawData->mmm_OutputBuffer);
     glDispatchCompute(1, 1, 1);
 
     /*等待显卡完成*/
@@ -130,9 +130,9 @@ void Window::paintGL() {
 
     {/*从显卡获得数据*/
         const auto varOutputGL = static_cast<GLfloat*>(
-            glMapNamedBuffer($m$DrawData->$m$OutputBuffer, GL_READ_ONLY));
+            glMapNamedBuffer(mmm_DrawData->mmm_OutputBuffer, GL_READ_ONLY));
         std::memcpy(varOutput, varOutputGL, sizeof(varOutput));
-        glUnmapNamedBuffer($m$DrawData->$m$OutputBuffer);
+        glUnmapNamedBuffer(mmm_DrawData->mmm_OutputBuffer);
     }
 
     qDebug()
