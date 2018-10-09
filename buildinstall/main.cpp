@@ -1,4 +1,5 @@
 ﻿#include <list>
+#include <regex>
 #include <memory>
 #include <fstream>
 #include <cstdlib>
@@ -9,12 +10,17 @@
 #include <algorithm>
 #include <filesystem>
 #include <functional>
+#include <string_view>
+
+using namespace std::string_view_literals;
 
 class DutyItem {
 public:
     std::filesystem::path copyDir;
-    DutyItem(std::filesystem::path && a) :copyDir(std::move(a)) {}
-    DutyItem(const std::filesystem::path & a) :copyDir(a) {}
+    DutyItem(std::filesystem::path && a) :copyDir(std::move(a)) {
+    }
+    DutyItem(const std::filesystem::path & a) :copyDir(a) {
+    }
     DutyItem(const DutyItem &) = default;
     DutyItem(DutyItem &&) = default;
     DutyItem&operator=(const DutyItem &) = default;
@@ -55,8 +61,7 @@ int main(int argc, char ** argv) try {
         varLogStream << "do not input root dir:copy dir" << std::endl;
 #endif
         return 0;
-    }
-    else {
+    } else {
 #ifdef INSTALL_LOG_DEBUG
         varLogStream << "copy dir:" << std::endl;
 #endif
@@ -79,8 +84,7 @@ int main(int argc, char ** argv) try {
 
     return 0;
 
-}
-catch (...) {
+} catch (...) {
     return 0;
 }
 
@@ -93,6 +97,7 @@ inline void Duty::copy() const {
     }
 }
 
+/*创建目录*/
 inline void  Duty::_p_create_dirs(const CopyInformation & items) const {
     for (const auto & i : items.dirs) {
         try {
@@ -105,8 +110,7 @@ inline void  Duty::_p_create_dirs(const CopyInformation & items) const {
                 if (!std::filesystem::is_directory(varStatus)) {
                     std::filesystem::remove(varPath);
                     break;
-                }
-                else {
+                } else {
                     const auto varRPath = std::filesystem::canonical(varPath);
                     if (varRPath.filename() != varPath.filename()) {
                         std::filesystem::rename(varRPath, varPath);
@@ -115,8 +119,8 @@ inline void  Duty::_p_create_dirs(const CopyInformation & items) const {
                 }
             } while (false);
             std::filesystem::create_directories(varPath);
+        } catch (...) {
         }
-        catch (...) {}
     }
 }
 
@@ -124,8 +128,10 @@ inline Duty::CopyInformation Duty::_p_get_dir_copy_information(const std::filesy
     class FileItem {
     public:
         std::filesystem::path path;
-        FileItem(std::filesystem::path && a) :path(std::move(a)) {}
-        FileItem(const std::filesystem::path & a) :path(a) {}
+        FileItem(std::filesystem::path && a) :path(std::move(a)) {
+        }
+        FileItem(const std::filesystem::path & a) :path(a) {
+        }
         FileItem(const FileItem &) = default;
         FileItem(FileItem&&) = default;
         FileItem&operator=(const FileItem &) = default;
@@ -145,16 +151,14 @@ inline Duty::CopyInformation Duty::_p_get_dir_copy_information(const std::filesy
             if (varI.is_directory()) {
                 const auto & varPath = items.emplace_back(varI.path());
                 ans.dirs.push_back(std::filesystem::relative(varPath.path, root));
-            }
-            else {
+            } else {
                 ans.files.push_back(std::filesystem::relative(varI.path(), root));
             }
         }
     }
 
     return std::move(ans);
-}
-catch (...) {
+} catch (...) {
     return{};
 }
 
@@ -173,14 +177,107 @@ inline void Duty::_p_copy_files(const CopyInformation & items) const {
         [](const auto & a) { _p_copy_a_file(a.first, a.second); });
 }
 
-inline void Duty::_p_copy_a_file(const std::filesystem::path & a, const std::filesystem::path & b) {
-    return __p_copy_a_file(a,b);
+inline void __parser_qml(const std::filesystem::path & b) try {
+
+    enum {
+        normal_line = 0,
+        begin_type = 1,
+        end_type = 2,
+    };
+
+    class Line : public std::string {
+    public:
+        std::size_t type = normal_line;
+    };
+
+    std::vector<Line> varLines;
+
+    const static std::regex varRegexDebugBegin{ "(?:" "\xef" "\xbb" "\xbf" ")?" "\\s*/\\*begin:debug\\*/\\s*"  , std::regex::icase };
+    const static std::regex varRegexDebugEnd{ u8R"(\s*/\*end:debug\*/\s*)", std::regex::icase };
+    bool hasDebugData = false;
+    {
+        std::ifstream varReadStream{ b,std::ios::binary };
+        if (false == varReadStream.is_open()) {
+            return;
+        }
+
+        while (varReadStream.good()) {
+            Line varLine;
+            std::getline(varReadStream, varLine);
+            if (varLine.empty() == false) {
+                if (std::regex_match(varLine, varRegexDebugBegin)) {
+                    varLine.type = begin_type;
+                    hasDebugData = true;
+                } else if (std::regex_match(varLine, varRegexDebugEnd)) {
+                    varLine.type = end_type;
+                    hasDebugData = true;
+                }
+            }
+            varLines.push_back(std::move(varLine));
+        }
+
+    }
+
+    if (varLines.empty()) {
+        return;
+    }
+
+    if (false == hasDebugData) {
+        return;
+    }
+
+    std::ofstream varOutStream{ b,std::ios::binary };
+    if (false == varOutStream.is_open()) {
+        return;
+    }
+
+    int varDebugCount = 0;
+    for (const auto & varLine : varLines) {
+
+        if (varLine.type == begin_type) {
+            ++varDebugCount;
+        } else if (varLine.type == end_type) {
+            --varDebugCount;
+        }
+
+        if (0 < varDebugCount) {
+            varOutStream << "//"sv;
+        }
+
+        varOutStream << varLine << std::endl;
+
+    }
+
+} catch (...) {
 }
 
+inline void Duty::_p_copy_a_file(const std::filesystem::path & a, const std::filesystem::path & b) {
+    __p_copy_a_file(a, b);
+    /*****************************************/
+    /*release qml ... */
+    try {
+        bool varIsQml;
+        {
+            const static std::regex varRegex{ "\\.qml", std::regex::icase };
+            const auto varExtension = b.extension().string();
+            varIsQml = std::regex_match(varExtension, varRegex);
+        }
+        if (false == varIsQml) {
+            return;
+        }
+        __parser_qml(b);
+    } catch (...) {
+        return;
+    }
+    /*****************************************/
+}
+
+/*copy file*/
 inline void Duty::__p_copy_a_file(const std::filesystem::path & a, const std::filesystem::path & b) try {
     const auto varBStates = std::filesystem::status(b);
     if (std::filesystem::exists(varBStates)) {
 
+        /*如果目标当前是目录，删除目录，拷贝文件*/
         if (std::filesystem::is_directory(varBStates)) {
             std::filesystem::remove_all(b);
             std::filesystem::copy(a, b);
@@ -204,8 +301,8 @@ inline void Duty::__p_copy_a_file(const std::filesystem::path & a, const std::fi
         if (std::filesystem::file_size(b) == std::filesystem::file_size(a)) {
 
             constexpr const static int Size = 1024;
-            alignas(4) char blockA[Size];
-            alignas(4) char blockB[Size];
+            alignas(void *) char blockA[Size];
+            alignas(void *) char blockB[Size];
 
             std::ifstream varFrom(a, std::ios::binary);
             std::ifstream varTo(b, std::ios::binary);
@@ -235,11 +332,9 @@ inline void Duty::__p_copy_a_file(const std::filesystem::path & a, const std::fi
 
         std::filesystem::copy_file(a, b, std::filesystem::copy_options::overwrite_existing);
 
-    }
-    else {
+    } else {
         std::filesystem::copy(a, b);
     }
-}
-catch (...) {
+} catch (...) {
     return;
 }
