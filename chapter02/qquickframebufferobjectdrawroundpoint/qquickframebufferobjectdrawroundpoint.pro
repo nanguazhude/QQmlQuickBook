@@ -44,7 +44,7 @@ DISTFILES += $$QMLSOURCES
 SOURCES += $$PWD/QuickRoundPoint.cpp
 HEADERS += $$PWD/QuickRoundPoint.hpp
 
-
+include($$PWD/this/this.pri)
 
 
 

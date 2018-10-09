@@ -44,7 +44,7 @@ DISTFILES += $$QMLSOURCES
 SOURCES += $$PWD/QuickTexturePoint.cpp
 HEADERS += $$PWD/QuickTexturePoint.hpp
 
-
+include($$PWD/this/this.pri)
 
 
 

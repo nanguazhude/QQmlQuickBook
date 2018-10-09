@@ -43,3 +43,4 @@ RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 SOURCES += $$PWD/GetLocalFullPath.cpp
 
+include($$PWD/this/this.pri)

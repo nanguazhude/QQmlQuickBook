@@ -53,7 +53,7 @@ SOURCES += $$PWD/GetLocalFullPath.cpp
 SOURCES += $$PWD/RootWindow.cpp
 HEADERS += $$PWD/RootWindow.hpp
 
-
+include($$PWD/this/this.pri)
 
 
 

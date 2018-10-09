@@ -28,7 +28,7 @@ HEADERS += $$PWD/Window.hpp
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
-
+include($$PWD/this/this.pri)
 
 
 

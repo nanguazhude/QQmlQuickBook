@@ -49,7 +49,7 @@ HEADERS += $$PWD/QuickSimpleTriangle.hpp
 #    CONFIG+=qml_debug
 #}
 
-
+include($$PWD/this/this.pri)
 
 
 

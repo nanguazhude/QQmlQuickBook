@@ -26,7 +26,5 @@ INCLUDEPATH += $$PWD/sstd_utility
 HEADERS += $$PWD/sstd_utility/sstd_memory.hpp
 HEADERS += $$PWD/sstd_utility/ConstructQSurface.hpp
 
-PRECOMPILED_HEADER += $$PWD/sstd_utility/sstd_precompiledheader/sstd_cplusplusprecompiledheader.hpp
-
 
 

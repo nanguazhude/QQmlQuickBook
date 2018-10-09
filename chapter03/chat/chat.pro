@@ -64,3 +64,6 @@ DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
 RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 
+include($$PWD/this/this.pri)
+
+
