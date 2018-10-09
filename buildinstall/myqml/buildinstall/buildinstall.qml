@@ -1,4 +1,10 @@
-﻿ /*begin:debug*/
+﻿
+中文测试
+中文测试
+中文测试
+中文测试
+中文测试
+ /*begin:debug*/
 this file is just for test
 中文测试
    /*begin:debug*/

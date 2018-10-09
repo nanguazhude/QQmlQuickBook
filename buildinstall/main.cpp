@@ -234,17 +234,18 @@ inline void __parser_qml(const std::filesystem::path & b) try {
     int varDebugCount = 0;
     for (const auto & varLine : varLines) {
 
+        const auto varOldDebugCount = varDebugCount;
         if (varLine.type == begin_type) {
             ++varDebugCount;
         } else if (varLine.type == end_type) {
             --varDebugCount;
         }
 
-        if (0 < varDebugCount) {
-            varOutStream << "//"sv;
+        if ((0 < varDebugCount) || (0 < varOldDebugCount)) {
+            varOutStream << u8"/*remove debug information*/"sv << std::endl;
+        } else {
+            varOutStream << varLine << std::endl;
         }
-
-        varOutStream << varLine << std::endl;
 
     }
 
