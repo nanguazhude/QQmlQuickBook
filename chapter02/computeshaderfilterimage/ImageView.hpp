@@ -14,12 +14,12 @@ protected:
     bool event(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     using Super = QGraphicsView;
-    QGraphicsPixmapItem * $m$Left = nullptr;
-    QGraphicsPixmapItem * $m$Right = nullptr;
-    QImage $m$LeftImage;
-    QImage $m$RightImage;
+    QGraphicsPixmapItem * mmm_Left = nullptr;
+    QGraphicsPixmapItem * mmm_Right = nullptr;
+    QImage mmm_LeftImage;
+    QImage mmm_RightImage;
     void _update_image_pos() const;
-    std::int32_t $m$DrawImdex = 0;
+    std::int32_t mmm_DrawImdex = 0;
 private:
     SSTD_MEMORY_QOBJECT_DEFINE(ImageView)
 };

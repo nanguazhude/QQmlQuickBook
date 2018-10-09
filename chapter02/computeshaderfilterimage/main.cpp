@@ -3,25 +3,41 @@
 #include <QtGui>
 #include <QtWidgets>
 #include "Window.hpp"
+#include "Application.hpp"
 
-class Application : public QApplication {
-public:
-    Application(int & a ,char ** b) :QApplication(a,b) {}
-    virtual ~Application() = default;
-};
+namespace {
+
+    inline void resetRandom() {
+        std::srand(static_cast<int>(std::time(nullptr)));
+    }
+
+    inline void loadQtPlugins() {
+        QImage varImagePluginForceLoad{ QStringLiteral(":/qqmlquickglobal/image/load.png") };
+        (void)varImagePluginForceLoad;
+    }
+
+}/*namespace*/
 
 int main(int argc,char ** argv){
-    Application varApp{argc,argv};
+    /*高分屏支持*/
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
-    {/*强制运行目录为程序所在目录*/
-        QDir::setCurrent(qApp->applicationDirPath());
-    }
+    /*重置随机数种子*/
+    resetRandom();
+
+    /*设置opengl默认格式*/
     sstd::setDefaultFormat();
+
+    Application varApp{ argc,argv };
+
+    /*强制加载Qt插件*/
+    loadQtPlugins();
 
     auto window = sstdNew<Window>();
     window->show();
 
     return varApp.exec();
+
 }
 
 

@@ -4,18 +4,17 @@
 #include <QtWidgets/qgraphicsitem.h>
 #include <QtGui/qevent.h>
 
-
 ImageView::ImageView() {
     this->setAttribute(Qt::WA_DeleteOnClose, false);
-    $m$Left = sstdNew< QGraphicsPixmapItem >();
-    $m$Right = sstdNew< QGraphicsPixmapItem >();
+    mmm_Left = sstdNew< QGraphicsPixmapItem >();
+    mmm_Right = sstdNew< QGraphicsPixmapItem >();
     auto varScene = this->scene();
     if (varScene == nullptr) {
         varScene = sstdNew<QGraphicsScene>(this);
         this->setScene(varScene);
     }
-    varScene->addItem($m$Left);
-    varScene->addItem($m$Right);
+    varScene->addItem(mmm_Left);
+    varScene->addItem(mmm_Right);
     this->setBackgroundBrush(QColor(100, 100, 100));
     this->setMinimumHeight(128);
     this->setMinimumWidth(128);
@@ -23,9 +22,9 @@ ImageView::ImageView() {
 }
 
 void ImageView::showImage(const QImage & s, const QImage & t) {
-    $m$LeftImage = s;
-    $m$RightImage = t;
-    this->setWindowTitle( QString::number(++$m$DrawImdex)+
+    mmm_LeftImage = s;
+    mmm_RightImage = t;
+    this->setWindowTitle( QString::number(++mmm_DrawImdex)+
         QStringLiteral(" : compute shader filter image") );
     _update_image_pos();
 }
@@ -35,13 +34,13 @@ void ImageView::_update_image_pos() const {
     const auto varSR = this->sceneRect();
     const auto varSS = QSizeF{ 0.5* varSR.width(),varSR.height() } +QSizeF{ 1.0,1.0 };
 
-#define ___ERROR_RETURN $m$Left->setPixmap({});$m$Right->setPixmap({}); return
+#define ___ERROR_RETURN mmm_Left->setPixmap({});mmm_Right->setPixmap({}); return
 
     QSize varImageSize{ 1,1 };
 
     do {
 
-        const auto varImageSizeSource = $m$LeftImage.size();
+        const auto varImageSizeSource = mmm_LeftImage.size();
         if (varImageSizeSource.width() < 1) {
             ___ERROR_RETURN;
         }
@@ -71,24 +70,24 @@ void ImageView::_update_image_pos() const {
     } while (false);
 
     {
-        const auto varImage = $m$LeftImage.scaled(
+        const auto varImage = mmm_LeftImage.scaled(
             varImageSize.width(),
             varImageSize.height(),
             Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        $m$Left->setPixmap(QPixmap::fromImage(varImage));
+        mmm_Left->setPixmap(QPixmap::fromImage(varImage));
     }
 
     {
-        const auto varImage = $m$RightImage.scaled(
+        const auto varImage = mmm_RightImage.scaled(
             varImageSize.width(),
             varImageSize.height(),
             Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        $m$Right->setPixmap(QPixmap::fromImage(varImage));
+        mmm_Right->setPixmap(QPixmap::fromImage(varImage));
     }
 
     const auto varY = (-0.5)* varImageSize.height();
-    $m$Left->setPos(-varImageSize.width(), varY);
-    $m$Right->setPos(0, varY);
+    mmm_Left->setPos(-varImageSize.width(), varY);
+    mmm_Right->setPos(0, varY);
 
 }
 

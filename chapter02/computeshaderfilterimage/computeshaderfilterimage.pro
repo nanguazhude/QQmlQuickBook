@@ -20,12 +20,16 @@ include($$PWD/../../sstd_utility/glew.pri)
 include($$PWD/../../sstd_utility/glm.pri)
 
 SOURCES += $$PWD/main.cpp \
-    ImageView.cpp
+    $$PWD/ImageView.cpp
 SOURCES += $$PWD/Window.cpp
 
+SOURCES += $$PWD/Application.cpp
+HEADERS += $$PWD/Application.hpp
+
+SOURCES += GetLocalFullPath.cpp
 
 HEADERS += $$PWD/Window.hpp \
-    ImageView.hpp
+    $$PWD/ImageView.hpp
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 

@@ -1,6 +1,7 @@
 ﻿#pragma once 
 
 #include <fstream>
+#include <QtCore/qdir.h>
 #include "sstd_memory.hpp"
 
 namespace sstd {
@@ -51,11 +52,14 @@ namespace sstd {
     inline sstd::string load_file_remove_utf8(const QString & a,
         char * b = nullptr,
         std::streamsize c = 0) {
-        const auto varU8Path = a.toUtf8();
+        QByteArray varU8Path;
+        {
+            const QDir varDir{ a } ;
+            varU8Path = varDir.absolutePath().toUtf8();
+        }
         return load_file_remove_utf8(
             std::filesystem::u8path(varU8Path.data(),
-                varU8Path.data() + varU8Path.size()),
-            b, c);
+                varU8Path.data() + varU8Path.size()),b, c);
     }
 
 }/*namespace sstd*/

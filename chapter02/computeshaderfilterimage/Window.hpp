@@ -11,14 +11,14 @@ public:
     Window();
     ~Window();
 protected:
-    virtual void initializeGL();
-    virtual void paintGL();
-    virtual void resizeGL(int w, int h);
+    virtual void initializeGL() override;
+    virtual void paintGL() override;
+    virtual void resizeGL(int w, int h) override;
 private:
     class DrawData;
-    DrawData * $m$DrawData = nullptr ;
-    ImageView * $m$ImageView = nullptr;
-    QPointer<QObject> $m$WatcherImageView;
+    DrawData * mmm_DrawData = nullptr ;
+    ImageView * mmm_ImageView = nullptr;
+    QPointer<QObject> mmm_WatcherImageView;
 protected:
     bool event(QEvent *e) override;
     using Super = QOpenGLWindow;

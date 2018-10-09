@@ -5,51 +5,60 @@
 #include <QtCore/qtimer.h>
 #include <QtCore/qeventloop.h>
 #include "ImageView.hpp"
+#include <QtCore/qurl.h>
 #include <chrono>
+
+namespace sstd {
+    extern QUrl getLocalFileFullPath(const QString & arg);
+    QString getPath(const QString & arg){
+        return getLocalFileFullPath(arg).toLocalFile() ;
+    }
+}
 
 using namespace std::chrono_literals;
 
 Window::~Window() {}
 
 Window::Window() {
-    $m$ImageView = sstdNew< ImageView >();
-    connect($m$ImageView, &QObject::destroyed, this, &QObject::deleteLater);
-    connect(this, &QObject::destroyed, $m$ImageView, &QObject::deleteLater);
-    $m$WatcherImageView = $m$ImageView;
-    $m$ImageView->show();
-    const auto varPos = $m$ImageView->geometry().bottomRight();
+    mmm_ImageView = sstdNew< ImageView >();
+    connect(mmm_ImageView, &QObject::destroyed, this, &QObject::deleteLater);
+    connect(this, &QObject::destroyed, mmm_ImageView, &QObject::deleteLater);
+    mmm_WatcherImageView = mmm_ImageView;
+    mmm_ImageView->show();
+    const auto varPos = mmm_ImageView->geometry().bottomRight();
     this->setPosition(varPos);
 }
 
 class Window::DrawData : public QObject {
 public:
-    GLuint $m$InputImage = 0;
-    GLuint $m$OutputImage = 0;
-    GLuint $m$Program = 0;
-    GLint  $m$ImageWidth = 0;
-    GLint  $m$ImageHeight = 0;
-    QImage $m$OriginImageInput;
-    QImage $m$LastImageInput;
-    std::array<GLuint, 2> $m$InputOutputOrder{ 0,1 };
+    GLuint mmm_InputImage = 0;
+    GLuint mmm_OutputImage = 0;
+    GLuint mmm_Program = 0;
+    GLint  mmm_ImageWidth = 0;
+    GLint  mmm_ImageHeight = 0;
+    QImage mmm_OriginImageInput;
+    QImage mmm_LastImageInput;
+    std::array<GLuint, 2> mmm_InputOutputOrder{ 0,1 };
 
-    std::chrono::high_resolution_clock::time_point $m$LastDraw;
-    QTimer * $m$Timer = nullptr;
+    std::chrono::high_resolution_clock::time_point mmm_LastDraw;
+    QTimer * mmm_Timer = nullptr;
     void deleteThisObject() {
-        $m$Timer->stop();
-        glDeleteTextures(1, &$m$InputImage);
-        glDeleteTextures(1, &$m$OutputImage);
-        glDeleteProgram($m$Program);
+        mmm_Timer->stop();
+        glDeleteTextures(1, &mmm_InputImage);
+        glDeleteTextures(1, &mmm_OutputImage);
+        glDeleteProgram(mmm_Program);
         delete this;
     }
 
     DrawData() {
-        $m$Timer = sstdNew<QTimer>(this);
+        mmm_Timer = sstdNew<QTimer>(this);
     }
 
     void setProgram() {
         auto varShader = glCreateShader(GL_COMPUTE_SHADER);
         const auto varShaderSource =
-            sstd::load_file_remove_utf8(QStringLiteral("myqml/computeshaderfilterimage/main.cps"));
+            sstd::load_file_remove_utf8(
+                    sstd::getPath(QStringLiteral("myqml/computeshaderfilterimage/main.cps")));
 
         {
             GLint varSL = static_cast<GLint>(varShaderSource.size());
@@ -75,43 +84,43 @@ public:
             printErrorDetail(varShader);
         }
 
-        $m$Program = glCreateProgram();
-        glAttachShader($m$Program, varShader);
-        glLinkProgram($m$Program);
+        mmm_Program = glCreateProgram();
+        glAttachShader(mmm_Program, varShader);
+        glLinkProgram(mmm_Program);
         glDeleteShader(varShader);
     }
 
     void setTexture() {
 
         /*获得图片*/
-        $m$OriginImageInput = []() {
-            return QImage(QStringLiteral("myqml/computeshaderfilterimage/test.png"))
+        mmm_OriginImageInput = []() {
+            return QImage(sstd::getPath(QStringLiteral("myqml/computeshaderfilterimage/test.png")))
                 .convertToFormat(QImage::Format_RGBA8888);
         }();
-        const auto & varImage = $m$OriginImageInput;
-        $m$LastImageInput = varImage;
+        const auto & varImage = mmm_OriginImageInput;
+        mmm_LastImageInput = varImage;
 
         /*初始化长宽*/
-        $m$ImageHeight = varImage.height();
-        $m$ImageWidth = varImage.width();
+        mmm_ImageHeight = varImage.height();
+        mmm_ImageWidth = varImage.width();
 
         /*创建Texture*/
-        glCreateTextures(GL_TEXTURE_2D, 1, &$m$InputImage);
+        glCreateTextures(GL_TEXTURE_2D, 1, &mmm_InputImage);
 
         /*分配内存*/
-        glTextureStorage2D($m$InputImage, 1, GL_RGBA8, $m$ImageWidth, $m$ImageHeight);
+        glTextureStorage2D(mmm_InputImage, 1, GL_RGBA8, mmm_ImageWidth, mmm_ImageHeight);
         /*上传数据*/
-        glTextureSubImage2D($m$InputImage,
+        glTextureSubImage2D(mmm_InputImage,
             0/*level*/,
             0/*x*/, 0/*y*/,
-            $m$ImageWidth, $m$ImageHeight,
+            mmm_ImageWidth, mmm_ImageHeight,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
             varImage.bits());
 
-        glCreateTextures(GL_TEXTURE_2D, 1, &$m$OutputImage);
+        glCreateTextures(GL_TEXTURE_2D, 1, &mmm_OutputImage);
         /*分配内存*/
-        glTextureStorage2D($m$OutputImage, 1, GL_RGBA8, varImage.width(), varImage.height());
+        glTextureStorage2D(mmm_OutputImage, 1, GL_RGBA8, varImage.width(), varImage.height());
 
     }
 
@@ -120,22 +129,22 @@ public:
 void Window::initializeGL() {
     /*************************************************************************/
     //标准开头
-    if ($m$DrawData) { return; }
+    if (mmm_DrawData) { return; }
     this->makeCurrent();
     glewInitialize();
 
     gl_debug_function_lock();
 
-    $m$DrawData = sstdNew<DrawData>();
+    mmm_DrawData = sstdNew<DrawData>();
     connect(context(), &QOpenGLContext::aboutToBeDestroyed,
-        $m$DrawData, &DrawData::deleteThisObject, Qt::DirectConnection);
-    connect($m$DrawData->$m$Timer, &QTimer::timeout,
+        mmm_DrawData, &DrawData::deleteThisObject, Qt::DirectConnection);
+    connect(mmm_DrawData->mmm_Timer, &QTimer::timeout,
         this, [this]() {update(); });
-    $m$DrawData->$m$Timer->start(10);
+    mmm_DrawData->mmm_Timer->start(10);
     /*************************************************************************/
 
-    $m$DrawData->setTexture();
-    $m$DrawData->setProgram();
+    mmm_DrawData->setTexture();
+    mmm_DrawData->setProgram();
 
 }
 
@@ -202,11 +211,11 @@ void dispatchCompute(
 
 void Window::paintGL() {
 
-    if (nullptr == $m$DrawData) {
+    if (nullptr == mmm_DrawData) {
         return;
     }
 
-    if (bool($m$WatcherImageView) == false) {
+    if (bool(mmm_WatcherImageView) == false) {
         return;
     }
 
@@ -214,8 +223,8 @@ void Window::paintGL() {
 
     {/*间隔超过600ms才执行*/
         auto varCurrentTime = std::chrono::high_resolution_clock::now();
-        if (std::chrono::abs(varCurrentTime - $m$DrawData->$m$LastDraw) > 600ms) {
-            $m$DrawData->$m$LastDraw = varCurrentTime;
+        if (std::chrono::abs(varCurrentTime - mmm_DrawData->mmm_LastDraw) > 600ms) {
+            mmm_DrawData->mmm_LastDraw = varCurrentTime;
         }
         else {
             return;
@@ -229,22 +238,22 @@ void Window::paintGL() {
     auto varEndWaitTime = std::chrono::high_resolution_clock::now();
 
     if constexpr (false) {
-        const auto & varImage = $m$DrawData->$m$LastImageInput;
+        const auto & varImage = mmm_DrawData->mmm_LastImageInput;
         /*上传数据*/
-        glTextureSubImage2D($m$DrawData->$m$InputImage,
+        glTextureSubImage2D(mmm_DrawData->mmm_InputImage,
             0/*level*/,
             0/*x*/, 0/*y*/,
-            $m$DrawData->$m$ImageWidth, $m$DrawData->$m$ImageHeight,
+            mmm_DrawData->mmm_ImageWidth, mmm_DrawData->mmm_ImageHeight,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
             varImage.bits());
     }
 
-    glUseProgram($m$DrawData->$m$Program);
+    glUseProgram(mmm_DrawData->mmm_Program);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    glBindImageTexture($m$DrawData->$m$InputOutputOrder[0], $m$DrawData->$m$InputImage, 0, false, 0, GL_READ_ONLY, GL_RGBA8UI);
-    glBindImageTexture($m$DrawData->$m$InputOutputOrder[1], $m$DrawData->$m$OutputImage, 0, false, 0, GL_WRITE_ONLY, GL_RGBA8UI);
-    glDispatchCompute($m$DrawData->$m$ImageWidth, $m$DrawData->$m$ImageHeight, 1);
+    glBindImageTexture(mmm_DrawData->mmm_InputOutputOrder[0], mmm_DrawData->mmm_InputImage, 0, false, 0, GL_READ_ONLY, GL_RGBA8UI);
+    glBindImageTexture(mmm_DrawData->mmm_InputOutputOrder[1], mmm_DrawData->mmm_OutputImage, 0, false, 0, GL_WRITE_ONLY, GL_RGBA8UI);
+    glDispatchCompute(mmm_DrawData->mmm_ImageWidth, mmm_DrawData->mmm_ImageHeight, 1);
 
     /*等待显卡完成*/
     if constexpr (true) {
@@ -274,11 +283,11 @@ void Window::paintGL() {
     }
 
     {/*从显卡获得数据*/
-        auto & varImageOutput = $m$DrawData->$m$LastImageInput;
+        auto & varImageOutput = mmm_DrawData->mmm_LastImageInput;
         glGetTextureImage(
-            $m$DrawData->$m$InputOutputOrder[0] ?
-            $m$DrawData->$m$InputImage :
-            $m$DrawData->$m$OutputImage, 0,
+            mmm_DrawData->mmm_InputOutputOrder[0] ?
+            mmm_DrawData->mmm_InputImage :
+            mmm_DrawData->mmm_OutputImage, 0,
             GL_RGBA, GL_UNSIGNED_BYTE,
             varImageOutput.byteCount(),
             varImageOutput.bits());
@@ -288,10 +297,10 @@ void Window::paintGL() {
             std::chrono::duration<double, std::milli>>(std::chrono::abs(
                 varEndWaitTime - varStartWaitTime)).count() << "ms";
 
-        $m$ImageView->showImage($m$DrawData->$m$OriginImageInput, varImageOutput);
+        mmm_ImageView->showImage(mmm_DrawData->mmm_OriginImageInput, varImageOutput);
     }
     /*交换输入输出*/
-    std::swap($m$DrawData->$m$InputOutputOrder[0], $m$DrawData->$m$InputOutputOrder[1]);
+    std::swap(mmm_DrawData->mmm_InputOutputOrder[0], mmm_DrawData->mmm_InputOutputOrder[1]);
 }
 
 void Window::resizeGL(int w, int h) {

@@ -25,10 +25,10 @@ int main(int argc,char ** argv){
     /*重置随机数种子*/
     resetRandom();
 
-    Application varApp{argc,argv};
-
     /*设置opengl默认格式*/
     sstd::setDefaultFormat();
+
+    Application varApp{argc,argv};
 
     /*强制加载Qt插件*/
     loadQtPlugins();
