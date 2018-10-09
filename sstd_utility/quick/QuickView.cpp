@@ -114,6 +114,22 @@ namespace sstd::_private_sstd {
         Super::setGeometry(varGeomety.x(), arg, varGeomety.width(), varGeomety.height());
     }
 
+    QObject * _WidgetPrivate::getObject() const{
+        return const_cast<_WidgetPrivate*>( this );
+    }
+
+    QObject * _WindowPrivate::getObject() const{
+        return const_cast<_WindowPrivate*>( this );
+    }
+
+    QQuickWindow * _WindowPrivate::getQuickWindow() const{
+        return Super::getQuickWindow();
+    }
+
+    QQuickWindow * _WidgetPrivate::getQuickWindow() const{
+        return Super::getQuickWindow();
+    }
+
 }/**/
 
 namespace sstd {

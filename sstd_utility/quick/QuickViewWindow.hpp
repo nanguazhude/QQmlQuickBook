@@ -7,6 +7,7 @@ namespace sstd {
         Q_OBJECT
     public:
         QuickViewWindow();
+        QQuickWindow * getQuickWindow() const;
     private:
         using Super = QQuickView;
     };

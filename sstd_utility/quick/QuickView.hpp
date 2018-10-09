@@ -33,6 +33,7 @@ namespace sstd {
 
     class AbstractRootWindow {
     public:
+        virtual QObject * getObject() const =0;
         virtual void setResizeMode(sstd::ResizeMode)=0;
         virtual void load(const QUrl &)=0;
         virtual sstd::LoadState status() const=0;
@@ -41,6 +42,7 @@ namespace sstd {
         virtual void show()=0;
         virtual void setX(int)=0;
         virtual void setY(int)=0;
+        virtual QQuickWindow * getQuickWindow() const;
         virtual ~AbstractRootWindow();
     };
 
@@ -62,6 +64,8 @@ namespace sstd {
             Q_SLOT void show() override;
             Q_SLOT void setX(int) override;
             Q_SLOT void setY(int) override;
+            Q_SLOT QObject * getObject() const override;
+            Q_SLOT QQuickWindow * getQuickWindow() const override;
             _WindowPrivate();
         private:
             using Super = QuickViewWindow;
@@ -82,6 +86,8 @@ namespace sstd {
             Q_SLOT void show() override;
             Q_SLOT void setX(int) override;
             Q_SLOT void setY(int) override;
+            Q_SLOT QObject * getObject() const override;
+            Q_SLOT QQuickWindow * getQuickWindow() const override;
             _WidgetPrivate();
         private:
             using Super = QuickViewWidget;
