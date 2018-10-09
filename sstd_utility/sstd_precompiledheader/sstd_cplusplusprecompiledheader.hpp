@@ -11,6 +11,16 @@
 #include <QtCore/QtCore>
 #endif
 
+#if defined(QT_GUI_LIB)
+#include <QtGui/QtGuiDepends>
+#include <QtGui/qimage.h>
+#include <QtGui/qevent.h>
+#include <QtGui/qpainter.h>
+#include <QtGui/qbrush.h>
+#include <QtGui/qpen.h>
+#include <QtGui/qcolor.h>
+#endif
+
 #endif
 
 
