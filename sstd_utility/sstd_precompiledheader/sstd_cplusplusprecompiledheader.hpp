@@ -21,6 +21,10 @@
 #include <QtGui/qcolor.h>
 #endif
 
+#if defined(QT_QML_LIB)
+#include <QtQml/QtQml>
+#endif
+
 #endif
 
 
