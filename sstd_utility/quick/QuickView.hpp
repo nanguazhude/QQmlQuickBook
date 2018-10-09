@@ -9,16 +9,19 @@
 #include "QuickViewWindow.hpp"
 
 namespace sstd {
+    Q_NAMESPACE
 
     enum class WindowType : std::size_t {
         QtQuickWindow,
         QtWidget,
     };
+    Q_ENUM_NS(WindowType)
 
     enum class ResizeMode : std::size_t {
         SizeViewToRootObject,
         SizeRootObjectToView,
     };
+    Q_ENUM_NS(ResizeMode)
 
     enum class LoadState : std::size_t {
         Null,
@@ -26,6 +29,7 @@ namespace sstd {
         Loading,
         Error,
     };
+    Q_ENUM_NS(LoadState)
 
     class AbstractRootWindow {
     public:
