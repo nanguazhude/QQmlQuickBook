@@ -61,21 +61,21 @@ int main(int argc, char ** argv) {
     debug_call_once([]() {std::cout << "main thread id : " << std::this_thread::get_id() << std::endl; });
 
     auto varWindow = sstdNew<RootWindow>();
-        {
-            /*main.qml完整目录*/
-            const auto varMainQmlFileName = sstd::getLocalFileFullPath(
-                        QStringLiteral(R"(myqml/qsgdrawuserender/main.qml)"));
-            /*加载main.qml*/
-            varWindow->load(varMainQmlFileName);
-            /*检查并报错*/
-            if (varWindow->status() != sstd::LoadState::Ready) {
-                qDebug() << "can not load : " << varMainQmlFileName;
-                return -1;
-            }
-            else {
-                varWindow->show();
-            }
+    {
+        /*main.qml完整目录*/
+        const auto varMainQmlFileName = sstd::getLocalFileFullPath(
+                    QStringLiteral(R"(myqml/qsgdrawuserender/main.qml)"));
+        /*加载main.qml*/
+        varWindow->load(varMainQmlFileName);
+        /*检查并报错*/
+        if (varWindow->status() != sstd::LoadState::Ready) {
+            qDebug() << "can not load : " << varMainQmlFileName;
+            return -1;
         }
+        else {
+            varWindow->show();
+        }
+    }
     /*启动主线程事件循环程序*/
     return varApp.exec();
 }
