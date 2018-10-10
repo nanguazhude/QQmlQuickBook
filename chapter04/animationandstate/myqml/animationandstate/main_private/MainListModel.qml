@@ -21,5 +21,23 @@ ListModel {
         programSource : "../DemoParallelStateSelectRun.qml"
     }
 
+    /****/
+    ListElement{
+        programName : "DemoCircleState"
+        programSource : "../DemoCircleState.qml"
+    }
+
+    /****/
+    ListElement{
+        programName : "DemoCircleStatePause"
+        programSource : "../DemoCircleStatePause.qml"
+    }
+
+    /****/
+    ListElement{
+        programName : "DemoCircleStateQuit"
+        programSource : "../DemoCircleStateQuit.qml"
+    }
+
 }
 

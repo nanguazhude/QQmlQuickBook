@@ -11,23 +11,9 @@
 #include <atomic>
 #include "RootWindow.hpp"
 
-QObject * QmlLocalFileLoader::createRootView(QObject * parent,const QString & name, const QString & arg) const {
-    QQmlContext * varParentContex;
-    QUrl varLocalFileNameUrl;
-    {
-        if (parent == nullptr) {
-            qDebug() << QStringLiteral("error call function : ");
-            return{};
-        }
-        varParentContex = qmlContext(parent);
-        if (varParentContex == nullptr) {
-            qDebug() << QStringLiteral("error call function : ");
-            return{};
-        }
-        varLocalFileNameUrl = varParentContex->resolvedUrl(arg);
-    }
+QObject * QmlLocalFileLoader::createRootView(const QString & name, const QString & arg) const {
     auto varRootWindow = sstdNew< RootWindow >( );
-    varRootWindow->load(varLocalFileNameUrl);
+    varRootWindow->load(arg);
     varRootWindow->setTitle(name);
     return varRootWindow;
 }/****/
@@ -37,14 +23,17 @@ QmlLocalFileLoader * QmlLocalFileLoader::instance() {
     return varThis.get();
 }
 
+QmlLocalFileLoader::QmlLocalFileLoader(){
+    /*单例...*/
+    QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
+}
+
 static inline void registerThis() {
     qmlRegisterSingletonType<QmlLocalFileLoader>("myqml.animationandstate",
         1, 0,
         "QmlLocalFileLoader",
         [](QQmlEngine *engine, QJSEngine *scriptEngine)->QObject * {
         auto varAns = QmlLocalFileLoader::instance();
-        /*单例...*/
-        QQmlEngine::setObjectOwnership(varAns, QQmlEngine::CppOwnership);
         return varAns;
         (void)engine;
         (void)scriptEngine;

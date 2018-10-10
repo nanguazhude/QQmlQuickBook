@@ -35,6 +35,9 @@ QMLSOURCES += $$PWD/myqml/animationandstate/DemoBasic.qml
 QMLSOURCES += $$PWD/myqml/animationandstate/DemoPropertyAnimation.qml
 QMLSOURCES += $$PWD/myqml/animationandstate/DemoParallelStateAnimation.qml
 QMLSOURCES += $$PWD/myqml/animationandstate/DemoParallelStateSelectRun.qml
+QMLSOURCES += $$PWD/myqml/animationandstate/DemoCircleState.qml
+QMLSOURCES += $$PWD/myqml/animationandstate/DemoCircleStatePause.qml
+QMLSOURCES += $$PWD/myqml/animationandstate/DemoCircleStateQuit.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES

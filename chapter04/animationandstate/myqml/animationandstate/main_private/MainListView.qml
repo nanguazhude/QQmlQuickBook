@@ -3,6 +3,7 @@ import QtQuick 2.11
 
 ListView {
     id : _id_list_view ;
+
     delegate : MainListItem {
         width: parent.width - ( _id_scrollbar.visible * _id_scrollbar.width ) ;
     }
