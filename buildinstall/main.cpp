@@ -192,7 +192,7 @@ inline void __parser_qml(const std::filesystem::path & b) try {
 
     std::vector<Line> varLines;
 
-    const static std::regex varRegexDebugBegin{ "(?:" "\xef" "\xbb" "\xbf" ")?" "\\s*/\\*begin:debug\\*/\\s*"  , std::regex::icase };
+    const static std::regex varRegexDebugBegin{ "(?:" "\xef" "\xbb" "\xbf" ")?" "\\s*/\\*begin:debug\\*/\\s*" , std::regex::icase };
     const static std::regex varRegexDebugEnd{ u8R"(\s*/\*end:debug\*/\s*)", std::regex::icase };
     bool hasDebugData = false;
     {
