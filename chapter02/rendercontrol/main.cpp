@@ -61,6 +61,7 @@ int main(int argc, char ** argv) {
         else {
             varWindow->show();
         }
+        QObject::connect(varWindow->engine(), &QQmlEngine::quit, varWindow,&QObject::deleteLater);
     }
     /*启动主线程事件循环程序*/
     return varApp.exec();
