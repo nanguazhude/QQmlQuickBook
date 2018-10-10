@@ -34,6 +34,8 @@ namespace {
 
 #include <cstdlib>
 
+extern void contexTest(RootWindow * argWindow);
+
 int main(int argc, char ** argv) {
     /*高分屏支持*/
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -46,7 +48,7 @@ int main(int argc, char ** argv) {
     /*强制加载Qt插件*/
     loadQtPlugins();
     /*加载Qml环境*/
-    auto varWindow = sstdNew<RootWindow>();
+    std::unique_ptr<RootWindow> varWindow { sstdNew<RootWindow>() };
     {
         /*main.qml完整目录*/
         const auto varMainQmlFileName = sstd::getLocalFileFullPath(
@@ -62,6 +64,9 @@ int main(int argc, char ** argv) {
             varWindow->show();
         }
     }
+
+    contexTest( varWindow.get() );
+
     /*启动主线程事件循环程序*/
     return varApp.exec();
 }

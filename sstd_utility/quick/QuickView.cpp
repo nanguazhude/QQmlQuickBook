@@ -130,6 +130,30 @@ namespace sstd::_private_sstd {
         return Super::getQuickWindow();
     }
 
+    QQmlEngine * _WidgetPrivate::getEngine() const {
+        return Super::engine();
+    }
+
+    QQmlContext * _WidgetPrivate::getRootContext() const {
+        return Super::rootContext();
+    }
+
+    QQuickItem * _WidgetPrivate::getRootObject() const{
+        return Super::rootObject();
+    }
+
+    QQmlEngine * _WindowPrivate::getEngine() const {
+        return Super::engine();
+    }
+
+    QQmlContext * _WindowPrivate::getRootContext() const {
+        return Super::rootContext();
+    }
+
+    QQuickItem * _WindowPrivate::getRootObject() const{
+        return Super::rootObject();
+    }
+
 }/**/
 
 namespace sstd {

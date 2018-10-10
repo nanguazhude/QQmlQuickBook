@@ -1,5 +1,5 @@
 
-TARGET = $$qtLibraryTarget(rendercontrol)
+TARGET = $$qtLibraryTarget(qmlcontex)
 TEMPLATE = app
 
 QT += gui
@@ -40,6 +40,9 @@ SOURCES += $$PWD/GetLocalFullPath.cpp
 
 SOURCES += $$PWD/RootWindow.cpp
 HEADERS += $$PWD/RootWindow.hpp
+
+SOURCES += $$PWD/ContexTest.cpp
+HEADERS += $$PWD/ContexTest.hpp
 
 include($$PWD/this/this.pri)
 

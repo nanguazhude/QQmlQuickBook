@@ -44,6 +44,9 @@ namespace sstd {
         virtual void setX(int)=0;
         virtual void setY(int)=0;
         virtual QQuickWindow * getQuickWindow() const=0;
+        virtual QQmlEngine * getEngine() const =0;
+        virtual QQmlContext * getRootContext() const =0;
+        virtual QQuickItem * getRootObject() const=0;
         virtual ~AbstractRootWindow();
     };
 
@@ -68,6 +71,9 @@ namespace sstd {
             Q_SLOT QObject * getObject() const override;
             Q_SLOT QQuickWindow * getQuickWindow() const override;
             Q_SLOT WindowType getWindowType() const override { return WindowType::QtQuickWindow; }
+            Q_SLOT QQmlEngine * getEngine() const ;
+            Q_SLOT QQmlContext * getRootContext() const ;
+            Q_SLOT QQuickItem * getRootObject() const;
             _WindowPrivate();
         private:
             using Super = QuickViewWindow;
@@ -91,6 +97,9 @@ namespace sstd {
             Q_SLOT QObject * getObject() const override;
             Q_SLOT QQuickWindow * getQuickWindow() const override;
             Q_SLOT WindowType getWindowType() const override { return WindowType::QtWidget; }
+            Q_SLOT QQmlEngine * getEngine() const ;
+            Q_SLOT QQmlContext * getRootContext() const ;
+            Q_SLOT QQuickItem * getRootObject() const;
             _WidgetPrivate();
         private:
             using Super = QuickViewWidget;
