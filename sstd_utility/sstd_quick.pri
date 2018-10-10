@@ -11,9 +11,9 @@ HEADERS += \
     $$PWD/quick/QuickViewWindow.hpp
 
 SOURCES += \
-    $$PWD/quick/QuickView.cpp \
-    $$PWD/quick/QuickViewWidget.cpp \
-    $$PWD/quick/QuickViewWindow.cpp
+    $$PWD/quick/sstd_QuickView.cpp \
+    $$PWD/quick/sstd_QuickViewWidget.cpp \
+    $$PWD/quick/sstd_QuickViewWindow.cpp
 
 
 
