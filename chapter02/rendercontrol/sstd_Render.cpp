@@ -10,14 +10,14 @@
 namespace sstd {
 
     /*构造渲染环境...*/
-    Render::Render(std::shared_ptr<QOffscreenSurface> arg) {
-        setRenderSurface(std::move(arg));
-        ppp_ConstructAll();
+    Render::Render(std::shared_ptr<RenderPack> arg) {
+        this->setRenderPack(std::move(arg));
+        this->ppp_ConstructAll();
     }
 
     /*清理渲染环境...*/
     Render::~Render() {
-        ppp_CleanAll();
+        this->ppp_CleanAll();
     }
 
     /*构造渲染环境...*/
@@ -31,22 +31,25 @@ namespace sstd {
             return;
         }
 
+        this->setRenderSurface(this->getRenderPack()->sourceOffscreenSurface);
+
         /*创建OpenGL环境*/
         this->setRenderContex(sstdNew<QOpenGLContext>());
         this->getRenderContex()->setFormat(sstd::getDefaultOpenGLFormat());
         this->getRenderContex()->create();
         this->getRenderContex()->makeCurrent(this->getRenderSurface());
 
+        assert(dynamic_cast<sstd::RenderControl*>(this->getRenderPack()->sourceRenderConotrl));
         /*创建渲染窗口*/
-        this->setRenderControl(sstdNew<sstd::RenderControl>());
-        this->setRenderSource(sstdNew<QQuickWindow>(this->getRenderControl()));
+        this->setRenderControl(static_cast<sstd::RenderControl*>(this->getRenderPack()->sourceRenderConotrl));
+        this->setRenderSource(this->getRenderPack()->sourceWindow);
         this->setRenderSourceEngine(sstdNew<QQmlEngine>());
 
     }
 
     /*清理渲染数据...*/
     void Render::ppp_CleanAll() {
-        auto varSurface = std::move(mmm_RenderSurface);
+        auto varSurface = std::move(mmm_RenderPack);
         if (true == mmm_isDestory) {
             return;
         }
@@ -55,7 +58,7 @@ namespace sstd {
             return;
         }
         class DestoryLock {
-            Render  * const thisd;
+            Render * const thisd;
         public:
             DestoryLock(Render * r) :thisd(r) {
                 thisd->getRenderContex()->makeCurrent(thisd->getRenderSurface());
@@ -69,12 +72,6 @@ namespace sstd {
         if (mmm_Target) {
             delete mmm_Target;
             mmm_Target = nullptr;
-        }
-        if (mmm_RenderControl) {
-            delete mmm_RenderControl;
-        }
-        if (mmm_SourceQuickWindow) {
-            delete mmm_SourceQuickWindow;
         }
         if (mmm_SourceEngine) {
             delete mmm_SourceEngine;
@@ -109,12 +106,12 @@ namespace sstd {
     }
 
     QOffscreenSurface * Render::getRenderSurface() const {
-        return mmm_RenderSurface.get();
+        return mmm_RenderSurface;
     }
 
-    void Render::setRenderSurface(std::shared_ptr<QOffscreenSurface> && arg) {
-        assert(false == bool(mmm_RenderSurface));
-        mmm_RenderSurface = std::move(arg);
+    void Render::setRenderSurface(QOffscreenSurface * arg) {
+        assert(nullptr == mmm_RenderSurface);
+        mmm_RenderSurface = arg;
     }
 
     QQmlEngine * Render::getRenderSourceEngine()const {
@@ -124,6 +121,15 @@ namespace sstd {
     void Render::setRenderSourceEngine(QQmlEngine * arg) {
         assert(nullptr == mmm_SourceEngine);
         mmm_SourceEngine = arg;
+    }
+
+    void Render::setRenderPack(std::shared_ptr<RenderPack>&& arg) {
+        assert(nullptr == mmm_RenderPack.get());
+        mmm_RenderPack = std::move(arg);
+    }
+
+    RenderPack * Render::getRenderPack() const {
+        return mmm_RenderPack.get();
     }
 
 }/*namespace sstd*/

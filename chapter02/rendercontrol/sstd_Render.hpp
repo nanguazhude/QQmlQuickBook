@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "sstd_RenderPack.hpp"
 #include "sstd_RenderControl.hpp"
 #include <ConstructQSurface.hpp>
 #include <QtGui/qoffscreensurface.h>
@@ -9,13 +10,14 @@ namespace sstd {
     class Render : public QObject {
         Q_OBJECT
     public:
-        Render(std::shared_ptr<QOffscreenSurface>)/*此函数将在任意线程构造*/;
+        Render(std::shared_ptr<RenderPack>)/*此函数将在任意线程构造*/;
     public:
         sstd::RenderControl * getRenderControl() const;
         QOpenGLContext * getRenderContex() const;
         QQuickWindow * getRenderSource() const;
         QOffscreenSurface * getRenderSurface() const;
         QQmlEngine * getRenderSourceEngine()const;
+        RenderPack * getRenderPack() const;
         ~Render();
         Q_SIGNAL void renderThreadQuit();
     private:
@@ -25,8 +27,9 @@ namespace sstd {
         void setRenderSource(QQuickWindow *);
         void setRenderControl(sstd::RenderControl *);
         void setRenderContex(QOpenGLContext *);
-        void setRenderSurface(std::shared_ptr<QOffscreenSurface> &&arg);
+        void setRenderSurface(QOffscreenSurface *);
         void setRenderSourceEngine(QQmlEngine *);
+        void setRenderPack(std::shared_ptr<RenderPack>&&);
     private:
         /*渲染状态*/
         bool mmm_isInit{ false };
@@ -39,7 +42,8 @@ namespace sstd {
         QOpenGLFramebufferObject * mmm_Target{ nullptr };
         /*渲染环境*/
         QOpenGLContext * mmm_RenderContext{ nullptr }/*OpengGL渲染环境，此变量所在线程应当与this（Render）相同*/;
-        std::shared_ptr<QOffscreenSurface>mmm_RenderSurface/*此变量是为了构造mmm_RenderContext，此变量必须在主线程构造*/;
+        QOffscreenSurface * mmm_RenderSurface{nullptr};/*此变量是为了构造mmm_RenderContext，此变量必须在主线程构造*/
+        std::shared_ptr<RenderPack>mmm_RenderPack;
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(Render)
     };

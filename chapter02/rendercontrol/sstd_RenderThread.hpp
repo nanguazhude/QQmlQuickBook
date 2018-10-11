@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "sstd_RenderPack.hpp"
 #include <sstd_memory.hpp>
 #include <QtCore/qthread.h>
 #include <QtCore/qpointer.h>
@@ -14,11 +15,11 @@ namespace sstd {
             RenderThreadBasic()/*此函数必须在主线程调用*/;
             ~RenderThreadBasic();
         protected:
-            std::shared_ptr< QOffscreenSurface > getOffscreenSurface() const {
+            virtual std::shared_ptr< sstd::RenderPack > getOffscreenSurface() const {
                 return mmm_Surface;
             }
         private:
-            std::shared_ptr< QOffscreenSurface > mmm_Surface /*在构造函数里面构造一个Surface*/;
+            std::shared_ptr< sstd::RenderPack > mmm_Surface /*在构造函数里面构造一个Surface*/;
         private:
             SSTD_MEMORY_QOBJECT_DEFINE(RenderThreadBasic)
         };
@@ -29,7 +30,7 @@ namespace sstd {
 namespace sstd {
 
     /*
-     * T : 必须接受构造函数std::shared_ptr< QOffscreenSurface >
+     * T : 必须接受构造函数std::shared_ptr< sstd::RenderPack >
      * T : 必须有信号renderThreadQuit
      * T : 必须是QQbject
     */

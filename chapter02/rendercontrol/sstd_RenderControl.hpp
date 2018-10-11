@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "sstd_RenderPack.hpp"
 #include <sstd_memory.hpp>
 #include <QtQuick/qquickrendercontrol.h>
 

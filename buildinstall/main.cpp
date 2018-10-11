@@ -177,6 +177,9 @@ inline void Duty::_p_copy_files(const CopyInformation & items) const {
         [](const auto & a) { _p_copy_a_file(a.first, a.second); });
 }
 
+#if defined(_DEBUG)
+
+#else
 inline void __parser_qml(const std::filesystem::path & b) try {
 
     enum {
@@ -251,6 +254,7 @@ inline void __parser_qml(const std::filesystem::path & b) try {
 
 } catch (...) {
 }
+#endif
 
 inline void Duty::_p_copy_a_file(const std::filesystem::path & a, const std::filesystem::path & b) {
     __p_copy_a_file(a, b);
@@ -266,7 +270,12 @@ inline void Duty::_p_copy_a_file(const std::filesystem::path & a, const std::fil
         if (false == varIsQml) {
             return;
         }
+
+#if defined(_DEBUG)
+#else
         __parser_qml(b);
+#endif
+
     } catch (...) {
         return;
     }

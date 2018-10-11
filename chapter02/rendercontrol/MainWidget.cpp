@@ -7,7 +7,7 @@ MainWidget::MainWidget() {
     this->resize(512,512);
 
     auto varRenderThread = sstdNew<sstd::RenderThread<sstd::Render>>();
-    auto varRender = varRenderThread->getRender();
+    varRenderThread->getRender()->deleteLater();
 
 }
 
