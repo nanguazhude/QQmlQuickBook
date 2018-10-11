@@ -10,7 +10,8 @@ namespace sstd::private_sstd {
         {/*创建Surface...*/
             this->mmm_Surface = sstd::createDefaultRenderPack<sstd::RenderControl>();
         }
-        connect(this,&QThread::finished,this,&QObject::deleteLater);
+        connect(this,&QThread::finished,this,&QObject::deleteLater)/*自删除*/;
+        connect(qApp,&QCoreApplication::aboutToQuit, this, &QThread::quit)/*主线程退出则退出*/;
     }
 
     RenderThreadBasic::~RenderThreadBasic(){
