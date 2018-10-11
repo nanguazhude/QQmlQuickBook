@@ -11,7 +11,7 @@
 
 #include "Application.hpp"
 #include <ConstructQSurface.hpp>
-#include "RootWindow.hpp"
+#include "MainWidget.hpp"
 
 #include <iostream>
 
@@ -46,23 +46,8 @@ int main(int argc, char ** argv) {
     /*强制加载Qt插件*/
     loadQtPlugins();
     /*加载Qml环境*/
-    auto varWindow = sstdNew<RootWindow>();
-    {
-        /*main.qml完整目录*/
-        const auto varMainQmlFileName = sstd::getLocalFileFullPath(
-                    QStringLiteral(R"(myqml/rendercontrol/main.qml)"));
-        /*加载main.qml*/
-        varWindow->load(varMainQmlFileName);
-        /*检查并报错*/
-        if (varWindow->status() != sstd::LoadState::Ready) {
-            qDebug() << "can not load : " << varMainQmlFileName;
-            return -1;
-        }
-        else {
-            varWindow->show();
-        }
-        QObject::connect(varWindow->engine(), &QQmlEngine::quit, varWindow,&QObject::deleteLater);
-    }
+    auto varWindow = sstd::make_unique<MainWidget>();
+    varWindow->show();
     /*启动主线程事件循环程序*/
     return varApp.exec();
 }
