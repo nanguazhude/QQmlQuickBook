@@ -9,6 +9,8 @@
 #include <charconv>
 #include <iostream>
 
+#define OUT_STREAM std::cout
+
 static inline std::shared_mutex & getMutex() {
     static std::shared_mutex varMutex;
     return varMutex;
@@ -26,7 +28,7 @@ static inline void messageOutput(
         std::string_view varFileName = context.file;
         std::string_view varFunctionName = context.function;
         const auto varLineNumber = context.line;
-        
+
         {
             varDebugInfo += varSP;
         }
@@ -58,31 +60,31 @@ static inline void messageOutput(
     std::unique_lock varLock{ getMutex() };
 
     switch (type) {
-        case QtDebugMsg:
-        {
-            std::cout << varDebugInfo << std::endl;
-            break;
-        }
-        case QtInfoMsg:
-        {
-            std::cout << varDebugInfo << std::endl;
-            break;
-        }
-        case QtWarningMsg:
-        {
-            std::cout << varDebugInfo << std::endl;
-            break;
-        }
-        case QtCriticalMsg:
-        {
-            std::cout << varDebugInfo << std::endl;
-            break;
-        }
-        case QtFatalMsg:
-        {
-            std::cout << varDebugInfo << std::endl;
-            break;
-        }
+    case QtDebugMsg:
+    {
+        OUT_STREAM << varDebugInfo << std::endl;
+        break;
+    }
+    case QtInfoMsg:
+    {
+        OUT_STREAM << varDebugInfo << std::endl;
+        break;
+    }
+    case QtWarningMsg:
+    {
+        OUT_STREAM << varDebugInfo << std::endl;
+        break;
+    }
+    case QtCriticalMsg:
+    {
+        OUT_STREAM << varDebugInfo << std::endl;
+        break;
+    }
+    case QtFatalMsg:
+    {
+        OUT_STREAM << varDebugInfo << std::endl;
+        break;
+    }
     }
 
 }
@@ -99,8 +101,12 @@ Q_COREAPP_STARTUP_FUNCTION(registerThis)
 
 #endif
 
-
-
+/*重定向qDebug输出*/
+/**
+Debugging QML Applications
+//QT_NO_DEBUG_OUTPUT, QT_NO_INFO_OUTPUT, or QT_NO_WARNING_OUTPUT 
+//QLoggingCategory
+**/
 
 
 

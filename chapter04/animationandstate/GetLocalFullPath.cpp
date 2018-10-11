@@ -26,5 +26,5 @@ namespace sstd {
     }
 }/*namespace sstd*/
 
-
+/*debug模式下以项目路径作为根路径，release模式下以应用程序路径作为根路径*/
 
