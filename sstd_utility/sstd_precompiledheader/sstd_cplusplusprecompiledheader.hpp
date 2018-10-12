@@ -1,9 +1,17 @@
 ﻿#pragma once
+
 #if defined(__cplusplus)
-/*cplusplus add only*/
+/*cplusplus file only*/
 
 /*cplusplus预编译头文件*/
 /**cplusplusprecompiledheader.hpp**/
+
+#if defined(_DEBUG)/*_DEBUG*/
+/*Debug模式下的预编译头文件*/
+/*Debug模式是经常被修改的模式，为了硬盘寿命，少加预编译头文件*/
+#include <cassert>
+
+#else/*_DEBUG*/
 
 #include "../sstd_memory.hpp"
 
@@ -24,6 +32,8 @@
 #if defined(QT_QML_LIB)
 #include <QtQml/QtQml>
 #endif
+
+#endif/*_DEBUG*/
 
 #endif
 
