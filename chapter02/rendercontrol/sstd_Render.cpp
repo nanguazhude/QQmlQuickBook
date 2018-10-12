@@ -86,16 +86,27 @@ namespace sstd {
         this->setRenderSurface(this->getRenderPack()->sourceOffscreenSurface);
 
         /*创建OpenGL环境*/
-        this->setRenderContex(sstdNew<QOpenGLContext>());
-        this->getRenderContex()->setFormat(sstd::getDefaultOpenGLFormat());
-        this->getRenderContex()->create();
-        this->getRenderContex()->makeCurrent(this->getRenderSurface());
+        this->setRenderContex(sstdNew<QOpenGLContext>())/*contex in this thread!*/;
+        this->getRenderContex()->setFormat(this->getRenderSurface()->format());
+        this->getRenderContex()->create()/*创建OpengGL环境*/;
+        this->getRenderContex()->makeCurrent(this->getRenderSurface())/*将此环境身为OpenGL当前环境*/;
 
         assert(dynamic_cast<sstd::RenderControl*>(this->getRenderPack()->sourceRenderConotrl));
         /*创建渲染窗口*/
         this->setRenderControl(static_cast<sstd::RenderControl*>(this->getRenderPack()->sourceRenderConotrl));
         this->setRenderSource(this->getRenderPack()->sourceWindow);
+        
+        /*创建QQml引擎*/
         this->setRenderSourceEngine(sstdNew<QQmlEngine>());
+        if ( this->getRenderSourceEngine()->incubationController() ) {
+            this->getRenderSourceEngine()->setIncubationController(this->getRenderSource()->incubationController());
+        }
+
+        /*设置RenderControl的线程*/
+        this->getRenderControl()->prepareThread(QThread::currentThread());
+
+        connect(this->getRenderControl(), &QQuickRenderControl::renderRequested, this, &Render::renderEventFunction);
+        connect(this->getRenderControl(), &QQuickRenderControl::sceneChanged, this, &Render::renderEventFunction);
 
         /*初始化窗口大小*/
         {
@@ -224,6 +235,7 @@ namespace sstd {
 
     /**再次绘制**/
     void Render::renderEventFunction() {
+
         class RenderLock final {
             Render * mmm_Render;
         public:
