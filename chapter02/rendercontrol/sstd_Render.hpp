@@ -5,6 +5,7 @@
 #include <ConstructQSurface.hpp>
 #include <QtGui/qoffscreensurface.h>
 #include <QtQml/QtQml>
+#include <shared_mutex>
 
 namespace sstd {
     class Render : public QObject {
@@ -20,6 +21,77 @@ namespace sstd {
         RenderPack * getRenderPack() const;
         ~Render();
         Q_SIGNAL void renderThreadQuit();
+    private:
+        template<typename T>
+        class Atomic {
+            T mmm_Data;
+            mutable std::shared_mutex mmm_Mutex;
+        public:
+            template<typename U>
+            Atomic(U && a):mmm_Data(std::forward<U>(a)) {
+            }
+            Atomic() :mmm_Data{} {
+            }
+            Atomic(const Atomic &)=delete;
+            Atomic(Atomic&&)=delete;
+            Atomic&operator=(Atomic&)=delete;
+            Atomic&operator=(Atomic&&)=delete;
+            const T & getData() const {
+                std::shared_lock varReadLock{mmm_Mutex};
+                return mmm_Data;
+            }
+            template<typename U>
+            bool setData( U && a ) {
+               using InputType = std::remove_cv_t< std::remove_reference_t<U> >;
+               if constexpr ( std::is_same_v<InputType, std::remove_cv_t<T> > ) {
+                   {
+                       std::shared_lock varReadLock{ mmm_Mutex };
+                       if (a == mmm_Data) {
+                           return false;
+                       }
+                   }
+                   std::unique_lock varWriteLock{ mmm_Mutex };
+                   mmm_Data = std::forward<U>(a);
+                   return true;
+               } else {
+                   std::remove_cv_t<T> varTmpData{ std::forward<U>(a) };
+                   {
+                       std::shared_lock varReadLock{ mmm_Mutex };
+                       if (varTmpData == mmm_Data) {
+                           return false;
+                       }
+                   }
+                   std::unique_lock varWriteLock{ mmm_Mutex };
+                   mmm_Data = std::move(varTmpData);
+                   return true;
+               }
+            }
+        };
+
+        Atomic<QSize> mmm_WindowSize;
+        std::int_fast32_t mmm_CountWindowSizeEvent{0};
+        Q_SLOT void ppp_WindowSizeChanged();
+    public:
+        QSize getWindowSize() const {
+            return mmm_WindowSize.getData();
+        }
+        void setWindowSize(const QSize & arg) {
+            if (mmm_WindowSize.setData(arg)) {
+                windowSizeChanged();
+            }
+        }
+        Q_SIGNAL void windowSizeChanged();
+    public:
+        Q_SLOT void resizeEventFunction(const QSize &);
+        Q_SLOT void renderEventFunction();
+        Q_SIGNAL void renderChanged(const QImage &);
+    private:
+        QImage mmm_RenderResult;
+    protected:
+        bool event(QEvent *)override;
+        void ppp_Event(QEvent *);
+    private:
+        void ppp_RenderAgain();
     private:
         void ppp_CleanAll();
         void ppp_ConstructAll();
