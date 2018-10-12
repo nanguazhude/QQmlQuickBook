@@ -3,7 +3,7 @@ import QtQuick.Dialogs 1.3
 import myqml.qmlsigleton 1.0
 
 Rectangle {
-
+    id : _id_root
     color: Qt.rgba(0.2,0.35,0.35,1)
     visible: true
     width: 512
@@ -18,6 +18,9 @@ Rectangle {
         }
         onRejected: {
             _id_colorDialog.visible = false ;
+        }
+        Component.onCompleted: {
+            _id_colorDialog.color = QmlSigleton.myColor ;
         }
     }
 
