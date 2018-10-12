@@ -47,8 +47,16 @@ private:
 };
 
 //#define INSTALL_LOG_DEBUG 1
+#if defined(_DEBUG)
+#define PASS_DEBUG 1
+#endif
 
 int main(int argc, char ** argv) try {
+
+#if defined(PASS_DEBUG)
+    /*在debug模式下跳过动作*/
+    return 0;
+#endif
 
     const auto varToDir = std::filesystem::u8path(ToDir);
 #ifdef INSTALL_LOG_DEBUG
