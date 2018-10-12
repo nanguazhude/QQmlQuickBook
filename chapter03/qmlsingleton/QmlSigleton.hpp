@@ -22,16 +22,31 @@ namespace sstd {
             }
             template<typename U>
             inline bool setData(U && arg) {
-                T varDataTmp{ std::forward<U>(arg) };
-                {/*check input is same or not ...*/
-                    std::shared_lock varReadLock{ mmm_Mutex };
-                    if (varDataTmp == mmm_Data) {
-                        return false;
+                using Input = std::remove_cv_t<
+                std::remove_reference_t<U> >;
+                using ThisDataType = std::remove_cv_t< T >;
+                if constexpr ( std::is_same_v<Input, ThisDataType > ){
+                    {/*check input is same or not ...*/
+                        std::shared_lock varReadLock{ mmm_Mutex };
+                        if (arg == mmm_Data) {
+                            return false;
+                        }
                     }
+                    std::unique_lock varWriteLock{ mmm_Mutex };
+                    mmm_Data = std::forward<U>(arg);
+                    return true;
+                }else{
+                    ThisDataType varDataTmp{ std::forward<U>(arg) };
+                    {/*check input is same or not ...*/
+                        std::shared_lock varReadLock{ mmm_Mutex };
+                        if (varDataTmp == mmm_Data) {
+                            return false;
+                        }
+                    }
+                    std::unique_lock varWriteLock{ mmm_Mutex };
+                    mmm_Data = std::move(varDataTmp);
+                    return true;
                 }
-                std::unique_lock varWriteLock{ mmm_Mutex };
-                mmm_Data = std::move(varDataTmp);
-                return true;
             }
         private:
             SSTD_MEMORY_DEFINE(DataItem)
