@@ -47,20 +47,25 @@ namespace {
     class Render {
         QOpenGLContext * mmm_OpenGLContex{ nullptr };
         RootWindow * mmm_TargetWindow{ nullptr };
+        sstd::RenderThread * mmm_RenderThread{nullptr};
     public:
         /*this function will run in any thread*/
         Render(sstd::RenderThread * arg) {
             /*共享DrawWindow的opengl contex*/
             mmm_TargetWindow = arg->getDrawWindow();
             mmm_OpenGLContex = sstdNew<QOpenGLContext>(mmm_TargetWindow->getContex());
-            mmm_OpenGLContex->setFormat(arg->getDrawWindow()->requestedFormat());
+            mmm_OpenGLContex->setFormat(mmm_TargetWindow->requestedFormat());
             mmm_OpenGLContex->create();
             /*将draw window设置为当前绘制窗口*/
-            mmm_OpenGLContex->makeCurrent(arg->getDrawWindow());
+            mmm_OpenGLContex->makeCurrent(mmm_TargetWindow);
             glewInitialize();
         }
         ~Render() {
-            mmm_OpenGLContex->swapBuffers(mmm_TargetWindow);
+            glFinish();
+            /*if the window destoryed just delete resource...*/
+            if (mmm_TargetWindow->getMutex()->isDestory()==false) {
+                mmm_OpenGLContex->swapBuffers(mmm_TargetWindow);
+            }
             mmm_OpenGLContex->doneCurrent();
             delete mmm_OpenGLContex;
         }
@@ -137,6 +142,10 @@ namespace {
 
 void sstd::RenderThread::run() try {
 
+    if ( mmm_Mutex->isDestory() ) {
+        return;
+    }
+
     /*create a render ... */
     std::unique_ptr<Render> varRender{ sstdNew<Render>(this) };
     GLRenderData varRenderData;
@@ -155,9 +164,7 @@ void sstd::RenderThread::run() try {
     /*清空颜色缓冲区和深度缓冲区*/
     glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, mmm_ClearColor.data());
     glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, mmm_ClearDepth.data());
-
-
-
+       
     return;
 
     std::get<ProgramType1>(varRenderData) = buildComputerShader(u8R"(
@@ -210,7 +217,7 @@ void main(void) {
 
 
 
-    glFinish();
+   
 
 } catch (...) {
     qDebug() << "unkonw error ! ";

@@ -21,13 +21,20 @@ RootWindow::RootWindow() {
 }
 
 void RootWindow::openglDraw() {
+
     if ( mmm_Mutex->renderCount() > 0 ) {
         qDebug() << QStringLiteral( "last render is not finished , this ,rend ignored!" );
         return;
     }
+
+    if ( mmm_Mutex->isDestory() ) {
+        return;
+    }
+
     /*the thread will delete itself when finished*/
     auto varThread = sstdNew<sstd::RenderThread>(this) ;
     varThread->start();
+
 }
 
 void RootWindow::initialize() {
@@ -49,7 +56,7 @@ void RootWindow::exposeEvent(QExposeEvent *event)   {
 
 RootWindow::~RootWindow() {
 
-    auto varMutex = std::move(mmm_Mutex);
+    auto varMutex = mmm_Mutex ;
     varMutex->setDestory();
 
     /*rending need this data , so wait for rending finished*/
