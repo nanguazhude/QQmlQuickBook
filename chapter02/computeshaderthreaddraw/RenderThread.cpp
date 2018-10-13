@@ -1,0 +1,180 @@
+﻿#include <sstd_glew.hpp>
+#include "RenderSize.hpp"
+#include "RenderThread.hpp"
+#include <QtCore/qstring.h>
+#include <QtCore/qdebug.h>
+#include <QtGui/qimage.h>
+#include <QtCore/qcoreapplication.h>
+#include <QtGui/qwindow.h>
+#include <QtGui/qoffscreensurface.h>
+#include <QtQuick/qquickwindow.h>
+#include <QtQuick/qquickrendercontrol.h>
+#include <QtGui/qopenglcontext.h>
+#include <QtGui/qoffscreensurface.h>
+#include <ConstructQSurface.hpp>
+
+extern bool glewInitialize();
+
+sstd::RenderThread::RenderThread() {
+    assert(qApp);
+    assert(QThread::currentThread()==qApp->thread());
+    {
+        /*thread完成时自删除*/
+        this->moveToThread(qApp->thread());
+        connect(this, &QThread::finished, this, &QThread::deleteLater);
+        connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
+            if (this->isRunning()) {
+                this->quit();
+                return;
+            }
+            this->deleteLater();
+        });
+    }
+    /*此函数必须在main thread调用*/
+    mmm_Surface = sstdNew<QOffscreenSurface>();
+    mmm_Surface->setFormat(sstd::getDefaultOpenGLFormat());
+    mmm_Surface->create();
+}
+
+void sstd::RenderThread::start(const QString & arg) {
+    mmm_ImageFileName = arg;
+    Super::start();
+}
+
+namespace {
+
+    class Render {
+        QOpenGLContext * mmm_OpenGLContex = nullptr;
+    public:
+        Render(sstd::RenderThread * arg) {
+            /*this function will run in any thread*/
+            mmm_OpenGLContex = sstdNew<QOpenGLContext>();
+            mmm_OpenGLContex->setFormat(arg->getSurface()->requestedFormat());
+            mmm_OpenGLContex->create();
+            mmm_OpenGLContex->makeCurrent(arg->getSurface());
+            glewInitialize();
+        }
+        ~Render() {
+            mmm_OpenGLContex->doneCurrent();
+            delete mmm_OpenGLContex;
+        }
+        SSTD_MEMORY_DEFINE(Render)
+    };
+
+}/*namespace*/
+
+namespace {
+
+    FINAL_CLASS_TYPE_ASSIGN(ProgramType1, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ProgramType2, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ImageTextureType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(AtomicCountType, sstd::NumberWrapType<GLuint>);
+
+    inline GLuint buildComputerShader(std::string_view varShaderSource){
+        auto varShader = glCreateShader(GL_COMPUTE_SHADER);
+
+        {
+            GLint varSL = static_cast<GLint>(varShaderSource.size());
+            const char *varS[]{ varShaderSource.data() };
+            glShaderSource(varShader, 1, varS, &varSL);
+            glCompileShader(varShader);
+        }
+
+        if constexpr (false) {
+            auto printErrorDetail = [](GLuint e) {
+                GLint log_length;
+                glGetShaderiv(e, GL_INFO_LOG_LENGTH, &log_length);
+                log_length += 16;
+
+                /*获得一段内存，并初始化为0*/
+                sstd::string infos_;
+                infos_.resize(log_length);
+
+                char * info = infos_.data();
+                glGetShaderInfoLog(e, log_length, nullptr, info);
+                qDebug() << info;
+            };
+            printErrorDetail(varShader);
+        }
+
+        auto varProgram = glCreateProgram();
+        glAttachShader(varProgram, varShader);
+        glLinkProgram(varProgram);
+        glDeleteShader(varShader);
+
+        return varProgram;
+    }
+
+    using PrivateGLRenderData = std::tuple<ProgramType1, ProgramType2> ;
+    class GLRenderData : public PrivateGLRenderData {
+    public:
+
+        GLRenderData() : PrivateGLRenderData(0,0) {
+
+
+        }
+
+        ~GLRenderData() {
+            glDeleteProgram( std::get<ProgramType1>(*this) );
+            glDeleteProgram( std::get<ProgramType2>(*this) );
+        }
+
+    };
+
+
+}/*namespace*/
+
+void sstd::RenderThread::run() try {
+      
+    /*create a render ... */
+    std::unique_ptr<Render> varRender{ sstdNew<Render>(this) };
+    GLRenderData varRenderData;
+   
+    std::get<ProgramType1>(varRenderData) = buildComputerShader(u8R"(
+/*计算着色器，用于生成图像*/
+#version 450
+
+
+
+
+)"sv);
+
+    std::get<ProgramType2>(varRenderData) = buildComputerShader(u8R"(
+/*计算着色器，用于生成图像*/
+#version 450
+
+)"sv);
+
+
+    glUseProgram(std::get<ProgramType1>(varRenderData));
+
+
+    glUseProgram(std::get<ProgramType2>(varRenderData));
+    
+
+
+
+
+}
+catch (...) {
+    qDebug() << "unkonw error ! ";
+}
+
+sstd::RenderThread::~RenderThread() {
+    mmm_Surface->deleteLater();
+}
+
+/** QQuickRenderControl Example  **/
+
+
+
+
+
+
+
+
+
+
+
+
+

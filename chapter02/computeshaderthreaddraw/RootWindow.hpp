@@ -1,7 +1,9 @@
 ﻿#pragma once
-#include <quick/QuickView.hpp>
 
-class RootWindow : public sstd::DefaultRoowWindow {
+#include <sstd_memory.hpp>
+#include <QtGui/qwindow.h>
+
+class RootWindow : public QWindow {
     Q_OBJECT
 public:
     RootWindow();
