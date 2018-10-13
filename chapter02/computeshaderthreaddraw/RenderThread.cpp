@@ -131,14 +131,42 @@ void sstd::RenderThread::run() try {
 /*计算着色器，用于生成图像*/
 #version 450
 
+layout(local_size_x = 1       , 
+       local_size_y = 1       ,
+       local_size_z = 1    ) in ;
+
+layout(binding = 0,r32f)        uniform image2D  argImageInputOutput  ;
+layout(binding = 1,offset = 0 ) uniform atomic_uint argRenderCount    ;
+
+void main(void) {
+    ivec2 varPos   = ivec2( gl_WorkGroupID.xy ) ;
+    
 
 
+}
 
 )"sv);
 
     std::get<ProgramType2>(varRenderData) = buildComputerShader(u8R"(
-/*计算着色器，用于生成图像*/
+/*计算着色器，将生成的图像调整到[0-255]*/
 #version 450
+
+layout(local_size_x = 1       , 
+       local_size_y = 1       ,
+       local_size_z = 1    ) in ;
+
+layout(binding = 0,r32f)  uniform image2D  argImageInput  ;
+layout(binding = 1,r8ui)  uniform uimage2D argImageOutput ;
+layout(binding = 2 )      uniform uint     argRenderMax   ;
+
+void main(void) {
+     ivec2 varPos   = ivec2( gl_WorkGroupID.xy          ) ;
+     float varColor = imageLoad(argImageInput , varPos  ) ;
+     varColor /= argRenderMax  ;
+     varColor *= 255           ;
+     imageStore( argImageOutput , varPos , int(varColor)) ;
+}
+
 
 )"sv);
 
