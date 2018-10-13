@@ -261,7 +261,9 @@ namespace sstd {
 
 }/*namespace sstd*/
 
-
+/*
+ * https://github.com/net147/Push2Qml/blob/master/fboquickwindow.cpp
+*/
 
 
 
