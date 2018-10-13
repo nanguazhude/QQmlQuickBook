@@ -12,23 +12,21 @@ RootWindow::RootWindow() {
     /*固定窗口大小*/
     this->setMinimumSize({ getRenderWidth(),getRenderHeight() });
     this->setMaximumSize({ getRenderWidth(),getRenderHeight() });
+
 }
 
 RootWindow::~RootWindow() {
 
     auto varMutex = std::move(mmm_Mutex);
+    varMutex->setDestory();
 
     /*rending need this data , so wait for rending finished*/
     for (;;) {
-        {
-            std::unique_lock varDestoryLock{ *varMutex };
-            varMutex->isDesotry = true;
-            if (varMutex->isRending > 0) {
-            } else {
-                break;
-            }
+        if ( varMutex->renderCount()>0 ) {
+            std::this_thread::sleep_for(10ns);
+        } else {
+            break;
         }
-        std::this_thread::sleep_for(10ns);
     }
 
     /*destory the contex*/

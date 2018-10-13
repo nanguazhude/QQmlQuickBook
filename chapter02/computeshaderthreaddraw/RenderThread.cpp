@@ -18,16 +18,13 @@ extern bool glewInitialize();
 sstd::RenderThread::RenderThread(RootWindow * arg) : mmm_DrawWindow(arg) {
     assert(qApp);
     assert(QThread::currentThread()==qApp->thread());
-    {
-        mmm_Mutex = arg->getMutex() ;
-        std::unique_lock varLock{ *mmm_Mutex };
-        ++(mmm_Mutex->isRending);
-    }
+    mmm_Mutex->addRenderCount();
 
     {
         /*thread完成时自删除*/
         this->moveToThread(qApp->thread());
         connect(this, &QThread::finished, this, &QThread::deleteLater);
+        connect(this, &QThread::finished, this, [this]() {mmm_Mutex->subRenderCount(); });
         connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
             if (this->isRunning()) {
                 this->quit();
@@ -192,10 +189,6 @@ catch (...) {
 }
 
 sstd::RenderThread::~RenderThread() {
-    {
-        std::unique_lock varLock{ *mmm_Mutex };
-        --(mmm_Mutex->isRending);
-    }
 }
 
 /** QQuickRenderControl Example  **/
