@@ -81,8 +81,9 @@ namespace {
 
 namespace {
 
-    FINAL_CLASS_TYPE_ASSIGN(ProgramType1, sstd::NumberWrapType<GLuint>);
-    FINAL_CLASS_TYPE_ASSIGN(ProgramType2, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ProgramGetNumberImageType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ProgramNumberImageToIndexType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ProgramIndexToColorImageType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(ImageTextureType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(AtomicCountType, sstd::NumberWrapType<GLuint>);
 
@@ -121,18 +122,22 @@ namespace {
         return varProgram;
     }
 
-    using PrivateGLRenderData = std::tuple<ProgramType1, ProgramType2>;
+    using PrivateGLRenderData = std::tuple<
+        ProgramGetNumberImageType,
+        ProgramNumberImageToIndexType,
+        ProgramIndexToColorImageType
+    >;
     class GLRenderData : public PrivateGLRenderData {
     public:
 
-        GLRenderData() : PrivateGLRenderData(0, 0) {
+        GLRenderData() : PrivateGLRenderData(0, 0, 0) {
 
 
         }
 
         ~GLRenderData() {
-            glDeleteProgram(std::get<ProgramType1>(*this));
-            glDeleteProgram(std::get<ProgramType2>(*this));
+            glDeleteProgram(std::get<ProgramGetNumberImageType>(*this));
+            glDeleteProgram(std::get<ProgramNumberImageToIndexType>(*this));
         }
 
     };
@@ -162,14 +167,14 @@ void sstd::RenderThread::run() try {
 
     /*TODO : set target fbo*/
     glViewport(0, 0, varFBOWidth, varFBOHeight);
-    
+
     std::array<GLfloat, 4> mmm_ClearColor{ 1.0f,1.0f, 1.0f, 1.0f };
     std::array<GLfloat, 1> mmm_ClearDepth{ 0.0f };
     /*清空颜色缓冲区和深度缓冲区*/
     glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, mmm_ClearColor.data());
     glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, mmm_ClearDepth.data());
 
-    std::get<ProgramType1>(varRenderData) = buildComputerShader(u8R"(
+    std::get<ProgramGetNumberImageType>(varRenderData) = buildComputerShader(u8R"(
 /*计算着色器，用于生成图像*/
 #version 460
 
@@ -208,7 +213,7 @@ https://www.khronos.org/opengl/wiki/Atomic_Counter
 
 )"sv);
 
-    std::get<ProgramType2>(varRenderData) = buildComputerShader(u8R"(
+    std::get<ProgramNumberImageToIndexType>(varRenderData) = buildComputerShader(u8R"(
 /*计算着色器，将值缩放到[0-255]*/
 #version 450
 
@@ -216,9 +221,9 @@ layout(local_size_x = 1       ,
        local_size_y = 1       ,
        local_size_z = 1    ) in ;
 
-layout(binding = 0,r32f)  uniform image2D  argImageInput  ;
-layout(binding = 1,r8ui)  uniform uimage2D argImageOutput ;
-layout(binding = 2 )      uniform uint     argRenderMax   ;
+layout(binding = 0,r32f)  uniform readonly  image2D  argImageInput  ;
+layout(binding = 1,r8ui)  uniform writeonly uimage2D argImageOutput ;
+layout(location = 2 )      uniform uint      argRenderMax            ;
 
 void main(void) {
      ivec2 varPos   = ivec2( gl_WorkGroupID.xy          )   ;
@@ -234,12 +239,12 @@ void main(void) {
 
 )"sv);
 
- return;
-
-    glUseProgram(std::get<ProgramType1>(varRenderData));
 
 
-    glUseProgram(std::get<ProgramType2>(varRenderData));
+    glUseProgram(std::get<ProgramGetNumberImageType>(varRenderData));
+
+
+    glUseProgram(std::get<ProgramNumberImageToIndexType>(varRenderData));
 
 
 
