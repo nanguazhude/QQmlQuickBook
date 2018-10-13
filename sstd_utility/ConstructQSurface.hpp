@@ -18,10 +18,10 @@ namespace sstd {
     inline QSurfaceFormat getDefaultOpenGLFormat() {
         auto varFormat = QSurfaceFormat::defaultFormat();
         if (varFormat.majorVersion() < 4) {
-            varFormat.setVersion(4, 5);
+            varFormat.setVersion(4, 6);
         }
-        else if ((varFormat.majorVersion() == 4) && (varFormat.minorVersion() < 5)) {
-            varFormat.setVersion(4, 5);
+        else if ((varFormat.majorVersion() == 4) && (varFormat.minorVersion() < 6)) {
+            varFormat.setVersion(4, 6);
         }
         varFormat.setProfile(QSurfaceFormat::CompatibilityProfile);
         varFormat.setSamples(4);
