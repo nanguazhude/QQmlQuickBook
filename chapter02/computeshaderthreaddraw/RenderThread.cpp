@@ -17,15 +17,19 @@ extern bool glewInitialize();
 
 sstd::RenderThread::RenderThread(RootWindow * arg) : mmm_DrawWindow(arg) {
     assert(qApp);
-    assert(QThread::currentThread()==qApp->thread());
+    assert(QThread::currentThread() == qApp->thread());
     mmm_Mutex = mmm_DrawWindow->getMutex();
+    /*lock the window not quit before this thread quit ...*/
     mmm_Mutex->addRenderCount();
 
     {
         /*thread完成时自删除*/
         this->moveToThread(qApp->thread());
         connect(this, &QThread::finished, this, &QThread::deleteLater, Qt::QueuedConnection);
-        connect(this, &QThread::finished, this, [this]() {mmm_Mutex->subRenderCount(); },Qt::DirectConnection);
+        connect(this, &QThread::finished, this, [this]() {
+            /*tell the window can quit ...*/
+            mmm_Mutex->subRenderCount();
+        }, Qt::DirectConnection);
         connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
             if (this->isRunning()) {
                 this->quit();
@@ -40,17 +44,22 @@ sstd::RenderThread::RenderThread(RootWindow * arg) : mmm_DrawWindow(arg) {
 namespace {
 
     class Render {
-        QOpenGLContext * mmm_OpenGLContex = nullptr;
+        QOpenGLContext * mmm_OpenGLContex{ nullptr };
+        RootWindow * mmm_TargetWindow{ nullptr };
     public:
+        /*this function will run in any thread*/
         Render(sstd::RenderThread * arg) {
-            /*this function will run in any thread*/
-            mmm_OpenGLContex = sstdNew<QOpenGLContext>();
+            /*共享DrawWindow的opengl contex*/
+            mmm_TargetWindow = arg->getDrawWindow();
+            mmm_OpenGLContex = sstdNew<QOpenGLContext>(mmm_TargetWindow->getContex());
             mmm_OpenGLContex->setFormat(arg->getDrawWindow()->requestedFormat());
             mmm_OpenGLContex->create();
+            /*将draw window设置为当前绘制窗口*/
             mmm_OpenGLContex->makeCurrent(arg->getDrawWindow());
             glewInitialize();
         }
         ~Render() {
+            mmm_OpenGLContex->swapBuffers(mmm_TargetWindow);
             mmm_OpenGLContex->doneCurrent();
             delete mmm_OpenGLContex;
         }
@@ -66,7 +75,7 @@ namespace {
     FINAL_CLASS_TYPE_ASSIGN(ImageTextureType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(AtomicCountType, sstd::NumberWrapType<GLuint>);
 
-    inline GLuint buildComputerShader(std::string_view varShaderSource){
+    inline GLuint buildComputerShader(std::string_view varShaderSource) {
         auto varShader = glCreateShader(GL_COMPUTE_SHADER);
 
         {
@@ -101,18 +110,18 @@ namespace {
         return varProgram;
     }
 
-    using PrivateGLRenderData = std::tuple<ProgramType1, ProgramType2> ;
+    using PrivateGLRenderData = std::tuple<ProgramType1, ProgramType2>;
     class GLRenderData : public PrivateGLRenderData {
     public:
 
-        GLRenderData() : PrivateGLRenderData(0,0) {
+        GLRenderData() : PrivateGLRenderData(0, 0) {
 
 
         }
 
         ~GLRenderData() {
-            glDeleteProgram( std::get<ProgramType1>(*this) );
-            glDeleteProgram( std::get<ProgramType2>(*this) );
+            glDeleteProgram(std::get<ProgramType1>(*this));
+            glDeleteProgram(std::get<ProgramType2>(*this));
         }
 
     };
@@ -121,11 +130,11 @@ namespace {
 }/*namespace*/
 
 void sstd::RenderThread::run() try {
-      
+
     /*create a render ... */
     std::unique_ptr<Render> varRender{ sstdNew<Render>(this) };
     GLRenderData varRenderData;
-   
+
     /*开始opengl debug 调试*/
     gl_debug_function_lock();
 
@@ -177,13 +186,12 @@ void main(void) {
 
 
     glUseProgram(std::get<ProgramType2>(varRenderData));
-    
-    
-    
+
+
+
     glFinish();
 
-}
-catch (...) {
+} catch (...) {
     qDebug() << "unkonw error ! ";
 }
 
