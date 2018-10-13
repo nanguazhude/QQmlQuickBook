@@ -219,7 +219,7 @@ void main(void) {
         }
     }
     else {
-        glFlush();
+        glFinish();
     }
     /*取回数据*/
     {

@@ -15,14 +15,13 @@ namespace sstd{
     private:
         using Super = QThread;
         QString mmm_ImageFileName;
-        QOffscreenSurface * mmm_Surface=nullptr;
+        QWindow * const mmm_DrawWindow{nullptr};
     public:
-        RenderThread();
+        RenderThread(QWindow *);
         ~RenderThread();
 
         void start(const QString &arg);
-
-        auto * getSurface() const { return mmm_Surface; }
+        auto * getDrawWindow() const { return mmm_DrawWindow; }
     public:
         void run() override ;
     public:

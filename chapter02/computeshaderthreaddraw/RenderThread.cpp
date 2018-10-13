@@ -15,7 +15,7 @@
 
 extern bool glewInitialize();
 
-sstd::RenderThread::RenderThread() {
+sstd::RenderThread::RenderThread(QWindow * arg) : mmm_DrawWindow(arg) {
     assert(qApp);
     assert(QThread::currentThread()==qApp->thread());
     {
@@ -30,10 +30,7 @@ sstd::RenderThread::RenderThread() {
             this->deleteLater();
         });
     }
-    /*此函数必须在main thread调用*/
-    mmm_Surface = sstdNew<QOffscreenSurface>();
-    mmm_Surface->setFormat(sstd::getDefaultOpenGLFormat());
-    mmm_Surface->create();
+
 }
 
 void sstd::RenderThread::start(const QString & arg) {
@@ -49,9 +46,9 @@ namespace {
         Render(sstd::RenderThread * arg) {
             /*this function will run in any thread*/
             mmm_OpenGLContex = sstdNew<QOpenGLContext>();
-            mmm_OpenGLContex->setFormat(arg->getSurface()->requestedFormat());
+            mmm_OpenGLContex->setFormat(arg->getDrawWindow()->requestedFormat());
             mmm_OpenGLContex->create();
-            mmm_OpenGLContex->makeCurrent(arg->getSurface());
+            mmm_OpenGLContex->makeCurrent(arg->getDrawWindow());
             glewInitialize();
         }
         ~Render() {
@@ -151,9 +148,9 @@ void sstd::RenderThread::run() try {
 
     glUseProgram(std::get<ProgramType2>(varRenderData));
     
-
-
-
+    
+    
+    glFinish();
 
 }
 catch (...) {
@@ -161,7 +158,6 @@ catch (...) {
 }
 
 sstd::RenderThread::~RenderThread() {
-    mmm_Surface->deleteLater();
 }
 
 /** QQuickRenderControl Example  **/
