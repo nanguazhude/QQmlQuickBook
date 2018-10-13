@@ -87,6 +87,10 @@ namespace {
     FINAL_CLASS_TYPE_ASSIGN(ImageTextureType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(AtomicCountType, sstd::NumberWrapType<GLuint>);
 
+    inline GLuint buildVFShader(std::string_view varVShaderSource,std::string_view varFShaderSource ) {
+
+    }
+
     inline GLuint buildComputerShader(std::string_view varShaderSource) {
         auto varShader = glCreateShader(GL_COMPUTE_SHADER);
 
@@ -138,6 +142,7 @@ namespace {
         ~GLRenderData() {
             glDeleteProgram(std::get<ProgramGetNumberImageType>(*this));
             glDeleteProgram(std::get<ProgramNumberImageToIndexType>(*this));
+            glDeleteProgram(std::get<ProgramIndexToColorImageType>(*this));
         }
 
     };
@@ -164,6 +169,14 @@ void sstd::RenderThread::run() try {
 
     const auto varFBOWidth = static_cast<int>(mmm_PixRatio * getRenderWidth());
     const auto varFBOHeight = static_cast<int>(mmm_PixRatio * getRenderHeight());
+
+    if (varFBOWidth<1) {
+        return;
+    }
+
+    if (varFBOHeight<1) {
+        return;
+    }
 
     /*TODO : set target fbo*/
     glViewport(0, 0, varFBOWidth, varFBOHeight);
@@ -238,15 +251,15 @@ void main(void) {
 }
 
 )"sv);
-
-
-
+    
+    /*生成图像*/
     glUseProgram(std::get<ProgramGetNumberImageType>(varRenderData));
 
-
+    /*缩放到[0-255]*/
     glUseProgram(std::get<ProgramNumberImageToIndexType>(varRenderData));
 
-
+    /*着色*/
+    glUseProgram(std::get<ProgramIndexToColorImageType>(varRenderData));
 
 
 
