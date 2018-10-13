@@ -18,13 +18,14 @@ extern bool glewInitialize();
 sstd::RenderThread::RenderThread(RootWindow * arg) : mmm_DrawWindow(arg) {
     assert(qApp);
     assert(QThread::currentThread()==qApp->thread());
+    mmm_Mutex = mmm_DrawWindow->getMutex();
     mmm_Mutex->addRenderCount();
 
     {
         /*thread完成时自删除*/
         this->moveToThread(qApp->thread());
-        connect(this, &QThread::finished, this, &QThread::deleteLater);
-        connect(this, &QThread::finished, this, [this]() {mmm_Mutex->subRenderCount(); });
+        connect(this, &QThread::finished, this, &QThread::deleteLater, Qt::QueuedConnection);
+        connect(this, &QThread::finished, this, [this]() {mmm_Mutex->subRenderCount(); },Qt::DirectConnection);
         connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
             if (this->isRunning()) {
                 this->quit();
@@ -34,11 +35,6 @@ sstd::RenderThread::RenderThread(RootWindow * arg) : mmm_DrawWindow(arg) {
         });
     }
 
-}
-
-void sstd::RenderThread::start(const QString & arg) {
-    mmm_ImageFileName = arg;
-    Super::start();
 }
 
 namespace {
@@ -130,6 +126,10 @@ void sstd::RenderThread::run() try {
     std::unique_ptr<Render> varRender{ sstdNew<Render>(this) };
     GLRenderData varRenderData;
    
+    /*开始opengl debug 调试*/
+    gl_debug_function_lock();
+
+
     std::get<ProgramType1>(varRenderData) = buildComputerShader(u8R"(
 /*计算着色器，用于生成图像*/
 #version 450
@@ -151,7 +151,7 @@ void main(void) {
 )"sv);
 
     std::get<ProgramType2>(varRenderData) = buildComputerShader(u8R"(
-/*计算着色器，将生成的图像调整到[0-255]*/
+/*计算着色器，给生成的图像着色*/
 #version 450
 
 layout(local_size_x = 1       , 
@@ -169,7 +169,6 @@ void main(void) {
      varColor *= 255           ;
      imageStore( argImageOutput , varPos , int(varColor)) ;
 }
-
 
 )"sv);
 
@@ -192,8 +191,7 @@ sstd::RenderThread::~RenderThread() {
 }
 
 /** QQuickRenderControl Example  **/
-
-
+//曼德布罗特集合分形(Mandelbort Set Fractal) 使用复数函数公式F(z) = z^2 + c其中
 
 
 

@@ -8,41 +8,43 @@
 
 class RootWindow : public QWindow {
     Q_OBJECT
+private:
+    bool mmm_IsRending{ false };
 public:
     RootWindow();
     ~RootWindow();
 
     class ClassState : public std::shared_mutex {
-        ClassState(const ClassState &)=delete;
-        ClassState(ClassState&&)=delete;
-        ClassState&operator=(const ClassState &)=delete;
-        ClassState&operator=(ClassState &&)=delete;
+        ClassState(const ClassState &) = delete;
+        ClassState(ClassState&&) = delete;
+        ClassState&operator=(const ClassState &) = delete;
+        ClassState&operator=(ClassState &&) = delete;
         friend RootWindow;
         using This = ClassState;
     protected:
         bool mmm_IsDesotry{ false };
-        int mmm_IsRending{ false };
+        int mmm_RendingCount{ false };
         void setDestory() {
             std::unique_lock varWriteLock{ *const_cast<This*>(this) };
             mmm_IsDesotry = true;
         }
     public:
         ClassState() = default;
-        bool isDestory() const {
+        bool isDestory() const volatile {
             std::shared_lock varReadLock{ *const_cast<This*>(this) };
             return mmm_IsDesotry;
         }
-        int renderCount() const {
+        int renderCount() const volatile {
             std::shared_lock varReadLock{ *const_cast<This*>(this) };
-            return mmm_IsRending;
+            return mmm_RendingCount;
         }
         void addRenderCount() {
             std::unique_lock varWriteLock{ *const_cast<This*>(this) };
-            ++mmm_IsRending;
+            ++mmm_RendingCount;
         }
         void subRenderCount() {
             std::unique_lock varWriteLock{ *const_cast<This*>(this) };
-            --mmm_IsRending;
+            --mmm_RendingCount;
         }
     private:
         SSTD_MEMORY_DEFINE(ClassState)
@@ -56,7 +58,11 @@ public:
     MutexPointer getMutex() const {
         return mmm_Mutex;
     }
-
+protected:
+    void initialize();
+    void openglDraw();
+    bool event(QEvent *event)override;
+    void exposeEvent(QExposeEvent *event) override;
 private:
     QOpenGLContext * mmm_Contex{ nullptr };
     MutexPointer     mmm_Mutex;

@@ -222,7 +222,7 @@ static inline std::once_flag & __call_once_flag() {
 
 extern bool glewInitialize() {
     if constexpr (true) {
-        /*如果使用者确信只有一个线程使用opengl，则采用此函数初始化opengl*/
+        /*只初始化一次就可...*/
         static bool ans = false;
         std::call_once(__call_once_flag(), &__run_once_wrap, &ans);
         return ans;

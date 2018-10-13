@@ -188,6 +188,9 @@ inline void Duty::_p_copy_files(const CopyInformation & items) const {
 #if defined(_DEBUG)
 
 #else
+//pure
+/*begin:debug*/
+/*end:debug*/
 inline void __parser_qml(const std::filesystem::path & b) try {
 
     enum {

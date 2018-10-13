@@ -16,13 +16,12 @@ namespace sstd{
     private:
         using Super = QThread;
         QString mmm_ImageFileName;
-        QWindow * const mmm_DrawWindow{nullptr};
+        RootWindow * const mmm_DrawWindow{nullptr};
         RootWindow::MutexPointer mmm_Mutex;
     public:
         RenderThread(RootWindow *);
         ~RenderThread();
 
-        void start(const QString &arg);
         auto * getDrawWindow() const { return mmm_DrawWindow; }
     public:
         void run() override ;

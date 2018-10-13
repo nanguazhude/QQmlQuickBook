@@ -60,25 +60,6 @@ namespace sstd {
 #endif
 
 
-#if defined(_WIN32)||defined(_WIN64)
-
-extern void ___glEnableGLVSNC();
-extern void ___glDisableGLVSNC();
-
-#define glEnableGLVSNC()  ___glEnableGLVSNC()
-#define glDisableGLVSNC() ___glDisableGLVSNC()
-
-#endif
-
-#ifndef glEnableGLVSNC
-#define glEnableGLVSNC()
-#endif
-
-#ifndef glDisableGLVSNC
-#define glDisableGLVSNC()
-#endif
-
-
 
 
 
