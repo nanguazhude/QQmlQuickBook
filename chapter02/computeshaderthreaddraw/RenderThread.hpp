@@ -2,6 +2,7 @@
 
 #include <sstd_memory.hpp>
 #include <QtCore/qthread.h>
+#include <RootWindow.hpp>
 
 class QImage;
 class QWindow;
@@ -16,8 +17,9 @@ namespace sstd{
         using Super = QThread;
         QString mmm_ImageFileName;
         QWindow * const mmm_DrawWindow{nullptr};
+        RootWindow::MutexPointer mmm_Mutex;
     public:
-        RenderThread(QWindow *);
+        RenderThread(RootWindow *);
         ~RenderThread();
 
         void start(const QString &arg);

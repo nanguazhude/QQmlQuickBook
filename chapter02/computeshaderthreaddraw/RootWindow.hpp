@@ -14,7 +14,7 @@ public:
     class ClassState : public std::recursive_mutex {
     public:
         bool isDesotry{false};
-        bool isRending{false};
+        int isRending{false};
     };
 
     using MutexPointer = std::shared_ptr< ClassState >;
