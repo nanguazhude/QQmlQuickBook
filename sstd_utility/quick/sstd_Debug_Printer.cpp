@@ -19,14 +19,14 @@ static inline std::shared_mutex & getMutex() {
 static inline void messageOutput(
     QtMsgType type,
     const QMessageLogContext &context,
-    const QString &msg) {
+    const QString &msg) try {
 
     sstd::string varDebugInfo;
 
     {
         const static std::string_view varSP = "---------------------------------------\n"sv;
-        std::string_view varFileName = context.file;
-        std::string_view varFunctionName = context.function;
+        std::string_view varFileName = context.file ? context.file : "";
+        std::string_view varFunctionName = context.function ? context.function : "";
         const auto varLineNumber = context.line;
 
         {
@@ -60,33 +60,35 @@ static inline void messageOutput(
     std::unique_lock varLock{ getMutex() };
 
     switch (type) {
-    case QtDebugMsg:
-    {
-        OUT_STREAM << varDebugInfo << std::endl;
-        break;
-    }
-    case QtInfoMsg:
-    {
-        OUT_STREAM << varDebugInfo << std::endl;
-        break;
-    }
-    case QtWarningMsg:
-    {
-        OUT_STREAM << varDebugInfo << std::endl;
-        break;
-    }
-    case QtCriticalMsg:
-    {
-        OUT_STREAM << varDebugInfo << std::endl;
-        break;
-    }
-    case QtFatalMsg:
-    {
-        OUT_STREAM << varDebugInfo << std::endl;
-        break;
-    }
+        case QtDebugMsg:
+        {
+            OUT_STREAM << varDebugInfo << std::endl;
+            break;
+        }
+        case QtInfoMsg:
+        {
+            OUT_STREAM << varDebugInfo << std::endl;
+            break;
+        }
+        case QtWarningMsg:
+        {
+            OUT_STREAM << varDebugInfo << std::endl;
+            break;
+        }
+        case QtCriticalMsg:
+        {
+            OUT_STREAM << varDebugInfo << std::endl;
+            break;
+        }
+        case QtFatalMsg:
+        {
+            OUT_STREAM << varDebugInfo << std::endl;
+            break;
+        }
     }
 
+}catch( ... ){
+    return ;
 }
 
 inline static void registerThis() {
@@ -104,7 +106,7 @@ Q_COREAPP_STARTUP_FUNCTION(registerThis)
 /*重定向qDebug输出*/
 /**
 Debugging QML Applications
-//QT_NO_DEBUG_OUTPUT, QT_NO_INFO_OUTPUT, or QT_NO_WARNING_OUTPUT 
+//QT_NO_DEBUG_OUTPUT, QT_NO_INFO_OUTPUT, or QT_NO_WARNING_OUTPUT
 //QLoggingCategory
 **/
 
