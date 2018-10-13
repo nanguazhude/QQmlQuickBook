@@ -21,16 +21,12 @@ RootWindow::RootWindow() {
 }
 
 void RootWindow::openglDraw() {
-    if (this->mmm_IsRending) {
+    if ( mmm_Mutex->renderCount() > 0 ) {
         qDebug() << QStringLiteral( "last render is not finished , this ,rend ignored!" );
         return;
     }
     /*the thread will delete itself when finished*/
     auto varThread = sstdNew<sstd::RenderThread>(this) ;
-    connect(varThread, &QThread::finished, this, [this]() { 
-        this->mmm_IsRending = false; 
-    }, Qt::QueuedConnection);
-    this->mmm_IsRending = true;
     varThread->start();
 }
 
@@ -85,3 +81,12 @@ bool RootWindow::event(QEvent *event) {
 /**
 http://doc.qt.io/qt-5/qtgui-openglwindow-example.html
 **/
+
+
+
+
+
+
+
+
+

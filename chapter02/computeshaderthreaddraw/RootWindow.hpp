@@ -8,8 +8,6 @@
 
 class RootWindow : public QWindow {
     Q_OBJECT
-private:
-    bool mmm_IsRending{ false };
 public:
     RootWindow();
     ~RootWindow();

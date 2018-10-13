@@ -15,9 +15,9 @@ namespace sstd{
         Q_OBJECT
     private:
         using Super = QThread;
-        QString mmm_ImageFileName;
         RootWindow * const mmm_DrawWindow{nullptr};
         RootWindow::MutexPointer mmm_Mutex;
+        double mmm_PixRatio{1};
     public:
         RenderThread(RootWindow *);
         ~RenderThread();
@@ -30,7 +30,6 @@ namespace sstd{
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(RenderThread)
     };
-
 
 }/**/
 

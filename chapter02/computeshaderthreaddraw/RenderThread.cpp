@@ -18,6 +18,7 @@ extern bool glewInitialize();
 sstd::RenderThread::RenderThread(RootWindow * arg) : mmm_DrawWindow(arg) {
     assert(qApp);
     assert(QThread::currentThread() == qApp->thread());
+    mmm_PixRatio = mmm_DrawWindow->devicePixelRatio();
     mmm_Mutex = mmm_DrawWindow->getMutex();
     /*lock the window not quit before this thread quit ...*/
     mmm_Mutex->addRenderCount();
@@ -63,6 +64,11 @@ namespace {
             mmm_OpenGLContex->doneCurrent();
             delete mmm_OpenGLContex;
         }
+    public:
+        QOpenGLContext * getContex() const {
+            return mmm_OpenGLContex;
+        }
+    public:
         SSTD_MEMORY_DEFINE(Render)
     };
 
@@ -138,6 +144,21 @@ void sstd::RenderThread::run() try {
     /*开始opengl debug 调试*/
     gl_debug_function_lock();
 
+    const auto varFBOIndex = varRender->getContex()->defaultFramebufferObject();
+
+    /*TODO : set target fbo*/
+    glViewport(0, 0, mmm_PixRatio*getRenderWidth(), mmm_PixRatio*getRenderWidth());
+
+    
+    std::array<GLfloat, 4> mmm_ClearColor{ 1.0f,1.0f, 1.0f, 1.0f };
+    std::array<GLfloat, 1> mmm_ClearDepth{ 0.0f };
+    /*清空颜色缓冲区和深度缓冲区*/
+    glClearNamedFramebufferfv(varFBOIndex, GL_COLOR, 0/*draw buffer*/, mmm_ClearColor.data());
+    glClearNamedFramebufferfv(varFBOIndex, GL_DEPTH, 0/*draw buffer*/, mmm_ClearDepth.data());
+
+
+
+    return;
 
     std::get<ProgramType1>(varRenderData) = buildComputerShader(u8R"(
 /*计算着色器，用于生成图像*/
