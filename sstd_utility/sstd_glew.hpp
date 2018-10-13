@@ -2,33 +2,37 @@
 
 #include <GL/glew.h>
 #include <cassert>
+#include <string_view>
+using namespace std::string_view_literals;
 extern bool glewInitialize();
 
-namespace sstd{
+namespace sstd {
 
-inline static constexpr unsigned char $p$sstdGlewDebugGroupIndex(){ 
-    return static_cast<unsigned char>(35);
-}
+    inline static constexpr unsigned char $p$sstdGlewDebugGroupIndex() {
+        return static_cast<unsigned char>(35);
+    }
 
-inline static constexpr unsigned char $p$sstdGlewDebugGroupStringLength(){
-    return static_cast<unsigned char>(16);
-}
+    inline static constexpr unsigned char $p$sstdGlewDebugGroupStringLength() {
+        return static_cast<unsigned char>(16);
+    }
 
-inline static constexpr const char * $p$sstdGlewDebugGroupString(){
-    return "sstdGlewDebugGroupString";
-}
+    inline static constexpr const char * $p$sstdGlewDebugGroupString() {
+        const static constexpr auto varAns = "sstdGlewDebugGroupString"sv;
+        static_assert(varAns.size()>= $p$sstdGlewDebugGroupStringLength());
+        return varAns.data();
+    }
 
-inline static void $p$sstdPushDebugGroup(){
-    glPushDebugGroup(
-        GL_DEBUG_SOURCE_APPLICATION,
-        $p$sstdGlewDebugGroupIndex(),
-        $p$sstdGlewDebugGroupStringLength(),
-        $p$sstdGlewDebugGroupString());
-}
+    inline static void $p$sstdPushDebugGroup() {
+        glPushDebugGroup(
+            GL_DEBUG_SOURCE_APPLICATION,
+            $p$sstdGlewDebugGroupIndex(),
+            $p$sstdGlewDebugGroupStringLength(),
+            $p$sstdGlewDebugGroupString());
+    }
 
-inline static void $p$sstdPopDebugGroup(){
-    glPopDebugGroup();
-}
+    inline static void $p$sstdPopDebugGroup() {
+        glPopDebugGroup();
+    }
 
 }/****************************/
 
