@@ -84,8 +84,10 @@ namespace {
     FINAL_CLASS_TYPE_ASSIGN(ProgramGetNumberImageType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(ProgramNumberImageToIndexType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(ProgramIndexToColorImageType, sstd::NumberWrapType<GLuint>);
-    FINAL_CLASS_TYPE_ASSIGN(ImageTextureType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ImageFloatIndexTextureType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ImageAtomicMaxValueBufferType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(AtomicCountType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ImageIndex256Type, sstd::NumberWrapType<GLuint>);
 
     inline GLuint buildVFShader(std::string_view varVShaderSource, std::string_view varFShaderSource) {
 
@@ -189,12 +191,15 @@ namespace {
     using PrivateGLRenderData = std::tuple<
         ProgramGetNumberImageType,
         ProgramNumberImageToIndexType,
-        ProgramIndexToColorImageType
+        ProgramIndexToColorImageType,
+        ImageFloatIndexTextureType,
+        ImageAtomicMaxValueBufferType,
+        ImageIndex256Type,
     >;
     class GLRenderData : public PrivateGLRenderData {
     public:
 
-        GLRenderData() : PrivateGLRenderData(0, 0, 0) {
+        GLRenderData() : PrivateGLRenderData(0, 0, 0, 0, 0, 0) {
 
 
         }
@@ -203,6 +208,9 @@ namespace {
             glDeleteProgram(std::get<ProgramGetNumberImageType>(*this));
             glDeleteProgram(std::get<ProgramNumberImageToIndexType>(*this));
             glDeleteProgram(std::get<ProgramIndexToColorImageType>(*this));
+            glDeleteTextures(1, std::get<ImageFloatIndexTextureType>(*this).pointer());
+            glDeleteTextures(1, std::get<ImageIndex256Type>(*this).pointer());
+            glDeleteBuffers(1, std::get<ImageAtomicMaxValueBufferType>(*this).pointer());
         }
 
     };
@@ -256,9 +264,9 @@ layout(local_size_x = 1       ,
        local_size_z = 1    ) in ;
 
 layout(binding =  0, r32f)        uniform writeonly image2D argImageOutput  ;
-layout(binding =  1, offset = 0 ) uniform atomic_uint argRenderMax         ;
-layout(location = 2)             uniform vec2 C = vec2( 1 , 1);
-layout(location = 3)             uniform uint varMaxValue = (1024*1024);
+layout(binding =  1, offset = 0 ) uniform atomic_uint argRenderMax          ;
+layout(location = 2)              uniform vec2 C = vec2( 1 , 1)             ;
+layout(location = 3)              uniform uint varMaxValue = (1024*1024)    ;
 
 void main(void) {
 
@@ -322,7 +330,7 @@ void main(){
 }
 
 )"sv,
-        u8R"(
+u8R"(
 /*简单片段着色器，用于给索引图片着色*/
 #version 450
 
@@ -332,11 +340,50 @@ void main(){
 
 )"sv);
 
+    /*创建Texture*/
+    glCreateTextures(GL_TEXTURE_2D, 1, std::get<ImageFloatIndexTextureType>(varRenderData).pointer());
+    /*分配内存*/
+    /*https://www.khronos.org/opengl/wiki/Texture_Storage */
+    glTextureStorage2D(std::get<ImageFloatIndexTextureType>(varRenderData), 1, GL_R32F, varFBOWidth, varFBOHeight);
+
+    /*创建Texture*/
+    glCreateTextures(GL_TEXTURE_2D, 1, std::get<ImageIndex256Type>(varRenderData).pointer());
+    glTextureStorage2D(std::get<ImageIndex256Type>(varRenderData), 1, GL_R8UI, varFBOWidth, varFBOHeight);
+
+    /*创建原子计数器*/
+    glCreateBuffers(1, std::get<ImageAtomicMaxValueBufferType>(varRenderData).pointer());
+    {
+        const std::array<GLuint, 4> varTmpInitData{ 0,0,0,0 };
+        glNamedBufferStorage(std::get<ImageAtomicMaxValueBufferType>(varRenderData),
+            sizeof(varTmpInitData),
+            varTmpInitData.data(),
+            GL_DYNAMIC_STORAGE_BIT);
+    }
+
     /*生成图像*/
-    glUseProgram(std::get<ProgramGetNumberImageType>(varRenderData));
+    {
+        glUseProgram(std::get<ProgramGetNumberImageType>(varRenderData));
+        glBindImageTexture(0, std::get<ImageFloatIndexTextureType>(varRenderData), 0, false, 0, GL_WRITE_ONLY, GL_R32F);
+        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, std::get<ImageAtomicMaxValueBufferType>(varRenderData));
+        {/*set C*/
+            std::array<GLfloat, 2> varC{ 1.0f,1.0f };
+            glUniform2fv(2, 1, varC.data());
+        }
+        {/*set MaxValue*/
+            std::array<GLuint, 1> varMaxValue{ 1024 * 1024 };
+            glUniform1ui(3, varMaxValue[0]);
+        }
+        glDispatchCompute(varFBOWidth, varFBOHeight, 1);
+    }
 
     /*缩放到[0-255]*/
-    glUseProgram(std::get<ProgramNumberImageToIndexType>(varRenderData));
+    {
+        glUseProgram(std::get<ProgramNumberImageToIndexType>(varRenderData));
+        glBindImageTexture(0, std::get<ImageFloatIndexTextureType>(varRenderData), 0, false, 0, GL_READ_ONLY, GL_R32F);
+        glBindImageTexture(1, std::get<ImageIndex256Type>(varRenderData), 0, false, 0, GL_WRITE_ONLY, GL_R8UI);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 2, std::get<ImageAtomicMaxValueBufferType>(varRenderData));
+        glDispatchCompute(varFBOWidth, varFBOHeight, 1);
+    }
 
     /*着色*/
     glUseProgram(std::get<ProgramIndexToColorImageType>(varRenderData));
