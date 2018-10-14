@@ -6,6 +6,7 @@ source/inspector.html
 bin
 *.user
 .vs
+.vscode
 *.sln
 *.vcxproj
 *.filters
