@@ -87,9 +87,9 @@ namespace {
     FINAL_CLASS_TYPE_ASSIGN(ImageTextureType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(AtomicCountType, sstd::NumberWrapType<GLuint>);
 
-    inline GLuint buildVFShader(std::string_view varVShaderSource,std::string_view varFShaderSource ) {
+    inline GLuint buildVFShader(std::string_view varVShaderSource, std::string_view varFShaderSource) {
 
-         class ShaderFree {
+        class ShaderFree {
         public:
             std::array<GLuint, 2> data;
             inline ShaderFree() {
@@ -106,8 +106,8 @@ namespace {
         varShader[0] = glCreateShader(GL_VERTEX_SHADER);
         varShader[1] = glCreateShader(GL_FRAGMENT_SHADER);
 
-         {
-            const GLchar * sources[] = {  varVShaderSource.data(),varFShaderSource.data() };
+        {
+            const GLchar * sources[] = { varVShaderSource.data(),varFShaderSource.data() };
             GLint lengths[] = {
                 (GLint)(varVShaderSource.size()),
                 (GLint)(varFShaderSource.size())
@@ -126,23 +126,23 @@ namespace {
         glAttachShader(varProgram, varShader[1]);
         glLinkProgram(varProgram);
 
-        if constexpr(true){
+        if constexpr (true) {
 
             auto printProgramInfo = [](GLuint e) {
-            /*获得错误大小*/
-            GLint log_length = 0;
-            glGetProgramiv(e, GL_INFO_LOG_LENGTH, &log_length);
-            log_length += 16;
+                /*获得错误大小*/
+                GLint log_length = 0;
+                glGetProgramiv(e, GL_INFO_LOG_LENGTH, &log_length);
+                log_length += 16;
 
-            /*获得一段内存，并初始化为0*/
-            sstd::string infos_;
-            infos_.resize(log_length);
+                /*获得一段内存，并初始化为0*/
+                sstd::string infos_;
+                infos_.resize(log_length);
 
-            /*获得错误并输出*/
-            char * info = infos_.data();
-            glGetProgramInfoLog(e, 1024, nullptr, info);
-            qDebug() << info;
-        };
+                /*获得错误并输出*/
+                char * info = infos_.data();
+                glGetProgramInfoLog(e, 1024, nullptr, info);
+                qDebug() << info;
+            };
 
             printProgramInfo(varProgram);
         }
@@ -230,11 +230,11 @@ void sstd::RenderThread::run() try {
     const auto varFBOWidth = static_cast<int>(mmm_PixRatio * getRenderWidth());
     const auto varFBOHeight = static_cast<int>(mmm_PixRatio * getRenderHeight());
 
-    if (varFBOWidth<1) {
+    if (varFBOWidth < 1) {
         return;
     }
 
-    if (varFBOHeight<1) {
+    if (varFBOHeight < 1) {
         return;
     }
 
@@ -296,7 +296,7 @@ layout(local_size_x = 1       ,
 
 layout(binding = 0,r32f)  uniform readonly  image2D  argImageInput  ;
 layout(binding = 1,r8ui)  uniform writeonly uimage2D argImageOutput ;
-layout(location = 2 )      uniform uint      argRenderMax            ;
+layout(location = 2 )     uniform uint      argRenderMax            ;
 
 void main(void) {
      ivec2 varPos   = ivec2( gl_WorkGroupID.xy          )   ;
@@ -311,7 +311,27 @@ void main(void) {
 }
 
 )"sv);
-    
+
+    std::get<ProgramNumberImageToIndexType>(varRenderData) = buildVFShader(
+        u8R"(
+/*简单顶点着色器，用于渲染一个图片*/
+#version 450
+
+void main(){
+
+}
+
+)"sv,
+        u8R"(
+/*简单片段着色器，用于给索引图片着色*/
+#version 450
+
+void main(){
+
+}
+
+)"sv);
+
     /*生成图像*/
     glUseProgram(std::get<ProgramGetNumberImageType>(varRenderData));
 

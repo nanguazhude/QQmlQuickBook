@@ -15,7 +15,8 @@ namespace {
         class Data {
         public:
             GLuint const _m_index;
-            Data(GLuint x) :_m_index(x) {}
+            Data(GLuint x) :_m_index(x) {
+            }
             ~Data() {
                 _T_::_p_destory(&_m_index);
             }
@@ -32,10 +33,12 @@ namespace {
         inline bool _p_to_bool() const {
             if (_m_data) {
                 return true;
+            } else {
+                return false;
             }
-            else { return false; }
         }
-        BasicGLIndex() {}
+        BasicGLIndex() {
+        }
         BasicGLIndex(GLuint n) :_m_data(sstd::make_shared<Data>(n)) {
         }
     };
@@ -53,9 +56,14 @@ namespace {
         GLProgram&operator=(GLProgram &&) = default;
         GLProgram(const GLProgram&) = default;
         GLProgram(GLProgram &&) = default;
-        explicit GLProgram(GLuint a) :Super(a) {}
-        explicit operator bool() const { return Super::_p_to_bool(); }
-        operator GLuint() const { return Super::_p_get_data(); }
+        explicit GLProgram(GLuint a) :Super(a) {
+        }
+        explicit operator bool() const {
+            return Super::_p_to_bool();
+        }
+        operator GLuint() const {
+            return Super::_p_get_data();
+        }
     private:
         SSTD_MEMORY_DEFINE(GLProgram)
     };
@@ -73,9 +81,14 @@ namespace {
         GLBuffer&operator=(GLBuffer &&) = default;
         GLBuffer(const GLBuffer&) = default;
         GLBuffer(GLBuffer &&) = default;
-        explicit GLBuffer(GLuint a) :Super(a) {}
-        explicit operator bool() const { return Super::_p_to_bool(); }
-        operator GLuint() const { return Super::_p_get_data(); }
+        explicit GLBuffer(GLuint a) :Super(a) {
+        }
+        explicit operator bool() const {
+            return Super::_p_to_bool();
+        }
+        operator GLuint() const {
+            return Super::_p_get_data();
+        }
     private:
         SSTD_MEMORY_DEFINE(GLBuffer)
     };
@@ -93,9 +106,14 @@ namespace {
         GLNamedVertexArrayObject&operator=(GLNamedVertexArrayObject &&) = default;
         GLNamedVertexArrayObject(const GLNamedVertexArrayObject&) = default;
         GLNamedVertexArrayObject(GLNamedVertexArrayObject &&) = default;
-        explicit GLNamedVertexArrayObject(GLuint a) :Super(a) {}
-        explicit operator bool() const { return Super::_p_to_bool(); }
-        operator GLuint() const { return Super::_p_get_data(); }
+        explicit GLNamedVertexArrayObject(GLuint a) :Super(a) {
+        }
+        explicit operator bool() const {
+            return Super::_p_to_bool();
+        }
+        operator GLuint() const {
+            return Super::_p_get_data();
+        }
     private:
         SSTD_MEMORY_DEFINE(GLNamedVertexArrayObject)
     };
@@ -219,8 +237,7 @@ namespace {
         {
             GLint testVal;
             glGetProgramiv(varProgram, GL_LINK_STATUS, &testVal);
-            if (testVal == GL_FALSE)
-            {
+            if (testVal == GL_FALSE) {
                 printProgramInfo(varProgram);
                 glDeleteProgram(varProgram);
                 throw 1;
@@ -228,8 +245,7 @@ namespace {
         }
 
         return GLProgram{ varProgram };
-    }
-    catch (...) {
+    } catch (...) {
         return {};
     }
 
@@ -355,9 +371,9 @@ public:
         _m_clean_color[3] = 1.0f;
 
         switch (_draw_stamp % 3) {
-        case 0:_m_mvp = glm::rotate(_m_mvp, (std::rand() & 255) / 256.0f, glm::vec3(0, 0, 1)); break;
-        case 1:_m_mvp = glm::rotate(_m_mvp, (std::rand() & 255) / 256.0f, glm::vec3(0, 1, 0)); break;
-        case 2:_m_mvp = glm::rotate(_m_mvp, (std::rand() & 255) / 256.0f, glm::vec3(1, 0, 1)); break;
+            case 0:_m_mvp = glm::rotate(_m_mvp, (std::rand() & 255) / 256.0f, glm::vec3(0, 0, 1)); break;
+            case 1:_m_mvp = glm::rotate(_m_mvp, (std::rand() & 255) / 256.0f, glm::vec3(0, 1, 0)); break;
+            case 2:_m_mvp = glm::rotate(_m_mvp, (std::rand() & 255) / 256.0f, glm::vec3(1, 0, 1)); break;
         }
     }
 
@@ -406,19 +422,25 @@ void OpenGLWindow::initializeGL() {
     _m_draw_data->construct();
 
     auto varDestory = _m_draw_data;
-    connect(context(), &QOpenGLContext::aboutToBeDestroyed, 
-        context(), [varDestory]() {delete varDestory; },Qt::DirectConnection);
+    connect(context(), &QOpenGLContext::aboutToBeDestroyed,
+        context(), [varDestory]() {delete varDestory; }, Qt::DirectConnection);
 }
 
 void OpenGLWindow::paintGL() {
-    if (nullptr == _m_draw_data) { return; }
+    if (nullptr == _m_draw_data) {
+        return;
+    }
 
     gl_debug_function_lock();
-   
+
     sstd::StateStackBasic varGLState;
-    varGLState.push_value(glIsEnabled(GL_DEPTH_TEST) , 
-        [](auto && v) {if (v) { glEnable(GL_DEPTH_TEST); } else { glDisable(GL_DEPTH_TEST); }})/*保存OpenGL状态*/;
-      
+    varGLState.push_value(glIsEnabled(GL_DEPTH_TEST),
+        [](auto && v) {if (v) {
+        glEnable(GL_DEPTH_TEST);
+    } else {
+        glDisable(GL_DEPTH_TEST);
+    }})/*保存OpenGL状态*/;
+
     _m_draw_data->update_draw_data();
 
     const auto varFBOIndex = this->defaultFramebufferObject();
@@ -431,14 +453,16 @@ void OpenGLWindow::paintGL() {
     glUseProgram(_m_draw_data->_m_program);
     glBindVertexArray(_m_draw_data->_m_named_vertex_array_object);
     glUniformMatrix4fv(2, 1, false, &(_m_draw_data->_m_mvp[0][0]));
-    glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_SHORT, nullptr);    
+    glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_SHORT, nullptr);
 
     glBindVertexArray(0);
     glUseProgram(0);
 }
 
 void OpenGLWindow::resizeGL(int w, int h) {
-    if (nullptr == _m_draw_data) { return; }
+    if (nullptr == _m_draw_data) {
+        return;
+    }
     glViewport(0, 0, w, h);
 }
 
@@ -446,8 +470,7 @@ bool OpenGLWindow::event(QEvent *ev) {
     if (ev->type() == QEvent::Close) {
         _m_draw_data = nullptr;
         this->deleteLater();
-    }
-    else if (ev->type() == QEvent::Timer) {
+    } else if (ev->type() == QEvent::Timer) {
         if (_m_draw_data) {
             ++(_m_draw_data->_draw_stamp);
             this->update();
@@ -456,8 +479,8 @@ bool OpenGLWindow::event(QEvent *ev) {
     return Super::event(ev);
 }
 
-OpenGLWindow::~OpenGLWindow() { 
-    _m_draw_data = nullptr; 
+OpenGLWindow::~OpenGLWindow() {
+    _m_draw_data = nullptr;
 }
 
 

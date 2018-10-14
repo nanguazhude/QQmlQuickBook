@@ -10,14 +10,15 @@
 
 namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
-    QString getPath(const QString & arg){
-        return getLocalFileFullPath(arg).toLocalFile() ;
+    QString getPath(const QString & arg) {
+        return getLocalFileFullPath(arg).toLocalFile();
     }
 }
 
 using namespace std::chrono_literals;
 
-Window::~Window() {}
+Window::~Window() {
+}
 
 Window::Window() {
     mmm_ImageView = sstdNew< ImageView >();
@@ -58,7 +59,7 @@ public:
         auto varShader = glCreateShader(GL_COMPUTE_SHADER);
         const auto varShaderSource =
             sstd::load_file_remove_utf8(
-                    sstd::getPath(QStringLiteral("myqml/computeshaderfilterimage/main.cps")));
+            sstd::getPath(QStringLiteral("myqml/computeshaderfilterimage/main.cps")));
 
         {
             GLint varSL = static_cast<GLint>(varShaderSource.size());
@@ -129,7 +130,9 @@ public:
 void Window::initializeGL() {
     /*************************************************************************/
     //标准开头
-    if (mmm_DrawData) { return; }
+    if (mmm_DrawData) {
+        return;
+    }
     this->makeCurrent();
     glewInitialize();
 
@@ -225,8 +228,7 @@ void Window::paintGL() {
         auto varCurrentTime = std::chrono::high_resolution_clock::now();
         if (std::chrono::abs(varCurrentTime - mmm_DrawData->mmm_LastDraw) > 600ms) {
             mmm_DrawData->mmm_LastDraw = varCurrentTime;
-        }
-        else {
+        } else {
             return;
         }
     }
@@ -269,16 +271,14 @@ void Window::paintGL() {
             if constexpr (true) {
                 std::this_thread::sleep_for(100ns);
                 glGetSynciv(varSync, GL_SYNC_STATUS, 4, &varResultLength, varResult);
-            }
-            else {
+            } else {
                 varResult[0] = glClientWaitSync(varSync, GL_SYNC_FLUSH_COMMANDS_BIT, 100);
             }
             varEndWaitTime = std::chrono::high_resolution_clock::now();
         } while ((varResult[0] != GL_SIGNALED) &&
             (std::chrono::abs(varEndWaitTime - varStartWaitTime) < 1s));
         glDeleteSync(varSync);
-    }
-    else {
+    } else {
         glFinish();
     }
 
@@ -295,7 +295,7 @@ void Window::paintGL() {
         varEndWaitTime = std::chrono::high_resolution_clock::now();
         qDebug() << "draw time less than : " << std::chrono::duration_cast<
             std::chrono::duration<double, std::milli>>(std::chrono::abs(
-                varEndWaitTime - varStartWaitTime)).count() << "ms";
+            varEndWaitTime - varStartWaitTime)).count() << "ms";
 
         mmm_ImageView->showImage(mmm_DrawData->mmm_OriginImageInput, varImageOutput);
     }
