@@ -81,14 +81,6 @@ namespace {
 
 namespace {
 
-    FINAL_CLASS_TYPE_ASSIGN(ProgramGetNumberImageType, sstd::NumberWrapType<GLuint>);
-    FINAL_CLASS_TYPE_ASSIGN(ProgramNumberImageToIndexType, sstd::NumberWrapType<GLuint>);
-    FINAL_CLASS_TYPE_ASSIGN(ProgramIndexToColorImageType, sstd::NumberWrapType<GLuint>);
-    FINAL_CLASS_TYPE_ASSIGN(ImageFloatIndexTextureType, sstd::NumberWrapType<GLuint>);
-    FINAL_CLASS_TYPE_ASSIGN(ImageAtomicMaxValueBufferType, sstd::NumberWrapType<GLuint>);
-    FINAL_CLASS_TYPE_ASSIGN(AtomicCountType, sstd::NumberWrapType<GLuint>);
-    FINAL_CLASS_TYPE_ASSIGN(ImageIndex256Type, sstd::NumberWrapType<GLuint>);
-
     inline GLuint buildVFShader(std::string_view varVShaderSource, std::string_view varFShaderSource) {
 
         class ShaderFree {
@@ -188,6 +180,17 @@ namespace {
         return varProgram;
     }
 
+    FINAL_CLASS_TYPE_ASSIGN(ProgramGetNumberImageType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ProgramNumberImageToIndexType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ProgramIndexToColorImageType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ImageFloatIndexTextureType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ImageAtomicMaxValueBufferType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(AtomicCountType, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(ImageIndex256Type, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(SimpleTextureVAO, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(SimpleTextureVAOBuffer, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(SimpleTextureColorMapBuffer, sstd::NumberWrapType<GLuint>);
+
     using PrivateGLRenderData = std::tuple<
         ProgramGetNumberImageType,
         ProgramNumberImageToIndexType,
@@ -195,13 +198,14 @@ namespace {
         ImageFloatIndexTextureType,
         ImageAtomicMaxValueBufferType,
         ImageIndex256Type,
+        SimpleTextureVAO,
+        SimpleTextureVAOBuffer,
+        SimpleTextureColorMapBuffer
     >;
-    class GLRenderData : public PrivateGLRenderData {
+    class GLRenderData final : public PrivateGLRenderData {
     public:
 
-        GLRenderData() : PrivateGLRenderData(0, 0, 0, 0, 0, 0) {
-
-
+        GLRenderData() : PrivateGLRenderData(0, 0, 0, 0, 0, 0,0,0,0) {
         }
 
         ~GLRenderData() {
@@ -211,6 +215,9 @@ namespace {
             glDeleteTextures(1, std::get<ImageFloatIndexTextureType>(*this).pointer());
             glDeleteTextures(1, std::get<ImageIndex256Type>(*this).pointer());
             glDeleteBuffers(1, std::get<ImageAtomicMaxValueBufferType>(*this).pointer());
+            glDeleteVertexArrays(1,std::get<SimpleTextureVAO>(*this).pointer());
+            glDeleteBuffers(1,std::get<SimpleTextureVAOBuffer>(*this).pointer());
+            glDeleteBuffers(1,std::get<SimpleTextureColorMapBuffer>(*this).pointer());
         }
 
     };
@@ -334,6 +341,7 @@ u8R"(
 /*简单片段着色器，用于给索引图片着色*/
 #version 450
 
+
 void main(){
 
 }
@@ -386,8 +394,9 @@ void main(){
     }
 
     /*着色*/
-    glUseProgram(std::get<ProgramIndexToColorImageType>(varRenderData));
-
+    {
+        glUseProgram(std::get<ProgramIndexToColorImageType>(varRenderData));
+    }
 
 
 } catch (...) {
