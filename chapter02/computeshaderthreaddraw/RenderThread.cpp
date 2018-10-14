@@ -89,6 +89,66 @@ namespace {
 
     inline GLuint buildVFShader(std::string_view varVShaderSource,std::string_view varFShaderSource ) {
 
+         class ShaderFree {
+        public:
+            std::array<GLuint, 2> data;
+            inline ShaderFree() {
+                data[0] = 0;
+                data[1] = 0;
+            }
+            inline ~ShaderFree() {
+                glDeleteShader(data[1]);
+                glDeleteShader(data[0]);
+            }
+        } varShaders{};
+
+        GLuint * varShader = &(varShaders.data[0]);
+        varShader[0] = glCreateShader(GL_VERTEX_SHADER);
+        varShader[1] = glCreateShader(GL_FRAGMENT_SHADER);
+
+         {
+            const GLchar * sources[] = {  varVShaderSource.data(),varFShaderSource.data() };
+            GLint lengths[] = {
+                (GLint)(varVShaderSource.size()),
+                (GLint)(varFShaderSource.size())
+            };
+
+            glShaderSource(varShader[0], 1, &sources[0], &lengths[0]);
+            glShaderSource(varShader[1], 1, &sources[1], &lengths[1]);
+
+            glCompileShader(varShader[0]);
+            glCompileShader(varShader[1]);
+
+        }
+
+        GLuint varProgram = glCreateProgram();
+        glAttachShader(varProgram, varShader[0]);
+        glAttachShader(varProgram, varShader[1]);
+        glLinkProgram(varProgram);
+
+        if constexpr(true){
+
+            auto printProgramInfo = [](GLuint e) {
+            /*获得错误大小*/
+            GLint log_length = 0;
+            glGetProgramiv(e, GL_INFO_LOG_LENGTH, &log_length);
+            log_length += 16;
+
+            /*获得一段内存，并初始化为0*/
+            sstd::string infos_;
+            infos_.resize(log_length);
+
+            /*获得错误并输出*/
+            char * info = infos_.data();
+            glGetProgramInfoLog(e, 1024, nullptr, info);
+            qDebug() << info;
+        };
+
+            printProgramInfo(varProgram);
+        }
+
+        return varProgram;
+
     }
 
     inline GLuint buildComputerShader(std::string_view varShaderSource) {

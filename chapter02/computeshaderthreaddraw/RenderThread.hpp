@@ -2,7 +2,7 @@
 
 #include <sstd_memory.hpp>
 #include <QtCore/qthread.h>
-#include <RootWindow.hpp>
+#include "RootWindow.hpp"
 
 class QImage;
 class QWindow;
