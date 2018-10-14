@@ -61,10 +61,12 @@ namespace sstd {
 
 layout( location = 0 ) in vec4 vertexCoord ;
 layout( location = 1 ) in vec4 vertexColor ;
+layout( location = 2 ) uniform float pointSize = 16 ;
 
 out vec4 color;
 
 void main() {
+    gl_PointSize = pointSize  ;
     gl_Position = vertexCoord ; 
     color       = vertexColor ;
 }
@@ -184,6 +186,11 @@ void main() {
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 /*开启程序控制点大小*/
                 glEnable(GL_PROGRAM_POINT_SIZE);
+                glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+                glEnable(GL_POINT_SPRITE);
+
+                /*使用程序*/
+                glUseProgram(mmm_Program);
 
                 {/*设置点大小*/
                     GLfloat varPointSize = 1;
@@ -192,9 +199,9 @@ void main() {
                         varPointSize = static_cast<GLfloat>(mmm_DrawData->mmm_PointSize);
                     }
                     glPointSize(varPointSize > 1.0f ? varPointSize : 1.0f);
+                    glUniform1f(2, varPointSize > 1.0f ? varPointSize : 1.0f);
                 }
-                /*使用程序*/
-                glUseProgram(mmm_Program);
+
                 /*更新顶点数据*/
                 {/*更新点位置*/
                     mmm_GLDrawData.data[0] = 0;
