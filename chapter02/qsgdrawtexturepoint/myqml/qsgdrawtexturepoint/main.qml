@@ -68,7 +68,9 @@ Window {
             obj.z = Qt.binding( function(){ return this.zRate; } )
             obj.iCount = i
             obj.imageIndex = numberToImageIndex( (i%78)/*最多到077.png*/ );
-            //_draw_border.createObject(obj)/*用于调试坐标是否正确*/;
+            /*begin:debug*/
+            _draw_border.createObject(obj)/*用于调试坐标是否正确*/;
+            /*end:debug*/
         }
 
     }

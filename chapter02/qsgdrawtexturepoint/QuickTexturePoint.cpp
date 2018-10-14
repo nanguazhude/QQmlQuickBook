@@ -45,7 +45,7 @@ namespace  sstd {
             const char * fragmentShader() const override {
                 return u8R"(
 
-#version 330
+#version 450
 in  vec4 color             ;
 out vec4 finalColor        ;
 uniform mat2 pointRotateMat;
@@ -85,7 +85,7 @@ void main() {
 
             const char * vertexShader() const override {
                 return u8R"(
-#version 330
+#version 450
 
 in vec4 vertexCoord;
 in vec4 vertexColor;
@@ -119,7 +119,8 @@ void main() {
 
         QSGMaterialType TexturePointMaterialShader::type;
 
-        TexturePointMaterialShader::TexturePointMaterialShader(TexturePointMaterial * arg) : m_parent(arg) { }
+        TexturePointMaterialShader::TexturePointMaterialShader(TexturePointMaterial * arg) : m_parent(arg) {
+        }
 
         void TexturePointMaterialShader::updateState(
             const RenderState &state,
@@ -136,15 +137,12 @@ void main() {
             if (varTexture) {
                 if (varOld == nullptr) {
                     varTexture->bind();
-                }
-                else if (false == bool(static_cast<TexturePointMaterial*>(varOld)->mmm_Image)) {
+                } else if (false == bool(static_cast<TexturePointMaterial*>(varOld)->mmm_Image)) {
                     varTexture->bind();
-                }
-                else if (static_cast<TexturePointMaterial*>(varOld)->mmm_Image->bits() !=
+                } else if (static_cast<TexturePointMaterial*>(varOld)->mmm_Image->bits() !=
                     static_cast<TexturePointMaterial*>(varNew)->mmm_Image->bits()) {
                     varTexture->bind();
-                }
-                else {
+                } else {
                     varTexture->updateBindOptions();
                 }
             }
@@ -218,7 +216,7 @@ void main() {
 
         TexturePointMaterial::TexturePointMaterial(QQuickItem * arg) : super(arg) {
             setFlag(Blending, true);
-            setFlag(RequiresDeterminant,true);
+            setFlag(RequiresDeterminant, true);
         }
 
         void TexturePointMaterial::loadImage(qreal r, const QImage *arg) {
@@ -245,8 +243,7 @@ void main() {
             if constexpr (false) {
                 /*所有数据来自顶点着色器，因而片段着色器总是相同*/
                 return 0;
-            }
-            else {
+            } else {
                 auto varOther = static_cast<const TexturePointMaterial *>(other);
                 if (this->mmm_Rotate != varOther->mmm_Rotate) {
                     return (this->mmm_Rotate - varOther->mmm_Rotate) < 0.001 ? -1 : 1;
@@ -384,7 +381,7 @@ namespace sstd {
         if (change == QQuickItem::ItemRotationHasChanged) {
             this->update();
         }
-        return Super::itemChange(change,value);
+        return Super::itemChange(change, value);
     }
 
     QSGNode * QuickTexturePoint::updatePaintNode(

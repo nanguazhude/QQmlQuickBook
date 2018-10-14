@@ -332,8 +332,12 @@ void main(void) {
 /*简单顶点着色器，用于渲染一个图片*/
 #version 450
 
+layout( location = 0 ) in vec4 argPosition;
+layout( location = 1 ) in vec4 argTexturePos;
+out vec4 ioTexturePos ;
 void main(){
-
+    ioTexturePos = argTexturePos ;
+    gl_Position = argPosition    ;
 }
 
 )"sv,
@@ -341,9 +345,14 @@ u8R"(
 /*简单片段着色器，用于给索引图片着色*/
 #version 450
 
+in vec4 ioTexturePos         ;
+out vec4 outColor            ;
+uniform sampler2D argTexture ;
 
 void main(){
-
+    float varColorInputIndex = texture2D( argTexture , ioTexturePos.xy ).r ;
+    float x = varColorInputIndex/256;
+    outColor = vec4(x,x,x,1);
 }
 
 )"sv);
@@ -396,6 +405,7 @@ void main(){
     /*着色*/
     {
         glUseProgram(std::get<ProgramIndexToColorImageType>(varRenderData));
+        
     }
 
 
