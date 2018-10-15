@@ -27,6 +27,6 @@ HEADERS += $$PWD/sstd_utility/sstd_memory.hpp
 HEADERS += $$PWD/sstd_utility/ConstructQSurface.hpp
 
 include($$PWD/sstd_utility/sstd_quick_debug.pri)
-
+include($$PWD/sstd_utility/time/time.pri)
 
 
