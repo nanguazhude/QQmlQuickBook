@@ -137,7 +137,7 @@ namespace sstd::private_thread {
             while (mmm_IsQuit.load() == false) {
                 std::mutex varMutex;
                 std::unique_lock varLocker{ varMutex };
-                mmm_Wait.wait_for(varLocker, 1s);
+                mmm_Wait.wait_for(varLocker, 1s)/*这里可能有虚假唤醒，无关紧要...*/;
                 ++mmm_Value;
                 callFunctions();
             }/*while*/
