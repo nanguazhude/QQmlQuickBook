@@ -83,6 +83,10 @@ public:
 #include <iostream>
 #include <sstd_time.hpp>
 
+class TestDeleteCopyAssign {
+    SSTD_DELETE_COPY_ASSIGN(TestDeleteCopyAssign);
+};
+
 int main(int, char **) {
 
     {

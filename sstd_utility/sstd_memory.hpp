@@ -323,3 +323,13 @@ template<typename $T$, typename ... $T$Args> friend $T$ * sstd::sstdNew($T$Args 
 #include "time/sstd_time.hpp"
 #include "NumberWrapType.hpp"
 
+#ifndef SSTD_DELETE_COPY_ASSIGN
+#define SSTD_DELETE_COPY_ASSIGN(ARG_MMM_CLASS_NAME) \
+public : \
+ARG_MMM_CLASS_NAME(const ARG_MMM_CLASS_NAME &)=delete ;\
+ARG_MMM_CLASS_NAME(ARG_MMM_CLASS_NAME &&)=delete ;\
+ARG_MMM_CLASS_NAME&operator=(const ARG_MMM_CLASS_NAME &)=delete ;\
+ARG_MMM_CLASS_NAME&operator=(ARG_MMM_CLASS_NAME &&)=delete \
+/*Endl SSTD_DELETE_COPY_ASSIGN*/
+#endif
+
