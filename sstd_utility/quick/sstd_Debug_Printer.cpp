@@ -25,8 +25,8 @@ static inline void messageOutput(
 
     {
         const static std::string_view varSP = "---------------------------------------\n"sv;
-        std::string_view varFileName = context.file ? context.file : "";
-        std::string_view varFunctionName = context.function ? context.function : "";
+        const std::string_view varFileName = context.file ? context.file : ""sv;
+        const std::string_view varFunctionName = context.function ? context.function : ""sv;
         const auto varLineNumber = context.line;
 
         {
