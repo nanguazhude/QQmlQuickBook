@@ -120,7 +120,7 @@ namespace {
         glAttachShader(varProgram, varShader[1]);
         glLinkProgram(varProgram);
 
-        if constexpr (true) {
+        if constexpr (false) {
 
             auto printProgramInfo = [](GLuint e) {
                 /*获得错误大小*/
@@ -205,7 +205,7 @@ namespace {
     class GLRenderData final : public PrivateGLRenderData {
     public:
 
-        GLRenderData() : PrivateGLRenderData(0, 0, 0, 0, 0, 0,0,0,0) {
+        GLRenderData() : PrivateGLRenderData(0, 0, 0, 0, 0, 0, 0, 0, 0) {
         }
 
         ~GLRenderData() {
@@ -215,9 +215,9 @@ namespace {
             glDeleteTextures(1, std::get<ImageFloatIndexTextureType>(*this).pointer());
             glDeleteTextures(1, std::get<ImageIndex256Type>(*this).pointer());
             glDeleteBuffers(1, std::get<ImageAtomicMaxValueBufferType>(*this).pointer());
-            glDeleteVertexArrays(1,std::get<SimpleTextureVAO>(*this).pointer());
-            glDeleteBuffers(1,std::get<SimpleTextureVAOBuffer>(*this).pointer());
-            glDeleteBuffers(1,std::get<SimpleTextureColorMapBuffer>(*this).pointer());
+            glDeleteVertexArrays(1, std::get<SimpleTextureVAO>(*this).pointer());
+            glDeleteBuffers(1, std::get<SimpleTextureVAOBuffer>(*this).pointer());
+            glDeleteBuffers(1, std::get<SimpleTextureColorMapBuffer>(*this).pointer());
         }
 
     };
@@ -405,7 +405,7 @@ void main(){
     /*着色*/
     {
         glUseProgram(std::get<ProgramIndexToColorImageType>(varRenderData));
-        
+
     }
 
 
