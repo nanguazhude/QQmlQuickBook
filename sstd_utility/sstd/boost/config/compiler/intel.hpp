@@ -18,7 +18,7 @@
 
 #ifdef _MSC_VER
 
-#include <boost/config/compiler/visualc.hpp>
+#include <sstd/boost/config/compiler/visualc.hpp>
 
 #undef BOOST_MSVC
 #undef BOOST_MSVC_FULL_VER
@@ -41,7 +41,7 @@
 
 #else // defined(_MSC_VER)
 
-#include <boost/config/compiler/gcc.hpp>
+#include <sstd/boost/config/compiler/gcc.hpp>
 
 #undef BOOST_GCC_VERSION
 #undef BOOST_GCC_CXX11
@@ -100,7 +100,7 @@
 
 #else // defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1500) && (defined(_MSC_VER) || defined(__GNUC__))
 
-#include <boost/config/compiler/common_edg.hpp>
+#include <sstd/boost/config/compiler/common_edg.hpp>
 
 #if defined(__INTEL_COMPILER)
 #if __INTEL_COMPILER == 9999

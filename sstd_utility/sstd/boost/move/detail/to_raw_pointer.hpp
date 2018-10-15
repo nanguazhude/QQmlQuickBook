@@ -14,16 +14,16 @@
 #define BOOST_MOVE_DETAIL_TO_RAW_POINTER_HPP
 
 #ifndef BOOST_CONFIG_HPP
-#  include <boost/config.hpp>
+#  include <sstd/boost/config.hpp>
 #endif
 
 #if defined(BOOST_HAS_PRAGMA_ONCE)
 #  pragma once
 #endif
 
-#include <boost/move/detail/config_begin.hpp>
-#include <boost/move/detail/workaround.hpp>
-#include <boost/move/detail/pointer_element.hpp>
+#include <sstd/boost/move/detail/config_begin.hpp>
+#include <sstd/boost/move/detail/workaround.hpp>
+#include <sstd/boost/move/detail/pointer_element.hpp>
 
 namespace boost {
 namespace movelib {
@@ -40,6 +40,6 @@ to_raw_pointer(const Pointer &p)
 } //namespace movelib
 } //namespace boost
 
-#include <boost/move/detail/config_end.hpp>
+#include <sstd/boost/move/detail/config_end.hpp>
 
 #endif //BOOST_MOVE_DETAIL_TO_RAW_POINTER_HPP

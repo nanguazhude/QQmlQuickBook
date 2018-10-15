@@ -13,7 +13,7 @@
 #define BOOST_MOVE_ADL_MOVE_SWAP_HPP
 
 #ifndef BOOST_CONFIG_HPP
-#  include <boost/config.hpp>
+#  include <sstd/boost/config.hpp>
 #endif
 #
 #if defined(BOOST_HAS_PRAGMA_ONCE)
@@ -23,7 +23,7 @@
 //Based on Boost.Core's swap.
 //Many thanks to Steven Watanabe, Joseph Gauterin and Niels Dekker.
 #include <cstddef> //for std::size_t
-#include <boost/move/detail/workaround.hpp>  //forceinline
+#include <sstd/boost/move/detail/workaround.hpp>  //forceinline
 
 //Try to avoid including <algorithm>, as it's quite big
 #if defined(_MSC_VER) && defined(BOOST_DINKUMWARE_STDLIB)
@@ -48,7 +48,7 @@
    #include <algorithm>  //Fallback for C++98/03
 #endif
 
-#include <boost/move/utility_core.hpp> //for boost::move
+#include <sstd/boost/move/utility_core.hpp> //for boost::move
 
 #if !defined(BOOST_MOVE_DOXYGEN_INVOKED)
 

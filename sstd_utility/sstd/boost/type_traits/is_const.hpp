@@ -22,7 +22,7 @@
 #define BOOST_TT_IS_CONST_HPP_INCLUDED
 
 #include <cstddef> // size_t
-#include <boost/type_traits/integral_constant.hpp>
+#include <sstd/boost/type_traits/integral_constant.hpp>
 
 namespace boost {
 

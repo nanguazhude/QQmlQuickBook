@@ -11,16 +11,16 @@
 #define BOOST_MOVE_DETAIL_ITERATOR_TO_RAW_POINTER_HPP
 
 #ifndef BOOST_CONFIG_HPP
-#  include <boost/config.hpp>
+#  include <sstd/boost/config.hpp>
 #endif
 
 #if defined(BOOST_HAS_PRAGMA_ONCE)
 #  pragma once
 #endif
 
-#include <boost/move/detail/iterator_traits.hpp>
-#include <boost/move/detail/to_raw_pointer.hpp>
-#include <boost/move/detail/pointer_element.hpp>
+#include <sstd/boost/move/detail/iterator_traits.hpp>
+#include <sstd/boost/move/detail/to_raw_pointer.hpp>
+#include <sstd/boost/move/detail/pointer_element.hpp>
 
 namespace boost {
 namespace movelib {

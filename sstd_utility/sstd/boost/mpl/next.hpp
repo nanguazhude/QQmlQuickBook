@@ -14,6 +14,6 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/next_prior.hpp>
+#include <sstd/boost/mpl/next_prior.hpp>
 
 #endif // BOOST_MPL_NEXT_HPP_INCLUDED

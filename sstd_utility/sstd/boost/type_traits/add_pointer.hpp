@@ -9,7 +9,7 @@
 #ifndef BOOST_TT_ADD_POINTER_HPP_INCLUDED
 #define BOOST_TT_ADD_POINTER_HPP_INCLUDED
 
-#include <boost/type_traits/remove_reference.hpp>
+#include <sstd/boost/type_traits/remove_reference.hpp>
 
 namespace boost {
 

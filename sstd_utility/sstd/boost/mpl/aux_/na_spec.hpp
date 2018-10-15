@@ -15,24 +15,24 @@
 // $Revision$
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/lambda_fwd.hpp>
-#   include <boost/mpl/int.hpp>
-#   include <boost/mpl/bool.hpp>
-#   include <boost/mpl/aux_/na.hpp>
-#   include <boost/mpl/aux_/arity.hpp>
-#   include <boost/mpl/aux_/template_arity_fwd.hpp>
+#   include <sstd/boost/mpl/lambda_fwd.hpp>
+#   include <sstd/boost/mpl/int.hpp>
+#   include <sstd/boost/mpl/bool.hpp>
+#   include <sstd/boost/mpl/aux_/na.hpp>
+#   include <sstd/boost/mpl/aux_/arity.hpp>
+#   include <sstd/boost/mpl/aux_/template_arity_fwd.hpp>
 #endif
 
-#include <boost/mpl/aux_/preprocessor/params.hpp>
-#include <boost/mpl/aux_/preprocessor/enum.hpp>
-#include <boost/mpl/aux_/preprocessor/def_params_tail.hpp>
-#include <boost/mpl/aux_/lambda_arity_param.hpp>
-#include <boost/mpl/aux_/config/dtp.hpp>
-#include <boost/mpl/aux_/config/eti.hpp>
-#include <boost/mpl/aux_/nttp_decl.hpp>
-#include <boost/mpl/aux_/config/ttp.hpp>
-#include <boost/mpl/aux_/config/lambda.hpp>
-#include <boost/mpl/aux_/config/overload_resolution.hpp>
+#include <sstd/boost/mpl/aux_/preprocessor/params.hpp>
+#include <sstd/boost/mpl/aux_/preprocessor/enum.hpp>
+#include <sstd/boost/mpl/aux_/preprocessor/def_params_tail.hpp>
+#include <sstd/boost/mpl/aux_/lambda_arity_param.hpp>
+#include <sstd/boost/mpl/aux_/config/dtp.hpp>
+#include <sstd/boost/mpl/aux_/config/eti.hpp>
+#include <sstd/boost/mpl/aux_/nttp_decl.hpp>
+#include <sstd/boost/mpl/aux_/config/ttp.hpp>
+#include <sstd/boost/mpl/aux_/config/lambda.hpp>
+#include <sstd/boost/mpl/aux_/config/overload_resolution.hpp>
 
 
 #define BOOST_MPL_AUX_NA_PARAMS(i) \

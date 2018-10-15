@@ -19,43 +19,43 @@
 // $Revision$
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/lambda_fwd.hpp>
-#   include <boost/mpl/bind_fwd.hpp>
-#   include <boost/mpl/protect.hpp>
-#   include <boost/mpl/quote.hpp>
-#   include <boost/mpl/arg.hpp>
-#   include <boost/mpl/bool.hpp>
-#   include <boost/mpl/int_fwd.hpp>
-#   include <boost/mpl/aux_/template_arity.hpp>
-#   include <boost/mpl/aux_/na_spec.hpp>
-#   include <boost/mpl/aux_/config/ttp.hpp>
+#   include <sstd/boost/mpl/lambda_fwd.hpp>
+#   include <sstd/boost/mpl/bind_fwd.hpp>
+#   include <sstd/boost/mpl/protect.hpp>
+#   include <sstd/boost/mpl/quote.hpp>
+#   include <sstd/boost/mpl/arg.hpp>
+#   include <sstd/boost/mpl/bool.hpp>
+#   include <sstd/boost/mpl/int_fwd.hpp>
+#   include <sstd/boost/mpl/aux_/template_arity.hpp>
+#   include <sstd/boost/mpl/aux_/na_spec.hpp>
+#   include <sstd/boost/mpl/aux_/config/ttp.hpp>
 #   if defined(BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
-#       include <boost/mpl/if.hpp>
+#       include <sstd/boost/mpl/if.hpp>
 #   endif
 #endif
 
-#include <boost/mpl/aux_/lambda_arity_param.hpp>
-#include <boost/mpl/aux_/config/use_preprocessed.hpp>
+#include <sstd/boost/mpl/aux_/lambda_arity_param.hpp>
+#include <sstd/boost/mpl/aux_/config/use_preprocessed.hpp>
 
 #if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
     && !defined(BOOST_MPL_PREPROCESSING_MODE)
 
 #   define BOOST_MPL_PREPROCESSED_HEADER full_lambda.hpp
-#   include <boost/mpl/aux_/include_preprocessed.hpp>
+#   include <sstd/boost/mpl/aux_/include_preprocessed.hpp>
 
 #else
 
-#   include <boost/mpl/limits/arity.hpp>
-#   include <boost/mpl/aux_/preprocessor/default_params.hpp>
-#   include <boost/mpl/aux_/preprocessor/params.hpp>
-#   include <boost/mpl/aux_/preprocessor/enum.hpp>
-#   include <boost/mpl/aux_/preprocessor/repeat.hpp>
-#   include <boost/mpl/aux_/config/dmc_ambiguous_ctps.hpp>
+#   include <sstd/boost/mpl/limits/arity.hpp>
+#   include <sstd/boost/mpl/aux_/preprocessor/default_params.hpp>
+#   include <sstd/boost/mpl/aux_/preprocessor/params.hpp>
+#   include <sstd/boost/mpl/aux_/preprocessor/enum.hpp>
+#   include <sstd/boost/mpl/aux_/preprocessor/repeat.hpp>
+#   include <sstd/boost/mpl/aux_/config/dmc_ambiguous_ctps.hpp>
 
-#   include <boost/preprocessor/iterate.hpp>
-#   include <boost/preprocessor/comma_if.hpp>
-#   include <boost/preprocessor/inc.hpp>
-#   include <boost/preprocessor/cat.hpp>
+#   include <sstd/boost/preprocessor/iterate.hpp>
+#   include <sstd/boost/preprocessor/comma_if.hpp>
+#   include <sstd/boost/preprocessor/inc.hpp>
+#   include <sstd/boost/preprocessor/cat.hpp>
 
 namespace boost { namespace mpl {
 
@@ -132,7 +132,7 @@ struct lambda< arg<N>,Tag AUX778076_ARITY_PARAM(int_<-1>) >
 
 
 #define BOOST_PP_ITERATION_PARAMS_1 \
-    (3,(0, BOOST_MPL_LIMIT_METAFUNCTION_ARITY, <boost/mpl/aux_/full_lambda.hpp>))
+    (3,(0, BOOST_MPL_LIMIT_METAFUNCTION_ARITY, <sstd/boost/mpl/aux_/full_lambda.hpp>))
 #include BOOST_PP_ITERATE()
 
 /// special case for 'protect'

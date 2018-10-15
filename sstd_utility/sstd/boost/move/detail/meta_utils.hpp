@@ -17,9 +17,9 @@
 #if defined(BOOST_HAS_PRAGMA_ONCE)
 #  pragma once
 #endif
-#include <boost/move/detail/config_begin.hpp>
-#include <boost/move/detail/workaround.hpp>  //forceinline
-#include <boost/move/detail/meta_utils_core.hpp>
+#include <sstd/boost/move/detail/config_begin.hpp>
+#include <sstd/boost/move/detail/workaround.hpp>  //forceinline
+#include <sstd/boost/move/detail/meta_utils_core.hpp>
 #include <cstddef>   //for std::size_t
 
 //Small meta-typetraits to support move
@@ -580,6 +580,6 @@ template< class T > struct remove_rvalue_reference { typedef T type; };
 }  //namespace move_detail {
 }  //namespace boost {
 
-#include <boost/move/detail/config_end.hpp>
+#include <sstd/boost/move/detail/config_end.hpp>
 
 #endif //#ifndef BOOST_MOVE_DETAIL_META_UTILS_HPP

@@ -10,10 +10,10 @@
 
 #ifndef BOOST_TT_DISABLE_INTRINSICS
 
-#include <boost/config.hpp>
+#include <sstd/boost/config.hpp>
 
 #ifndef BOOST_TT_CONFIG_HPP_INCLUDED
-#include <boost/type_traits/detail/config.hpp>
+#include <sstd/boost/type_traits/detail/config.hpp>
 #endif
 
 //
@@ -55,7 +55,7 @@
 #ifdef BOOST_HAS_SGI_TYPE_TRAITS
     // Hook into SGI's __type_traits class, this will pick up user supplied
     // specializations as well as SGI - compiler supplied specializations.
-#   include <boost/type_traits/is_same.hpp>
+#   include <sstd/boost/type_traits/is_same.hpp>
 #   ifdef __NetBSD__
       // There are two different versions of type_traits.h on NetBSD on Spark
       // use an implicit include via algorithm instead, to make sure we get
@@ -331,9 +331,9 @@
 #endif
 
 #if defined(__ghs__) && (__GHS_VERSION_NUMBER >= 600)
-#   include <boost/type_traits/is_same.hpp>
-#   include <boost/type_traits/is_reference.hpp>
-#   include <boost/type_traits/is_volatile.hpp>
+#   include <sstd/boost/type_traits/is_same.hpp>
+#   include <sstd/boost/type_traits/is_reference.hpp>
+#   include <sstd/boost/type_traits/is_volatile.hpp>
 
 #   define BOOST_IS_UNION(T) __is_union(T)
 #   define BOOST_IS_POD(T) __is_pod(T)
@@ -357,10 +357,10 @@
 #endif
 
 # if defined(__CODEGEARC__)
-#   include <boost/type_traits/is_same.hpp>
-#   include <boost/type_traits/is_reference.hpp>
-#   include <boost/type_traits/is_volatile.hpp>
-#   include <boost/type_traits/is_void.hpp>
+#   include <sstd/boost/type_traits/is_same.hpp>
+#   include <sstd/boost/type_traits/is_reference.hpp>
+#   include <sstd/boost/type_traits/is_volatile.hpp>
+#   include <sstd/boost/type_traits/is_void.hpp>
 
 #   define BOOST_IS_UNION(T) __is_union(T)
 #   define BOOST_IS_POD(T) __is_pod(T)

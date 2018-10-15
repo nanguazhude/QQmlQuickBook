@@ -15,7 +15,7 @@
 //
 //  Note that this header is C compatible.
 
-#include <boost/config/pragma_message.hpp>
+#include <sstd/boost/config/pragma_message.hpp>
 
 #if defined(BOOST_ALLOW_DEPRECATED_HEADERS)
 # define BOOST_HEADER_DEPRECATED(a)

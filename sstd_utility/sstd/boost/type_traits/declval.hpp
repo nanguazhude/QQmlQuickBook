@@ -8,11 +8,11 @@
 #ifndef BOOST_TYPE_TRAITS_DECLVAL_HPP_INCLUDED
 #define BOOST_TYPE_TRAITS_DECLVAL_HPP_INCLUDED
 
-#include <boost/config.hpp>
+#include <sstd/boost/config.hpp>
 
 //----------------------------------------------------------------------------//
 
-#include <boost/type_traits/add_rvalue_reference.hpp>
+#include <sstd/boost/type_traits/add_rvalue_reference.hpp>
 
 //----------------------------------------------------------------------------//
 //                                                                            //

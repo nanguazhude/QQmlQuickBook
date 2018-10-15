@@ -15,15 +15,15 @@
 #define BOOST_INTRUSIVE_DETAIL_MPL_HPP
 
 #ifndef BOOST_CONFIG_HPP
-#  include <boost/config.hpp>
+#  include <sstd/boost/config.hpp>
 #endif
 
 #if defined(BOOST_HAS_PRAGMA_ONCE)
 #  pragma once
 #endif
 
-#include <boost/intrusive/detail/config_begin.hpp>
-#include <boost/move/detail/type_traits.hpp>
+#include <sstd/boost/intrusive/detail/config_begin.hpp>
+#include <sstd/boost/move/detail/type_traits.hpp>
 #include <cstddef>
 
 namespace boost {
@@ -211,6 +211,6 @@ struct TRAITS_NAME \
 } //namespace intrusive
 } //namespace boost
 
-#include <boost/intrusive/detail/config_end.hpp>
+#include <sstd/boost/intrusive/detail/config_end.hpp>
 
 #endif //BOOST_INTRUSIVE_DETAIL_MPL_HPP

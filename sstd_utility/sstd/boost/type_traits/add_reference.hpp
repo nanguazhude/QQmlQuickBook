@@ -9,8 +9,8 @@
 #ifndef BOOST_TT_ADD_REFERENCE_HPP_INCLUDED
 #define BOOST_TT_ADD_REFERENCE_HPP_INCLUDED
 
-#include <boost/detail/workaround.hpp>
-#include <boost/config.hpp>
+#include <sstd/boost/detail/workaround.hpp>
+#include <sstd/boost/config.hpp>
 
 namespace boost {
 

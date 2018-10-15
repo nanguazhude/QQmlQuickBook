@@ -12,34 +12,34 @@
 #ifndef BOOST_TT_IS_CONVERTIBLE_HPP_INCLUDED
 #define BOOST_TT_IS_CONVERTIBLE_HPP_INCLUDED
 
-#include <boost/type_traits/intrinsics.hpp>
-#include <boost/type_traits/integral_constant.hpp>
-#include <boost/type_traits/is_complete.hpp>
-#include <boost/type_traits/is_void.hpp>
-#include <boost/type_traits/is_array.hpp>
-#include <boost/static_assert.hpp>
+#include <sstd/boost/type_traits/intrinsics.hpp>
+#include <sstd/boost/type_traits/integral_constant.hpp>
+#include <sstd/boost/type_traits/is_complete.hpp>
+#include <sstd/boost/type_traits/is_void.hpp>
+#include <sstd/boost/type_traits/is_array.hpp>
+#include <sstd/boost/static_assert.hpp>
 #ifndef BOOST_IS_CONVERTIBLE
-#include <boost/type_traits/detail/yes_no_type.hpp>
-#include <boost/type_traits/detail/config.hpp>
-#include <boost/type_traits/is_array.hpp>
-#include <boost/type_traits/is_arithmetic.hpp>
-#include <boost/type_traits/is_void.hpp>
+#include <sstd/boost/type_traits/detail/yes_no_type.hpp>
+#include <sstd/boost/type_traits/detail/config.hpp>
+#include <sstd/boost/type_traits/is_array.hpp>
+#include <sstd/boost/type_traits/is_arithmetic.hpp>
+#include <sstd/boost/type_traits/is_void.hpp>
 #if !defined(BOOST_NO_IS_ABSTRACT)
-#include <boost/type_traits/is_abstract.hpp>
+#include <sstd/boost/type_traits/is_abstract.hpp>
 #endif
-#include <boost/type_traits/add_lvalue_reference.hpp>
-#include <boost/type_traits/add_rvalue_reference.hpp>
-#include <boost/type_traits/is_function.hpp>
+#include <sstd/boost/type_traits/add_lvalue_reference.hpp>
+#include <sstd/boost/type_traits/add_rvalue_reference.hpp>
+#include <sstd/boost/type_traits/is_function.hpp>
 
 #if defined(__MWERKS__)
-#include <boost/type_traits/remove_reference.hpp>
+#include <sstd/boost/type_traits/remove_reference.hpp>
 #endif
 #if !defined(BOOST_NO_SFINAE_EXPR) && !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-#  include <boost/type_traits/declval.hpp>
+#  include <sstd/boost/type_traits/declval.hpp>
 #endif
 #elif defined(BOOST_MSVC) || defined(BOOST_INTEL)
-#include <boost/type_traits/is_function.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <sstd/boost/type_traits/is_function.hpp>
+#include <sstd/boost/type_traits/is_same.hpp>
 #endif // BOOST_IS_CONVERTIBLE
 
 namespace boost {

@@ -14,14 +14,14 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/limits/arity.hpp>
-#include <boost/mpl/aux_/config/dtp.hpp>
-#include <boost/mpl/aux_/config/preprocessor.hpp>
+#include <sstd/boost/mpl/limits/arity.hpp>
+#include <sstd/boost/mpl/aux_/config/dtp.hpp>
+#include <sstd/boost/mpl/aux_/config/preprocessor.hpp>
 
-#include <boost/preprocessor/comma_if.hpp>
-#include <boost/preprocessor/logical/and.hpp>
-#include <boost/preprocessor/identity.hpp>
-#include <boost/preprocessor/empty.hpp>
+#include <sstd/boost/preprocessor/comma_if.hpp>
+#include <sstd/boost/preprocessor/logical/and.hpp>
+#include <sstd/boost/preprocessor/identity.hpp>
+#include <sstd/boost/preprocessor/empty.hpp>
 
 // BOOST_MPL_PP_DEF_PARAMS_TAIL(1,T,value): , T1 = value, .., Tn = value
 // BOOST_MPL_PP_DEF_PARAMS_TAIL(2,T,value): , T2 = value, .., Tn = value
@@ -29,8 +29,8 @@
 
 #if !defined(BOOST_MPL_CFG_NO_OWN_PP_PRIMITIVES)
 
-#   include <boost/mpl/aux_/preprocessor/filter_params.hpp>
-#   include <boost/mpl/aux_/preprocessor/sub.hpp>
+#   include <sstd/boost/mpl/aux_/preprocessor/filter_params.hpp>
+#   include <sstd/boost/mpl/aux_/preprocessor/sub.hpp>
 
 #   define BOOST_MPL_PP_DEF_PARAMS_TAIL_IMPL(i, param, value_func) \
     BOOST_MPL_PP_DEF_PARAMS_TAIL_DELAY_1( \
@@ -63,12 +63,12 @@
 
 #else
 
-#   include <boost/preprocessor/arithmetic/add.hpp>
-#   include <boost/preprocessor/arithmetic/sub.hpp>
-#   include <boost/preprocessor/inc.hpp>
-#   include <boost/preprocessor/tuple/elem.hpp>
-#   include <boost/preprocessor/repeat.hpp>
-#   include <boost/preprocessor/cat.hpp>
+#   include <sstd/boost/preprocessor/arithmetic/add.hpp>
+#   include <sstd/boost/preprocessor/arithmetic/sub.hpp>
+#   include <sstd/boost/preprocessor/inc.hpp>
+#   include <sstd/boost/preprocessor/tuple/elem.hpp>
+#   include <sstd/boost/preprocessor/repeat.hpp>
+#   include <sstd/boost/preprocessor/cat.hpp>
 
 #   define BOOST_MPL_PP_AUX_TAIL_PARAM_FUNC(unused, i, op) \
     , BOOST_PP_CAT( \

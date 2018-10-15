@@ -12,6 +12,6 @@
 // The header file at this path is deprecated;
 // use boost/core/noncopyable.hpp instead.
 
-#include <boost/core/noncopyable.hpp>
+#include <sstd/boost/core/noncopyable.hpp>
 
 #endif

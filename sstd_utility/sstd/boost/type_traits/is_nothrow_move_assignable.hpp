@@ -11,15 +11,15 @@
 #ifndef BOOST_TT_IS_NOTHROW_MOVE_ASSIGNABLE_HPP_INCLUDED
 #define BOOST_TT_IS_NOTHROW_MOVE_ASSIGNABLE_HPP_INCLUDED
 
-#include <boost/config.hpp>
-#include <boost/type_traits/has_trivial_move_assign.hpp>
-#include <boost/type_traits/has_nothrow_assign.hpp>
-#include <boost/type_traits/is_array.hpp>
-#include <boost/type_traits/is_reference.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/declval.hpp>
-#include <boost/type_traits/is_complete.hpp>
-#include <boost/static_assert.hpp>
+#include <sstd/boost/config.hpp>
+#include <sstd/boost/type_traits/has_trivial_move_assign.hpp>
+#include <sstd/boost/type_traits/has_nothrow_assign.hpp>
+#include <sstd/boost/type_traits/is_array.hpp>
+#include <sstd/boost/type_traits/is_reference.hpp>
+#include <sstd/boost/utility/enable_if.hpp>
+#include <sstd/boost/type_traits/declval.hpp>
+#include <sstd/boost/type_traits/is_complete.hpp>
+#include <sstd/boost/static_assert.hpp>
 
 namespace boost {
 

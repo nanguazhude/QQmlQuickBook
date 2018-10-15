@@ -6,8 +6,8 @@
 #ifndef BOOST_TYPE_TRAITS_INTEGRAL_CONSTANT_HPP
 #define BOOST_TYPE_TRAITS_INTEGRAL_CONSTANT_HPP
 
-#include <boost/config.hpp>
-#include <boost/detail/workaround.hpp>
+#include <sstd/boost/config.hpp>
+#include <sstd/boost/detail/workaround.hpp>
 
 #if (BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1400)) \
    || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x610)) \

@@ -9,12 +9,12 @@
 #ifndef BOOST_TT_REMOVE_POINTER_HPP_INCLUDED
 #define BOOST_TT_REMOVE_POINTER_HPP_INCLUDED
 
-#include <boost/config.hpp>
-#include <boost/config/workaround.hpp>
+#include <sstd/boost/config.hpp>
+#include <sstd/boost/config/workaround.hpp>
 
 #if defined(BOOST_MSVC)
-#include <boost/type_traits/remove_cv.hpp>
-#include <boost/type_traits/is_pointer.hpp>
+#include <sstd/boost/type_traits/remove_cv.hpp>
+#include <sstd/boost/type_traits/is_pointer.hpp>
 #endif
 
 namespace boost {

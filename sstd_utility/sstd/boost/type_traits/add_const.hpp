@@ -10,7 +10,7 @@
 #ifndef BOOST_TT_ADD_CONST_HPP_INCLUDED
 #define BOOST_TT_ADD_CONST_HPP_INCLUDED
 
-#include <boost/type_traits/detail/config.hpp>
+#include <sstd/boost/type_traits/detail/config.hpp>
 
 namespace boost {
 

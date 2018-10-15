@@ -9,12 +9,12 @@
 #ifndef BOOST_TT_IS_STATELESS_HPP_INCLUDED
 #define BOOST_TT_IS_STATELESS_HPP_INCLUDED
 
-#include <boost/type_traits/has_trivial_constructor.hpp>
-#include <boost/type_traits/has_trivial_copy.hpp>
-#include <boost/type_traits/has_trivial_destructor.hpp>
-#include <boost/type_traits/is_class.hpp>
-#include <boost/type_traits/is_empty.hpp>
-#include <boost/config.hpp>
+#include <sstd/boost/type_traits/has_trivial_constructor.hpp>
+#include <sstd/boost/type_traits/has_trivial_copy.hpp>
+#include <sstd/boost/type_traits/has_trivial_destructor.hpp>
+#include <sstd/boost/type_traits/is_class.hpp>
+#include <sstd/boost/type_traits/is_empty.hpp>
+#include <sstd/boost/config.hpp>
 
 namespace boost {
 

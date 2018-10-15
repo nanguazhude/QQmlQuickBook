@@ -10,15 +10,15 @@
 #define BOOST_TT_HAS_TRIVIAL_ASSIGN_HPP_INCLUDED
 
 #include <cstddef> // size_t
-#include <boost/type_traits/detail/config.hpp>
-#include <boost/type_traits/intrinsics.hpp>
-#include <boost/type_traits/integral_constant.hpp>
+#include <sstd/boost/type_traits/detail/config.hpp>
+#include <sstd/boost/type_traits/intrinsics.hpp>
+#include <sstd/boost/type_traits/integral_constant.hpp>
 
 #if !defined(BOOST_HAS_TRIVIAL_ASSIGN) || defined(BOOST_MSVC) || defined(__GNUC__) || defined(BOOST_INTEL) || defined(__SUNPRO_CC) || defined(__clang__)
-#include <boost/type_traits/is_pod.hpp>
-#include <boost/type_traits/is_const.hpp>
-#include <boost/type_traits/is_volatile.hpp>
-#include <boost/type_traits/is_assignable.hpp>
+#include <sstd/boost/type_traits/is_pod.hpp>
+#include <sstd/boost/type_traits/is_const.hpp>
+#include <sstd/boost/type_traits/is_volatile.hpp>
+#include <sstd/boost/type_traits/is_assignable.hpp>
 #endif
 
 namespace boost {

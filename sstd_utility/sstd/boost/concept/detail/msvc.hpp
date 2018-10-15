@@ -4,13 +4,13 @@
 #ifndef BOOST_CONCEPT_CHECK_MSVC_DWA2006429_HPP
 # define BOOST_CONCEPT_CHECK_MSVC_DWA2006429_HPP
 
-# include <boost/preprocessor/cat.hpp>
-# include <boost/concept/detail/backward_compatibility.hpp>
-# include <boost/config.hpp>
+# include <sstd/boost/preprocessor/cat.hpp>
+# include <sstd/boost/concept/detail/backward_compatibility.hpp>
+# include <sstd/boost/config.hpp>
 
 # ifdef BOOST_OLD_CONCEPT_SUPPORT
-#  include <boost/concept/detail/has_constraints.hpp>
-#  include <boost/mpl/if.hpp>
+#  include <sstd/boost/concept/detail/has_constraints.hpp>
+#  include <sstd/boost/mpl/if.hpp>
 # endif
 
 # ifdef BOOST_MSVC

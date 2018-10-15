@@ -7,27 +7,27 @@
 #ifndef BOOST_ITERATOR_ADAPTOR_23022003THW_HPP
 #define BOOST_ITERATOR_ADAPTOR_23022003THW_HPP
 
-#include <boost/static_assert.hpp>
+#include <sstd/boost/static_assert.hpp>
 
-#include <boost/iterator/iterator_categories.hpp>
-#include <boost/iterator/iterator_facade.hpp>
-#include <boost/iterator/detail/enable_if.hpp>
+#include <sstd/boost/iterator/iterator_categories.hpp>
+#include <sstd/boost/iterator/iterator_facade.hpp>
+#include <sstd/boost/iterator/detail/enable_if.hpp>
 
-#include <boost/mpl/and.hpp>
-#include <boost/mpl/not.hpp>
-#include <boost/mpl/or.hpp>
+#include <sstd/boost/mpl/and.hpp>
+#include <sstd/boost/mpl/not.hpp>
+#include <sstd/boost/mpl/or.hpp>
 
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/is_convertible.hpp>
+#include <sstd/boost/type_traits/is_same.hpp>
+#include <sstd/boost/type_traits/is_convertible.hpp>
 
 #ifdef BOOST_ITERATOR_REF_CONSTNESS_KILLS_WRITABILITY
-# include <boost/type_traits/remove_reference.hpp>
+# include <sstd/boost/type_traits/remove_reference.hpp>
 #endif
 
-#include <boost/type_traits/add_reference.hpp>
-#include <boost/iterator/detail/config_def.hpp>
+#include <sstd/boost/type_traits/add_reference.hpp>
+#include <sstd/boost/iterator/detail/config_def.hpp>
 
-#include <boost/iterator/iterator_traits.hpp>
+#include <sstd/boost/iterator/iterator_traits.hpp>
 
 namespace boost {
 namespace iterators {
@@ -353,6 +353,6 @@ using iterators::enable_if_convertible;
 
 } // namespace boost
 
-#include <boost/iterator/detail/config_undef.hpp>
+#include <sstd/boost/iterator/detail/config_undef.hpp>
 
 #endif // BOOST_ITERATOR_ADAPTOR_23022003THW_HPP

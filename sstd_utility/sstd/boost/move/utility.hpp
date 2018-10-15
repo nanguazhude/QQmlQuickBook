@@ -10,24 +10,24 @@
 //////////////////////////////////////////////////////////////////////////////
 
 //! \file
-//! This header includes core utilities from <tt><boost/move/utility_core.hpp></tt> and defines
+//! This header includes core utilities from <tt><sstd/boost/move/utility_core.hpp></tt> and defines
 //! some more advanced utilities such as:
 
 #ifndef BOOST_MOVE_MOVE_UTILITY_HPP
 #define BOOST_MOVE_MOVE_UTILITY_HPP
 
 #ifndef BOOST_CONFIG_HPP
-#  include <boost/config.hpp>
+#  include <sstd/boost/config.hpp>
 #endif
 #
 #if defined(BOOST_HAS_PRAGMA_ONCE)
 #  pragma once
 #endif
 
-#include <boost/move/detail/config_begin.hpp>
-#include <boost/move/detail/workaround.hpp>  //forceinline
-#include <boost/move/utility_core.hpp>
-#include <boost/move/traits.hpp>
+#include <sstd/boost/move/detail/config_begin.hpp>
+#include <sstd/boost/move/detail/workaround.hpp>  //forceinline
+#include <sstd/boost/move/utility_core.hpp>
+#include <sstd/boost/move/traits.hpp>
 
 #if defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
 
@@ -145,6 +145,6 @@
 
 #endif   //BOOST_NO_CXX11_RVALUE_REFERENCES
 
-#include <boost/move/detail/config_end.hpp>
+#include <sstd/boost/move/detail/config_end.hpp>
 
 #endif //#ifndef BOOST_MOVE_MOVE_UTILITY_HPP

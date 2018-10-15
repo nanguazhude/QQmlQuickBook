@@ -147,6 +147,7 @@
 #define BOOST_ALL_NO_LIB (1u)
 #endif
 
+/***
 #ifndef BOOST_HAS_STATIC_ASSERT
 #define BOOST_HAS_STATIC_ASSERT (1u)
 #endif
@@ -170,4 +171,4 @@
 #ifndef BOOST_HAS_STDINT_H
 #define BOOST_HAS_STDINT_H (1u)
 #endif 
-
+***/

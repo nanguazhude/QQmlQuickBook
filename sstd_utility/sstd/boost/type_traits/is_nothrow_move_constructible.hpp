@@ -12,12 +12,12 @@
 #define BOOST_TT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_HPP_INCLUDED
 
 #include <cstddef> // size_t
-#include <boost/config.hpp>
-#include <boost/type_traits/intrinsics.hpp>
-#include <boost/type_traits/integral_constant.hpp>
-#include <boost/detail/workaround.hpp>
-#include <boost/type_traits/is_complete.hpp>
-#include <boost/static_assert.hpp>
+#include <sstd/boost/config.hpp>
+#include <sstd/boost/type_traits/intrinsics.hpp>
+#include <sstd/boost/type_traits/integral_constant.hpp>
+#include <sstd/boost/detail/workaround.hpp>
+#include <sstd/boost/type_traits/is_complete.hpp>
+#include <sstd/boost/static_assert.hpp>
 
 #ifdef BOOST_IS_NOTHROW_MOVE_CONSTRUCT
 
@@ -34,8 +34,8 @@ template <class T> struct is_nothrow_move_constructible<const volatile T> : publ
 
 #elif !defined(BOOST_NO_CXX11_NOEXCEPT) && !defined(BOOST_NO_SFINAE_EXPR) && !BOOST_WORKAROUND(BOOST_GCC_VERSION, < 40700)
 
-#include <boost/type_traits/declval.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <sstd/boost/type_traits/declval.hpp>
+#include <sstd/boost/utility/enable_if.hpp>
 
 namespace boost{ namespace detail{
 
@@ -64,9 +64,9 @@ template <class T> struct is_nothrow_move_constructible<T[]> : public ::boost::f
 
 #else
 
-#include <boost/type_traits/has_trivial_move_constructor.hpp>
-#include <boost/type_traits/has_nothrow_copy.hpp>
-#include <boost/type_traits/is_array.hpp>
+#include <sstd/boost/type_traits/has_trivial_move_constructor.hpp>
+#include <sstd/boost/type_traits/has_nothrow_copy.hpp>
+#include <sstd/boost/type_traits/is_array.hpp>
 
 namespace boost{
 

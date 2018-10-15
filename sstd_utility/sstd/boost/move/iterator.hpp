@@ -15,17 +15,17 @@
 #define BOOST_MOVE_ITERATOR_HPP
 
 #ifndef BOOST_CONFIG_HPP
-#  include <boost/config.hpp>
+#  include <sstd/boost/config.hpp>
 #endif
 #
 #if defined(BOOST_HAS_PRAGMA_ONCE)
 #  pragma once
 #endif
 
-#include <boost/move/detail/config_begin.hpp>
-#include <boost/move/detail/workaround.hpp>  //forceinline
-#include <boost/move/detail/iterator_traits.hpp>
-#include <boost/move/utility_core.hpp>
+#include <sstd/boost/move/detail/config_begin.hpp>
+#include <sstd/boost/move/detail/workaround.hpp>  //forceinline
+#include <sstd/boost/move/detail/iterator_traits.hpp>
+#include <sstd/boost/move/utility_core.hpp>
 
 namespace boost {
 
@@ -306,6 +306,6 @@ inline move_insert_iterator<C> move_inserter(C& x, typename C::iterator it)
 
 }  //namespace boost {
 
-#include <boost/move/detail/config_end.hpp>
+#include <sstd/boost/move/detail/config_end.hpp>
 
 #endif //#ifndef BOOST_MOVE_ITERATOR_HPP

@@ -17,11 +17,11 @@
 #ifndef BOOST_INTRUSIVE_POINTER_TRAITS_HPP
 #define BOOST_INTRUSIVE_POINTER_TRAITS_HPP
 
-#include <boost/intrusive/detail/config_begin.hpp>
-#include <boost/intrusive/detail/workaround.hpp>
-#include <boost/intrusive/pointer_rebind.hpp>
-#include <boost/move/detail/pointer_element.hpp>
-#include <boost/intrusive/detail/mpl.hpp>
+#include <sstd/boost/intrusive/detail/config_begin.hpp>
+#include <sstd/boost/intrusive/detail/workaround.hpp>
+#include <sstd/boost/intrusive/pointer_rebind.hpp>
+#include <sstd/boost/move/detail/pointer_element.hpp>
+#include <sstd/boost/intrusive/detail/mpl.hpp>
 #include <cstddef>
 
 #if defined(BOOST_HAS_PRAGMA_ONCE)
@@ -313,6 +313,6 @@ struct pointer_traits<T*>
 }  //namespace container {
 }  //namespace boost {
 
-#include <boost/intrusive/detail/config_end.hpp>
+#include <sstd/boost/intrusive/detail/config_end.hpp>
 
 #endif // ! defined(BOOST_INTRUSIVE_POINTER_TRAITS_HPP)

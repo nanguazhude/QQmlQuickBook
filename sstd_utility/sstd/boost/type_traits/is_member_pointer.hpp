@@ -21,8 +21,8 @@
 #ifndef BOOST_TT_IS_MEMBER_POINTER_HPP_INCLUDED
 #define BOOST_TT_IS_MEMBER_POINTER_HPP_INCLUDED
 
-#include <boost/detail/workaround.hpp>
-#include <boost/type_traits/is_member_function_pointer.hpp>
+#include <sstd/boost/detail/workaround.hpp>
+#include <sstd/boost/type_traits/is_member_function_pointer.hpp>
 
 namespace boost {
 

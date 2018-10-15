@@ -8,11 +8,11 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef BOOST_CORE_POINTER_TRAITS_HPP
 #define BOOST_CORE_POINTER_TRAITS_HPP
 
-#include <boost/config.hpp>
+#include <sstd/boost/config.hpp>
 #if !defined(BOOST_NO_CXX11_POINTER_TRAITS)
 #include <memory>
 #else
-#include <boost/core/addressof.hpp>
+#include <sstd/boost/core/addressof.hpp>
 #endif
 
 namespace boost {

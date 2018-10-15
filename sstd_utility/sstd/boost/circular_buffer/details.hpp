@@ -14,13 +14,13 @@
     #pragma once
 #endif
 
-#include <boost/throw_exception.hpp>
-#include <boost/container/allocator_traits.hpp>
-#include <boost/core/pointer_traits.hpp>
-#include <boost/move/move.hpp>
-#include <boost/type_traits/is_nothrow_move_constructible.hpp>
-#include <boost/utility/addressof.hpp>
-#include <boost/detail/no_exceptions_support.hpp>
+#include <sstd/boost/throw_exception.hpp>
+#include <sstd/boost/container/allocator_traits.hpp>
+#include <sstd/boost/core/pointer_traits.hpp>
+#include <sstd/boost/move/move.hpp>
+#include <sstd/boost/type_traits/is_nothrow_move_constructible.hpp>
+#include <sstd/boost/utility/addressof.hpp>
+#include <sstd/boost/detail/no_exceptions_support.hpp>
 #include <iterator>
 
 // Silence MS /W4 warnings like C4913:

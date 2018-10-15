@@ -6,19 +6,19 @@
 #ifndef BOOST_ITERATOR_CATEGORIES_HPP
 # define BOOST_ITERATOR_CATEGORIES_HPP
 
-# include <boost/config.hpp>
-# include <boost/iterator/detail/config_def.hpp>
+# include <sstd/boost/config.hpp>
+# include <sstd/boost/iterator/detail/config_def.hpp>
 
-# include <boost/detail/workaround.hpp>
+# include <sstd/boost/detail/workaround.hpp>
 
-# include <boost/mpl/eval_if.hpp>
-# include <boost/mpl/identity.hpp>
-# include <boost/mpl/placeholders.hpp>
-# include <boost/mpl/aux_/lambda_support.hpp>
+# include <sstd/boost/mpl/eval_if.hpp>
+# include <sstd/boost/mpl/identity.hpp>
+# include <sstd/boost/mpl/placeholders.hpp>
+# include <sstd/boost/mpl/aux_/lambda_support.hpp>
 
-# include <boost/type_traits/is_convertible.hpp>
+# include <sstd/boost/type_traits/is_convertible.hpp>
 
-# include <boost/static_assert.hpp>
+# include <sstd/boost/static_assert.hpp>
 
 #include <iterator>
 
@@ -211,6 +211,6 @@ using iterators::pure_traversal_tag;
 
 } // namespace boost
 
-#include <boost/iterator/detail/config_undef.hpp>
+#include <sstd/boost/iterator/detail/config_undef.hpp>
 
 #endif // BOOST_ITERATOR_CATEGORIES_HPP

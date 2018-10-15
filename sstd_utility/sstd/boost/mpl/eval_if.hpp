@@ -14,12 +14,12 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/aux_/na_spec.hpp>
-#include <boost/mpl/aux_/lambda_support.hpp>
-#include <boost/mpl/aux_/config/msvc.hpp>
-#include <boost/mpl/aux_/config/gcc.hpp>
-#include <boost/mpl/aux_/config/workaround.hpp>
+#include <sstd/boost/mpl/if.hpp>
+#include <sstd/boost/mpl/aux_/na_spec.hpp>
+#include <sstd/boost/mpl/aux_/lambda_support.hpp>
+#include <sstd/boost/mpl/aux_/config/msvc.hpp>
+#include <sstd/boost/mpl/aux_/config/gcc.hpp>
+#include <sstd/boost/mpl/aux_/config/workaround.hpp>
 
 namespace boost { namespace mpl {
 

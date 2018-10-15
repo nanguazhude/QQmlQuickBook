@@ -12,7 +12,7 @@
 #define BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_CALLABLE_WITH_HPP
 
 #ifndef BOOST_CONFIG_HPP
-#  include <boost/config.hpp>
+#  include <sstd/boost/config.hpp>
 #endif
 
 //In case no decltype and no variadics, mark that we don't support 0 arg calls due to
@@ -28,8 +28,8 @@
 #endif   //#if defined(BOOST_NO_CXX11_DECLTYPE) && defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
 
 #include <cstddef>
-#include <boost/move/utility_core.hpp>
-#include <boost/move/detail/fwd_macros.hpp>
+#include <sstd/boost/move/utility_core.hpp>
+#include <sstd/boost/move/detail/fwd_macros.hpp>
 
 namespace boost_intrusive_hmfcw {
 

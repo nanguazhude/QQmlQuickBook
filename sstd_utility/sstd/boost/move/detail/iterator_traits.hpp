@@ -15,7 +15,7 @@
 #define BOOST_MOVE_DETAIL_ITERATOR_TRAITS_HPP
 
 #ifndef BOOST_CONFIG_HPP
-#  include <boost/config.hpp>
+#  include <sstd/boost/config.hpp>
 #endif
 #
 #if defined(BOOST_HAS_PRAGMA_ONCE)
@@ -23,9 +23,9 @@
 #endif
 
 #include <cstddef>
-#include <boost/move/detail/type_traits.hpp>
+#include <sstd/boost/move/detail/type_traits.hpp>
 
-#include <boost/move/detail/std_ns_begin.hpp>
+#include <sstd/boost/move/detail/std_ns_begin.hpp>
 BOOST_MOVE_STD_NS_BEG
 
 struct input_iterator_tag;
@@ -35,7 +35,7 @@ struct random_access_iterator_tag;
 struct output_iterator_tag;
 
 BOOST_MOVE_STD_NS_END
-#include <boost/move/detail/std_ns_end.hpp>
+#include <sstd/boost/move/detail/std_ns_end.hpp>
 
 namespace boost{  namespace movelib{
 

@@ -186,7 +186,7 @@
 //// Baseline values
 ////
 
-#include <boost/config/compiler/common_edg.hpp>
+#include <sstd/boost/config/compiler/common_edg.hpp>
 
 #define BOOST_HAS_NRVO
 #define BOOST_NO_COMPLETE_VALUE_INITIALIZATION

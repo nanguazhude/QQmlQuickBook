@@ -9,8 +9,8 @@
 #ifndef BOOST_TT_IS_ARITHMETIC_HPP_INCLUDED
 #define BOOST_TT_IS_ARITHMETIC_HPP_INCLUDED
 
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_floating_point.hpp>
+#include <sstd/boost/type_traits/is_integral.hpp>
+#include <sstd/boost/type_traits/is_floating_point.hpp>
 
 namespace boost {
 

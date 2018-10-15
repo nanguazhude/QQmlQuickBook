@@ -15,19 +15,19 @@
 #define BOOST_MOVE_ALGORITHM_HPP
 
 #ifndef BOOST_CONFIG_HPP
-#  include <boost/config.hpp>
+#  include <sstd/boost/config.hpp>
 #endif
 #
 #if defined(BOOST_HAS_PRAGMA_ONCE)
 #  pragma once
 #endif
 
-#include <boost/move/detail/config_begin.hpp>
+#include <sstd/boost/move/detail/config_begin.hpp>
 
-#include <boost/move/utility_core.hpp>
-#include <boost/move/iterator.hpp>
-#include <boost/move/algo/move.hpp>
-#include <boost/detail/no_exceptions_support.hpp>
+#include <sstd/boost/move/utility_core.hpp>
+#include <sstd/boost/move/iterator.hpp>
+#include <sstd/boost/move/algo/move.hpp>
+#include <sstd/boost/detail/no_exceptions_support.hpp>
 
 #include <algorithm> //copy, copy_backward
 #include <memory>    //uninitialized_copy
@@ -162,6 +162,6 @@ inline F copy_or_move(I f, I l, F r
 
 }  //namespace boost {
 
-#include <boost/move/detail/config_end.hpp>
+#include <sstd/boost/move/detail/config_end.hpp>
 
 #endif //#ifndef BOOST_MOVE_ALGORITHM_HPP

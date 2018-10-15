@@ -14,29 +14,29 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/not.hpp>
-#include <boost/mpl/aux_/value_wknd.hpp>
-#include <boost/mpl/aux_/nested_type_wknd.hpp>
-#include <boost/mpl/aux_/yes_no.hpp>
-#include <boost/mpl/aux_/na.hpp>
-#include <boost/mpl/aux_/adl_barrier.hpp>
+#include <sstd/boost/mpl/not.hpp>
+#include <sstd/boost/mpl/aux_/value_wknd.hpp>
+#include <sstd/boost/mpl/aux_/nested_type_wknd.hpp>
+#include <sstd/boost/mpl/aux_/yes_no.hpp>
+#include <sstd/boost/mpl/aux_/na.hpp>
+#include <sstd/boost/mpl/aux_/adl_barrier.hpp>
 
-#include <boost/mpl/aux_/config/nttp.hpp>
-#include <boost/mpl/aux_/config/dtp.hpp>
-#include <boost/mpl/aux_/config/gcc.hpp>
-#include <boost/mpl/aux_/config/msvc.hpp>
-#include <boost/mpl/aux_/config/gpu.hpp>
-#include <boost/mpl/aux_/config/static_constant.hpp>
-#include <boost/mpl/aux_/config/pp_counter.hpp>
-#include <boost/mpl/aux_/config/workaround.hpp>
+#include <sstd/boost/mpl/aux_/config/nttp.hpp>
+#include <sstd/boost/mpl/aux_/config/dtp.hpp>
+#include <sstd/boost/mpl/aux_/config/gcc.hpp>
+#include <sstd/boost/mpl/aux_/config/msvc.hpp>
+#include <sstd/boost/mpl/aux_/config/gpu.hpp>
+#include <sstd/boost/mpl/aux_/config/static_constant.hpp>
+#include <sstd/boost/mpl/aux_/config/pp_counter.hpp>
+#include <sstd/boost/mpl/aux_/config/workaround.hpp>
 
-#include <boost/preprocessor/cat.hpp>
+#include <sstd/boost/preprocessor/cat.hpp>
 
-#include <boost/config.hpp> // make sure 'size_t' is placed into 'std'
+#include <sstd/boost/config.hpp> // make sure 'size_t' is placed into 'std'
 #include <cstddef>
 
 #if BOOST_WORKAROUND(BOOST_MSVC, == 1700)
-#include <boost/mpl/if.hpp>
+#include <sstd/boost/mpl/if.hpp>
 #endif
 
 #if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x610)) \

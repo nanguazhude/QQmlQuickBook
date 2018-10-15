@@ -371,7 +371,7 @@ inline int lstat(p, b) { return stat(p, b); }  // lstat() == stat(), as vxWorks 
 typedef int              locale_t;                     // locale_t is a POSIX-extension, currently not present in vxWorks!
 
 // #include boilerplate code:
-#include <boost/config/detail/posix_features.hpp>
+#include <sstd/boost/config/detail/posix_features.hpp>
 
 // vxWorks lies about XSI conformance, there is no nl_types.h:
 #undef BOOST_HAS_NL_TYPES_H

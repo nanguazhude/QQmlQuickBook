@@ -14,7 +14,7 @@
 #ifndef BOOST_TT_IS_ARRAY_HPP_INCLUDED
 #define BOOST_TT_IS_ARRAY_HPP_INCLUDED
 
-#include <boost/type_traits/integral_constant.hpp>
+#include <sstd/boost/type_traits/integral_constant.hpp>
 #include <cstddef> // size_t
 
 namespace boost {

@@ -87,7 +87,15 @@ class TestDeleteCopyAssign {
     SSTD_DELETE_COPY_ASSIGN(TestDeleteCopyAssign);
 };
 
+#include <sstd_boost.hpp>
+
 int main(int, char **) {
+
+    {
+        boost::circular_buffer<int,sstd::allocator<int>> testBuffer(32);
+        testBuffer.push_back(1);
+        testBuffer.push_back(3);
+    }
 
     {
         auto var = sstd::getTimeStamp();

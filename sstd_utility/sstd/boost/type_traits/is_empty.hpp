@@ -9,13 +9,13 @@
 #ifndef BOOST_TT_IS_EMPTY_HPP_INCLUDED
 #define BOOST_TT_IS_EMPTY_HPP_INCLUDED
 
-#include <boost/type_traits/is_convertible.hpp>
-#include <boost/type_traits/detail/config.hpp>
-#include <boost/type_traits/intrinsics.hpp>
+#include <sstd/boost/type_traits/is_convertible.hpp>
+#include <sstd/boost/type_traits/detail/config.hpp>
+#include <sstd/boost/type_traits/intrinsics.hpp>
 
-#include <boost/type_traits/remove_cv.hpp>
-#include <boost/type_traits/is_class.hpp>
-#include <boost/type_traits/add_reference.hpp>
+#include <sstd/boost/type_traits/remove_cv.hpp>
+#include <sstd/boost/type_traits/is_class.hpp>
+#include <sstd/boost/type_traits/add_reference.hpp>
 
 #ifndef BOOST_INTERNAL_IS_EMPTY
 #define BOOST_INTERNAL_IS_EMPTY(T) false
