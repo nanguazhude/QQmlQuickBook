@@ -16,7 +16,7 @@ namespace sstd {
             DataItem() = default;
             template<typename U>
             DataItem(U && arg) :mmm_Data(std::forward<U>(arg)) {}
-            inline const T getData() const {
+            inline const T & getData() const {
                 std::shared_lock varReadLock{ mmm_Mutex };
                 return mmm_Data;
             }
