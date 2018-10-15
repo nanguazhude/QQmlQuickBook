@@ -149,7 +149,7 @@ namespace sstd::private_thread {
     class StartUpThis {
     public:
         std::shared_ptr<PrivateTimerThread> mmm_Data;
-        /*主线程开始运行时开始计时*/
+        /*构造时开始计时*/
         StartUpThis() {
             mmm_Data = instance();
         }
@@ -159,12 +159,11 @@ namespace sstd::private_thread {
         }
     };
 
-    static StartUpThis globalThis;
-
 }/*namespace sstd*/
 
 namespace sstd {
     std::shared_ptr<TimerThread> getTimeStamp() {
+        static sstd::private_thread::StartUpThis globalThis;
         return sstd::private_thread::instance();
     }
 }/*namespace sstd*/
