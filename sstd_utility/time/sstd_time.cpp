@@ -5,6 +5,7 @@
 #include <atomic>
 #include <thread>
 #include <shared_mutex>
+#include <condition_variable>
 
 namespace sstd {
 
@@ -20,14 +21,20 @@ namespace sstd::private_thread {
         return varAns;
     }
 
-    class PrivateTimerThread :
+    std::atomic<TimerThread::type> & getTimer() {
+        static std::atomic<TimerThread::type> varAns{ (TimerThread::type)(std::time(nullptr)) };
+        return varAns;
+    }
+
+    class PrivateTimerThread final :
         public std::enable_shared_from_this<PrivateTimerThread>,
         public TimerThread {
-        std::atomic<type> mmm_Value{ (type)(std::time(nullptr)) };
+        std::atomic<type> & mmm_Value{ getTimer() };
         std::atomic<bool> & mmm_IsQuit{ isMainQuit() };
         mutable std::shared_mutex mmm_Mutex_Functions;
         sstd::list<std::function<void(void)>> mmm_Functions;
         std::atomic<int> mmm_RunThreadCount{ 0 };
+        std::condition_variable mmm_Wait;
     public:
 
         class Runner final {
@@ -83,41 +90,56 @@ namespace sstd::private_thread {
         }
 
         void postFunction(std::function<void(void)> arg) override {
-            std::unique_lock varWriteLock{ mmm_Mutex_Functions };
-            mmm_Functions.push_back(std::move(arg));
+
+            if (false == bool(arg)) {
+                return;
+            }
+
+            {
+                std::unique_lock varWriteLock{ mmm_Mutex_Functions };
+                mmm_Functions.push_back(std::move(arg));
+            }
+
+            if (mmm_IsQuit.load() == false) {
+                mmm_Wait.notify_all();
+            }
+
+        }
+
+        void callFunctions() {
+            /*确保只额外启动一个执行线程,如果还有执行线程在运行，那么就等下次执行...*/
+            if (mmm_RunThreadCount.load() > 0) {
+                return;
+            }
+
+            /*测试执行是否为空...*/
+            {
+                std::shared_lock varReadLock{ mmm_Mutex_Functions };
+                if (mmm_Functions.empty()) {
+                    return;
+                }
+            }
+
+            /*构造一个执行器*/
+            auto varRunner = sstd::make_shared< Runner >(this);
+
+            /*将执行函数拷贝出来...*/
+            {
+                std::unique_lock varWriteLock{ mmm_Mutex_Functions };
+                varRunner->setFunctions(std::move(mmm_Functions));
+            }
+
+            /*运行执行函数...*/
+            std::thread([varRunner]() mutable { varRunner->run(); }).detach();
         }
 
         void run() {
             while (mmm_IsQuit.load() == false) {
-
-                std::this_thread::sleep_for(500us);
+                std::mutex varMutex;
+                std::unique_lock varLocker{ varMutex };
+                mmm_Wait.wait_for(varLocker, 1s);
                 ++mmm_Value;
-
-                /*确保只额外启动一个执行线程,如果还有执行线程在运行，那么就等下次执行...*/
-                if (mmm_RunThreadCount.load() > 0) {
-                    continue;
-                }
-
-                /*测试执行是否为空...*/
-                {
-                    std::shared_lock varReadLock{ mmm_Mutex_Functions };
-                    if (mmm_Functions.empty()) {
-                        continue;
-                    }
-                }
-
-                /*构造一个执行器*/
-                auto varRunner = sstd::make_shared< Runner >(this);
-
-                /*将执行函数拷贝出来...*/
-                {
-                    std::unique_lock varWriteLock{ mmm_Mutex_Functions };
-                    varRunner->setFunctions(std::move(mmm_Functions));
-                }
-
-                /*运行执行函数...*/
-                std::thread([varRunner]() mutable { varRunner->run(); }).detach();
-
+                callFunctions();
             }/*while*/
         }
 
