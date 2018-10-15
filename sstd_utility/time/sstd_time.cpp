@@ -25,7 +25,7 @@ namespace sstd::private_thread {
         public TimerThread {
         std::atomic<type> mmm_Value{ (type)(std::time(nullptr)) };
         std::atomic<bool> & mmm_IsQuit{ isMainQuit() };
-        std::shared_mutex mmm_Mutex_Functions;
+        mutable std::shared_mutex mmm_Mutex_Functions;
         sstd::list<std::function<void(void)>> mmm_Functions;
         std::atomic<int> mmm_RunThreadCount{ 0 };
     public:
@@ -89,6 +89,7 @@ namespace sstd::private_thread {
 
         void run() {
             while (mmm_IsQuit.load() == false) {
+
                 std::this_thread::sleep_for(500us);
                 ++mmm_Value;
 
@@ -125,6 +126,11 @@ namespace sstd::private_thread {
 
         ~PrivateTimerThread() {
             mmm_IsQuit.store(true);
+        }
+
+        std::size_t functionsAboutToRun() const override {
+            std::shared_lock varReadLock{ mmm_Mutex_Functions };
+            return mmm_Functions.size();
         }
 
     private:
