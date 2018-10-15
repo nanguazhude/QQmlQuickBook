@@ -13,7 +13,8 @@ public:
 class StaticClass2 {
 public:
     int value;
-    StaticClass2(int v) :value(v) {}
+    StaticClass2(int v) :value(v) {
+    }
 public:
     SSTD_MEMORY_DEFINE(StaticClass2)
 };
@@ -31,9 +32,12 @@ public:
     int value_0;
     int value_1;
     int value_2;
-    VirtualClass4(int a, int b, int c) :value_0(a), value_1(b), value_2(c) {}
-    VirtualClass4(int a, int b) :VirtualClass4(a, b, 8) {}
-    VirtualClass4(int a) :VirtualClass4(a, 7, 8) {}
+    VirtualClass4(int a, int b, int c) :value_0(a), value_1(b), value_2(c) {
+    }
+    VirtualClass4(int a, int b) :VirtualClass4(a, b, 8) {
+    }
+    VirtualClass4(int a) :VirtualClass4(a, 7, 8) {
+    }
     virtual ~VirtualClass4() = default;
 public:
     SSTD_MEMORY_DEFINE(VirtualClass4)
@@ -77,13 +81,34 @@ public:
 };
 
 #include <iostream>
+#include <sstd_time.hpp>
 
 int main(int, char **) {
 
     {
-        class A { public: virtual ~A() {} };
-        class B : public A{};
-        class C { public:virtual ~C() {}; };
+        auto var = sstd::getTimeStamp();
+        var->getCurrentTime();
+        var->postFunction([]() {
+            auto var = sstd::getTimeStamp();
+            std::cout << "Y : " << var->getCurrentTime() << std::endl;
+            var->postFunction([]() {
+                auto var = sstd::getTimeStamp();
+                std::cout << "Z : " << var->getCurrentTime() << std::endl;
+            });
+        });
+    }
+
+    {
+        class A {
+        public: virtual ~A() {
+        }
+        };
+        class B : public A {
+        };
+        class C {
+        public:virtual ~C() {
+        };
+        };
         A * a = new B;
         B * b = sstd_dynamic_cast<B*>(a);
         a = sstd_dynamic_cast<A*>(b);
@@ -100,19 +125,18 @@ int main(int, char **) {
                 sm.push(
                     [&test]() {return test; },
                     [&test](auto v) {test = v; });
-            }
-            else {
+            } else {
                 sm.push_value(test, [&test](auto v) {test = v; });
             }
             test = 2;
             assert(test == 2);
         }
-        assert( test == 1 );
+        assert(test == 1);
     }
-    
+
     {
-        assert(0 == *sstd::make_unique<int>() );
-        assert(0 == *sstd::make_shared<double>() );
+        assert(0 == *sstd::make_unique<int>());
+        assert(0 == *sstd::make_shared<double>());
         assert(0 == sstd::make_unique<StaticClass1>()->value);
     }
 
@@ -133,7 +157,7 @@ int main(int, char **) {
     }
 
     {
-        auto varAns = sstdNew<VirtualClass4>(6,7,8);
+        auto varAns = sstdNew<VirtualClass4>(6, 7, 8);
         assert(varAns->value_0 == 6);
         assert(varAns->value_1 == 7);
         assert(varAns->value_2 == 8);
@@ -196,6 +220,11 @@ int main(int, char **) {
         assert(varAns->value == 2);
         delete varAns;
     }
+
+#if defined( _WIN32 )
+    system("pause");
+#endif
+
     return 0;
 }
 
