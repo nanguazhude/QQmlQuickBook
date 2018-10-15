@@ -320,5 +320,6 @@ template<typename $T$, typename ... $T$Args> friend $T$ * sstd::sstdNew($T$Args 
 /**************************************************/
 #include "sstd_state_stack.hpp"
 #include "sstd_dynamic_cast.hpp"
+#include "time/sstd_time.hpp"
 #include "NumberWrapType.hpp"
 

@@ -7,8 +7,6 @@
 #include <shared_mutex>
 #include <condition_variable>
 
-#include <iostream>
-
 namespace sstd {
 
     TimerThread::TimerThread() {
@@ -148,7 +146,7 @@ namespace sstd::private_thread {
                 当等待超时则退出等待
                 当被唤醒100次之后，则退出等待
                 当被唤醒时，检查如果有函数需要运行，则退出等待；
-                如果等待时间超过9ms，则退出等待
+                如果等待时间超过10ms，则退出等待
                 */
                 constexpr const static auto varWaitTime = 10ms;
                 static_assert(varWaitTime > 2ms);
@@ -214,6 +212,7 @@ namespace sstd::private_thread {
 
 namespace sstd {
     std::shared_ptr<TimerThread> getTimeStamp() {
+        /*调用此函数开启计数器*/
         static sstd::private_thread::StartUpThis globalThis;
         return sstd::private_thread::instance();
     }
