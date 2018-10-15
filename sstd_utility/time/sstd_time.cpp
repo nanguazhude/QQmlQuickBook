@@ -45,20 +45,22 @@ namespace sstd::private_thread {
                         return;
                     }
                 }
+                std::remove_cv_t<std::remove_reference_t<decltype(mmm_Functions)>> varFunctions;
                 {
                     std::unique_lock varWriteLock{ mmm_Mutex_Functions };
-                    std::thread([argFunctions = std::move(this->mmm_Functions)]() mutable {
-                        while (argFunctions.empty() == false) {
-                            try {
-                                auto varFunction = std::move(argFunctions.front());
-                                argFunctions.pop_front();
-                                varFunction();
-                            } catch (...) {
-                                /*忽略所有异常*/
-                            }
-                        }
-                    }).detach();
+                    varFunctions = std::move(mmm_Functions);
                 }
+                std::thread([argFunctions = std::move(varFunctions)]() mutable {
+                    while (argFunctions.empty() == false) {
+                        try {
+                            auto varFunction = std::move(argFunctions.front());
+                            argFunctions.pop_front();
+                            varFunction();
+                        } catch (...) {
+                            /*忽略所有异常*/
+                        }
+                    }
+                }).detach();
             }
         }
 
