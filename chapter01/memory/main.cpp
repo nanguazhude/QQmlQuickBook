@@ -88,6 +88,7 @@ int main(int, char **) {
     {
         auto var = sstd::getTimeStamp();
         var->getCurrentTime();
+
         var->postFunction([]() {
             auto var = sstd::getTimeStamp();
             std::cout << "Y : " << var->getCurrentTime() << std::endl;
@@ -96,6 +97,7 @@ int main(int, char **) {
                 std::cout << "Z : " << var->getCurrentTime() << std::endl;
             });
         });
+
     }
 
     {

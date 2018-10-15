@@ -14,14 +14,16 @@ namespace sstd {
         virtual ~TimerThread() = default;
         using type = std::uint64_t;
         /*返回一个时间戳，
-        每次时间戳变化间隔应当小于1s*/
+        返回值应当是递增的，
+        当超过std::uint64_t之后重置为0，
+        至少保证10ms变化一次值*/
         virtual type getCurrentTime() const = 0;
         /*时间戳发生变化时运行此函数一次，
         然后此函数被清除,
         此函数抛出的异常将被忽略,
-        函数执行顺序不被保证
-        函数执行线程不保证
-        函数插入时间点和函数执行时间点间隔不保证
+        函数执行顺序不被保证,
+        函数执行线程不保证,
+        函数插入时间点和函数执行时间点间隔不保证,
         主函数退出后函数是否被运行不被保证*/
         virtual void postFunction(std::function<void(void)>) = 0;
         /*返回队列中还存有多少函数*/

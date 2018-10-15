@@ -7,6 +7,8 @@
 #include <shared_mutex>
 #include <condition_variable>
 
+#include <iostream>
+
 namespace sstd {
 
     TimerThread::TimerThread() {
@@ -22,7 +24,7 @@ namespace sstd::private_thread {
     }
 
     std::atomic<TimerThread::type> & getTimer() {
-        static std::atomic<TimerThread::type> varAns{ (TimerThread::type)(std::time(nullptr)) };
+        static std::atomic<TimerThread::type> varAns{ (255)&((TimerThread::type)(std::time(nullptr))) };
         return varAns;
     }
 
@@ -34,7 +36,7 @@ namespace sstd::private_thread {
         mutable std::shared_mutex mmm_Mutex_Functions;
         sstd::list<std::function<void(void)>> mmm_Functions;
         std::atomic<int> mmm_RunThreadCount{ 0 };
-        std::condition_variable mmm_Wait;
+        mutable std::condition_variable mmm_Wait;
     public:
 
         class Runner final {
@@ -86,6 +88,7 @@ namespace sstd::private_thread {
         }
 
         type getCurrentTime() const override {
+            mmm_Wait.notify_all();
             return mmm_Value.load();
         }
 
@@ -137,7 +140,33 @@ namespace sstd::private_thread {
             while (mmm_IsQuit.load() == false) {
                 std::mutex varMutex;
                 std::unique_lock varLocker{ varMutex };
-                mmm_Wait.wait_for(varLocker, 1s)/*这里可能有虚假唤醒，无关紧要...*/;
+
+                auto varLockBegin = std::chrono::high_resolution_clock::now();
+                int varWakeTimeCount = 0;
+
+                /*
+                当等待超时则退出等待
+                当被唤醒100次之后，则退出等待
+                当被唤醒时，检查如果有函数需要运行，则退出等待；
+                如果等待时间超过9ms，则退出等待
+                */
+                constexpr const static auto varWaitTime = 10ms;
+                static_assert(varWaitTime > 2ms);
+                mmm_Wait.wait_for(varLocker, varWaitTime,/*continue*/
+                    [this, varLockBegin, &varWakeTimeCount]() mutable ->bool {
+                    ++varWakeTimeCount;
+                    if (varWakeTimeCount > 100) {
+                        return true;
+                    }
+
+                    if ((functionsAboutToRun() != 0) && (mmm_RunThreadCount.load() == 0)) {
+                        return true;
+                    }
+
+                    const auto varCurrentTime = std::chrono::high_resolution_clock::now();
+                    return (std::chrono::abs(varCurrentTime - varLockBegin) >= (varWaitTime - 1ms));
+                })/*这里可能有虚假唤醒，无关紧要...*/;
+
                 ++mmm_Value;
                 callFunctions();
             }/*while*/
