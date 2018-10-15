@@ -15,9 +15,14 @@ namespace sstd {
 
 namespace sstd::private_thread {
 
+    std::atomic<bool> & isMainQuit() {
+        static std::atomic<bool> varAns{ false };
+        return varAns;
+    }
+
     class PrivateTimerThread : public TimerThread {
         std::atomic<type> mmm_Value{ (type)(std::time(nullptr)) };
-        std::atomic<bool> mmm_IsQuit{ false };
+        std::atomic<bool> & mmm_IsQuit{ isMainQuit() };
         std::shared_mutex mmm_Mutex_Functions;
         sstd::list<std::function<void(void)>> mmm_Functions;
     public:
