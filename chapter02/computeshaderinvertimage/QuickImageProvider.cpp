@@ -136,7 +136,7 @@ QString sstd::QuickImageProvider::getNextIndexHeader() {
     */
     const auto varAns = image_header() +
         QString::fromUtf16(varIndex.data(), static_cast<int>(varIndex.size())) +
-        QStringLiteral("%1").arg(varRandomCount, 16, 10, QChar('_'));
+        QStringLiteral("%1").arg(varRandomCount, 36, 10, QChar('_'));
     return varAns;
 }
 
