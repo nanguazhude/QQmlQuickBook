@@ -39,17 +39,20 @@ namespace sstd::private_thread {
             while (mmm_IsQuit.load() == false) {
                 std::this_thread::sleep_for(100us);
                 ++mmm_Value;
+                /*测试执行是否为空...*/
                 {
                     std::shared_lock varReadLock{ mmm_Mutex_Functions };
                     if (mmm_Functions.empty()) {
-                        return;
+                        continue;
                     }
                 }
+                /*将执行函数拷贝出来...*/
                 std::remove_cv_t<std::remove_reference_t<decltype(mmm_Functions)>> varFunctions;
                 {
                     std::unique_lock varWriteLock{ mmm_Mutex_Functions };
                     varFunctions = std::move(mmm_Functions);
                 }
+                /*运行执行函数...*/
                 std::thread([argFunctions = std::move(varFunctions)]() mutable {
                     while (argFunctions.empty() == false) {
                         try {
