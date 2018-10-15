@@ -1,4 +1,4 @@
-//
+﻿//
 // (C) Copyright Jeremy Siek 2000.
 // Copyright 2002 The Trustees of Indiana University.
 //

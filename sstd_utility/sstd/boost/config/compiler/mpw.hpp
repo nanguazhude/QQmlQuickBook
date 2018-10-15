@@ -1,4 +1,4 @@
-//  (C) Copyright John Maddock 2001 - 2002.
+﻿//  (C) Copyright John Maddock 2001 - 2002.
 //  (C) Copyright Aleksey Gurtovoy 2002.
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file

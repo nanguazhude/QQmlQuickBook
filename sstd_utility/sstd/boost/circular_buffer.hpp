@@ -1,4 +1,4 @@
-// Circular buffer library header file.
+﻿// Circular buffer library header file.
 
 // Copyright (c) 2003-2008 Jan Gaspar
 

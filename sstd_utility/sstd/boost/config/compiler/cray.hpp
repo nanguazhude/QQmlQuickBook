@@ -1,4 +1,4 @@
-//  Copyright 2011 John Maddock
+﻿//  Copyright 2011 John Maddock
 //  Copyright 2013, 2017-2018 Cray, Inc.
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file

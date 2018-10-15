@@ -1,4 +1,4 @@
-//  (C) Copyright John Maddock 2001 - 2003. 
+﻿//  (C) Copyright John Maddock 2001 - 2003. 
 //  (C) Copyright Darin Adler 2001 - 2002. 
 //  (C) Copyright Bill Kempf 2002. 
 //  Use, modification and distribution are subject to the 

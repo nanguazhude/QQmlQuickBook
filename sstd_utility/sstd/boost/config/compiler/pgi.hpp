@@ -1,4 +1,4 @@
-//  (C) Copyright Noel Belcourt 2007.
+﻿//  (C) Copyright Noel Belcourt 2007.
 //  Copyright 2017, NVIDIA CORPORATION.
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file

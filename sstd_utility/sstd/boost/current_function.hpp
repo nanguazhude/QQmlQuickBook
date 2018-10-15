@@ -1,4 +1,4 @@
-#ifndef BOOST_CURRENT_FUNCTION_HPP_INCLUDED
+﻿#ifndef BOOST_CURRENT_FUNCTION_HPP_INCLUDED
 #define BOOST_CURRENT_FUNCTION_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once

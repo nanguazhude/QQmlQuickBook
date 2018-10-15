@@ -1,4 +1,4 @@
-//  (C) Copyright John Maddock 2001 - 2003.
+﻿//  (C) Copyright John Maddock 2001 - 2003.
 //  (C) Copyright Toon Knapen 2001 - 2003.
 //  (C) Copyright Lie-Quan Lee 2001.
 //  (C) Copyright Markus Schoepflin 2002 - 2003.

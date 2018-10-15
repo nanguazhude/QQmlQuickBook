@@ -1,4 +1,4 @@
-//  (C) Copyright Yuriy Krasnoschek 2009. 
+﻿//  (C) Copyright Yuriy Krasnoschek 2009. 
 //  (C) Copyright John Maddock 2001 - 2003. 
 //  (C) Copyright Jens Maurer 2001 - 2003. 
 //  Use, modification and distribution are subject to the 

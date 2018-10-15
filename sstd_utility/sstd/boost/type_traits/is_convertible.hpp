@@ -1,4 +1,4 @@
-
+﻿
 // Copyright 2000 John Maddock (john@johnmaddock.co.uk)
 // Copyright 2000 Jeremy Siek (jsiek@lsc.nd.edu)
 // Copyright 1999, 2000 Jaakko Jarvi (jaakko.jarvi@cs.utu.fi)

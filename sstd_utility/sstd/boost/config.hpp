@@ -1,4 +1,4 @@
-//  Boost config.hpp configuration header file  ------------------------------//
+﻿//  Boost config.hpp configuration header file  ------------------------------//
 
 //  (C) Copyright John Maddock 2002.
 //  Use, modification and distribution are subject to the 

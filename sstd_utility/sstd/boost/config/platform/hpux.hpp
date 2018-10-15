@@ -1,4 +1,4 @@
-//  (C) Copyright John Maddock 2001 - 2003. 
+﻿//  (C) Copyright John Maddock 2001 - 2003. 
 //  (C) Copyright Jens Maurer 2001 - 2003. 
 //  (C) Copyright David Abrahams 2002. 
 //  (C) Copyright Toon Knapen 2003. 

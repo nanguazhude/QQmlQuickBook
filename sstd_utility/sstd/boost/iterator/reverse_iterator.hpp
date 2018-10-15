@@ -1,4 +1,4 @@
-// (C) Copyright David Abrahams 2002.
+﻿// (C) Copyright David Abrahams 2002.
 // (C) Copyright Jeremy Siek    2002.
 // (C) Copyright Thomas Witt    2002.
 // Distributed under the Boost Software License, Version 1.0. (See

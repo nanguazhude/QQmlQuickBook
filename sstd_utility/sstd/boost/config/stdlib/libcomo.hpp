@@ -1,4 +1,4 @@
-//  (C) Copyright John Maddock 2002 - 2003. 
+﻿//  (C) Copyright John Maddock 2002 - 2003. 
 //  (C) Copyright Jens Maurer 2002 - 2003. 
 //  (C) Copyright Beman Dawes 2002 - 2003. 
 //  Use, modification and distribution are subject to the 

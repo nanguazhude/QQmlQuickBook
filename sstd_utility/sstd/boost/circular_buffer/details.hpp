@@ -1,4 +1,4 @@
-// Helper classes and functions for the circular buffer.
+﻿// Helper classes and functions for the circular buffer.
 
 // Copyright (c) 2003-2008 Jan Gaspar
 // Copyright (c) 2014 Glen Joseph Fernandes   // C++11 allocator model support.

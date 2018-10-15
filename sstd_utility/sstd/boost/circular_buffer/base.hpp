@@ -1,4 +1,4 @@
-// Implementation of the base circular buffer.
+﻿// Implementation of the base circular buffer.
 
 // Copyright (c) 2003-2008 Jan Gaspar
 // Copyright (c) 2013 Paul A. Bristow  // Doxygen comments changed.

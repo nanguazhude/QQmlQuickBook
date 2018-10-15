@@ -1,4 +1,4 @@
-//  Copyright (C) Christof Meerwald 2003
+﻿//  Copyright (C) Christof Meerwald 2003
 //  Copyright (C) Dan Watkins 2003
 //
 //  Use, modification and distribution are subject to the

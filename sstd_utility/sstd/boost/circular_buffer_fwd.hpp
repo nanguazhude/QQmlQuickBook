@@ -1,4 +1,4 @@
-// Forward declaration of the circular buffer and its adaptor.
+﻿// Forward declaration of the circular buffer and its adaptor.
 
 // Copyright (c) 2003-2008 Jan Gaspar
 

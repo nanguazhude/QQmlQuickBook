@@ -1,4 +1,4 @@
-// Debug support for the circular buffer library.
+﻿// Debug support for the circular buffer library.
 
 // Copyright (c) 2003-2008 Jan Gaspar
 

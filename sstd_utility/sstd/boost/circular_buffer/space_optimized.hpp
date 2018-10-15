@@ -1,4 +1,4 @@
-// Implementation of the circular buffer adaptor.
+﻿// Implementation of the circular buffer adaptor.
 
 // Copyright (c) 2003-2008 Jan Gaspar
 // Copyright (c) 2013  Paul A. Bristow // Doxygen comments changed for new version of documentation.

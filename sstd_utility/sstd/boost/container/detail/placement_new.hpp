@@ -1,4 +1,4 @@
-#ifndef BOOST_CONTAINER_DETAIL_PLACEMENT_NEW_HPP
+﻿#ifndef BOOST_CONTAINER_DETAIL_PLACEMENT_NEW_HPP
 #define BOOST_CONTAINER_DETAIL_PLACEMENT_NEW_HPP
 ///////////////////////////////////////////////////////////////////////////////
 //

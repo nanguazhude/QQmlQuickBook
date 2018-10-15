@@ -1,4 +1,4 @@
-//  Boost compiler configuration selection header file
+﻿//  Boost compiler configuration selection header file
 
 //  (C) Copyright John Maddock 2001 - 2003. 
 //  (C) Copyright Martin Wille 2003.

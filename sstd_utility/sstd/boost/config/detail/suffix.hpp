@@ -1,4 +1,4 @@
-//  Boost config.hpp configuration header file  ------------------------------//
+﻿//  Boost config.hpp configuration header file  ------------------------------//
 //  boostinspect:ndprecated_macros -- tell the inspect tool to ignore this file
 
 //  Copyright (c) 2001-2003 John Maddock

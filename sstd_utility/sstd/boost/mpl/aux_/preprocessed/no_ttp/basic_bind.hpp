@@ -1,4 +1,4 @@
-
+﻿
 // Copyright Peter Dimov 2001
 // Copyright Aleksey Gurtovoy 2001-2004
 //

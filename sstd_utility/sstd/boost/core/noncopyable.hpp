@@ -1,4 +1,4 @@
-//  Boost noncopyable.hpp header file  --------------------------------------//
+﻿//  Boost noncopyable.hpp header file  --------------------------------------//
 
 //  (C) Copyright Beman Dawes 1999-2003. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file

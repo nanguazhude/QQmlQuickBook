@@ -1,4 +1,4 @@
-//  (C) Copyright Dustin Spicuzza 2009.
+﻿//  (C) Copyright Dustin Spicuzza 2009.
 //      Adapted to vxWorks 6.9 by Peter Brockamp 2012.
 //      Updated for VxWorks 7 by Brian Kuhl 2016
 //  Use, modification and distribution are subject to the

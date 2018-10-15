@@ -1,4 +1,4 @@
-
+﻿
 //  Copyright 2000 John Maddock (john@johnmaddock.co.uk)
 //  Copyright 2002 Aleksey Gurtovoy (agurtovoy@meta-comm.com)
 //

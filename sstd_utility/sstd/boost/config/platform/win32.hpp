@@ -1,4 +1,4 @@
-//  (C) Copyright John Maddock 2001 - 2003. 
+﻿//  (C) Copyright John Maddock 2001 - 2003. 
 //  (C) Copyright Bill Kempf 2001. 
 //  (C) Copyright Aleksey Gurtovoy 2003. 
 //  (C) Copyright Rene Rivera 2005.

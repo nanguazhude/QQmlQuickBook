@@ -1,4 +1,4 @@
-//  (C) Copyright Bryce Lelbach 2011
+﻿//  (C) Copyright Bryce Lelbach 2011
 
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file

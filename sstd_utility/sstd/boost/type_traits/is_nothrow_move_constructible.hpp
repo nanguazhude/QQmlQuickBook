@@ -1,4 +1,4 @@
-
+﻿
 //  (C) Copyright Steve Cleary, Beman Dawes, Howard Hinnant & John Maddock 2000.
 //  (C) Copyright Eric Friedman 2002-2003.
 //  (C) Copyright Antony Polukhin 2013.

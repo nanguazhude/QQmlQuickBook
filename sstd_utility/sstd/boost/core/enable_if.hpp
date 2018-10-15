@@ -1,4 +1,4 @@
-// Boost enable_if library
+﻿// Boost enable_if library
 
 // Copyright 2003 (c) The Trustees of Indiana University.
 

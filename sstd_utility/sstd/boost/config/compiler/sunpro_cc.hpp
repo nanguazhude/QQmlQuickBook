@@ -1,4 +1,4 @@
-//  (C) Copyright John Maddock 2001.
+﻿//  (C) Copyright John Maddock 2001.
 //  (C) Copyright Jens Maurer 2001 - 2003.
 //  (C) Copyright Peter Dimov 2002.
 //  (C) Copyright Aleksey Gurtovoy 2002 - 2003.
