@@ -1,4 +1,4 @@
-﻿#include "QmlApplicationEngine.hpp"
+﻿#include "RootWindow.hpp"
 #include "QuickImageProvider.hpp"
 #include <QtQuick/qquickitem.h>
 #include <QtQml/qqmlproperty.h>
@@ -11,29 +11,22 @@ namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
 }
 
-void QmlApplicationEngine::ppp_ObjectCreated(QObject *object, const QUrl &url) {
-    auto varWindow = qobject_cast<QQuickWindow *>(object);
-    if ( varWindow ) {
-        qDebug() << varWindow;
-    }
-    (void)url;
-}
+RootWindow::RootWindow() :Super() {
 
-QmlApplicationEngine::QmlApplicationEngine(QObject * parent) :Super(parent) {
-    connect(this,&Super::objectCreated,this, &QmlApplicationEngine::ppp_ObjectCreated);
-    this->addImageProvider(sstd::QuickImageProvider::getIndexHeader(),
+    this->setTitle( trUtf8( u8R"(Compute Shader Invert Image)" ) );
+    this->setMinimumSize({256,256});
+    this->setClearColor(QColor(0,0,0,1));
+
+    this->engine()->addImageProvider(sstd::QuickImageProvider::getIndexHeader(),
         sstd::QuickImageProvider::instance());
     this->load(sstd::getLocalFileFullPath(
         QStringLiteral(R"(myqml/computeshaderinvertimage/main.qml)")));
 
     {
-        const auto varRoots = this->rootObjects();
-        assert(varRoots.size());
-        for (const auto & varI : varRoots) {
-            mmm_ImageSource = varI->findChild<QQuickItem *>(QStringLiteral("imageSource"));
-            mmm_ImageTarget = varI->findChild<QQuickItem *>(QStringLiteral("imageTarget"));
-            if (mmm_ImageTarget && mmm_ImageSource) { break; }
-        }
+        const auto varRoot = this->rootObject();
+        assert(varRoot);
+        mmm_ImageSource = varRoot->findChild<QQuickItem *>(QStringLiteral("imageSource"));
+        mmm_ImageTarget = varRoot->findChild<QQuickItem *>(QStringLiteral("imageTarget"));
     }
 
     assert(mmm_ImageTarget);
@@ -62,12 +55,10 @@ QmlApplicationEngine::QmlApplicationEngine(QObject * parent) :Super(parent) {
             sstd::QuickImageProvider::addImage(varTargetImageID, argImage);
             /*udpate image*/
             QQmlProperty::write(mmm_ImageTarget, QStringLiteral("source"), varTargetImageID);
-        },Qt::QueuedConnection);
+        }, Qt::QueuedConnection);
         varThread->start(sstd::getLocalFileFullPath(
             QStringLiteral("myqml/computeshaderinvertimage/test.png")).toLocalFile());
     }
-
-
 
 }
 

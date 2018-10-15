@@ -8,6 +8,7 @@ QT += quick
 QT += widgets
 
 include($$PWD/../../QQmlQuickBook.pri)
+include($$PWD/../../sstd_utility/sstd_quick.pri)
 DESTDIR = $$RootDestDir
 
 #buildinstall
@@ -29,8 +30,8 @@ HEADERS += $$PWD/RenderThread.hpp
 HEADERS += $$PWD/QuickImageProvider.hpp
 SOURCES += $$PWD/QuickImageProvider.cpp
 
-SOURCES += $$PWD/QmlApplicationEngine.cpp
-HEADERS += $$PWD/QmlApplicationEngine.hpp
+SOURCES += $$PWD/RootWindow.cpp
+HEADERS += $$PWD/RootWindow.hpp
 
 SOURCES += $$PWD/Application.cpp
 HEADERS += $$PWD/Application.hpp

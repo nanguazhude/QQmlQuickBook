@@ -10,7 +10,7 @@
 
 #include "Application.hpp"
 #include <ConstructQSurface.hpp>
-#include "QmlApplicationEngine.hpp"
+#include "RootWindow.hpp"
 
 
 namespace {
@@ -44,11 +44,18 @@ int main(int argc, char ** argv) {
     /*强制加载Qt插件*/
     loadQtPlugins();
     /*加载Qml环境*/
-    QmlApplicationEngine varQmlApplicationEngine;
+    RootWindow varRootWindow;
 
     /*检查Qml是否加载成功*/
-    if (varQmlApplicationEngine.rootObjects().empty()) {
-        return -1;
+    std::unique_ptr<RootWindow> varWindow{ sstdNew<RootWindow>() };
+    {
+        /*检查并报错*/
+        if (varWindow->status() != sstd::LoadState::Ready) {
+            qDebug() << "can not load : " ;
+            return -1;
+        } else {
+            varWindow->show();
+        }
     }
 
     /*启动主线程事件循环程序*/

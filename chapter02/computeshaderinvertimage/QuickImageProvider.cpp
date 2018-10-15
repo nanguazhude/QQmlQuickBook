@@ -22,7 +22,9 @@ namespace {
         void erase(const QString & arg) {
             std::unique_lock varLock{ mmm_Mutex };
             const auto varPos = mmm_Map.find(arg);
-            if (varPos == mmm_Map.end()) { return; }
+            if (varPos == mmm_Map.end()) {
+                return;
+            }
             mmm_Map.erase(varPos);
         }
 
@@ -30,7 +32,9 @@ namespace {
             std::unique_lock varLock{ mmm_Mutex };
             do {
                 auto varPos = mmm_Map.find(argk);
-                if (varPos == mmm_Map.end()) { break; }
+                if (varPos == mmm_Map.end()) {
+                    break;
+                }
                 varPos->second = sstd::aswr(argv);
                 return;
             } while (false);
@@ -40,7 +44,9 @@ namespace {
         QImage get(const QString & argk) {
             std::shared_lock varLock{ mmm_Mutex };
             auto varPos = mmm_Map.find(argk);
-            if (varPos == mmm_Map.end()) { return {}; }
+            if (varPos == mmm_Map.end()) {
+                return {};
+            }
             return varPos->second;
         }
 
@@ -64,11 +70,13 @@ QImage sstd::QuickImageProvider::requestImage(const QString &id,
     QSize *size,
     const QSize& requestedSize) {
     const auto varAns = instanceMap()->get(image_header() + id);
-    if (size) { *size = varAns.size(); }
+    if (size) {
+        *size = varAns.size();
+    }
     if (requestedSize.isValid()) {
         return varAns.scaled(requestedSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     }
-    return varAns; 
+    return varAns;
     (void)requestedSize;
 }
 
@@ -103,8 +111,7 @@ namespace {
             if ('z' == *varPos) {
                 *varPos = 'a';
                 continue;
-            }
-            else {
+            } else {
                 ++(*varPos);
                 break;
             }
@@ -121,9 +128,8 @@ QString sstd::QuickImageProvider::getIndexHeader() {
 
 QString sstd::QuickImageProvider::getNextIndexHeader() {
     const auto varIndex = getIndex();
-    const static auto varRandomBasic = std::chrono::high_resolution_clock::now();
-    const auto varRandomCount = std::chrono::abs(std::chrono::high_resolution_clock::now() - varRandomBasic).count();
-    /*使用 
+    const auto varRandomCount = sstd::getTimeStamp()->getCurrentTime();
+    /*使用
     一个全局计数器+时间戳
     由于计数器非常大(26^32)，在时间戳精度范围内不可能重复
     因而，在现有硬件能力下，返回值是不可能重复的
@@ -137,8 +143,7 @@ QString sstd::QuickImageProvider::getNextIndexHeader() {
 void sstd::QuickImageProvider::addImage(const QString & argID, const QImage & argValue) {
     if ((argValue.width() < 1) || (argValue.height() < 1)) {
         instanceMap()->erase(argID);
-    }
-    else {
+    } else {
         instanceMap()->add(argID, argValue);
     }
 }

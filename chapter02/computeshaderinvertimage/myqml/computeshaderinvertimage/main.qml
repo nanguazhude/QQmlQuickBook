@@ -2,14 +2,12 @@
 import QtQuick 2.11
 import QtQuick.Window 2.11
 
-
-Window {
+Rectangle {
 
     color: Qt.rgba(0.2,0.3,0.3,1)
     visible: true
     width: 640
     height: 480
-    title: qsTr("computeshaderinvertimage")
 
     Item{
 
