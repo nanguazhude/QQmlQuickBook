@@ -36,9 +36,9 @@ namespace sstd {
             Atomic(Atomic&&)=delete;
             Atomic&operator=(Atomic&)=delete;
             Atomic&operator=(Atomic&&)=delete;
-            const T & getData() const {
+            T getData() const {
                 std::shared_lock varReadLock{mmm_Mutex};
-                return mmm_Data;
+                return mmm_Data/*value copy*/;
             }
             template<typename U>
             bool setData( U && a ) {
