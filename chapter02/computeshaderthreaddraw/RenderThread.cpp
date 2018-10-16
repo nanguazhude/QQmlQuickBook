@@ -355,7 +355,7 @@ u8R"(
 /*简单片段着色器，用于给索引图片着色*/
 #version 450
 
-layout ( std140 ,binding = 2 ) uniform ExampleBlock {
+layout ( std140 ,binding = 2 ) uniform ColorMapBlock {
     vec4 argMappedColor[256];
 };
 
