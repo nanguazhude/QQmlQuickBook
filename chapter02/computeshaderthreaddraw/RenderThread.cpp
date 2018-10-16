@@ -186,7 +186,6 @@ namespace {
     FINAL_CLASS_TYPE_ASSIGN(ProgramIndexToColorImageType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(ImageFloatIndexTextureType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(ImageAtomicMaxValueBufferType, sstd::NumberWrapType<GLuint>);
-    FINAL_CLASS_TYPE_ASSIGN(AtomicCountType, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(ImageIndex256Type, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(SimpleTextureVAO, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(SimpleTextureVAOBuffer, sstd::NumberWrapType<GLuint>);
