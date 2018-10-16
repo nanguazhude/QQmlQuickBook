@@ -120,7 +120,7 @@ namespace {
         glAttachShader(varProgram, varShader[1]);
         glLinkProgram(varProgram);
 
-        if constexpr (true) {
+        if constexpr (false) {
 
             auto printProgramInfo = [](GLuint e) {
                 /*获得错误大小*/
@@ -253,7 +253,7 @@ void sstd::RenderThread::run() try {
         return;
     }
 
-    //glBindFramebuffer(GL_FRAMEBUFFER, varFBOIndex);
+    glBindFramebuffer(GL_FRAMEBUFFER, varFBOIndex);
     glViewport(0, 0, varFBOWidth, varFBOHeight);
 
     std::array<GLfloat, 4> mmm_ClearColor{ 1.0f,1.0f, 1.0f, 1.0f };
@@ -327,7 +327,7 @@ void main(void) {
 
 )"sv);
 
-    std::get<ProgramNumberImageToIndexType>(varRenderData) = buildVFShader(
+    std::get<ProgramIndexToColorImageType >(varRenderData) = buildVFShader(
         u8R"(
 /*简单顶点着色器，用于渲染一个图片*/
 #version 450
@@ -335,6 +335,7 @@ void main(void) {
 layout( location = 0 ) in vec4 argPosition;
 layout( location = 1 ) in vec4 argTexturePos;
 out vec4 ioTexturePos ;
+
 void main(){
     ioTexturePos = argTexturePos ;
     gl_Position = argPosition    ;
@@ -352,12 +353,12 @@ layout(binding=1) uniform sampler2D argTexture ;
 void main(){
     float varColorInputIndex = texture2D( argTexture , ioTexturePos.xy ).r ;
     float x = varColorInputIndex/256;
-    outColor = vec4(1,1,1,1);
+    outColor = vec4(x,x,1,1);
 }
 
 )"sv);
 
-    {
+    if constexpr(true){
         /*创建Texture*/
         glCreateTextures(GL_TEXTURE_2D, 1, std::get<ImageFloatIndexTextureType>(varRenderData).pointer());
         /*分配内存*/
@@ -380,7 +381,7 @@ void main(){
     }
 
     /*生成图像*/
-    {
+    if constexpr (true) {
         glUseProgram(std::get<ProgramGetNumberImageType>(varRenderData));
         glBindImageTexture(0, std::get<ImageFloatIndexTextureType>(varRenderData), 0, false, 0, GL_WRITE_ONLY, GL_R32F);
         glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, std::get<ImageAtomicMaxValueBufferType>(varRenderData));
@@ -396,7 +397,7 @@ void main(){
     }
 
     /*缩放到[0-255]*/
-    {
+    if constexpr (true) {
         glUseProgram(std::get<ProgramNumberImageToIndexType>(varRenderData));
         glBindImageTexture(0, std::get<ImageFloatIndexTextureType>(varRenderData), 0, false, 0, GL_READ_ONLY, GL_R32F);
         glBindImageTexture(1, std::get<ImageIndex256Type>(varRenderData), 0, false, 0, GL_WRITE_ONLY, GL_R8UI);
@@ -407,9 +408,9 @@ void main(){
     /*着色*/
     {
         glUseProgram(std::get<ProgramIndexToColorImageType>(varRenderData));
-        glBindTexture(GL_TEXTURE_2D, std::get<ImageIndex256Type>(varRenderData));
-        glActiveTexture(GL_TEXTURE0 + 1);
-        glBindTextureUnit(1, std::get<ImageIndex256Type>(varRenderData));
+        //glBindTexture(GL_TEXTURE_2D, std::get<ImageIndex256Type>(varRenderData));
+        //glActiveTexture(GL_TEXTURE0 + 1);
+        //glBindTextureUnit(1, std::get<ImageIndex256Type>(varRenderData));
         glCreateVertexArrays(1, std::get<SimpleTextureVAO>(varRenderData).pointer());
         glBindVertexArray(std::get<SimpleTextureVAO>(varRenderData));
         glCreateBuffers(1, std::get<SimpleTextureVAOBuffer>(varRenderData).pointer());
@@ -443,6 +444,7 @@ void main(){
 
         glNamedBufferData(std::get<SimpleTexuterVAOIndexBuffer>(varRenderData), sizeof(varVAOIndex), varVAOIndex.data(), GL_STATIC_DRAW);
         glVertexArrayElementBuffer(std::get<SimpleTextureVAO>(varRenderData), std::get<SimpleTexuterVAOIndexBuffer>(varRenderData));
+        
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
     }
 
