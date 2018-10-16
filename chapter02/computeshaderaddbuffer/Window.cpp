@@ -36,6 +36,7 @@ void Window::initializeGL() {
     this->makeCurrent();
     glewInitialize();
 
+    /*开启OpengGL调试环境*/
     gl_debug_function_lock();
 
     mmm_DrawData = sstdNew<DrawData>();
@@ -46,21 +47,21 @@ void Window::initializeGL() {
     mmm_DrawData->mmm_Timer->start(10);
     /*************************************************************************/
     const static constexpr GLfloat varInitData[]{ 1,2,3,4 };
-    //在显卡上创建输入缓冲区
+    /*在显卡上创建输入缓冲区，提示将数据存在显存里*/
     glCreateBuffers(1, &(mmm_DrawData->mmm_InputBuffer));
     glNamedBufferStorage(mmm_DrawData->mmm_InputBuffer,
         sizeof(varInitData),
         varInitData,
         GL_DYNAMIC_STORAGE_BIT | GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
 
-    //在显卡上创建输出缓冲区
+    /*在显卡上创建输出缓冲区，提示将数据存在内存里*/
     glCreateBuffers(1, &(mmm_DrawData->mmm_OutputBuffer));
     glNamedBufferStorage(mmm_DrawData->mmm_OutputBuffer,
         sizeof(varInitData),
         varInitData,
         GL_CLIENT_STORAGE_BIT | GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
 
-    //编译连接glsl源码，生成程序
+    /*编译连接glsl源码，生成程序*/
     const GLchar * varShaderSource[] = { u8R"___(
 #version 450
 layout (local_size_x = 1 , local_size_y = 1 , local_size_z = 1) in;
@@ -80,7 +81,6 @@ void main(void){
     mmm_DrawData->mmm_Program = glCreateProgram();
     glAttachShader(mmm_DrawData->mmm_Program, varShader);
     glLinkProgram(mmm_DrawData->mmm_Program);
-
     glDeleteShader(varShader);
 
 }
@@ -104,7 +104,7 @@ void Window::paintGL() {
     /*开启OpenGL调试环境*/
     gl_debug_function_lock();
 
-    /*为了照顾数学不好的孩子，这里只让显卡做2以内的加法*/
+    /*初始化输入数据和输出数据*/
     GLfloat varInput[4];
     GLfloat varOutput[4];
 
