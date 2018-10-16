@@ -37,7 +37,7 @@ void RootWindow::openglDraw() {
 
 }
 
-void RootWindow::initialize() {
+void RootWindow::initializeAndDraw() {
     if (getContex()) {
         return openglDraw();
     }
@@ -50,7 +50,7 @@ void RootWindow::initialize() {
 }
 
 void RootWindow::exposeEvent(QExposeEvent *event) {
-    this->initialize();
+    this->initializeAndDraw();
     (void)event;
 }
 
@@ -78,7 +78,7 @@ RootWindow::~RootWindow() {
 bool RootWindow::event(QEvent *event) {
     switch (event->type()) {
         case QEvent::UpdateRequest:
-            this->initialize();
+            this->initializeAndDraw();
             return true;
         default:
             return QWindow::event(event);

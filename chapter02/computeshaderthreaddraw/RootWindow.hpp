@@ -57,7 +57,7 @@ public:
         return mmm_Mutex;
     }
 protected:
-    void initialize();
+    void initializeAndDraw();
     void openglDraw();
     bool event(QEvent *event)override;
     void exposeEvent(QExposeEvent *event) override;
