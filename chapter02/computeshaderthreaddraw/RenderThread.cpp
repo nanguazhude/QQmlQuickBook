@@ -120,7 +120,7 @@ namespace {
         glAttachShader(varProgram, varShader[1]);
         glLinkProgram(varProgram);
 
-        if constexpr (false) {
+        if constexpr (true) {
 
             auto printProgramInfo = [](GLuint e) {
                 /*获得错误大小*/
@@ -253,7 +253,7 @@ void sstd::RenderThread::run() try {
         return;
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, varFBOIndex);
+    //glBindFramebuffer(GL_FRAMEBUFFER, varFBOIndex);
     glViewport(0, 0, varFBOWidth, varFBOHeight);
 
     std::array<GLfloat, 4> mmm_ClearColor{ 1.0f,1.0f, 1.0f, 1.0f };
@@ -352,29 +352,31 @@ layout(binding=1) uniform sampler2D argTexture ;
 void main(){
     float varColorInputIndex = texture2D( argTexture , ioTexturePos.xy ).r ;
     float x = varColorInputIndex/256;
-    outColor = vec4(x,x,x,1);
+    outColor = vec4(1,1,1,1);
 }
 
 )"sv);
 
-    /*创建Texture*/
-    glCreateTextures(GL_TEXTURE_2D, 1, std::get<ImageFloatIndexTextureType>(varRenderData).pointer());
-    /*分配内存*/
-    /*https://www.khronos.org/opengl/wiki/Texture_Storage */
-    glTextureStorage2D(std::get<ImageFloatIndexTextureType>(varRenderData), 1, GL_R32F, varFBOWidth, varFBOHeight);
-
-    /*创建Texture*/
-    glCreateTextures(GL_TEXTURE_2D, 1, std::get<ImageIndex256Type>(varRenderData).pointer());
-    glTextureStorage2D(std::get<ImageIndex256Type>(varRenderData), 1, GL_R8UI, varFBOWidth, varFBOHeight);
-
-    /*创建原子计数器*/
-    glCreateBuffers(1, std::get<ImageAtomicMaxValueBufferType>(varRenderData).pointer());
     {
-        const std::array<GLuint, 4> varTmpInitData{ 0,0,0,0 };
-        glNamedBufferStorage(std::get<ImageAtomicMaxValueBufferType>(varRenderData),
-            sizeof(varTmpInitData),
-            varTmpInitData.data(),
-            GL_DYNAMIC_STORAGE_BIT);
+        /*创建Texture*/
+        glCreateTextures(GL_TEXTURE_2D, 1, std::get<ImageFloatIndexTextureType>(varRenderData).pointer());
+        /*分配内存*/
+        /*https://www.khronos.org/opengl/wiki/Texture_Storage */
+        glTextureStorage2D(std::get<ImageFloatIndexTextureType>(varRenderData), 1, GL_R32F, varFBOWidth, varFBOHeight);
+
+        /*创建Texture*/
+        glCreateTextures(GL_TEXTURE_2D, 1, std::get<ImageIndex256Type>(varRenderData).pointer());
+        glTextureStorage2D(std::get<ImageIndex256Type>(varRenderData), 1, GL_R8UI, varFBOWidth, varFBOHeight);
+
+        /*创建原子计数器*/
+        glCreateBuffers(1, std::get<ImageAtomicMaxValueBufferType>(varRenderData).pointer());
+        {
+            const std::array<GLuint, 4> varTmpInitData{ 0,0,0,0 };
+            glNamedBufferStorage(std::get<ImageAtomicMaxValueBufferType>(varRenderData),
+                sizeof(varTmpInitData),
+                varTmpInitData.data(),
+                GL_DYNAMIC_STORAGE_BIT);
+        }
     }
 
     /*生成图像*/
@@ -417,12 +419,14 @@ void main(){
             GLfloat x, y, z, w;
             GLfloat s, t, p, q;
         };
-        constexpr const static std::array<DataRow, 4> varVAOData{ DataRow {},
-        DataRow {},
-        DataRow {},
-        DataRow {}
+        constexpr const static std::array<DataRow, 4> varVAOData{ DataRow {-1,1,0,1,/**/0,1,0,1},
+        DataRow {-1,-1,0,1,/**/0,0,0,1},
+        DataRow {1,-1,0,1,/**/1,0,0,1},
+        DataRow {1,1,0,1,/**/1,1,0,1}
         };
         constexpr const static std::array<std::uint16_t, 6> varVAOIndex{
+            3,2,1,
+            3,1,0
         };
 
         glNamedBufferData(std::get<SimpleTextureVAOBuffer>(varRenderData), sizeof(varVAOData), varVAOData.data(), GL_STATIC_DRAW);
