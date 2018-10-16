@@ -189,7 +189,7 @@ namespace {
     FINAL_CLASS_TYPE_ASSIGN(ImageIndex256Type, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(SimpleTextureVAO, sstd::NumberWrapType<GLuint>);
     FINAL_CLASS_TYPE_ASSIGN(SimpleTextureVAOBuffer, sstd::NumberWrapType<GLuint>);
-    FINAL_CLASS_TYPE_ASSIGN(SimpleTextureColorMapBuffer, sstd::NumberWrapType<GLuint>);
+    FINAL_CLASS_TYPE_ASSIGN(SimpleTexuterVAOIndexBuffer, sstd::NumberWrapType<GLuint>);
 
     using PrivateGLRenderData = std::tuple<
         ProgramGetNumberImageType,
@@ -200,7 +200,7 @@ namespace {
         ImageIndex256Type,
         SimpleTextureVAO,
         SimpleTextureVAOBuffer,
-        SimpleTextureColorMapBuffer
+        SimpleTexuterVAOIndexBuffer
     >;
     class GLRenderData final : public PrivateGLRenderData {
     public:
@@ -217,7 +217,7 @@ namespace {
             glDeleteBuffers(1, std::get<ImageAtomicMaxValueBufferType>(*this).pointer());
             glDeleteVertexArrays(1, std::get<SimpleTextureVAO>(*this).pointer());
             glDeleteBuffers(1, std::get<SimpleTextureVAOBuffer>(*this).pointer());
-            glDeleteBuffers(1, std::get<SimpleTextureColorMapBuffer>(*this).pointer());
+            glDeleteBuffers(1, std::get<SimpleTexuterVAOIndexBuffer>(*this).pointer());
         }
 
     };
@@ -253,7 +253,7 @@ void sstd::RenderThread::run() try {
         return;
     }
 
-    /*TODO : set target fbo*/
+    glBindFramebuffer(GL_FRAMEBUFFER, varFBOIndex);
     glViewport(0, 0, varFBOWidth, varFBOHeight);
 
     std::array<GLfloat, 4> mmm_ClearColor{ 1.0f,1.0f, 1.0f, 1.0f };
@@ -345,9 +345,9 @@ u8R"(
 /*简单片段着色器，用于给索引图片着色*/
 #version 450
 
-in vec4 ioTexturePos         ;
-out vec4 outColor            ;
-uniform sampler2D argTexture ;
+in vec4 ioTexturePos                           ;
+out vec4 outColor                              ;
+layout(binding=1) uniform sampler2D argTexture ;
 
 void main(){
     float varColorInputIndex = texture2D( argTexture , ioTexturePos.xy ).r ;
@@ -405,7 +405,41 @@ void main(){
     /*着色*/
     {
         glUseProgram(std::get<ProgramIndexToColorImageType>(varRenderData));
+        glBindTexture(GL_TEXTURE_2D, std::get<ImageIndex256Type>(varRenderData));
+        glActiveTexture(GL_TEXTURE0 + 1);
+        glBindTextureUnit(1, std::get<ImageIndex256Type>(varRenderData));
+        glCreateVertexArrays(1, std::get<SimpleTextureVAO>(varRenderData).pointer());
+        glBindVertexArray(std::get<SimpleTextureVAO>(varRenderData));
+        glCreateBuffers(1, std::get<SimpleTextureVAOBuffer>(varRenderData).pointer());
+        glCreateBuffers(1, std::get<SimpleTexuterVAOIndexBuffer>(varRenderData).pointer());
+        class DataRow {
+        public:
+            GLfloat x, y, z, w;
+            GLfloat s, t, p, q;
+        };
+        constexpr const static std::array<DataRow, 4> varVAOData{ DataRow {},
+        DataRow {},
+        DataRow {},
+        DataRow {}
+        };
+        constexpr const static std::array<std::uint16_t, 6> varVAOIndex{
+        };
 
+        glNamedBufferData(std::get<SimpleTextureVAOBuffer>(varRenderData), sizeof(varVAOData), varVAOData.data(), GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexArrayVertexBuffer(std::get<SimpleTextureVAO>(varRenderData), 0, std::get<SimpleTextureVAOBuffer>(varRenderData), 0, sizeof(DataRow));
+        glVertexArrayAttribFormat(std::get<SimpleTextureVAO>(varRenderData), 0, 4, GL_FLOAT, false, 0);
+        glVertexArrayAttribBinding(std::get<SimpleTextureVAO>(varRenderData), 0, 0);
+
+        glEnableVertexAttribArray(1);
+        glVertexArrayVertexBuffer(std::get<SimpleTextureVAO>(varRenderData), 1, std::get<SimpleTextureVAOBuffer>(varRenderData), (sizeof(DataRow) >> 1), sizeof(DataRow));
+        glVertexArrayAttribFormat(std::get<SimpleTextureVAO>(varRenderData), 1, 4, GL_FLOAT, false, 0);
+        glVertexArrayAttribBinding(std::get<SimpleTextureVAO>(varRenderData), 1, 1);
+
+        glNamedBufferData(std::get<SimpleTexuterVAOIndexBuffer>(varRenderData), sizeof(varVAOIndex), varVAOIndex.data(), GL_STATIC_DRAW);
+        glVertexArrayElementBuffer(std::get<SimpleTextureVAO>(varRenderData), std::get<SimpleTexuterVAOIndexBuffer>(varRenderData));
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
     }
 
 
