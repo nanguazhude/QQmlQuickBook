@@ -22,7 +22,8 @@ struct SimpleCallBack {
         using super = sstd::string;
     public:
         string(const std::string_view &arg) :
-            super(arg.data(), arg.size()) {}
+            super(arg.data(), arg.size()) {
+        }
     };
 
 
@@ -54,37 +55,37 @@ struct SimpleCallBack {
 
     static inline std::string_view severity_to_string(GLenum i) {
         switch (i) {
-        case GL_DEBUG_SEVERITY_LOW:return "GL_DEBUG_SEVERITY_LOW"sv;
-        case GL_DEBUG_SEVERITY_MEDIUM:return "GL_DEBUG_SEVERITY_MEDIUM"sv;
-        case GL_DEBUG_SEVERITY_HIGH:return "GL_DEBUG_SEVERITY_HIGH"sv;
-        case GL_DEBUG_SEVERITY_NOTIFICATION:return "GL_DEBUG_SEVERITY_NOTIFICATION"sv;
+            case GL_DEBUG_SEVERITY_LOW:return "GL_DEBUG_SEVERITY_LOW"sv;
+            case GL_DEBUG_SEVERITY_MEDIUM:return "GL_DEBUG_SEVERITY_MEDIUM"sv;
+            case GL_DEBUG_SEVERITY_HIGH:return "GL_DEBUG_SEVERITY_HIGH"sv;
+            case GL_DEBUG_SEVERITY_NOTIFICATION:return "GL_DEBUG_SEVERITY_NOTIFICATION"sv;
         }
         return "Unknow Severity"sv;
     }
 
     static inline std::string_view source_to_string(GLenum i) {
         switch (i) {
-        case  GL_DEBUG_SOURCE_API:return "GL_DEBUG_SOURCE_API"sv;
-        case  GL_DEBUG_SOURCE_WINDOW_SYSTEM:return "GL_DEBUG_SOURCE_WINDOW_SYSTEM"sv;
-        case  GL_DEBUG_SOURCE_SHADER_COMPILER:return "GL_DEBUG_SOURCE_SHADER_COMPILER"sv;
-        case  GL_DEBUG_SOURCE_THIRD_PARTY:return "GL_DEBUG_SOURCE_THIRD_PARTY"sv;
-        case  GL_DEBUG_SOURCE_APPLICATION: return "GL_DEBUG_SOURCE_APPLICATION"sv;
-        case  GL_DEBUG_SOURCE_OTHER:return "GL_DEBUG_SOURCE_OTHER"sv;
+            case  GL_DEBUG_SOURCE_API:return "GL_DEBUG_SOURCE_API"sv;
+            case  GL_DEBUG_SOURCE_WINDOW_SYSTEM:return "GL_DEBUG_SOURCE_WINDOW_SYSTEM"sv;
+            case  GL_DEBUG_SOURCE_SHADER_COMPILER:return "GL_DEBUG_SOURCE_SHADER_COMPILER"sv;
+            case  GL_DEBUG_SOURCE_THIRD_PARTY:return "GL_DEBUG_SOURCE_THIRD_PARTY"sv;
+            case  GL_DEBUG_SOURCE_APPLICATION: return "GL_DEBUG_SOURCE_APPLICATION"sv;
+            case  GL_DEBUG_SOURCE_OTHER:return "GL_DEBUG_SOURCE_OTHER"sv;
         }
         return "Unknow Source"sv;
     }
 
     static inline std::string_view type_to_string(GLenum i) {
         switch (i) {
-        case  GL_DEBUG_TYPE_ERROR:return "GL_DEBUG_TYPE_ERROR"sv;
-        case  GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:return "GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR"sv;
-        case  GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:return "GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR"sv;
-        case  GL_DEBUG_TYPE_PORTABILITY:return "GL_DEBUG_TYPE_PORTABILITY"sv;
-        case  GL_DEBUG_TYPE_PERFORMANCE:return "GL_DEBUG_TYPE_PERFORMANCE"sv;
-        case  GL_DEBUG_TYPE_MARKER:return "GL_DEBUG_TYPE_MARKER"sv;
-        case  GL_DEBUG_TYPE_PUSH_GROUP:return "GL_DEBUG_TYPE_PUSH_GROUP"sv;
-        case  GL_DEBUG_TYPE_POP_GROUP:return "GL_DEBUG_TYPE_POP_GROUP"sv;
-        case  GL_DEBUG_TYPE_OTHER:return "GL_DEBUG_TYPE_OTHER"sv;
+            case  GL_DEBUG_TYPE_ERROR:return "GL_DEBUG_TYPE_ERROR"sv;
+            case  GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:return "GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR"sv;
+            case  GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:return "GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR"sv;
+            case  GL_DEBUG_TYPE_PORTABILITY:return "GL_DEBUG_TYPE_PORTABILITY"sv;
+            case  GL_DEBUG_TYPE_PERFORMANCE:return "GL_DEBUG_TYPE_PERFORMANCE"sv;
+            case  GL_DEBUG_TYPE_MARKER:return "GL_DEBUG_TYPE_MARKER"sv;
+            case  GL_DEBUG_TYPE_PUSH_GROUP:return "GL_DEBUG_TYPE_PUSH_GROUP"sv;
+            case  GL_DEBUG_TYPE_POP_GROUP:return "GL_DEBUG_TYPE_POP_GROUP"sv;
+            case  GL_DEBUG_TYPE_OTHER:return "GL_DEBUG_TYPE_OTHER"sv;
         }
         return "Unknow Type"sv;
     }
@@ -110,8 +111,7 @@ struct SimpleCallBack {
                 if ((type == GL_DEBUG_TYPE_PUSH_GROUP)) {
                     ++getDebugGroupCount();
                     return;
-                }
-                else if (type == GL_DEBUG_TYPE_POP_GROUP) {
+                } else if (type == GL_DEBUG_TYPE_POP_GROUP) {
                     --getDebugGroupCount();
                     return;
                 }
@@ -143,14 +143,22 @@ struct SimpleCallBack {
         Print<GLuint>::print("id:"sv, id);
         Print<std::string_view>::print("severity:"sv, severity, severity_to_string(severity));
         std::string mes(message, length);
-        qDebug()
-            << QStringLiteral("message: ")
-            << QString::fromUtf8(mes.c_str())
-            << endl
-            << "log index : "
-            << ++varDebugIndex
-            << endl
-            << QStringLiteral("--------------------------------------");
+
+        {
+            QString varDebugText;
+            {
+                QTextStream varStream{ &varDebugText };
+                varStream << QStringLiteral("message: ")
+                    << QString::fromUtf8(mes.c_str())
+                    << endl
+                    << "log index : "
+                    << ++varDebugIndex
+                    << endl
+                    << QStringLiteral("--------------------------------------");
+            }
+            qDebug() << varDebugText;
+        }
+
     }
 
 };
@@ -176,8 +184,7 @@ static inline void setSimpleCallbackFunction() {
     glGetIntegerv(GL_CONTEXT_FLAGS, &v);
     if (GL_CONTEXT_FLAG_DEBUG_BIT&v) {
         qDebug() << "simple debug function set!";
-    }
-    else {
+    } else {
         qDebug() << "debug function set failed!";
     }
 }
@@ -198,16 +205,6 @@ static inline bool __qWindowInitializeGlew() {
         this_file_quick_exit();
         return false;
     }/****/
-
-    /****************************************/
-    //OpengGL Debug Function
-#if defined(ENABLE_GL_DEBUG)
-    setSimpleCallbackFunction();
-#else
-    glDisable(GL_DEBUG_OUTPUT);
-    glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-#endif
-    /****************************************/
     return true;
 }
 
@@ -220,18 +217,33 @@ static inline std::once_flag & __call_once_flag() {
     return ans;
 }
 
+static inline void initializeOpenGLDebug() {
+    /****************************************/
+    //OpengGL Debug Function
+#if defined(ENABLE_GL_DEBUG)
+    setSimpleCallbackFunction();
+#else
+    glDisable(GL_DEBUG_OUTPUT);
+    glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+#endif
+    /****************************************/
+}
+
 extern bool glewInitialize() {
+
     if constexpr (true) {
         /*只初始化一次就可...*/
         static bool ans = false;
         std::call_once(__call_once_flag(), &__run_once_wrap, &ans);
+        initializeOpenGLDebug();
         return ans;
-    }
-    else {
+    } else {
         /*每个线程初仅始化opengl一次*/
         thread_local const bool varAns = __qWindowInitializeGlew();
+        initializeOpenGLDebug();
         return varAns;
     }
+
 }
 
 /**
