@@ -13,6 +13,7 @@
 #include <QtGui/qoffscreensurface.h>
 #include <ConstructQSurface.hpp>
 
+
 extern bool glewInitialize();
 
 sstd::RenderThread::RenderThread(RootWindow * arg) : mmm_DrawWindow(arg) {
@@ -155,7 +156,7 @@ namespace {
             glCompileShader(varShader);
         }
 
-        if constexpr (false) {
+        if constexpr (false ) {
             auto printErrorDetail = [](GLuint e) {
                 GLint log_length;
                 glGetShaderiv(e, GL_INFO_LOG_LENGTH, &log_length);
@@ -272,15 +273,20 @@ layout(local_size_x = 1       ,
 
 layout(binding =  0, r32f)        uniform writeonly image2D argImageOutput  ;
 layout(binding =  1, offset = 0 ) uniform atomic_uint argRenderMax          ;
-layout(location = 2)              uniform vec2 C = vec2( 1 , 1)             ;
-layout(location = 3)              uniform uint varMaxValue = (1024*1024)    ;
+layout(location = 2)              uniform vec2 C1 = vec2( 0.5 , 0.5)        ;
+layout(location = 3)              uniform int varMaxValue = (1024*1024)    ;
 
 void main(void) {
 
     ivec2  varPos   = ivec2( gl_WorkGroupID.xy ) ;
-    uint   varCount = 0 ;
+    int   varCount = 0 ;
     
-    vec2 Z = gl_WorkGroupID.xy;
+    vec2 Z = vec2(0);
+    vec2 C = gl_WorkGroupID.xy ;
+    C.x /= gl_NumWorkGroups.x;
+    C.y /= gl_NumWorkGroups.y;
+    C.x -= C1.x;
+    C.y -= C1.y;
     vec2 Z_squared; 
     for( ;  varCount < varMaxValue ; ++varCount ){
         Z_squared.x = Z.x * Z.x - Z.y * Z.y;
@@ -290,13 +296,15 @@ void main(void) {
         if( Z.y > 2 ){ break ; }
     }
 
+    if( varCount >= varMaxValue ){ varCount = 0 ; }
     atomicCounterMax( argRenderMax , varCount );
-    imageStore( argImageOutput , varPos , vec4(varCount,0,0,1) ) ;
+    imageStore( argImageOutput , varPos , vec4(varCount,1,1,1) ) ;
 
 }
 
 /**
 https://www.khronos.org/opengl/wiki/Atomic_Counter
+https://www.waitig.com/opengl4-3%E6%96%B0%E7%89%B9%E6%80%A7-%E8%AE%A1%E7%AE%97%E7%9D%80%E8%89%B2%E5%99%A8-compute-shader.html
 **/
 
 )"sv);
@@ -309,20 +317,24 @@ layout(local_size_x = 1       ,
        local_size_y = 1       ,
        local_size_z = 1    ) in ;
 
-layout(binding = 0,r32f)  uniform readonly  image2D  argImageInput  ;
-layout(binding = 1,r8ui)  uniform writeonly uimage2D argImageOutput ;
-layout(location = 2 )     uniform uint      argRenderMax            ;
+layout (binding = 0,r32f)  uniform readonly  image2D  argImageInput  ;
+layout (binding = 1,r8ui)  uniform writeonly uimage2D argImageOutput ;
+/*glUniformBlockBinding*/
+layout (std140 ,binding = 2 ) uniform InputUniformBlock {
+    int argRenderMax ;
+}  ;
+ 
 
 void main(void) {
      ivec2 varPos   = ivec2( gl_WorkGroupID.xy          )   ;
      float varColor = imageLoad(argImageInput , varPos  ).r ;
-     if(argRenderMax>0){
+     if( argRenderMax>0 ){
         varColor /= argRenderMax  ;
         varColor *= 255           ;
      }else{
         varColor = 0              ;
      }
-     imageStore( argImageOutput , varPos , uvec4( clamp( int(varColor) , 0 , 255 ) ,0,0,1) ) ;
+     imageStore( argImageOutput , varPos , uvec4( clamp( int(varColor) , 0 , 255) , 0 , 0 , 1 ) ) ;
 }
 
 )"sv);
@@ -352,13 +364,13 @@ layout(binding=1) uniform sampler2D argTexture ;
 
 void main(){
     float varColorInputIndex = texture2D( argTexture , ioTexturePos.xy ).r ;
-    float x = varColorInputIndex/256;
-    outColor = vec4(x,x,1,1);
+    float x = varColorInputIndex                                         ;
+    outColor = vec4(x,0,0,1)                                               ;
 }
 
 )"sv);
 
-    if constexpr(true){
+    if constexpr (true) {
         /*创建Texture*/
         glCreateTextures(GL_TEXTURE_2D, 1, std::get<ImageFloatIndexTextureType>(varRenderData).pointer());
         /*分配内存*/
@@ -367,7 +379,7 @@ void main(){
 
         /*创建Texture*/
         glCreateTextures(GL_TEXTURE_2D, 1, std::get<ImageIndex256Type>(varRenderData).pointer());
-        glTextureStorage2D(std::get<ImageIndex256Type>(varRenderData), 1, GL_R8UI, varFBOWidth, varFBOHeight);
+        glTextureStorage2D(std::get<ImageIndex256Type>(varRenderData), 1, GL_R8, varFBOWidth, varFBOHeight);
 
         /*创建原子计数器*/
         glCreateBuffers(1, std::get<ImageAtomicMaxValueBufferType>(varRenderData).pointer());
@@ -386,14 +398,30 @@ void main(){
         glBindImageTexture(0, std::get<ImageFloatIndexTextureType>(varRenderData), 0, false, 0, GL_WRITE_ONLY, GL_R32F);
         glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, std::get<ImageAtomicMaxValueBufferType>(varRenderData));
         {/*set C*/
-            std::array<GLfloat, 2> varC{ 1.0f,1.0f };
+            const std::array<GLfloat, 2> varC{ 0.50f,0.50f };
             glUniform2fv(2, 1, varC.data());
         }
         {/*set MaxValue*/
-            std::array<GLuint, 1> varMaxValue{ 1024 * 1024 };
-            glUniform1ui(3, varMaxValue[0]);
+            const std::array<int, 1> varMaxValue{ 1024 };
+            glUniform1i(3, varMaxValue[0]);
         }
         glDispatchCompute(varFBOWidth, varFBOHeight, 1);
+    }
+
+    /*用于调试，返回生成的图像*/
+    if constexpr (false) {
+        glFinish();
+        sstd::vector<GLfloat> varData;
+        varData.resize(varFBOHeight * varFBOWidth);
+        /*https://www.khronos.org/opengl/wiki/GLAPI/glGetTexImage */
+        glGetTextureImage(std::get<ImageFloatIndexTextureType>(varRenderData),
+            0,
+            GL_RED, GL_FLOAT,
+            static_cast<int>(varData.size() * sizeof(GLfloat)),
+            varData.data());
+        for (const auto & varI : varData) {
+            qDebug() << varI;
+        }
     }
 
     /*缩放到[0-255]*/
@@ -401,16 +429,32 @@ void main(){
         glUseProgram(std::get<ProgramNumberImageToIndexType>(varRenderData));
         glBindImageTexture(0, std::get<ImageFloatIndexTextureType>(varRenderData), 0, false, 0, GL_READ_ONLY, GL_R32F);
         glBindImageTexture(1, std::get<ImageIndex256Type>(varRenderData), 0, false, 0, GL_WRITE_ONLY, GL_R8UI);
+        glBindBuffer(GL_UNIFORM_BUFFER,std::get<ImageAtomicMaxValueBufferType>(varRenderData));
+        //glUniformBlockBinding(std::get<ImageAtomicMaxValueBufferType>(varRenderData),2,2);
         glBindBufferBase(GL_UNIFORM_BUFFER, 2, std::get<ImageAtomicMaxValueBufferType>(varRenderData));
         glDispatchCompute(varFBOWidth, varFBOHeight, 1);
+    }
+
+    /*用于调试，返回生成的图像*/
+    if constexpr (true) {
+        glFinish();
+        sstd::vector<unsigned char> varData;
+        varData.resize(varFBOHeight * varFBOWidth * 2/*保证是一个偶数*/, char(0));
+        /*https://www.khronos.org/opengl/wiki/GLAPI/glGetTexImage */
+        glGetTextureImage(std::get<ImageIndex256Type>(varRenderData),
+            0,
+            GL_RED, GL_UNSIGNED_BYTE,
+            static_cast<int>(varData.size() * sizeof(unsigned char)),
+            varData.data());
+        qDebug() << std::any_of(varData.begin(), varData.end(), [](const auto & i) {return i != 0; });
     }
 
     /*着色*/
     {
         glUseProgram(std::get<ProgramIndexToColorImageType>(varRenderData));
-        //glBindTexture(GL_TEXTURE_2D, std::get<ImageIndex256Type>(varRenderData));
-        //glActiveTexture(GL_TEXTURE0 + 1);
-        //glBindTextureUnit(1, std::get<ImageIndex256Type>(varRenderData));
+        glBindTexture(GL_TEXTURE_2D, std::get<ImageIndex256Type>(varRenderData));
+        glActiveTexture(GL_TEXTURE0 + 1);
+        glBindTextureUnit(1, std::get<ImageIndex256Type>(varRenderData));
         glCreateVertexArrays(1, std::get<SimpleTextureVAO>(varRenderData).pointer());
         glBindVertexArray(std::get<SimpleTextureVAO>(varRenderData));
         glCreateBuffers(1, std::get<SimpleTextureVAOBuffer>(varRenderData).pointer());
@@ -444,7 +488,7 @@ void main(){
 
         glNamedBufferData(std::get<SimpleTexuterVAOIndexBuffer>(varRenderData), sizeof(varVAOIndex), varVAOIndex.data(), GL_STATIC_DRAW);
         glVertexArrayElementBuffer(std::get<SimpleTextureVAO>(varRenderData), std::get<SimpleTexuterVAOIndexBuffer>(varRenderData));
-        
+
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
     }
 
