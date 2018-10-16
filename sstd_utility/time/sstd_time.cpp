@@ -139,7 +139,7 @@ namespace sstd::private_thread {
                 std::mutex varMutex;
                 std::unique_lock varLocker{ varMutex };
 
-                auto varLockBegin = std::chrono::high_resolution_clock::now();
+                auto varLockBegin = std::chrono::steady_clock::now();
                 int varWakeTimeCount = 0;
 
                 /*
@@ -161,7 +161,7 @@ namespace sstd::private_thread {
                         return true;
                     }
 
-                    const auto varCurrentTime = std::chrono::high_resolution_clock::now();
+                    const auto varCurrentTime = std::chrono::steady_clock::now();
                     return (std::chrono::abs(varCurrentTime - varLockBegin) >= (varWaitTime - 1ms));
                 })/*这里可能有虚假唤醒，无关紧要...*/;
 
