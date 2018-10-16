@@ -121,7 +121,7 @@ namespace {
         glAttachShader(varProgram, varShader[1]);
         glLinkProgram(varProgram);
 
-        if constexpr (true) {
+        if constexpr (false) {
 
             auto printProgramInfo = [](GLuint e) {
                 /*获得错误大小*/
@@ -297,19 +297,13 @@ void main(void) {
         Z = Z_squared + C                  ;
         if( length(Z) > 1.9999999999 ){ break; }
     }
-/*https://blog.csdn.net/whoispo/article/details/49557823 */
 
     if( varCount >= varMaxValue ){ varCount = 0 ; }
-    //varCount = log( varCount );
     atomicCounterMax( argRenderMax , varCount );
     imageStore( argImageOutput , varPos , vec4(varCount,1,1,1) ) ;
 
 }
 
-/**
-https://www.khronos.org/opengl/wiki/Atomic_Counter
-https://www.waitig.com/opengl4-3%E6%96%B0%E7%89%B9%E6%80%A7-%E8%AE%A1%E7%AE%97%E7%9D%80%E8%89%B2%E5%99%A8-compute-shader.html
-**/
 
 )"sv);
 
@@ -372,7 +366,8 @@ layout (binding=1) uniform sampler2D argTexture ;
 
 void main(){
     float varColorInputIndex = texture2D( argTexture , ioTexturePos.xy ).r ;
-    outColor = argMappedColor[ clamp( int(1024*varColorInputIndex) , 0 , 255 ) ] ;
+    varColorInputIndex = sqrt(varColorInputIndex);
+    outColor = argMappedColor[ clamp( int( 512 * varColorInputIndex ) , 0 , 255 ) ] ;
 }
 
 )"sv);
@@ -381,7 +376,6 @@ void main(){
         /*创建Texture*/
         glCreateTextures(GL_TEXTURE_2D, 1, std::get<ImageFloatIndexTextureType>(varRenderData).pointer());
         /*分配内存*/
-        /*https://www.khronos.org/opengl/wiki/Texture_Storage */
         glTextureStorage2D(std::get<ImageFloatIndexTextureType>(varRenderData), 1, GL_R32F, varFBOWidth, varFBOHeight);
 
         /*创建Texture*/
@@ -420,7 +414,6 @@ void main(){
         glFinish();
         sstd::vector<GLfloat> varData;
         varData.resize(varFBOHeight * varFBOWidth);
-        /*https://www.khronos.org/opengl/wiki/GLAPI/glGetTexImage */
         glGetTextureImage(std::get<ImageFloatIndexTextureType>(varRenderData),
             0,
             GL_RED, GL_FLOAT,
@@ -440,11 +433,10 @@ void main(){
     }
 
     /*用于调试，返回生成的图像*/
-    if constexpr (true) {
+    if constexpr (false) {
         glFinish();
         sstd::vector<unsigned char> varData;
-        varData.resize(varFBOHeight * varFBOWidth * 2/*保证是一个偶数*/, char(0));
-        /*https://www.khronos.org/opengl/wiki/GLAPI/glGetTexImage */
+        varData.resize((1 + varFBOHeight)* (1 + varFBOWidth), char(0));
         glGetTextureImage(std::get<ImageIndex256Type>(varRenderData),
             0,
             GL_RED, GL_UNSIGNED_BYTE,
