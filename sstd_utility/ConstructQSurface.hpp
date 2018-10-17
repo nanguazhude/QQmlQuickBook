@@ -4,7 +4,7 @@
 #include <QtGui/qopenglcontext.h>
 #include <QtGui/qsurfaceformat.h>
 #if defined(__glew_h__)||defined(__GLEW_H__)
-/***********************/
+    /***********************/
 #else
 #include <QtGui/qopenglfunctions.h>
 #include <QtGui/qopenglfunctions_4_5_core.h>
@@ -41,7 +41,7 @@ namespace sstd {
     }
 
 #if defined(__glew_h__)||defined(__GLEW_H__)
-
+    /***********************/
 #else
     using OpenGLFunctions = QOpenGLFunctions_4_5_Core;
 #endif

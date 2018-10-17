@@ -1,4 +1,5 @@
-﻿
+﻿#pragma once
+
 #if defined(QT_CORE_LIB)
 #include <QtCore/qobject.h>
 #endif

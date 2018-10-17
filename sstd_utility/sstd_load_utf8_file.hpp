@@ -1,11 +1,16 @@
 ﻿#pragma once 
 
 #include <fstream>
+
+#if defined(QT_CORE_LIB)
 #include <QtCore/qdir.h>
+#endif
+
 #include "sstd_memory.hpp"
 
 namespace sstd {
 
+    /*读取一个utf8文件，如果有bom则去除，并为文件最后加一行空行*/
     inline sstd::string load_file_remove_utf8(const std::filesystem::path & arg,
         char * varTmpBuffer = nullptr,
         std::streamsize varTmpBufferSize = 0) {
@@ -18,7 +23,7 @@ namespace sstd {
         };
         std::unique_ptr< tmp_buffer_type> varTmpBufferTmp;
         do {
-            if (varTmpBuffer && (varTmpBufferSize > 16)) { break; }
+            if (varTmpBuffer && (varTmpBufferSize >= 16)) { break; }
             varTmpBufferTmp = sstd::make_unique<tmp_buffer_type>();
             varTmpBuffer = varTmpBufferTmp->data();
             varTmpBufferSize = varSize;
@@ -49,6 +54,7 @@ namespace sstd {
         return std::move(varAns);
     }
 
+#if defined(QT_CORE_LIB)
     inline sstd::string load_file_remove_utf8(const QString & a,
         char * b = nullptr,
         std::streamsize c = 0) {
@@ -61,6 +67,7 @@ namespace sstd {
             std::filesystem::u8path(varU8Path.data(),
                 varU8Path.data() + varU8Path.size()),b, c);
     }
+#endif
 
 }/*namespace sstd*/
 

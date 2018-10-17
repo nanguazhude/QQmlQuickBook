@@ -11,7 +11,7 @@
 
 #include "Application.hpp"
 #include <ConstructQSurface.hpp>
-#include "MainWidget.hpp"
+#include "sstd_Window.hpp"
 
 #include <iostream>
 
@@ -46,7 +46,7 @@ int main(int argc, char ** argv) {
     /*强制加载Qt插件*/
     loadQtPlugins();
     /*加载Qml环境*/
-    auto varWindow = sstd::make_unique<MainWidget>();
+    auto varWindow = sstd::make_unique<sstd::Window>();
     varWindow->show();
     /*启动主线程事件循环程序*/
     return varApp.exec();

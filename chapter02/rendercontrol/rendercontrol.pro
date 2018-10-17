@@ -46,10 +46,10 @@ HEADERS += $$PWD/sstd_Render.hpp
 SOURCES += $$PWD/sstd_RenderThread.cpp
 HEADERS += $$PWD/sstd_RenderThread.hpp
 
-SOURCES += $$PWD/MainWidget.cpp
-HEADERS += $$PWD/MainWidget.hpp
-
 HEADERS += $$PWD/sstd_RenderPack.hpp
 SOURCES += $$PWD/sstd_RenderPack.cpp
+
+HEADERS += $$PWD/sstd_Window.hpp
+SOURCES += $$PWD/sstd_Window.cpp
 
 include($$PWD/this/this.pri)
