@@ -1,16 +1,19 @@
 ﻿#include "sstd_Window.hpp"
 #include <ConstructQSurface.hpp>
+#include <QtQuick/qquickview.h>
+#include <QtQuick/qquickrendercontrol.h>
+#include <QtGui/qoffscreensurface.h>
 
 namespace sstd {
 
     Window::Window() {
 
-        mmm_Mutex = sstd::make_shared<ClassState>();
+        mmm_Mutex = sstd::make_shared<WindowState>();
 
         this->setMinimumHeight(128);
         this->setMinimumWidth(128);
 
-        /*创建OpenGL渲染环境*/
+        /*标记为OpenGL渲染环境*/
         this->setSurfaceType(QSurface::OpenGLSurface);
         this->setFormat(sstd::getDefaultOpenGLFormat());
 
@@ -59,11 +62,28 @@ namespace sstd {
             mmm_Contex->create();
         }
         /*************************************************/
-
+        auto varRender = makeRender();
         /*************************************************/
     }
 
-} // namespace sstd
+    std::shared_ptr<sstd::RenderPack> Window::makeRender() {
+        if (mmm_RenderPack) {
+            return mmm_RenderPack;
+        }
+        /*this function should be run in main thread*/
+        auto varPack = sstd::make_shared<sstd::RenderPack>();
+        mmm_RenderPack = varPack;
+        varPack->targetWindow = this;
+        varPack->targetWindowState = this->mmm_Mutex;
+        varPack->targetWindowContex = this->mmm_Contex;
+        varPack->sourceOffscreenSurface = sstd::make_shared<QOffscreenSurface>();
+        varPack->sourceViewControl = sstd::make_shared<QQuickRenderControl>();
+        varPack->sourceView = sstd::make_shared<QQuickWindow>(varPack->sourceViewControl.get());
+        return std::move(varPack);
+    }
+
+} /*namespace sstd*/
+
 
 
 
