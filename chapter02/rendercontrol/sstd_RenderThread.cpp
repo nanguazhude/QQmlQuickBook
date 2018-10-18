@@ -15,8 +15,7 @@ namespace {
         sstd::vector< std::packaged_task<void(void)> > mmm_calls;
         std::shared_ptr< sstd::vector< std::future<void> > > mmm_ans;
     public:
-        CallEvent(sstd::vector< std::packaged_task<void(void)> > arg) :QEvent(getEventIndex())  {
-            using T = std::packaged_task<void(void)>;
+        CallEvent(sstd::vector< std::packaged_task<void(void)> > arg) :QEvent(getEventIndex()) {
             mmm_ans = sstd::make_shared<sstd::vector< std::future<void> >>();
             mmm_calls = std::move(arg);
             mmm_ans->reserve(arg.size());

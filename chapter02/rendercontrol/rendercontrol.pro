@@ -51,7 +51,7 @@ HEADERS += $$PWD/sstd_WindowState.hpp
 HEADERS += $$PWD/sstd_RenderPack.hpp
 SOURCES += $$PWD/sstd_RenderPack.cpp
 
-
+include($$PWD/../../sstd_utility/sstd_quick.pri)
 
 
 
