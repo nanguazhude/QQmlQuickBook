@@ -214,11 +214,14 @@ namespace sstd {
     void Window::ppp_RenderRequested() {
         assert(QThread::currentThread() == thread());
         ppp_Init();
-        mmm_RenderPack->renderThread->runInThisThread(
-            [renderPack = mmm_RenderPack]() {
-            auto varRenderControl = renderPack->sourceViewControl.get();
-            varRenderControl->render();
-            /**/});
+       
+        auto varRenderThread = mmm_RenderPack->renderThread;
+        /*render and draw in target ... */
+        std::tuple<
+            RenderSourceWindow,
+            DrawOnTarget > varDrawSteps{mmm_RenderPack,mmm_RenderPack };
+        varRenderThread->applyInThisThread(std::move(varDrawSteps));
+
     }
 
     void Window::ppp_SceneChanged() {
@@ -246,7 +249,7 @@ namespace sstd {
             /*sync need block main thread ...*/
             varFutures->data()->wait();
         }
-
+        
     }
 
 } /*namespace sstd*/
