@@ -70,7 +70,13 @@ namespace {
         }
 
         void operator()() {
-             
+            mmm_RenderPack->sourceContex->makeCurrent(mmm_RenderPack->targetWindow);
+                       
+            GLuint varVAO;
+            glCreateVertexArrays(1,&varVAO);
+
+
+            mmm_RenderPack->sourceContex->swapBuffers(mmm_RenderPack->targetWindow);
         }
 
     };
@@ -142,13 +148,13 @@ namespace sstd {
             mmm_Contex = sstdNew<QOpenGLContext>();
             mmm_Contex->setFormat(sstd::getDefaultOpenGLFormat());
             mmm_Contex->create();
+            /*make current in this thread*/
+            mmm_Contex->makeCurrent(this);
+            glewInitialize();
         }
-
-        /*make current in this thread*/
-        mmm_Contex->makeCurrent(this);
-        glewInitialize();
+                
         /*************************************************/
-        auto varRender = makeRender();
+        makeRender();
         /*************************************************/
 
     }
