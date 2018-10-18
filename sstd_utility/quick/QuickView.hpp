@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "sstd_quick_library_global.hpp"
 #include "../sstd_memory.hpp"
 #include <cstddef>
 #include <cstdint>
@@ -31,7 +32,7 @@ namespace sstd {
     };
     Q_ENUM_NS(LoadState)
 
-    class AbstractRootWindow {
+    class _1_SSTD_QUICK_LIBRARY_EXPORT AbstractRootWindow {
     public:
         virtual WindowType getWindowType() const=0;
         virtual QObject * getObject() const =0;
@@ -55,7 +56,7 @@ namespace sstd {
 
     namespace _private_sstd {
 
-        class _WindowPrivate : public QuickViewWindow ,
+        class _1_SSTD_QUICK_LIBRARY_EXPORT _WindowPrivate : public QuickViewWindow ,
             public virtual AbstractRootWindow {
             Q_OBJECT
         public:
@@ -81,7 +82,7 @@ namespace sstd {
             SSTD_MEMORY_QOBJECT_DEFINE(_WindowPrivate)
         };
 
-        class _WidgetPrivate :public QuickViewWidget,
+        class _1_SSTD_QUICK_LIBRARY_EXPORT _WidgetPrivate :public QuickViewWidget,
             public virtual AbstractRootWindow {
             Q_OBJECT
         public:

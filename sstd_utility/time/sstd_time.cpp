@@ -1,4 +1,8 @@
-﻿#include <sstd_memory.hpp>
+﻿#if defined(NO_SSTD_TIME_CPP)
+
+#else
+
+#include <sstd_memory.hpp>
 #include "sstd_time.hpp"
 #include <ctime>
 #include <memory>
@@ -217,4 +221,6 @@ namespace sstd {
         return sstd::private_thread::instance();
     }
 }/*namespace sstd*/
+
+#endif
 

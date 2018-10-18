@@ -1,4 +1,8 @@
-﻿#if defined(_DEBUG)
+﻿#if defined(NO_SSTD_DEBUG_CPP)
+
+#else/*NO_SSTD_DEBUG_CPP*/
+
+#if defined(_DEBUG)
 
 #if defined(QT_CORE_LIB)
 
@@ -111,7 +115,7 @@ Debugging QML Applications
 **/
 
 
-
+#endif/*NO_SSTD_DEBUG_CPP*/
 
 
 

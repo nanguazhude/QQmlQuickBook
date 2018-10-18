@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "sstd_quick_library_global.hpp"
 #include <sstd_memory.hpp>
 #include <QtCore/qthread.h>
 #include <QtCore/qobject.h>
@@ -12,7 +13,7 @@ namespace sstd {
 
     namespace private_quick_thread_sstd {
 
-        class RunEventObject : public QObject {
+        class _1_SSTD_QUICK_LIBRARY_EXPORT RunEventObject : public QObject {
             Q_OBJECT
         public:
             RunEventObject(std::shared_ptr<std::atomic_bool>);
@@ -25,7 +26,7 @@ namespace sstd {
 
     }/*private_sstd*/
 
-    class QuickThread : public QThread {
+    class _1_SSTD_QUICK_LIBRARY_EXPORT QuickThread : public QThread {
         Q_OBJECT
     public:
         ~QuickThread();
