@@ -1,8 +1,10 @@
 ﻿#pragma once
 
 #if defined(_MSC_VER)
-#pragma warning (disable: 4291) 
+#pragma warning (disable: 4291)
 #endif
+
+#include "sstd_core_library/global_sstd_core_library.hpp"
 
 #include <cassert>
 #include <cstdint>
@@ -35,29 +37,39 @@ using namespace std::string_view_literals;
 #include <forward_list>
 
 namespace sstd {
-    class SSTDMemory {
+    class _1_SSTD_CORE_EXPORT SSTDMemory {
     public:
-        static inline void* operator new  (std::size_t, void* ptr) noexcept { return ptr; }
-        static inline void* operator new[](std::size_t, void* ptr) noexcept { return ptr; }
+        static constexpr inline void* operator new  (std::size_t, void* ptr) noexcept {
+            return ptr;
+        }
+        static constexpr inline void* operator new[](std::size_t, void* ptr) noexcept { 
+            return ptr; 
+        }
+        static constexpr inline void operator delete  (void *, void *) noexcept {
+        }
+        static constexpr inline void operator delete[](void *, void *) noexcept {
+        }
     public:
-        static inline void* operator new (std::size_t count) { return ::operator new(count); }
-        static inline void operator delete(void * ptr) { return ::operator delete(ptr); }
+        static void* operator new (std::size_t count);
+        static void operator delete(void * ptr);
     public:
-        static inline void* operator new[](std::size_t count) { return ::operator new(count); }
-        static inline void operator delete[](void * ptr) { return ::operator delete(ptr); }
+        static void* operator new[](std::size_t count);
+        static void operator delete[](void * ptr);
     public:
-        static inline void* operator new(std::size_t count, std::align_val_t al) { return ::operator new(count, al); }
-        static inline void operator delete(void* ptr, std::align_val_t al) { return ::operator delete(ptr, al); }
+        static void* operator new(std::size_t count, std::align_val_t al);
+        static void operator delete(void* ptr, std::align_val_t al);
     public:
-        static inline void* operator new[](std::size_t count, std::align_val_t al) { return ::operator new(count, al); }
-        static inline void operator delete[](void* ptr, std::align_val_t al) { return ::operator delete(ptr, al); }
+        static void* operator new[](std::size_t count, std::align_val_t al);
+        static void operator delete[](void* ptr, std::align_val_t al);
     };
 }/*namespace sstd*/
 
 #ifndef ____SSTD_MEMORY_DEFINE
 #define ____SSTD_MEMORY_DEFINE($M$) public : static constexpr inline std::size_t ___$p$class_size() noexcept {/*check __VA_ARGS__ : typename is right*/ return sizeof($M$); } \
-static inline void* operator new  (std::size_t count, void* ptr) { return sstd::SSTDMemory::operator new(count,ptr); } \
-static inline void* operator new[](std::size_t count, void* ptr) { return sstd::SSTDMemory::operator new[](count,ptr); } \
+static inline constexpr void* operator new  (std::size_t count, void* ptr) { return sstd::SSTDMemory::operator new(count,ptr); } \
+static inline constexpr void* operator new[](std::size_t count, void* ptr) { return sstd::SSTDMemory::operator new[](count,ptr); } \
+static constexpr inline void operator delete  (void * a, void * b) noexcept{ return sstd::SSTDMemory::operator delete(a,b); } \
+static constexpr inline void operator delete[](void * a, void * b) noexcept { return sstd::SSTDMemory::operator delete[](a,b); } \
 static inline void* operator new (std::size_t count) { return sstd::SSTDMemory::operator new(count); } \
 static inline void operator delete(void * ptr) { return sstd::SSTDMemory::operator delete(ptr); } \
 static inline void* operator new[](std::size_t count) { return sstd::SSTDMemory::operator new(count); } \
@@ -65,7 +77,7 @@ static inline void operator delete[](void * ptr) { return sstd::SSTDMemory::oper
 static inline void* operator new(std::size_t count, std::align_val_t al) { return sstd::SSTDMemory::operator new(count, al); } \
 static inline void operator delete(void* ptr, std::align_val_t al) { return sstd::SSTDMemory::operator delete(ptr, al); } \
 static inline void* operator new[](std::size_t count, std::align_val_t al) { return sstd::SSTDMemory::operator new(count, al); } \
-static inline void operator delete[](void* ptr, std::align_val_t al) { return sstd::SSTDMemory::operator delete(ptr, al); } 
+static inline void operator delete[](void* ptr, std::align_val_t al) { return sstd::SSTDMemory::operator delete(ptr, al); }
 #endif
 
 #if defined(QT_CORE_LIB)/*defined(QT_CORE_LIB)*/
@@ -99,11 +111,13 @@ namespace sstd {
     namespace _private {
 
         template<typename T, typename = void>
-        class HasOperatorNew_0 : public std::false_type {};
+        class HasOperatorNew_0 : public std::false_type {
+        };
 
         template<typename T>
         class HasOperatorNew_0<T, std::void_t<decltype(
-            std::declval<T>().operator new(1))>/**/> : public std::true_type {};
+            std::declval<T>().operator new(1))>/**/> : public std::true_type {
+        };
 
         template<typename $T$, bool = (true == std::is_class_v<$T$>) &&
             (false == HasOperatorNew_0<std::remove_cv_t<$T$>/**/>::value) &&
@@ -116,20 +130,25 @@ namespace sstd {
         public:
             class alignas($T$) $T$Destory final : public $T${
             public:
-                
+
                 template<typename A0_,typename = std::enable_if_t< std::is_constructible_v<$T$,A0_&&>/**/>/**/>
-                $T$Destory(A0_&&a0) :$T$(std::forward<A0_>(a0)) {}
-                template<typename A0_, typename = void *,typename = std::enable_if_t<false == std::is_constructible_v<$T$, A0_&&>/**/>/**/>
-                $T$Destory(A0_&&a0) : $T${ std::forward<A0_>(a0) } {}
+                $T$Destory(A0_&&a0) :$T$(std::forward<A0_>(a0)) {
+}
+template<typename A0_, typename = void *,typename = std::enable_if_t<false == std::is_constructible_v<$T$, A0_&&>/**/>/**/>
+$T$Destory(A0_&&a0) : $T${ std::forward<A0_>(a0) } {
+}
 
-                template<typename A0_,typename A1_,typename ... Args,typename = void *,typename = void **, typename = std::enable_if_t< std::is_constructible_v<$T$, A0_&& , A1_ &&,Args && ...>/**/>/**/>
-                $T$Destory(A0_&&a0,A1_&&a1,Args && ... args) : $T$(std::forward<A0_>(a0),std::forward<A1_>(a1),std::forward<Args>(args)...) {}
-                template<typename A0_,typename A1_,typename ... Args, typename = void *, typename = void **,typename = void *** ,typename = std::enable_if_t<false == std::is_constructible_v<$T$,  A0_&&, A1_ &&, Args && ...>/**/>/**/>
-                $T$Destory(A0_&&a0, A1_&&a1, Args && ... args) : $T${ std::forward<A0_>(a0),std::forward<A1_>(a1),std::forward<Args>(args)... } {}
+template<typename A0_,typename A1_,typename ... Args,typename = void *,typename = void **, typename = std::enable_if_t< std::is_constructible_v<$T$, A0_&& , A1_ &&,Args && ...>/**/>/**/>
+$T$Destory(A0_&&a0,A1_&&a1,Args && ... args) : $T$(std::forward<A0_>(a0),std::forward<A1_>(a1),std::forward<Args>(args)...) {
+}
+template<typename A0_,typename A1_,typename ... Args, typename = void *, typename = void **,typename = void *** ,typename = std::enable_if_t<false == std::is_constructible_v<$T$,  A0_&&, A1_ &&, Args && ...>/**/>/**/>
+$T$Destory(A0_&&a0, A1_&&a1, Args && ... args) : $T${ std::forward<A0_>(a0),std::forward<A1_>(a1),std::forward<Args>(args)... } {
+}
 
-                $T$Destory() :$T${} {}
-            public:
-                SSTD_MEMORY_DEFINE($T$Destory)
+$T$Destory() :$T${} {
+}
+public:
+    SSTD_MEMORY_DEFINE($T$Destory)
             };
             using type = $T$Destory;
             constexpr const static bool value = true;
@@ -141,7 +160,7 @@ namespace sstd {
             constexpr const static bool value = false;
         };
 
-    }/*_private*/      
+    }/*_private*/
 
     template<typename $T$, typename ... $T$Args>
     inline $T$ * sstdNew($T$Args && ... args) {
@@ -151,13 +170,11 @@ namespace sstd {
         using $T$Object = typename $T$ObjectSelect::type;
         if constexpr ($T$ObjectSelect::value) {
             return new $T$Object(std::forward<$T$Args>(args)...);
-        }
-        else {
+        } else {
             constexpr const static bool $m$_is_constructible_v = std::is_constructible_v<$T$Object, $T$Args&&...>;
             if constexpr (($m$_is_constructible_v == false) || ((sizeof...(args)) == 0)) {
                 return new $T$Object{ std::forward<$T$Args>(args)... };
-            }
-            else {
+            } else {
                 return new $T$Object(std::forward<$T$Args>(args)...);
             }
         }
@@ -226,8 +243,7 @@ namespace sstd {
                 (sizeof...(_Args) == 0)) {
                 ::new (const_cast<void *>(static_cast<const volatile void *>(_Ptr)))
                     _Objty{ std::forward<_Types>(_Args)... };
-            }
-            else {
+            } else {
                 ::new (const_cast<void *>(static_cast<const volatile void *>(_Ptr)))
                     _Objty(std::forward<_Types>(_Args)...);
             }

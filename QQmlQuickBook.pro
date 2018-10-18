@@ -1,11 +1,15 @@
 TEMPLATE = subdirs
 
-sstd_quick_library.file = $$PWD/sstd_utility/sstd_quick_library.pro
-SUBDIRS += sstd_quick_library
+sstd_core_library.file = $$PWD/sstd_utility/sstd_core_library/sstd_core_library.pro
+SUBDIRS += sstd_core_library
 
 buildinstall.file = $$PWD/buildinstall/buildinstall.pro
-buildinstall.depends = sstd_quick_library
+buildinstall.depends = sstd_core_library
 SUBDIRS += buildinstall
+
+sstd_quick_library.file = $$PWD/sstd_utility/sstd_quick_library.pro
+sstd_quick_library.depends = buildinstall
+SUBDIRS += sstd_quick_library
 
 hellowworld.file = $$PWD/chapter01/hellowworld/hellowworld.pro
 hellowworld.depends = buildinstall

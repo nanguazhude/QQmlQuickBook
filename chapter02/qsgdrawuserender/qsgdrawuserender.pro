@@ -42,6 +42,7 @@ SOURCES += $$PWD/QuickSimpleTriangle.cpp
 HEADERS += $$PWD/QuickSimpleTriangle.hpp
 
 include($$PWD/this/this.pri)
+LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
 SOURCES += $$PWD/RootWindow.cpp
 HEADERS += $$PWD/RootWindow.hpp

@@ -3,11 +3,9 @@ QT -= gui
 
 CONFIG += console
 
-
 #force remove debug
 #CONFIG += release
 #CONFIG -= debug
-
 
 TARGET = $$qtLibraryTarget(buildinstall)
 TEMPLATE = app

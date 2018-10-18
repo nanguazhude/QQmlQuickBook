@@ -42,7 +42,7 @@ HEADERS += $$PWD/RenderSize.hpp
 include($$PWD/this/this.pri)
 include($$PWD/../../sstd_utility/glew.pri)
 include($$PWD/../../sstd_utility/glm.pri)
-
+LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
 
 

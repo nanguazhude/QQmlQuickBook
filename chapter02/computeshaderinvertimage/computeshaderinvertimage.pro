@@ -46,3 +46,4 @@ DISTFILES += $$QMLSOURCES
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
 include($$PWD/this/this.pri)
+LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)

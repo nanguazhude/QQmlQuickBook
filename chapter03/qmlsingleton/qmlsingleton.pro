@@ -45,7 +45,7 @@ SOURCES += $$PWD/RootWindow.cpp
 HEADERS += $$PWD/RootWindow.hpp
 
 include($$PWD/this/this.pri)
-
+LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
 
 

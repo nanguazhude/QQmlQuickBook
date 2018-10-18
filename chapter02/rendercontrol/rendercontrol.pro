@@ -50,7 +50,7 @@ SOURCES += $$PWD/sstd_RenderPack.cpp
 
 include($$PWD/../../sstd_utility/sstd_quick.pri)
 
-
+LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
 
 

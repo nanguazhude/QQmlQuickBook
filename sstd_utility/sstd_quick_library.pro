@@ -28,7 +28,7 @@ SOURCES += \
 DEFINES *= NO_SSTD_DEBUG_CPP
 DEFINES *= NO_SSTD_TIME_CPP
 
-
+LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
 
 

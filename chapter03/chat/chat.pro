@@ -21,7 +21,7 @@ DESTDIR = $$RootDestDir
 QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
 export(QMAKE_POST_LINK)
 
-DISTFILES +=  
+DISTFILES +=
 
 #force add application dir to library search dir
 !win32 {
@@ -65,5 +65,5 @@ DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 
 include($$PWD/this/this.pri)
-
+LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 

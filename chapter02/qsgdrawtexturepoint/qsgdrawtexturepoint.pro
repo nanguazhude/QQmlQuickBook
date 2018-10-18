@@ -45,7 +45,7 @@ SOURCES += $$PWD/QuickTexturePoint.cpp
 HEADERS += $$PWD/QuickTexturePoint.hpp
 
 include($$PWD/this/this.pri)
-
+LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
 
 

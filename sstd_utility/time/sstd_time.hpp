@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "../sstd_core_library/global_sstd_core_library.hpp"
 #include <memory>
 #include <cstdint>
 #include <cstddef>
@@ -7,7 +8,7 @@
 
 namespace sstd {
 
-    class TimerThread {
+    class _1_SSTD_CORE_EXPORT TimerThread {
     protected:
         TimerThread();
     public:
@@ -30,7 +31,7 @@ namespace sstd {
         virtual std::size_t functionsAboutToRun() const = 0;
     };
 
-    std::shared_ptr<TimerThread> getTimeStamp();
+    _1_SSTD_CORE_EXPORT std::shared_ptr<TimerThread> getTimeStamp();
 
 }/*namespace sstd*/
 

@@ -5,7 +5,8 @@ QT += quickwidgets
 
 INCLUDEPATH += $$PWD
 
-LIBS += -L$$PWD/../bin -l$$qtLibraryTarget(sstd_quick_library)
+include($$PWD/../OutDirPath.pri)
+LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_quick_library)
 
 
 

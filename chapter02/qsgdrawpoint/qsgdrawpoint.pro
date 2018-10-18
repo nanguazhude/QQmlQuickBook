@@ -43,7 +43,7 @@ SOURCES += $$PWD/QuickPoint.cpp
 HEADERS += $$PWD/QuickPoint.hpp
 
 include($$PWD/this/this.pri)
-
+LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
 
 

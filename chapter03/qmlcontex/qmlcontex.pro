@@ -45,7 +45,7 @@ SOURCES += $$PWD/ContexTest.cpp
 HEADERS += $$PWD/ContexTest.hpp
 
 include($$PWD/this/this.pri)
-
+LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
 
 
