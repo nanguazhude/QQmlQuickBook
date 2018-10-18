@@ -33,10 +33,14 @@ namespace sstd{
         ~RenderThread();
         template<typename ... Args>
         std::shared_ptr< const sstd::vector< std::future<void> > > callInThisThread(Args && ... args) {
-            sstd::vector< std::packaged_task<void(void)> > varAns;
-            varAns.reserve(sizeof...(Args));
-            (varAns.emplace_back(std::forward<Args>(args)),...);
-            return _callInThisThread(std::move(varAns));
+            if constexpr(0 == (sizeof...(Args))) {
+                return{};
+            } else {
+                sstd::vector< std::packaged_task<void(void)> > varAns;
+                varAns.reserve(sizeof...(Args));
+                (varAns.emplace_back(std::forward<Args>(args)), ...);
+                return _callInThisThread(std::move(varAns));
+            }
         }
     private:
         std::shared_ptr< const sstd::vector< std::future<void> > > _callInThisThread(sstd::vector< std::packaged_task<void(void)> >);
