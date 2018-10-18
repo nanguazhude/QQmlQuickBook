@@ -15,7 +15,7 @@
 
 namespace sstd {
 
-    inline QSurfaceFormat getDefaultOpenGLFormat() {
+    inline QSurfaceFormat _0_getDefaultOpenGLFormat() {
         auto varFormat = QSurfaceFormat::defaultFormat();
         varFormat.setVersion(4, 6);
         varFormat.setProfile(QSurfaceFormat::CoreProfile);
@@ -34,6 +34,11 @@ namespace sstd {
         varFormat.setOption(QSurfaceFormat::DebugContext, false);
 #endif
         return varFormat;
+    }
+
+    inline QSurfaceFormat getDefaultOpenGLFormat() {
+        const static auto varAns = _0_getDefaultOpenGLFormat();
+        return varAns;
     }
 
     inline void setDefaultFormat() {
