@@ -34,19 +34,24 @@ namespace sstd {
         template<typename ... Args>
         std::shared_ptr< const sstd::vector< std::future<void> > > runInThisThread(Args && ... args) {
 
-            if (isLogicalQuit()) {
-                return{};
-            }
-
             if constexpr ((sizeof...(Args)) == 0) {
                 return {};
             } else {
+                if (isLogicalQuit()) {
+                    return{};
+                }
                 sstd::vector<std::packaged_task<void(void)>> varCall;
                 varCall.reserve(sizeof...(Args));
                 (QuickThread::ppp_push_back(&varCall, std::forward<Args>(args)), ...);
                 return ppp_Call(std::move(varCall));
             }
 
+        }
+
+        template<typename Tuple>
+        std::shared_ptr< const sstd::vector< std::future<void> > > applyInThisThread(Tuple && arg) {
+            const static constexpr auto varTupleSize = std::tuple_size_v<std::remove_reference_t<Tuple>>;
+            return ppp_apply(this, std::forward < Tuple >(arg), std::make_index_sequence<varTupleSize>{});
         }
 
         void setLogicalQuit(bool a) {
@@ -71,6 +76,11 @@ namespace sstd {
         }
         static inline void ppp_push_back(sstd::vector<std::packaged_task<void(void)>> * a, std::packaged_task<void(void)> && v) {
             a->push_back(std::move(v));
+        }
+        template<typename Tuple, std::size_t... I>
+        static inline std::shared_ptr< const sstd::vector< std::future<void> > >
+            ppp_apply(QuickThread *d, Tuple && t, const std::index_sequence<I...> &) {
+            return d->runInThisThread(std::get<I>(std::forward<Tuple>(t))...);
         }
     private:
         std::shared_ptr< const sstd::vector< std::future<void> > > ppp_Call(sstd::vector<std::packaged_task<void(void)>> &&);
