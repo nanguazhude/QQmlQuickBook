@@ -23,6 +23,7 @@ namespace sstd {
         std::shared_ptr<WindowState> mmm_Mutex;
         std::shared_ptr<RenderPack> mmm_RenderPack;
         void ppp_InitAndRepaint();
+        Q_SIGNAL void ppp_QuitRender();
     protected:
         virtual std::shared_ptr<sstd::RenderPack> makeRender();
     protected:

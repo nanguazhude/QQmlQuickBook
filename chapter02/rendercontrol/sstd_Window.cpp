@@ -24,6 +24,7 @@ namespace sstd {
 
     Window::~Window() {
 
+        ppp_QuitRender();
         auto varMutex = mmm_Mutex;
         varMutex->setDestory();
 
@@ -99,7 +100,13 @@ namespace sstd {
             if (!varPack->sourceQQmlEngine->incubationController()) {
                 varPack->sourceQQmlEngine->setIncubationController(varPack->sourceView->incubationController());
             }
-            /**/
+            /*create data in another thread*/
+            auto varRenderThread = sstdNew<sstd::RenderThread>(varPack);
+            connect(this,&Window::ppp_QuitRender,varRenderThread,&sstd::RenderThread::quitRender,Qt::DirectConnection);
+            varRenderThread->start();
+            while ( mmm_Mutex->renderCount()==0 ) {
+                std::this_thread::sleep_for(100ns);
+            }
         }
         goto start_pos;
     }
