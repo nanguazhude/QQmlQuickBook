@@ -3,7 +3,7 @@
 
 namespace sstd {
 
-    Window::Window(){
+    Window::Window() {
 
         mmm_Mutex = sstd::make_shared<ClassState>();
 
@@ -35,6 +35,32 @@ namespace sstd {
             this->getContex()->deleteLater();
         }
 
+    }
+
+    bool Window::event(QEvent *event) {
+        switch (event->type()) {
+            case QEvent::UpdateRequest:
+                this->ppp_InitAndRepaint();
+                return true;
+            default:
+                return QWindow::event(event);
+        }
+    }
+
+    void Window::exposeEvent(QExposeEvent *event) {
+        this->ppp_InitAndRepaint();
+        return;
+        (void)event;
+    }
+
+    void Window::ppp_InitAndRepaint() {
+        if (mmm_Contex == nullptr) {
+            mmm_Contex = sstdNew<QOpenGLContext>();
+            mmm_Contex->create();
+        }
+        /*************************************************/
+
+        /*************************************************/
     }
 
 } // namespace sstd

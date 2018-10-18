@@ -53,6 +53,10 @@ namespace sstd {
     private:
         QOpenGLContext * mmm_Contex{ nullptr };
         std::shared_ptr<ClassState> mmm_Mutex;
+        void ppp_InitAndRepaint();
+    protected:
+        bool event(QEvent *event) override;
+        void exposeEvent(QExposeEvent *event) override;
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(Window)
     };
