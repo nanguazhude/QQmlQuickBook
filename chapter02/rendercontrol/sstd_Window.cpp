@@ -11,8 +11,6 @@ namespace sstd {
 
     Window::Window() {
 
-        mmm_Mutex = sstd::make_shared<WindowState>();
-
         this->setMinimumHeight(128);
         this->setMinimumWidth(128);
 
@@ -20,23 +18,12 @@ namespace sstd {
         this->setSurfaceType(QSurface::OpenGLSurface);
         this->setFormat(sstd::getDefaultOpenGLFormat());
 
+        mmm_RenderThread = sstdNew<sstd::QuickThread>();
+
     }
 
     Window::~Window() {
-
-        auto varMutex = mmm_Mutex;
-        varMutex->setDestory();
-
-        ppp_QuitRender();
-
-        /*rending need this data , so wait for rending finished*/
-        for (;;) {
-            if (varMutex->renderCount() > 0) {
-                std::this_thread::sleep_for(10ns);
-            } else {
-                break;
-            }
-        }
+                 
 
         /*destory the contex*/
         if (this->getContex()) {
@@ -98,7 +85,6 @@ namespace sstd {
             mmm_RenderPack = varPack;
             /*copy this data */
             varPack->targetWindow = this;
-            varPack->targetWindowState = this->mmm_Mutex;
             varPack->targetWindowContex = this->mmm_Contex;
             /*create offscreen surface*/
             varPack->sourceOffscreenSurface = sstd::make_unique<QOffscreenSurface>();
@@ -113,20 +99,23 @@ namespace sstd {
                 varPack->sourceQQmlEngine->setIncubationController(varPack->sourceView->incubationController());
             }
             /*create data in another thread*/
-            auto varRenderThread = sstdNew<sstd::RenderThread>(varPack);
-            connect(this, &Window::ppp_QuitRender, varRenderThread, &sstd::RenderThread::quitRender, Qt::DirectConnection);
-            varPack->sourceViewControl->prepareThread(varRenderThread);
-            varRenderThread->start();
-            while (mmm_Mutex->renderCount() == 0) {
-                std::this_thread::sleep_for(100ns);
-            }
+            varPack->sourceViewControl->prepareThread(mmm_RenderThread);
+            mmm_RenderThread->runInThisThread([varPack]() {
+                /*create opengl contex in this thread ...*/
+                varPack->sourceContex = sstd::make_unique<QOpenGLContext>();
+                varPack->sourceContex->setFormat(sstd::getDefaultOpenGLFormat());
+                varPack->sourceContex->create();
+                varPack->sourceContex->setShareContext(varPack->targetWindowContex);
+                varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
+                glewInitialize();
+            })->data()->wait();
             /*add signal and slot*/
             auto varRenderControl = varPack->sourceViewControl.get();
             connect(varRenderControl, &QQuickRenderControl::renderRequested,
                 this, &Window::ppp_RenderRequested, Qt::QueuedConnection);
             connect(varRenderControl, &QQuickRenderControl::sceneChanged,
                 this, &Window::ppp_SceneChanged, Qt::QueuedConnection);
-            varPack->renderThread = varRenderThread;
+            varPack->renderThread = mmm_RenderThread;
         }
 
         goto start_pos;
@@ -135,11 +124,11 @@ namespace sstd {
     void Window::ppp_RenderRequested() {
         assert(QThread::currentThread() == thread());
         ppp_Init();
-        mmm_RenderPack->renderThread->callInThisThread(
+        mmm_RenderPack->renderThread->runInThisThread(
             [renderPack = mmm_RenderPack]() {
             auto varRenderControl = renderPack->sourceViewControl.get();
             varRenderControl->render();
-            /**/}  );
+            /**/});
     }
 
     void Window::ppp_SceneChanged() {
@@ -149,7 +138,7 @@ namespace sstd {
         /*polish items in main thread ... */
         varRenderControl->polishItems();
         /*call sync and wait for finished ... */
-        auto varFutures = mmm_RenderPack->renderThread->callInThisThread( 
+        auto varFutures = mmm_RenderPack->renderThread->runInThisThread(
             [renderPack = mmm_RenderPack]() {
             renderPack->sourceContex->makeCurrent(renderPack->sourceOffscreenSurface.get());
             /*check and set fbo ... */

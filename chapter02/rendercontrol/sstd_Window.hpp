@@ -3,6 +3,7 @@
 #include <shared_mutex>
 #include <sstd_memory.hpp>
 #include <QtGui/qwindow.h>
+#include <quick/sstd_QThread.hpp>
 #include "sstd_RenderPack.hpp"
 #include "sstd_Window.hpp"
 
@@ -19,11 +20,10 @@ namespace sstd {
         }
 
     private:
+        sstd::QuickThread * mmm_RenderThread{ nullptr };
         QOpenGLContext * mmm_Contex{ nullptr };
-        std::shared_ptr<WindowState> mmm_Mutex;
         std::shared_ptr<RenderPack> mmm_RenderPack;
         void ppp_Init();
-        Q_SIGNAL void ppp_QuitRender();
         Q_SLOT void ppp_RenderRequested();
         Q_SLOT void ppp_SceneChanged();
     protected:

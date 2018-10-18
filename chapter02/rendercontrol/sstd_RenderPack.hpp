@@ -13,23 +13,22 @@ class QQmlEngine;
 #include <QtGui/qopenglcontext.h>
 #include <QtQuick/qquickrendercontrol.h>
 #include <QtGui/qoffscreensurface.h>
+#include <quick/sstd_QThread.hpp>
 
 namespace  sstd{
 
-    class RenderThread;
     class RenderPack : public std::enable_shared_from_this<RenderPack> {
     public:
         virtual ~RenderPack() /*这里不搞极限设计*/ ;
         std::atomic<double> targetWindowDevicePixelRatio{ 1 };
         QWindow * targetWindow /**/ =nullptr;
         QOpenGLContext * targetWindowContex/**/ =nullptr;
-        std::shared_ptr<sstd::WindowState> targetWindowState/**/;
         std::unique_ptr<QQuickWindow> sourceView /**/ ;
         std::unique_ptr < QOpenGLContext > sourceContex /**/=nullptr;
         std::unique_ptr<QQuickRenderControl> sourceViewControl/**/;
         std::unique_ptr<QOffscreenSurface> sourceOffscreenSurface/**/;
         std::unique_ptr<QQmlEngine> sourceQQmlEngine;
-        RenderThread * renderThread{nullptr};
+        sstd::QuickThread * renderThread{nullptr};
     };
 
 
