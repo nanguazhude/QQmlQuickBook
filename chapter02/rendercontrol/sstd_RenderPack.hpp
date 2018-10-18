@@ -7,6 +7,7 @@ class QQuickWindow;
 class QOffscreenSurface;
 class QOpenGLContext;
 class QQuickRenderControl;
+class QQmlEngine;
 
 namespace  sstd{
 
@@ -20,7 +21,7 @@ namespace  sstd{
         std::shared_ptr<QQuickWindow> sourceView /**/ ;
         std::shared_ptr<QQuickRenderControl> sourceViewControl/**/;
         std::shared_ptr<QOffscreenSurface> sourceOffscreenSurface/**/;
-
+        std::shared_ptr<QQmlEngine> sourceQQmlEngine;
     };
 
 

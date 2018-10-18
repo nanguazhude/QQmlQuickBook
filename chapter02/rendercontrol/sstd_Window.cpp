@@ -3,6 +3,7 @@
 #include <QtQuick/qquickview.h>
 #include <QtQuick/qquickrendercontrol.h>
 #include <QtGui/qoffscreensurface.h>
+#include <QtQml/qqmlengine.h>
 
 namespace sstd {
 
@@ -59,6 +60,7 @@ namespace sstd {
     void Window::ppp_InitAndRepaint() {
         if (mmm_Contex == nullptr) {
             mmm_Contex = sstdNew<QOpenGLContext>();
+            mmm_Contex->setFormat(sstd::getDefaultOpenGLFormat());
             mmm_Contex->create();
         }
         /*************************************************/
@@ -73,12 +75,23 @@ namespace sstd {
         /*this function should be run in main thread*/
         auto varPack = sstd::make_shared<sstd::RenderPack>();
         mmm_RenderPack = varPack;
+        /*copy this data */
         varPack->targetWindow = this;
         varPack->targetWindowState = this->mmm_Mutex;
         varPack->targetWindowContex = this->mmm_Contex;
+        /*create offscreen surface*/
         varPack->sourceOffscreenSurface = sstd::make_shared<QOffscreenSurface>();
+        varPack->sourceOffscreenSurface->setFormat(sstd::getDefaultOpenGLFormat());
+        varPack->sourceOffscreenSurface->create();
+        /*make render control*/
         varPack->sourceViewControl = sstd::make_shared<QQuickRenderControl>();
+        /*create engine*/
+        varPack->sourceQQmlEngine = sstd::make_shared<QQmlEngine>();
         varPack->sourceView = sstd::make_shared<QQuickWindow>(varPack->sourceViewControl.get());
+        if (!varPack->sourceQQmlEngine->incubationController()) {
+            varPack->sourceQQmlEngine->setIncubationController(varPack->sourceView->incubationController());
+        }
+
         return std::move(varPack);
     }
 
