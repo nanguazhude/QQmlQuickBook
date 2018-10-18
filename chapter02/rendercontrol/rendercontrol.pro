@@ -41,6 +41,8 @@ HEADERS += $$PWD/sstd_Window.hpp
 SOURCES += $$PWD/sstd_Window.cpp
 
 include($$PWD/this/this.pri)
+include($$PWD/../../sstd_utility/glew.pri)
+include($$PWD/../../sstd_utility/glm.pri)
 
 HEADERS += $$PWD/sstd_RenderThread.hpp
 SOURCES += $$PWD/sstd_RenderThread.cpp

@@ -1,9 +1,11 @@
-﻿#include "sstd_Window.hpp"
+﻿#include <sstd_glew.hpp>
+#include "sstd_Window.hpp"
 #include <ConstructQSurface.hpp>
 #include <QtQuick/qquickview.h>
 #include <QtQuick/qquickrendercontrol.h>
 #include <QtGui/qoffscreensurface.h>
 #include <QtQml/qqmlengine.h>
+#include "sstd_RenderThread.hpp"
 
 namespace sstd {
 
@@ -63,36 +65,43 @@ namespace sstd {
             mmm_Contex->setFormat(sstd::getDefaultOpenGLFormat());
             mmm_Contex->create();
         }
+        /*make current in this thread*/
+        mmm_Contex->makeCurrent(this);
+        glewInitialize();
         /*************************************************/
         auto varRender = makeRender();
         /*************************************************/
     }
 
     std::shared_ptr<sstd::RenderPack> Window::makeRender() {
+    start_pos:
         if (mmm_RenderPack) {
+            mmm_RenderPack->targetWindowDevicePixelRatio = this->devicePixelRatio();
             return mmm_RenderPack;
         }
-        /*this function should be run in main thread*/
-        auto varPack = sstd::make_shared<sstd::RenderPack>();
-        mmm_RenderPack = varPack;
-        /*copy this data */
-        varPack->targetWindow = this;
-        varPack->targetWindowState = this->mmm_Mutex;
-        varPack->targetWindowContex = this->mmm_Contex;
-        /*create offscreen surface*/
-        varPack->sourceOffscreenSurface = sstd::make_shared<QOffscreenSurface>();
-        varPack->sourceOffscreenSurface->setFormat(sstd::getDefaultOpenGLFormat());
-        varPack->sourceOffscreenSurface->create();
-        /*make render control*/
-        varPack->sourceViewControl = sstd::make_shared<QQuickRenderControl>();
-        /*create engine*/
-        varPack->sourceQQmlEngine = sstd::make_shared<QQmlEngine>();
-        varPack->sourceView = sstd::make_shared<QQuickWindow>(varPack->sourceViewControl.get());
-        if (!varPack->sourceQQmlEngine->incubationController()) {
-            varPack->sourceQQmlEngine->setIncubationController(varPack->sourceView->incubationController());
+        {
+            /*this function should be run in main thread*/
+            auto varPack = sstd::make_shared<sstd::RenderPack>();
+            mmm_RenderPack = varPack;
+            /*copy this data */
+            varPack->targetWindow = this;
+            varPack->targetWindowState = this->mmm_Mutex;
+            varPack->targetWindowContex = this->mmm_Contex;
+            /*create offscreen surface*/
+            varPack->sourceOffscreenSurface = sstd::make_unique<QOffscreenSurface>();
+            varPack->sourceOffscreenSurface->setFormat(sstd::getDefaultOpenGLFormat());
+            varPack->sourceOffscreenSurface->create();
+            /*make render control*/
+            varPack->sourceViewControl = sstd::make_unique<QQuickRenderControl>();
+            /*create engine*/
+            varPack->sourceQQmlEngine = sstd::make_unique<QQmlEngine>();
+            varPack->sourceView = sstd::make_unique<QQuickWindow>(varPack->sourceViewControl.get());
+            if (!varPack->sourceQQmlEngine->incubationController()) {
+                varPack->sourceQQmlEngine->setIncubationController(varPack->sourceView->incubationController());
+            }
+            /**/
         }
-
-        return std::move(varPack);
+        goto start_pos;
     }
 
 } /*namespace sstd*/
