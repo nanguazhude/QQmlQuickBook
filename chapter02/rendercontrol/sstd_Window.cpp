@@ -135,11 +135,11 @@ namespace sstd {
     void Window::ppp_RenderRequested() {
         assert(QThread::currentThread() == thread());
         ppp_Init();
-        mmm_RenderPack->renderThread->callInThisThread([renderPack = mmm_RenderPack]() {
+        mmm_RenderPack->renderThread->callInThisThread(
+            [renderPack = mmm_RenderPack]() {
             auto varRenderControl = renderPack->sourceViewControl.get();
             varRenderControl->render();
-            /**/
-        });
+            /**/}  );
     }
 
     void Window::ppp_SceneChanged() {
@@ -149,16 +149,23 @@ namespace sstd {
         /*polish items in main thread ... */
         varRenderControl->polishItems();
         /*call sync and wait for finished ... */
-        mmm_RenderPack->renderThread->callInThisThread([renderPack = mmm_RenderPack]() {
+        auto varFutures = mmm_RenderPack->renderThread->callInThisThread( 
+            [renderPack = mmm_RenderPack]() {
             renderPack->sourceContex->makeCurrent(renderPack->sourceOffscreenSurface.get());
             /*check and set fbo ... */
 
             /*ask a sync ....*/
             auto varRenderControl = renderPack->sourceViewControl.get();
             varRenderControl->sync();
-        }).wait();
-        /*ask a render ... */
-        ppp_RenderRequested();
+        }, [renderPack = mmm_RenderPack]() {
+            /*call render do not need wait*/
+            auto varRenderControl = renderPack->sourceViewControl.get();
+            varRenderControl->render();
+        });
+        if (false == bool(varFutures)) {
+            return;
+        }
+        (*varFutures)[0].wait();
     }
 
 } /*namespace sstd*/

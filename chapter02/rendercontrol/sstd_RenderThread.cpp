@@ -12,25 +12,27 @@ namespace {
     }
 
     class CallEvent : public QEvent {
-        std::promise<void> mmm_CallState;
-        std::function<void(void)> mmm_Call;
+        sstd::vector< std::packaged_task<void(void)> > mmm_calls;
+        std::shared_ptr< sstd::vector< std::future<void> > > mmm_ans;
     public:
-        CallEvent(std::function<void(void)> && arg) :QEvent(getEventIndex()), mmm_Call(std::move(arg)) {
+        CallEvent(sstd::vector< std::packaged_task<void(void)> > arg) :QEvent(getEventIndex())  {
+            using T = std::packaged_task<void(void)>;
+            mmm_ans = sstd::make_shared<sstd::vector< std::future<void> >>();
+            mmm_calls = std::move(arg);
+            mmm_ans->reserve(arg.size());
+            for (auto & varI : mmm_calls) {
+                mmm_ans->push_back( varI.get_future() );
+            }
         }
 
-        std::future<void> getFuture() {
-            return mmm_CallState.get_future();
+        std::shared_ptr< const sstd::vector< std::future<void> > > getFuture() const {
+            return mmm_ans ;
         }
 
         void call()  {
-            try {
-                if (mmm_Call) {
-                mmm_Call();
+            for (auto & varI : mmm_calls) {
+                varI();
             }
-            } catch (...) {
-                /*TODO : */
-            }
-            mmm_CallState.set_value();
         }  
     private:
         SSTD_MEMORY_DEFINE(CallEvent)
@@ -76,9 +78,13 @@ namespace sstd {
         this->exec();
     }
 
-    std::future<void> RenderThread::callInThisThread(std::function<void(void)> arg) {
+    std::shared_ptr< const sstd::vector< std::future<void> > > RenderThread::_callInThisThread(sstd::vector< std::packaged_task<void(void)> > arg) {
         auto varCall = mmm_CallObject.data();
-        auto varEvent = sstdNew<CallEvent>(std::move(arg));
+        if (varCall == nullptr) {
+            return {};
+        }
+
+        auto varEvent = sstdNew<CallEvent>( std::move( arg ) );
         auto varAns = varEvent->getFuture();
         if (varCall) {
             QCoreApplication::postEvent(varCall, varEvent);
