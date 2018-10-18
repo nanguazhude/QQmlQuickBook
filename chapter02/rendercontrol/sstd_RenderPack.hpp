@@ -24,7 +24,7 @@ namespace  sstd{
         QWindow * targetWindow /**/ =nullptr;
         QOpenGLContext * targetWindowContex/**/ =nullptr;
         std::unique_ptr<QQuickWindow> sourceView /**/ ;
-        std::unique_ptr < QOpenGLContext > sourceContex /**/=nullptr;
+        std::unique_ptr<QOpenGLContext> sourceContex /**/ ;
         std::unique_ptr<QQuickRenderControl> sourceViewControl/**/;
         std::unique_ptr<QOffscreenSurface> sourceOffscreenSurface/**/;
         std::unique_ptr<QQmlEngine> sourceQQmlEngine;

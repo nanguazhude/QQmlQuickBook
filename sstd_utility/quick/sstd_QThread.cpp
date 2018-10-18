@@ -48,6 +48,10 @@ namespace sstd {
     namespace private_quick_thread_sstd {
 
         bool RunEventObject::event(QEvent * e) {
+            if (mmm_logical_quit->load()) {
+                /*skip event when logical quit*/
+                return true;
+            }
             if (e->type() == getEventIndex()) {
                 static_cast<RunThisEvent *>(e)->run();
                 return true;
@@ -55,10 +59,13 @@ namespace sstd {
             return QObject::event(e);
         }
 
+        RunEventObject::RunEventObject(std::shared_ptr<std::atomic_bool> arg) :mmm_logical_quit(std::move(arg)) {
+        }
+
     }/*namespace private_quick_thread_sstd*/
 
     void  QuickThread::run() {
-        private_quick_thread_sstd::RunEventObject varObj;
+        private_quick_thread_sstd::RunEventObject varObj{ mmm_logical_quit };
         {/*set the value ... */
             std::unique_lock varWriteLock{ mmm_Mutex };
             mmm_CallObject = &varObj;
@@ -78,6 +85,7 @@ namespace sstd {
     }
 
     QuickThread::QuickThread() {
+        mmm_logical_quit = sstd::make_shared< std::atomic_bool >(false);
         this->moveToThread(qApp->thread())/*move to main thread*/;
         connect(this, &QThread::finished,
             this, &QuickThread::ppp_on_finished,

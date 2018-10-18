@@ -14,8 +14,11 @@ namespace sstd {
 
         class RunEventObject : public QObject {
             Q_OBJECT
+        public:
+            RunEventObject(std::shared_ptr<std::atomic_bool>);
         protected:
             bool event(QEvent *) override;
+            std::shared_ptr<std::atomic_bool> mmm_logical_quit;
         private:
             SSTD_MEMORY_QOBJECT_DEFINE(RunEventObject)
         };
@@ -30,6 +33,11 @@ namespace sstd {
 
         template<typename ... Args>
         std::shared_ptr< const sstd::vector< std::future<void> > > runInThisThread(Args && ... args) {
+
+            if (isLogicalQuit()) {
+                return{};
+            }
+
             if constexpr ((sizeof...(Args)) == 0) {
                 return {};
             } else {
@@ -38,11 +46,21 @@ namespace sstd {
                 (QuickThread::ppp_push_back(&varCall, std::forward<Args>(args)), ...);
                 return ppp_Call(std::move(varCall));
             }
+
+        }
+
+        void setLogicalQuit(bool a) {
+            mmm_logical_quit->store(a);
+        }
+
+        bool isLogicalQuit() const {
+            return mmm_logical_quit->load();
         }
 
     protected:
         void run() override;
     private:
+        std::shared_ptr<std::atomic_bool> mmm_logical_quit;
         std::shared_mutex mmm_Mutex;
         private_quick_thread_sstd::RunEventObject * mmm_CallObject{ nullptr };
         Q_SLOT void ppp_on_finished();

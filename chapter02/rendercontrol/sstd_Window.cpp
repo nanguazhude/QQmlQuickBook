@@ -5,7 +5,6 @@
 #include <QtQuick/qquickrendercontrol.h>
 #include <QtGui/qoffscreensurface.h>
 #include <QtQml/qqmlengine.h>
-#include "sstd_RenderThread.hpp"
 
 namespace sstd {
 
@@ -23,7 +22,25 @@ namespace sstd {
     }
 
     Window::~Window() {
-                 
+
+        if (mmm_RenderPack) {/*destory data in thread ...*/
+            auto varFutures = mmm_RenderThread->runInThisThread([varPack = mmm_RenderPack]() {
+                varPack->renderThread->setLogicalQuit(true);
+                varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
+                glFinish();
+                varPack->sourceContex->doneCurrent();
+                varPack->sourceContex.reset();
+            });
+            varFutures->data()->wait();
+            mmm_RenderPack->sourceView.reset();
+            mmm_RenderPack->sourceQQmlEngine.reset();
+            mmm_RenderPack->sourceViewControl.reset();
+            mmm_RenderPack->sourceOffscreenSurface.reset();
+        }
+
+        /*quit the thread ... the thread will delete it self*/
+        mmm_RenderThread->quit();
+        mmm_RenderThread->wait();
 
         /*destory the contex*/
         if (this->getContex()) {
@@ -50,10 +67,6 @@ namespace sstd {
 
     void Window::ppp_Init() {
 
-        if (mmm_Mutex->isDestory()) {
-            return;
-        }
-
         if (mmm_Contex == nullptr) {
             mmm_Contex = sstdNew<QOpenGLContext>();
             mmm_Contex->setFormat(sstd::getDefaultOpenGLFormat());
@@ -73,8 +86,9 @@ namespace sstd {
     start_pos:
         /*if render is make ....*/
         if (mmm_RenderPack) {
-            /*万一用于运行时重装显卡驱动 ... */
+            /*考虑到运行时重装显卡驱动等情况，这个值还是每次更新 ... */
             mmm_RenderPack->targetWindowDevicePixelRatio = this->devicePixelRatio();
+            /*更新窗口大小*/
 
             return mmm_RenderPack;
         }
@@ -100,15 +114,19 @@ namespace sstd {
             }
             /*create data in another thread*/
             varPack->sourceViewControl->prepareThread(mmm_RenderThread);
-            mmm_RenderThread->runInThisThread([varPack]() {
-                /*create opengl contex in this thread ...*/
-                varPack->sourceContex = sstd::make_unique<QOpenGLContext>();
-                varPack->sourceContex->setFormat(sstd::getDefaultOpenGLFormat());
-                varPack->sourceContex->create();
-                varPack->sourceContex->setShareContext(varPack->targetWindowContex);
-                varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
-                glewInitialize();
-            })->data()->wait();
+            {
+                auto varFutures = mmm_RenderThread->runInThisThread([varPack]() {
+                    /*create opengl contex in this thread ...*/
+                    varPack->sourceContex = sstd::make_unique<QOpenGLContext>();
+                    varPack->sourceContex->setFormat(sstd::getDefaultOpenGLFormat());
+                    varPack->sourceContex->create();
+                    varPack->sourceContex->setShareContext(varPack->targetWindowContex);
+                    varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
+                    glewInitialize();
+                });
+                /*wait for init finished ... */
+                varFutures->data()->wait();
+            }
             /*add signal and slot*/
             auto varRenderControl = varPack->sourceViewControl.get();
             connect(varRenderControl, &QQuickRenderControl::renderRequested,
@@ -151,10 +169,8 @@ namespace sstd {
             auto varRenderControl = renderPack->sourceViewControl.get();
             varRenderControl->render();
         });
-        if (false == bool(varFutures)) {
-            return;
-        }
-        (*varFutures)[0].wait();
+        /*just wait sync ... */
+        varFutures->data()->wait();
     }
 
 } /*namespace sstd*/
