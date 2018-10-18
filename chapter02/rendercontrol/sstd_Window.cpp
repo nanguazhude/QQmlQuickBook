@@ -24,9 +24,10 @@ namespace sstd {
 
     Window::~Window() {
 
-        ppp_QuitRender();
         auto varMutex = mmm_Mutex;
         varMutex->setDestory();
+
+        ppp_QuitRender();
 
         /*rending need this data , so wait for rending finished*/
         for (;;) {
@@ -47,7 +48,7 @@ namespace sstd {
     bool Window::event(QEvent *event) {
         switch (event->type()) {
             case QEvent::UpdateRequest:
-                this->ppp_InitAndRepaint();
+                this->ppp_Init();
                 return true;
             default:
                 return QWindow::event(event);
@@ -55,31 +56,42 @@ namespace sstd {
     }
 
     void Window::exposeEvent(QExposeEvent *event) {
-        this->ppp_InitAndRepaint();
+        this->ppp_Init();
         return;
         (void)event;
     }
 
-    void Window::ppp_InitAndRepaint() {
+    void Window::ppp_Init() {
+
+        if (mmm_Mutex->isDestory()) {
+            return;
+        }
+
         if (mmm_Contex == nullptr) {
             mmm_Contex = sstdNew<QOpenGLContext>();
             mmm_Contex->setFormat(sstd::getDefaultOpenGLFormat());
             mmm_Contex->create();
         }
+
         /*make current in this thread*/
         mmm_Contex->makeCurrent(this);
         glewInitialize();
         /*************************************************/
         auto varRender = makeRender();
         /*************************************************/
+
     }
 
     std::shared_ptr<sstd::RenderPack> Window::makeRender() {
     start_pos:
+        /*if render is make ....*/
         if (mmm_RenderPack) {
+            /*万一用于运行时重装显卡驱动 ... */
             mmm_RenderPack->targetWindowDevicePixelRatio = this->devicePixelRatio();
+
             return mmm_RenderPack;
         }
+        /*create the render ... */
         {
             /*this function should be run in main thread*/
             auto varPack = sstd::make_shared<sstd::RenderPack>();
@@ -102,13 +114,51 @@ namespace sstd {
             }
             /*create data in another thread*/
             auto varRenderThread = sstdNew<sstd::RenderThread>(varPack);
-            connect(this,&Window::ppp_QuitRender,varRenderThread,&sstd::RenderThread::quitRender,Qt::DirectConnection);
+            connect(this, &Window::ppp_QuitRender, varRenderThread, &sstd::RenderThread::quitRender, Qt::DirectConnection);
+            varPack->sourceViewControl->prepareThread(varRenderThread);
             varRenderThread->start();
-            while ( mmm_Mutex->renderCount()==0 ) {
+            while (mmm_Mutex->renderCount() == 0) {
                 std::this_thread::sleep_for(100ns);
             }
+            /*add signal and slot*/
+            auto varRenderControl = varPack->sourceViewControl.get();
+            connect(varRenderControl, &QQuickRenderControl::renderRequested,
+                this, &Window::ppp_RenderRequested, Qt::QueuedConnection);
+            connect(varRenderControl, &QQuickRenderControl::sceneChanged,
+                this, &Window::ppp_SceneChanged, Qt::QueuedConnection);
+            varPack->renderThread = varRenderThread;
         }
+
         goto start_pos;
+    }
+
+    void Window::ppp_RenderRequested() {
+        assert(QThread::currentThread() == thread());
+        ppp_Init();
+        mmm_RenderPack->renderThread->callInThisThread([renderPack = mmm_RenderPack]() {
+            auto varRenderControl = renderPack->sourceViewControl.get();
+            varRenderControl->render();
+            /**/
+        });
+    }
+
+    void Window::ppp_SceneChanged() {
+        assert(QThread::currentThread() == thread());
+        ppp_Init();
+        auto varRenderControl = mmm_RenderPack->sourceViewControl.get();
+        /*polish items in main thread ... */
+        varRenderControl->polishItems();
+        /*call sync and wait for finished ... */
+        mmm_RenderPack->renderThread->callInThisThread([renderPack = mmm_RenderPack]() {
+            renderPack->sourceContex->makeCurrent(renderPack->sourceOffscreenSurface.get());
+            /*check and set fbo ... */
+
+            /*ask a sync ....*/
+            auto varRenderControl = renderPack->sourceViewControl.get();
+            varRenderControl->sync();
+        }).wait();
+        /*ask a render ... */
+        ppp_RenderRequested();
     }
 
 } /*namespace sstd*/

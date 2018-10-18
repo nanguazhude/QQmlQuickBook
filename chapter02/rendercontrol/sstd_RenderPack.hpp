@@ -16,6 +16,7 @@ class QQmlEngine;
 
 namespace  sstd{
 
+    class RenderThread;
     class RenderPack : public std::enable_shared_from_this<RenderPack> {
     public:
         virtual ~RenderPack() /*这里不搞极限设计*/ ;
@@ -28,6 +29,7 @@ namespace  sstd{
         std::unique_ptr<QQuickRenderControl> sourceViewControl/**/;
         std::unique_ptr<QOffscreenSurface> sourceOffscreenSurface/**/;
         std::unique_ptr<QQmlEngine> sourceQQmlEngine;
+        RenderThread * renderThread{nullptr};
     };
 
 

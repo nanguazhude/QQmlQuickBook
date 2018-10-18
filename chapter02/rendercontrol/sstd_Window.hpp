@@ -22,8 +22,10 @@ namespace sstd {
         QOpenGLContext * mmm_Contex{ nullptr };
         std::shared_ptr<WindowState> mmm_Mutex;
         std::shared_ptr<RenderPack> mmm_RenderPack;
-        void ppp_InitAndRepaint();
+        void ppp_Init();
         Q_SIGNAL void ppp_QuitRender();
+        Q_SLOT void ppp_RenderRequested();
+        Q_SLOT void ppp_SceneChanged();
     protected:
         virtual std::shared_ptr<sstd::RenderPack> makeRender();
     protected:
