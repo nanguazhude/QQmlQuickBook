@@ -306,6 +306,7 @@ void main(){
             const auto varHeight = static_cast<int>(varPack->targetWindowHeight.load() * varPixelRatio);
             const auto varWidth = static_cast<int>(varPack->targetWindowWidth.load() *varPixelRatio);
             glViewport(0, 0, varWidth, varHeight);
+            glClearColor(1,0.2,1,1);
             draw();
             mmm_RenderPack->targetContex->swapBuffers(mmm_RenderPack->targetWindow);
         }
@@ -373,8 +374,8 @@ namespace sstd {
         switch (event->type()) {
         case QEvent::UpdateRequest:
         {
-            // this->ppp_Init();
-            // ppp_SceneChanged();
+             this->ppp_Init();
+             ppp_SceneChanged();
         }
         break;
         case QEvent::Close:
@@ -399,16 +400,14 @@ namespace sstd {
     void Window::ppp_Init() {
 
         if (mmm_Contex == nullptr) {
-            mmm_Contex = sstdNew<QOpenGLContext>();
-            mmm_Contex->setFormat(sstd::getDefaultOpenGLFormat());
-            mmm_Contex->create();
-            /*make current in this thread*/
-            mmm_Contex->makeCurrent(this);
-            glewInitialize();
-        }
-
-        if (!isExposed()) {
-            return;
+            mmm_RenderThread->runInThisThread([this]() {
+                mmm_Contex = sstdNew<QOpenGLContext>();
+                mmm_Contex->setFormat(sstd::getDefaultOpenGLFormat());
+                mmm_Contex->create();
+                /*make current in this thread*/
+                mmm_Contex->makeCurrent(this);
+                glewInitialize();
+            })->data()->wait();
         }
 
         /*************************************************/
@@ -486,13 +485,15 @@ namespace sstd {
                     varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
                     glewInitialize();
                     varPack->sourceViewControl->initialize(varPack->sourceContex.get());
+                    varPack->sourceFrameBufferObject =
+                        sstd::make_unique<QOpenGLFramebufferObject>(QSize(512, 512), QOpenGLFramebufferObject::CombinedDepthStencil);
+                    varPack->sourceView->setRenderTarget(varPack->sourceFrameBufferObject.get());
                     /*create opengl contex in the thread ... */
                     varPack->targetContex = sstd::make_unique<QOpenGLContext>();
                     varPack->targetContex->setFormat(sstd::getDefaultOpenGLFormat());
                     varPack->targetContex->create();
                     varPack->targetContex->setShareContext(varPack->globalWindowContex);
                     varPack->targetContex->makeCurrent(varPack->targetWindow);
-
                 });
                 /*wait for init finished ... */
                 varFutures->data()->wait();
@@ -513,10 +514,6 @@ namespace sstd {
         assert(QThread::currentThread() == thread());
         ppp_Init();
 
-        if (!isExposed()) {
-            return;
-        }
-
         auto varRenderThread = mmm_RenderPack->renderThread;
         /*render and draw in target ... */
         std::tuple<
@@ -529,10 +526,6 @@ namespace sstd {
     void Window::ppp_SceneChanged() {
         assert(QThread::currentThread() == thread());
         ppp_Init();
-
-        if (!isExposed()) {
-            return;
-        }
 
         /*ask update source render contex ... */
         auto varRenderThread = mmm_RenderPack->renderThread;
