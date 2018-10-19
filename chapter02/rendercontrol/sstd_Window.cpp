@@ -91,6 +91,7 @@ namespace /*渲染所需方法*/ {
         void operator()() const {
             auto varRenderControl = mmm_RenderPack->sourceViewControl.get();
             varRenderControl->sync();
+            glFinish();
         }
 
     };
@@ -329,16 +330,18 @@ namespace sstd {
         if (mmm_RenderPack) {/*destory data in thread ...*/
             auto varFutures = mmm_RenderThread->runInThisThread([varPack = mmm_RenderPack]() {
                 varPack->renderThread->setLogicalQuit(true);
+                varPack->sourceViewControl->invalidate();
                 /*about to desotry contex ... */
                 varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
                 static_cast<WindowRenderPack*>(varPack.get())->sourceFrameBufferObject.reset();
-                /**/
+                /*desdestory opengl data ...*/
                 varPack->sourceContex->makeCurrent(varPack->targetWindow);
                 glDeleteProgram( static_cast<WindowRenderPack*>(varPack.get())->targetProgram );
                 glDeleteVertexArrays(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAO ));
                 glDeleteBuffers(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAOBuffer ));
                 glDeleteBuffers(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAOIndexBuffer ));
                 varPack->sourceContex->doneCurrent();
+                /*delete contex in main thread ...*/
                 varPack->sourceContex->moveToThread(varPack->sourceView->thread());
                 /*the thread will delete it self */
                 varPack->renderThread->quit();
