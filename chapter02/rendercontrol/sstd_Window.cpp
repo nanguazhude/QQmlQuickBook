@@ -300,7 +300,12 @@ void main(){
         }
 
         void operator()() const {
-            mmm_RenderPack->targetContex->makeCurrent(mmm_RenderPack->targetWindow);
+            auto varPack = static_cast<WindowRenderPack *>(mmm_RenderPack.get());
+            varPack->targetContex->makeCurrent(mmm_RenderPack->targetWindow);
+            const auto varPixelRatio = varPack->targetWindowDevicePixelRatio.load();
+            const auto varHeight = static_cast<int>(varPack->targetWindowHeight.load() * varPixelRatio);
+            const auto varWidth = static_cast<int>(varPack->targetWindowWidth.load() *varPixelRatio);
+            glViewport(0, 0, varWidth, varHeight);
             draw();
             mmm_RenderPack->targetContex->swapBuffers(mmm_RenderPack->targetWindow);
         }
@@ -337,10 +342,10 @@ namespace sstd {
                 varPack->sourceContex->doneCurrent();
                 /*desdestory opengl data ...*/
                 varPack->targetContex->makeCurrent(varPack->targetWindow);
-                glDeleteProgram( static_cast<WindowRenderPack*>(varPack.get())->targetProgram );
-                glDeleteVertexArrays(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAO ));
-                glDeleteBuffers(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAOBuffer ));
-                glDeleteBuffers(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAOIndexBuffer ));
+                glDeleteProgram(static_cast<WindowRenderPack*>(varPack.get())->targetProgram);
+                glDeleteVertexArrays(1, &(static_cast<WindowRenderPack*>(varPack.get())->targetVAO));
+                glDeleteBuffers(1, &(static_cast<WindowRenderPack*>(varPack.get())->targetVAOBuffer));
+                glDeleteBuffers(1, &(static_cast<WindowRenderPack*>(varPack.get())->targetVAOIndexBuffer));
                 varPack->targetContex->doneCurrent();
                 /*delete contex in main thread ...*/
                 varPack->sourceContex->moveToThread(qApp->thread());
@@ -366,12 +371,12 @@ namespace sstd {
 
     bool Window::event(QEvent *event) {
         switch (event->type()) {
-            case QEvent::UpdateRequest:
+        case QEvent::UpdateRequest:
         {
-                this->ppp_Init();
-                ppp_SceneChanged();
+            // this->ppp_Init();
+            // ppp_SceneChanged();
         }
-                break;
+        break;
         case QEvent::Close:
             break;
         default:break;
@@ -385,10 +390,10 @@ namespace sstd {
         return QWindow::exposeEvent(event);
     }
 
-    void Window::resizeEvent(QResizeEvent * e){
+    void Window::resizeEvent(QResizeEvent * e) {
         this->ppp_Init();
         ppp_SceneChanged();
-        return QWindow::resizeEvent(e );
+        return QWindow::resizeEvent(e);
     }
 
     void Window::ppp_Init() {
@@ -400,6 +405,10 @@ namespace sstd {
             /*make current in this thread*/
             mmm_Contex->makeCurrent(this);
             glewInitialize();
+        }
+
+        if (!isExposed()) {
+            return;
         }
 
         /*************************************************/
@@ -483,7 +492,7 @@ namespace sstd {
                     varPack->targetContex->create();
                     varPack->targetContex->setShareContext(varPack->globalWindowContex);
                     varPack->targetContex->makeCurrent(varPack->targetWindow);
-                   
+
                 });
                 /*wait for init finished ... */
                 varFutures->data()->wait();
@@ -504,6 +513,10 @@ namespace sstd {
         assert(QThread::currentThread() == thread());
         ppp_Init();
 
+        if (!isExposed()) {
+            return;
+        }
+
         auto varRenderThread = mmm_RenderPack->renderThread;
         /*render and draw in target ... */
         std::tuple<
@@ -516,6 +529,10 @@ namespace sstd {
     void Window::ppp_SceneChanged() {
         assert(QThread::currentThread() == thread());
         ppp_Init();
+
+        if (!isExposed()) {
+            return;
+        }
 
         /*ask update source render contex ... */
         auto varRenderThread = mmm_RenderPack->renderThread;
