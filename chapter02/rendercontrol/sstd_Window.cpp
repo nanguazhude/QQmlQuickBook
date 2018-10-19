@@ -369,6 +369,7 @@ namespace sstd {
             case QEvent::UpdateRequest:
         {
                 this->ppp_Init();
+                ppp_SceneChanged();
         }
                 break;
         case QEvent::Close:
@@ -380,7 +381,7 @@ namespace sstd {
 
     void Window::exposeEvent(QExposeEvent *event) {
         this->ppp_Init();
-        //ppp_SceneChanged();
+        ppp_SceneChanged();
         return QWindow::exposeEvent(event);
     }
 
