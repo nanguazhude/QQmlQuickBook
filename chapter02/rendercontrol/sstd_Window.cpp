@@ -364,17 +364,27 @@ namespace sstd {
     bool Window::event(QEvent *event) {
         switch (event->type()) {
             case QEvent::UpdateRequest:
+        {
                 this->ppp_Init();
-                return true;
-            default:
-                return QWindow::event(event);
         }
+                break;
+        case QEvent::Close:
+            break;
+        default:break;
+        }
+        return QWindow::event(event);
     }
 
     void Window::exposeEvent(QExposeEvent *event) {
         this->ppp_Init();
-        return;
-        (void)event;
+        //ppp_SceneChanged();
+        return QWindow::exposeEvent(event);
+    }
+
+    void Window::resizeEvent(QResizeEvent * e){
+        this->ppp_Init();
+        ppp_SceneChanged();
+        return QWindow::resizeEvent(e );
     }
 
     void Window::ppp_Init() {
@@ -438,7 +448,7 @@ namespace sstd {
             mmm_RenderPack = varPack;
             /*copy this data */
             varPack->targetWindow = this;
-            varPack->targetWindowContex = this->mmm_Contex;
+            varPack->globalWindowContex = this->mmm_Contex;
             /*create offscreen surface*/
             varPack->sourceOffscreenSurface = sstd::make_unique<QOffscreenSurface>();
             varPack->sourceOffscreenSurface->setFormat(sstd::getDefaultOpenGLFormat());
@@ -459,7 +469,7 @@ namespace sstd {
                     varPack->sourceContex = sstd::make_unique<QOpenGLContext>();
                     varPack->sourceContex->setFormat(sstd::getDefaultOpenGLFormat());
                     varPack->sourceContex->create();
-                    varPack->sourceContex->setShareContext(varPack->targetWindowContex);
+                    varPack->sourceContex->setShareContext(varPack->globalWindowContex);
                     varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
                     glewInitialize();
                     varPack->sourceViewControl->initialize(varPack->sourceContex.get());

@@ -36,6 +36,7 @@ namespace sstd {
     protected:
         bool event(QEvent *event) override;
         void exposeEvent(QExposeEvent *event) override;
+        void resizeEvent(QResizeEvent * e) override;
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(Window)
     };

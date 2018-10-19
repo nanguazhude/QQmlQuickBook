@@ -26,7 +26,7 @@ namespace  sstd {
         std::atomic<int> targetWindowWidth{ 1 };
         std::atomic<int> targetWindowHeight{ 1 };
         QWindow * targetWindow /**/ = nullptr;
-        QOpenGLContext * targetWindowContex/**/ = nullptr;
+        QOpenGLContext * globalWindowContex/**/ = nullptr;
         std::unique_ptr<QQuickWindow> sourceView /**/;
         std::unique_ptr<QOpenGLContext> sourceContex /**/;
         std::unique_ptr<QOffscreenSurface> sourceOffscreenSurface/**/;
