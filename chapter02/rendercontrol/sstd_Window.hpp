@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <mutex>
+#include <future>
 #include <shared_mutex>
 #include <sstd_memory.hpp>
 #include <QtGui/qwindow.h>
@@ -26,8 +28,11 @@ namespace sstd {
         void ppp_Init();
         Q_SLOT void ppp_RenderRequested();
         Q_SLOT void ppp_SceneChanged();
+        Q_SLOT void ppp_UpdateSize();
     protected:
         virtual std::shared_ptr<sstd::RenderPack> makeRender();
+        std::once_flag mmm_LoadQml{};
+        virtual void loadQml();
     protected:
         bool event(QEvent *event) override;
         void exposeEvent(QExposeEvent *event) override;

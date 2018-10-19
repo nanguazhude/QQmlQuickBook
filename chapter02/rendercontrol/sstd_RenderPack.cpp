@@ -2,7 +2,11 @@
 
 namespace sstd {
 
-    RenderPack::~RenderPack(){}
+    RenderPack::~RenderPack() {
+    }
+
+    RenderPack::RenderPack() {
+    }
 
 } // namespace sstd
 
