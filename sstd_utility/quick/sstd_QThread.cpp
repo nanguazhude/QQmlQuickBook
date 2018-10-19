@@ -119,6 +119,60 @@ namespace sstd {
         return{};
     }
 
+    
+    namespace {
+        std::atomic< private_quick_thread_sstd::RunEventObject *> globalObjectInMain{ nullptr };
+        std::shared_ptr<std::atomic_bool> getQApplicationState() {
+            static std::shared_ptr<std::atomic_bool> varAns{
+                sstd::make_shared<std::atomic_bool>(false) 
+            };
+            return varAns;
+        }
+        void updateWhenQCoreApplicationConstruct() {
+            /*the global data never delete ... */
+            static auto * varMainObject = sstdNew<private_quick_thread_sstd::RunEventObject>(
+                getQApplicationState());
+            globalObjectInMain.store( varMainObject );
+        }
+        Q_COREAPP_STARTUP_FUNCTION(updateWhenQCoreApplicationConstruct)
+    }/**/
+        
+    std::shared_ptr< const sstd::vector< std::future<void> > > ppp_run_in_main_thread(sstd::vector<std::packaged_task<void(void)>> && arg) {
+        assert(qApp);
+
+        auto varCallObject = globalObjectInMain.load();
+        if (nullptr == varCallObject ) {
+            return {};
+        }
+
+        auto varEvnet = sstdNew<RunThisEvent>(std::move(arg));
+        auto varAns = varEvnet->getFutures();
+        QCoreApplication::postEvent(varCallObject, varEvnet);
+        return std::move(varAns);
+
+    }
+
+
 }/*namespace sstd*/
 
+#if defined(_DEBUG)
+
+/*仅仅用于静态代码检查,并不保证运行时逻辑正确*/
+void static_test() {
+    sstd::runInMainThread([]() {}, []() {}, []() {});
+    class ATest {
+    public:
+        void operator()() {
+        }
+    };
+    std::tuple<ATest, ATest> testTuple;
+    sstd::applyInMainThread(testTuple);
+    sstd::QuickThread varThread;
+    varThread.applyInMainThread(testTuple);
+    varThread.runInMainThread([]() {}, []() {});
+    varThread.applyInThisThread(testTuple);
+    varThread.runInThisThread([]() {});
+}
+
+#endif
 

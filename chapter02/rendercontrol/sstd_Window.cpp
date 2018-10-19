@@ -63,6 +63,13 @@ namespace /*渲染所需方法*/ {
 
         void operator()() const {
             mmm_RenderPack->sourceContex->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
+            class OOOO {
+            public:
+                void operator()() {
+                }
+            };
+            std::tuple<OOOO> o;
+            sstd::applyInMainThread(o);
         }
 
     };

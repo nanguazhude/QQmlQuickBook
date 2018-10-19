@@ -11,6 +11,28 @@
 
 namespace sstd {
 
+    template<typename ... Args>
+    std::shared_ptr< const sstd::vector< std::future<void> > > runInMainThread(Args && ...);
+    template<typename Tuple>
+    std::shared_ptr< const sstd::vector< std::future<void> > > applyInMainThread(Tuple &&);
+
+    /*this is private function , never used it direct ... */
+    _1_SSTD_QUICK_LIBRARY_EXPORT std::shared_ptr< const sstd::vector< std::future<void> > > ppp_run_in_main_thread(sstd::vector<std::packaged_task<void(void)>> && arg);
+
+    class MainThread {
+    public:
+        template<typename ... Args>
+        static std::shared_ptr< const sstd::vector< std::future<void> > > runInMainThread(Args && ... args) {
+            return sstd::runInMainThread(std::forward<Args>(args)...);
+        }
+        template<typename Tuple>
+        static std::shared_ptr< const sstd::vector< std::future<void> > > applyInMainThread(Tuple && arg) {
+            return sstd::applyInMainThread(std::forward<Tuple>(arg));
+        }
+    private:
+        SSTD_MEMORY_DEFINE(MainThread)
+    };
+
     namespace private_quick_thread_sstd {
 
         class _1_SSTD_QUICK_LIBRARY_EXPORT RunEventObject : public QObject {
@@ -26,7 +48,7 @@ namespace sstd {
 
     }/*private_sstd*/
 
-    class _1_SSTD_QUICK_LIBRARY_EXPORT QuickThread : public QThread {
+    class _1_SSTD_QUICK_LIBRARY_EXPORT QuickThread : public QThread ,public sstd::MainThread {
         Q_OBJECT
     public:
         ~QuickThread();
@@ -52,7 +74,7 @@ namespace sstd {
         template<typename Tuple>
         std::shared_ptr< const sstd::vector< std::future<void> > > applyInThisThread(Tuple && arg) {
             const static constexpr auto varTupleSize = std::tuple_size_v<std::remove_reference_t<Tuple>>;
-            return ppp_apply(this, std::forward < Tuple >(arg), std::make_index_sequence<varTupleSize>{});
+            return QuickThread::ppp_apply(this, std::forward < Tuple >(arg), std::make_index_sequence<varTupleSize>{});
         }
 
         void setLogicalQuit(bool a) {
@@ -63,6 +85,11 @@ namespace sstd {
             return mmm_logical_quit->load();
         }
 
+    private:
+        template<typename ... Args>
+        std::shared_ptr< const sstd::vector< std::future<void> > > friend runInMainThread(Args && ...);
+        template<typename Tuple>
+        std::shared_ptr< const sstd::vector< std::future<void> > > friend applyInMainThread(Tuple &&);
     protected:
         void run() override;
     private:
@@ -88,6 +115,30 @@ namespace sstd {
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(QuickThread)
     };
+
+    template<typename ... Args>
+    std::shared_ptr< const sstd::vector< std::future<void> > > runInMainThread(Args && ... args) {
+        if constexpr ((sizeof...(Args)) == 0) {
+            return {};
+        } else {
+            sstd::vector<std::packaged_task<void(void)>> varCall;
+            varCall.reserve(sizeof...(Args));
+            (QuickThread::ppp_push_back(&varCall, std::forward<Args>(args)), ...);
+            return ppp_run_in_main_thread(std::move(varCall));
+        }
+    }
+
+    template<typename Tuple, std::size_t... I>
+    static inline std::shared_ptr< const sstd::vector< std::future<void> > >
+        _1_ppp_apply(Tuple && t, const std::index_sequence<I...> &) {
+        return runInMainThread(std::get<I>(std::forward<Tuple>(t))...);
+    }
+
+    template<typename Tuple>
+    std::shared_ptr< const sstd::vector< std::future<void> > > applyInMainThread(Tuple && arg) {
+        const static constexpr auto varTupleSize = std::tuple_size_v<std::remove_reference_t<Tuple>>;
+        return _1_ppp_apply(std::forward < Tuple >(arg), std::make_index_sequence<varTupleSize>{});
+    }
 
 }/*namespace sstd*/
 
