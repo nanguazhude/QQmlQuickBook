@@ -48,11 +48,11 @@ int main(int argc, char ** argv) {
     loadQtPlugins();
     /*加载Qml环境*/
 
-    //auto varWindow = sstd::make_unique<sstd::Window>();
-    //varWindow->show();
+    auto varWindow = sstd::make_unique<sstd::Window>();
+    varWindow->show();
 
-    WindowMultiThreaded m;
-    m.show();
+    //WindowMultiThreaded m;
+    //m.show();
 
     /*启动主线程事件循环程序*/
     return varApp.exec();

@@ -254,7 +254,7 @@ WindowMultiThreaded::WindowMultiThreaded()
     setSurfaceType(QSurface::OpenGLSurface);
     setFormat(sstd::getDefaultOpenGLFormat());
 
-    xthread = new sstd::QuickThread;
+    //xthread = new sstd::QuickThread;
 
    
    
@@ -416,8 +416,8 @@ void WindowMultiThreaded::exposeEvent(QExposeEvent *) {
     m_quickRenderer->setWindow(this);
     m_quickRenderer->setQuickWindow(m_quickWindow);
     m_quickRenderer->setRenderControl(m_renderControl);
-
-    m_quickRendererThread = new QThread;
+   
+    m_quickRendererThread = new sstd::QuickThread;
 
     // Notify the render control that some scenegraph internals have to live on
     // m_quickRenderThread.
@@ -428,7 +428,7 @@ void WindowMultiThreaded::exposeEvent(QExposeEvent *) {
     mmm_globalContex->moveToThread(m_quickRendererThread);
     m_quickRenderer->moveToThread(m_quickRendererThread);
 
-    m_quickRendererThread->start();
+    //m_quickRendererThread->start();
 
     // Now hook up the signals. For simplicy we don't differentiate
     // between renderRequested (only render is needed, no sync) and

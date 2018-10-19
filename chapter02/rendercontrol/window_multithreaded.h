@@ -110,11 +110,7 @@ private:
     CubeRenderer *m_cubeRenderer;
     QMutex m_quitMutex;
     bool m_quit;
-
-
-
-
-
+         
 };
 
 class WindowMultiThreaded : public QWindow
