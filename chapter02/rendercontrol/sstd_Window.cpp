@@ -300,9 +300,9 @@ void main(){
         }
 
         void operator()() const {
-            mmm_RenderPack->sourceContex->makeCurrent(mmm_RenderPack->targetWindow);
+            mmm_RenderPack->targetContex->makeCurrent(mmm_RenderPack->targetWindow);
             draw();
-            mmm_RenderPack->sourceContex->swapBuffers(mmm_RenderPack->targetWindow);
+            mmm_RenderPack->targetContex->swapBuffers(mmm_RenderPack->targetWindow);
         }
 
     };
@@ -334,15 +334,17 @@ namespace sstd {
                 /*about to desotry contex ... */
                 varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
                 static_cast<WindowRenderPack*>(varPack.get())->sourceFrameBufferObject.reset();
+                varPack->sourceContex->doneCurrent();
                 /*desdestory opengl data ...*/
-                varPack->sourceContex->makeCurrent(varPack->targetWindow);
+                varPack->targetContex->makeCurrent(varPack->targetWindow);
                 glDeleteProgram( static_cast<WindowRenderPack*>(varPack.get())->targetProgram );
                 glDeleteVertexArrays(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAO ));
                 glDeleteBuffers(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAOBuffer ));
                 glDeleteBuffers(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAOIndexBuffer ));
-                varPack->sourceContex->doneCurrent();
+                varPack->targetContex->doneCurrent();
                 /*delete contex in main thread ...*/
-                varPack->sourceContex->moveToThread(varPack->sourceView->thread());
+                varPack->sourceContex->moveToThread(qApp->thread());
+                varPack->targetContex->moveToThread(qApp->thread());
                 /*the thread will delete it self */
                 varPack->renderThread->quit();
             });
@@ -352,6 +354,7 @@ namespace sstd {
             mmm_RenderPack->sourceQQmlEngine.reset();
             mmm_RenderPack->sourceOffscreenSurface.reset();
             mmm_RenderPack->sourceContex.reset();
+            mmm_RenderPack->targetContex.reset();
         }
 
         /*destory the contex*/
@@ -473,6 +476,13 @@ namespace sstd {
                     varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
                     glewInitialize();
                     varPack->sourceViewControl->initialize(varPack->sourceContex.get());
+                    /*create opengl contex in the thread ... */
+                    varPack->targetContex = sstd::make_unique<QOpenGLContext>();
+                    varPack->targetContex->setFormat(sstd::getDefaultOpenGLFormat());
+                    varPack->targetContex->create();
+                    varPack->targetContex->setShareContext(varPack->globalWindowContex);
+                    varPack->targetContex->makeCurrent(varPack->targetWindow);
+                   
                 });
                 /*wait for init finished ... */
                 varFutures->data()->wait();
