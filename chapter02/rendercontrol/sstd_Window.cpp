@@ -15,9 +15,9 @@ namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
 }
 
-namespace {
+namespace /*渲染所需数据数据*/ {
 
-    class WindowRenderPack : public sstd::RenderPack {
+    class WindowRenderPack final : public sstd::RenderPack {
     public:
         std::unique_ptr<QOpenGLFramebufferObject> sourceFrameBufferObject;
         GLuint targetVAO{ 0 };
@@ -30,7 +30,7 @@ namespace {
 
 }/*namespace*/
 
-namespace {
+namespace /*渲染所需方法*/ {
 
     class RenderControl : public QQuickRenderControl {
         QWindow * const mmm_Window;
@@ -61,7 +61,7 @@ namespace {
         UpdataSourceContex(RPT arg) : mmm_RenderPack(std::move(arg)) {
         }
 
-        void operator()() {
+        void operator()() const {
             mmm_RenderPack->sourceContex->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
         }
 
@@ -74,7 +74,7 @@ namespace {
         PolishSourceWindow(RPT arg) : mmm_RenderPack(std::move(arg)) {
         }
 
-        void operator()() {
+        void operator()() const {
             auto varRenderControl = mmm_RenderPack->sourceViewControl.get();
             varRenderControl->polishItems();
         }
@@ -88,7 +88,7 @@ namespace {
         SyncSourceQSGDAta(RPT arg) : mmm_RenderPack(std::move(arg)) {
         }
 
-        void operator()() {
+        void operator()() const {
             auto varRenderControl = mmm_RenderPack->sourceViewControl.get();
             varRenderControl->sync();
         }
@@ -102,7 +102,7 @@ namespace {
         RenderSourceWindow(RPT arg) : mmm_RenderPack(std::move(arg)) {
         }
 
-        void updateFBO() {
+        void updateFBO() const {
             auto varPack = static_cast<WindowRenderPack *>(mmm_RenderPack.get());
             const auto varPixelRatio = varPack->targetWindowDevicePixelRatio.load();
             const auto varHeight = static_cast<int>(varPack->targetWindowHeight.load() * varPixelRatio);
@@ -127,7 +127,7 @@ namespace {
             mmm_RenderPack->sourceView->setRenderTarget(varPack->sourceFrameBufferObject.get());
         }
 
-        void operator()() {
+        void operator()() const {
             auto varRenderControl = mmm_RenderPack->sourceViewControl.get();
             this->updateFBO();
             varRenderControl->render();
@@ -207,7 +207,7 @@ namespace {
 
         }
 
-        void initProgram() {
+        void initProgram() const {
             auto varPack = static_cast<WindowRenderPack *>(mmm_RenderPack.get());
             if (varPack->targetProgram) {
                 return;
@@ -245,7 +245,7 @@ void main(){
 
         }
 
-        void initVAO() {
+        void initVAO() const {
             auto varPack = static_cast<WindowRenderPack *>(mmm_RenderPack.get());
             if (varPack->targetVAO) {
                 return;
@@ -285,7 +285,7 @@ void main(){
             glVertexArrayElementBuffer(varPack->targetVAO, varPack->targetVAOIndexBuffer);
         }
 
-        void draw() {
+        void draw() const {
             auto varPack = static_cast<WindowRenderPack *>(mmm_RenderPack.get());
             initProgram();
             initVAO();
@@ -298,7 +298,7 @@ void main(){
             glFinish();
         }
 
-        void operator()() {
+        void operator()() const {
             mmm_RenderPack->sourceContex->makeCurrent(mmm_RenderPack->targetWindow);
             draw();
             mmm_RenderPack->sourceContex->swapBuffers(mmm_RenderPack->targetWindow);
@@ -332,6 +332,12 @@ namespace sstd {
                 /*about to desotry contex ... */
                 varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
                 static_cast<WindowRenderPack*>(varPack.get())->sourceFrameBufferObject.reset();
+                /**/
+                varPack->sourceContex->makeCurrent(varPack->targetWindow);
+                glDeleteProgram( static_cast<WindowRenderPack*>(varPack.get())->targetProgram );
+                glDeleteVertexArrays(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAO ));
+                glDeleteBuffers(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAOBuffer ));
+                glDeleteBuffers(1,&( static_cast<WindowRenderPack*>(varPack.get())->targetVAOIndexBuffer ));
                 varPack->sourceContex->doneCurrent();
                 varPack->sourceContex->moveToThread(varPack->sourceView->thread());
                 /*the thread will delete it self */
