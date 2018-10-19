@@ -52,9 +52,10 @@ include($$PWD/../../sstd_utility/sstd_quick.pri)
 
 LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
+SOURCES += $$PWD/cuberenderer.cpp
+SOURCES += $$PWD/window_multithreaded.cpp
 
-
-
-
+HEADERS += $$PWD/cuberenderer.h
+HEADERS += $$PWD/window_multithreaded.h
 
 

@@ -88,22 +88,8 @@ namespace /*渲染所需方法*/ {
         SyncSourceQSGDAta(RPT arg) : mmm_RenderPack(std::move(arg)) {
         }
 
-        void operator()() const {
-            auto varRenderControl = mmm_RenderPack->sourceViewControl.get();
-            varRenderControl->sync();
-            glFinish();
-        }
-
-    };
-
-    /*将QQuickWindow内容渲染到FBO... 非GUI线程... */
-    class RenderSourceWindow {
-        RPT mmm_RenderPack;
-    public:
-        RenderSourceWindow(RPT arg) : mmm_RenderPack(std::move(arg)) {
-        }
-
         void updateFBO() const {
+            mmm_RenderPack->sourceContex->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
             auto varPack = static_cast<WindowRenderPack *>(mmm_RenderPack.get());
             const auto varPixelRatio = varPack->targetWindowDevicePixelRatio.load();
             const auto varHeight = static_cast<int>(varPack->targetWindowHeight.load() * varPixelRatio);
@@ -126,11 +112,28 @@ namespace /*渲染所需方法*/ {
             varPack->sourceFrameBufferObject =
                 sstd::make_unique<QOpenGLFramebufferObject>(QSize(varWidth, varHeight), QOpenGLFramebufferObject::CombinedDepthStencil);
             mmm_RenderPack->sourceView->setRenderTarget(varPack->sourceFrameBufferObject.get());
+
         }
 
         void operator()() const {
             auto varRenderControl = mmm_RenderPack->sourceViewControl.get();
             this->updateFBO();
+            varRenderControl->sync();
+            glFinish();
+        }
+
+    };
+
+    /*将QQuickWindow内容渲染到FBO... 非GUI线程... */
+    class RenderSourceWindow {
+        RPT mmm_RenderPack;
+    public:
+        RenderSourceWindow(RPT arg) : mmm_RenderPack(std::move(arg)) {
+        }
+
+        void operator()() const {
+            mmm_RenderPack->sourceContex->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
+            auto varRenderControl = mmm_RenderPack->sourceViewControl.get();
             varRenderControl->render();
             glFinish();
         }
@@ -183,7 +186,7 @@ namespace /*渲染所需方法*/ {
             glAttachShader(varProgram, varShader[1]);
             glLinkProgram(varProgram);
 
-            if constexpr (false) {
+            if constexpr (true) {
 
                 auto printProgramInfo = [](GLuint e) {
                     /*获得错误大小*/
@@ -240,6 +243,7 @@ layout (binding=1) uniform sampler2D argTexture ;
 
 void main(){
     outColor = texture2D( argTexture , ioTexturePos.xy ) ;
+    //outColor = vec4(1,0,1,1) ;
 }
 
 )"sv);
@@ -290,11 +294,14 @@ void main(){
             auto varPack = static_cast<WindowRenderPack *>(mmm_RenderPack.get());
             initProgram();
             initVAO();
+            glViewport(0,0,128,128);
             glUseProgram(varPack->targetProgram);
             glBindVertexArray(varPack->targetVAO);
+            glActiveTexture(GL_TEXTURE0 );
             glActiveTexture(GL_TEXTURE0 + 1);
             glBindTexture(GL_TEXTURE_2D, varPack->sourceFrameBufferObject->texture());
             glBindTextureUnit(1, varPack->sourceFrameBufferObject->texture());
+            //qDebug() << "texture : " << varPack->sourceFrameBufferObject->texture();
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
             glFinish();
         }
@@ -306,7 +313,7 @@ void main(){
             const auto varHeight = static_cast<int>(varPack->targetWindowHeight.load() * varPixelRatio);
             const auto varWidth = static_cast<int>(varPack->targetWindowWidth.load() *varPixelRatio);
             glViewport(0, 0, varWidth, varHeight);
-            glClearColor(1,0.2,1,1);
+            glClearColor(1, 0.2, 1, 1);
             draw();
             mmm_RenderPack->targetContex->swapBuffers(mmm_RenderPack->targetWindow);
         }
@@ -327,7 +334,9 @@ namespace sstd {
         this->setSurfaceType(QSurface::OpenGLSurface);
         this->setFormat(sstd::getDefaultOpenGLFormat());
 
+        /*创建线程*/
         mmm_RenderThread = sstdNew<sstd::QuickThread>();
+
 
     }
 
@@ -372,42 +381,43 @@ namespace sstd {
 
     bool Window::event(QEvent *event) {
         switch (event->type()) {
-        case QEvent::UpdateRequest:
-        {
-             this->ppp_Init();
-             ppp_SceneChanged();
-        }
-        break;
-        case QEvent::Close:
+            case QEvent::UpdateRequest:
+            {
+                this->ppp_Init();
+                //ppp_SceneChanged();
+            }
             break;
-        default:break;
+            case QEvent::Close:
+                break;
+            default:break;
         }
         return QWindow::event(event);
     }
 
     void Window::exposeEvent(QExposeEvent *event) {
         this->ppp_Init();
-        ppp_SceneChanged();
+        this->ppp_UpdateSize();
+        this->ppp_SceneChanged();
+        //ppp_SceneChanged();
         return QWindow::exposeEvent(event);
     }
 
     void Window::resizeEvent(QResizeEvent * e) {
         this->ppp_Init();
-        ppp_SceneChanged();
+        this->ppp_UpdateSize();
+        //ppp_SceneChanged();
         return QWindow::resizeEvent(e);
     }
 
     void Window::ppp_Init() {
 
         if (mmm_Contex == nullptr) {
-            mmm_RenderThread->runInThisThread([this]() {
-                mmm_Contex = sstdNew<QOpenGLContext>();
-                mmm_Contex->setFormat(sstd::getDefaultOpenGLFormat());
-                mmm_Contex->create();
-                /*make current in this thread*/
-                mmm_Contex->makeCurrent(this);
-                glewInitialize();
-            })->data()->wait();
+            mmm_Contex = sstdNew<QOpenGLContext>();
+            mmm_Contex->setFormat(sstd::getDefaultOpenGLFormat());
+            mmm_Contex->create();
+            /*make current in this thread*/
+            mmm_Contex->makeCurrent(this);
+            glewInitialize();
         }
 
         /*************************************************/
@@ -501,7 +511,7 @@ namespace sstd {
             /*add signal and slot*/
             auto varRenderControl = varPack->sourceViewControl.get();
             connect(varRenderControl, &QQuickRenderControl::renderRequested,
-                this, &Window::ppp_RenderRequested, Qt::QueuedConnection);
+                this, &Window::ppp_SceneChanged, Qt::QueuedConnection);
             connect(varRenderControl, &QQuickRenderControl::sceneChanged,
                 this, &Window::ppp_SceneChanged, Qt::QueuedConnection);
             varPack->renderThread = mmm_RenderThread;
