@@ -30,7 +30,7 @@ namespace /*渲染所需数据数据*/ {
 
 }/*namespace*/
 
-namespace /*渲染所需方法*/ {
+namespace /*渲染所需控制器*/ {
 
     class RenderControl : public QQuickRenderControl {
         QWindow * const mmm_Window;
@@ -49,7 +49,7 @@ namespace /*渲染所需方法*/ {
 
 }/*namespace*/
 
-namespace {
+namespace /*渲染所需方法*/ {
 
     using RPT = std::shared_ptr<sstd::RenderPack>;
 
