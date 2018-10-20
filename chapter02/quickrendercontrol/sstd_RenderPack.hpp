@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <memory>
-#include "sstd_WindowState.hpp"
+
 class QWindow;
 class QQuickWindow;
 class QOffscreenSurface;
