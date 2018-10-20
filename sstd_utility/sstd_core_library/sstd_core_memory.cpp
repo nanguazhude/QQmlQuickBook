@@ -1,4 +1,4 @@
-﻿
+﻿/*重写这个模块，调整程序内存分配策略...*/
 #include "../sstd_memory.hpp"
 
 namespace sstd{
