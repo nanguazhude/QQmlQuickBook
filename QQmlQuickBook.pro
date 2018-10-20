@@ -87,7 +87,9 @@ computeshaderthreaddraw.file = $$PWD/chapter02/computeshaderthreaddraw/computesh
 computeshaderthreaddraw.depends = buildinstall
 SUBDIRS += computeshaderthreaddraw
 
-
+quickrendercontrol.file = $$PWD/chapter02/quickrendercontrol/quickrendercontrol.pro
+quickrendercontrol.depends = buildinstall
+SUBDIRS += quickrendercontrol
 
 
 
