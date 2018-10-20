@@ -25,6 +25,7 @@ namespace sstd {
         Q_SLOT void justRender();
         Q_SLOT void polishSyncAndRender();
         Q_SLOT void polishSyncAndRenderResize();
+        bool isResizing() const;
     private:
         template<bool needPolish,bool needSync,bool isResize>
         void ppp_PolishSyncAndRender();

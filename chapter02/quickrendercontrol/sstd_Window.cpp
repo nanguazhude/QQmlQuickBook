@@ -9,6 +9,7 @@ namespace {
 
     class RenderControl : public QQuickRenderControl {
     public:
+
         RenderControl(sstd::Window *w) : mmm_Window(w) {
         }
 
@@ -441,8 +442,21 @@ sstd::Window::~Window() {
     mmm_RenderPack->sourceView.reset();
 }
 
+bool sstd::Window::isResizing() const {
+    const auto varCurrentTime = std::chrono::steady_clock::now();
+    return (std::chrono::abs(varCurrentTime - mmm_RenderPack->lastResizeTime.load() ) < 500ms);
+}
+
 void sstd::Window::requestUpdate() {
     if (mmm_QuickInitialized) {
+
+        if (isResizing()) {
+            sstd::runInMainThread([this]() {
+                polishSyncAndRenderResize();
+            });
+            return;
+        }
+
         sstd::runInMainThread([this]() {
             polishSyncAndRender();
         });
@@ -451,6 +465,14 @@ void sstd::Window::requestUpdate() {
 
 void sstd::Window::justRender() {
     if (mmm_QuickInitialized) {
+
+        if (isResizing()) {
+            sstd::runInMainThread([this]() {
+                polishSyncAndRenderResize();
+            });
+            return;
+        }
+
         sstd::runInMainThread([this]() {
             ppp_PolishSyncAndRender<false, false, false>();
         });
@@ -596,6 +618,7 @@ void sstd::Window::exposeEvent(QExposeEvent *) {
 }
 
 void sstd::Window::resizeEvent(QResizeEvent *) {
+    mmm_RenderPack->lastResizeTime = std::chrono::steady_clock::now();
     if (mmm_RenderPack->sourceRootItem) {
         updateSizes();
         polishSyncAndRenderResize();

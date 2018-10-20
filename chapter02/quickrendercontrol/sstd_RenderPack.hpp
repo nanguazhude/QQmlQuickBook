@@ -8,6 +8,7 @@ class QOffscreenSurface;
 class QOpenGLContext;
 class QQuickRenderControl;
 class QQmlEngine;
+#include <chrono>
 #include <QtQml/qqmlengine.h>
 #include <QtQuick/qquickitem.h>
 #include <QtQuick/qquickwindow.h>
@@ -35,6 +36,7 @@ namespace  sstd {
         std::unique_ptr<QQmlEngine> sourceQQmlEngine;
         sstd::QuickThread * renderThread{ nullptr };
         QQuickItem * sourceRootItem{nullptr};
+        std::atomic< std::chrono::steady_clock::time_point > lastResizeTime{ std::chrono::steady_clock::now() };
         virtual ~RenderPack();
     };
 
