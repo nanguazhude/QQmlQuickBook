@@ -28,6 +28,14 @@ namespace {
 
 }/*namesapce*/
 
+namespace {
+    template<typename T>
+    bool getIfResizeing(const T & mmm_RenderPack) {
+        const auto varCurrentTime = std::chrono::steady_clock::now();
+        return (std::chrono::abs(varCurrentTime - mmm_RenderPack->lastResizeTime.load()) < 5s);
+    }
+}/*namespace*/
+
 namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
 }
@@ -278,7 +286,6 @@ void main(){
             glBindTexture(GL_TEXTURE_2D, varPack->sourceFrameBufferObject->texture());
             glBindTextureUnit(1, varPack->sourceFrameBufferObject->texture());
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
-            glFinish();
 
         }
     };
@@ -287,7 +294,17 @@ void main(){
     public:
         using FunctionBasic::FunctionBasic;
         void operator()() const {
+            if (getIfResizeing(mmm_RenderPack)) {
+                std::this_thread::sleep_for(1ms);
+            }
+            glFinish();
+            if (mmm_RenderPack->isClose.load()) {
+                return;
+            }
             mmm_RenderPack->targetContex->swapBuffers(mmm_RenderPack->targetWindow);
+            if (getIfResizeing(mmm_RenderPack)) {
+                std::this_thread::sleep_for(300us);
+            }
         }
     };
 
@@ -395,6 +412,7 @@ void main(){
                 glDeleteVertexArrays(1, &(varPack->targetVAO));
                 glDeleteBuffers(1, &(varPack->targetVAOBuffer));
                 glDeleteBuffers(1, &(varPack->targetVAOIndexBuffer));
+                varPack->targetContex->aboutToBeDestroyed();
                 varPack->targetContex->doneCurrent();
                 varPack->targetContex.reset();
             }
@@ -403,6 +421,7 @@ void main(){
                 varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
                 varPack->sourceViewControl->invalidate();
                 varPack->sourceFrameBufferObject.reset();
+                varPack->sourceContex->aboutToBeDestroyed();
                 varPack->sourceContex->doneCurrent();
                 varPack->sourceContex->moveToThread(qApp->thread());
             }
@@ -443,8 +462,7 @@ sstd::Window::~Window() {
 }
 
 bool sstd::Window::isResizing() const {
-    const auto varCurrentTime = std::chrono::steady_clock::now();
-    return (std::chrono::abs(varCurrentTime - mmm_RenderPack->lastResizeTime.load()) < 7s);
+    return getIfResizeing(mmm_RenderPack);
 }
 
 void sstd::Window::requestUpdate() {
