@@ -75,10 +75,6 @@ qmlsingleton.file = $$PWD/chapter03/qmlsingleton/qmlsingleton.pro
 qmlsingleton.depends = buildinstall
 SUBDIRS += qmlsingleton
 
-rendercontrol.file = $$PWD/chapter02/rendercontrol/rendercontrol.pro
-rendercontrol.depends = buildinstall
-SUBDIRS += rendercontrol
-
 qmlcontex.file = $$PWD/chapter03/qmlcontex/qmlcontex.pro
 qmlcontex.depends = buildinstall
 SUBDIRS += qmlcontex

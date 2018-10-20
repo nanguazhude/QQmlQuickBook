@@ -1,20 +1,9 @@
 ﻿#include <sstd_glew.hpp>
 #include <ConstructQSurface.hpp>
-
 #include <sstd_memory.hpp>
 #include <sstd_RenderPack.hpp>
-
+#include <QtGui/qopenglframebufferobject.h>
 #include "sstd_Window.hpp"
-#include "cuberenderer.h"
-#include <QOpenGLContext>
-#include <QOpenGLFramebufferObject>
-#include <QOffscreenSurface>
-#include <QQmlEngine>
-#include <QQmlComponent>
-#include <QQuickItem>
-#include <QQuickWindow>
-#include <QQuickRenderControl>
-#include <QCoreApplication>
 
 namespace {
 
@@ -425,8 +414,7 @@ void main(){
 }/*namespace*/
 
 sstd::Window::Window() :
-    mmm_QuickInitialized(false),
-    mmm_psrRequested(false) {
+    mmm_QuickInitialized(false) {
     setSurfaceType(QSurface::OpenGLSurface);
 
     mmm_RenderPack = makeRenderPack();
@@ -454,21 +442,17 @@ sstd::Window::~Window() {
 }
 
 void sstd::Window::requestUpdate() {
-    if (mmm_QuickInitialized && !mmm_psrRequested) {
-        mmm_psrRequested = true;
+    if (mmm_QuickInitialized) {
         sstd::runInMainThread([this]() {
             polishSyncAndRender();
-            mmm_psrRequested = false;
         });
     }
 }
 
 void sstd::Window::justRender() {
-    if (mmm_QuickInitialized && !mmm_psrRequested) {
-        mmm_psrRequested = true;
+    if (mmm_QuickInitialized) {
         sstd::runInMainThread([this]() {
             ppp_PolishSyncAndRender<false, false, false>();
-            mmm_psrRequested = false;
         });
     }
 }

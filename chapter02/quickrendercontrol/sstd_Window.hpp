@@ -31,13 +31,8 @@ namespace sstd {
     private:
         void startQuick(const QUrl &filename);
         void updateSizes();
-
-        
         bool mmm_QuickInitialized;
-        bool mmm_psrRequested;
-
         std::shared_ptr<sstd::RenderPack> mmm_RenderPack;
-
     };
 
 }/*namespace sstd*/
