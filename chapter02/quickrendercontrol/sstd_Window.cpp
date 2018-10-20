@@ -390,10 +390,7 @@ void main(){
 
 }/*namespace*/
 
-sstd::Window::Window()
-    :
-    //m_qmlComponent(nullptr),
-    //m_rootItem(nullptr),
+sstd::Window::Window() :
     mmm_QuickInitialized(false),
     mmm_psrRequested(false) {
     setSurfaceType(QSurface::OpenGLSurface);
@@ -548,8 +545,9 @@ void sstd::Window::startQuick(const QUrl &filename) {
 
     // Initialize the render thread and perform the first polish/sync/render.
     mmm_RenderPack->renderThread->runInThisThread([varPack = mmm_RenderPack]() {
+        varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
         varPack->sourceViewControl->initialize( varPack->sourceContex.get() );
-    });
+    })->data()->wait();
 
     polishSyncAndRender();
 

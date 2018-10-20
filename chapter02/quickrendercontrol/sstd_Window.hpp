@@ -2,25 +2,7 @@
 
 #include <sstd_memory.hpp>
 #include <sstd_RenderPack.hpp>
-
 #include <QWindow>
-#include <QMatrix4x4>
-#include <QThread>
-#include <QWaitCondition>
-#include <QMutex>
-
-class QOpenGLContext;
-class QOpenGLFramebufferObject;
-class QOffscreenSurface;
-class QQuickRenderControl;
-class QQuickWindow;
-class QQmlEngine;
-class QQmlComponent;
-class QQuickItem;
-
-class CubeRenderer;
-
- 
 
 namespace sstd {
 
