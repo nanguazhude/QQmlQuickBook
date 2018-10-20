@@ -295,7 +295,7 @@ void main(){
         using FunctionBasic::FunctionBasic;
         void operator()() const {
             if (getIfResizeing(mmm_RenderPack)) {
-                std::this_thread::sleep_for(1ms);
+                std::this_thread::sleep_for(1us);
             }
             glFinish();
             if (mmm_RenderPack->isClose.load()) {
@@ -303,7 +303,7 @@ void main(){
             }
             mmm_RenderPack->targetContex->swapBuffers(mmm_RenderPack->targetWindow);
             if (getIfResizeing(mmm_RenderPack)) {
-                std::this_thread::sleep_for(300us);
+                std::this_thread::sleep_for(1us);
             }
         }
     };
