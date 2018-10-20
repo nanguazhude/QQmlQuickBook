@@ -7,7 +7,7 @@ public:
     CubeRenderer( std::shared_ptr<sstd::RenderPack> );
     ~CubeRenderer();
 
-    void render(QWindow *w, QOpenGLContext *share, uint texture);
+    void render(QWindow *w, QOpenGLContext *share );
     void resize(int,int) {
     }
 

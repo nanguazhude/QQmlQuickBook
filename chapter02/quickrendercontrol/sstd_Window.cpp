@@ -1,16 +1,13 @@
 ﻿#include <sstd_glew.hpp>
+#include <ConstructQSurface.hpp>
+
 #include <sstd_memory.hpp>
 #include <sstd_RenderPack.hpp>
 
 #include "sstd_Window.hpp"
 #include "cuberenderer.h"
 #include <QOpenGLContext>
-#include <QOpenGLFunctions>
 #include <QOpenGLFramebufferObject>
-#include <QOpenGLShaderProgram>
-#include <QOpenGLVertexArrayObject>
-#include <QOpenGLBuffer>
-#include <QOpenGLVertexArrayObject>
 #include <QOffscreenSurface>
 #include <QQmlEngine>
 #include <QQmlComponent>
@@ -18,7 +15,7 @@
 #include <QQuickWindow>
 #include <QQuickRenderControl>
 #include <QCoreApplication>
-#include <ConstructQSurface.hpp>
+
 
 namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
@@ -32,6 +29,7 @@ namespace {
         GLuint targetVAOBuffer{ 0 };
         GLuint targetVAOIndexBuffer{ 0 };
         GLuint targetProgram{ 0 };
+        std::unique_ptr<QOpenGLFramebufferObject> sourceFrameBufferObject;
     private:
         SSTD_MEMORY_DEFINE(ThisRenderPack)
     };
@@ -40,17 +38,239 @@ namespace {
         return sstd::make_shared<ThisRenderPack>();
     }
 
-    inline ThisRenderPack * get(const  std::shared_ptr<sstd::RenderPack> & arg) {
+    template<typename std_shared_ptr_sstd_renderpack>
+    inline ThisRenderPack * get(const std_shared_ptr_sstd_renderpack & arg) {
         return static_cast<ThisRenderPack *>(arg.get());
     }
 
-    inline QSize getSize(const std::shared_ptr<sstd::RenderPack> & arg) {
+    template<typename std_shared_ptr_sstd_renderpack>
+    inline QSize getSize(const std_shared_ptr_sstd_renderpack & arg) {
         auto varPack = get(arg);
         const auto varPR = varPack->targetWindowDevicePixelRatio.load();
         const auto varW = varPack->targetWindowWidth.load();
         const auto varH = varPack->targetWindowHeight.load();
         return{ static_cast<int>(varW*varPR),static_cast<int>(varH*varPR) };
     }
+
+    class FunctionBasic {
+    protected:
+        std::shared_ptr<ThisRenderPack> mmm_RenderPack;
+    public:
+        FunctionBasic(const std::shared_ptr<sstd::RenderPack> & arg) :
+            mmm_RenderPack(std::static_pointer_cast<ThisRenderPack>(arg)) {
+        }
+        FunctionBasic(std::shared_ptr<sstd::RenderPack> && arg) :
+            mmm_RenderPack(std::static_pointer_cast<ThisRenderPack>(std::move(arg))) {
+        }
+    private:
+        SSTD_MEMORY_DEFINE(FunctionBasic)
+    };
+
+    class ConstructDrawTargetWindowOpenGLProgram final : public FunctionBasic {
+    public:
+        using FunctionBasic::FunctionBasic;
+
+        inline static GLuint buildVFShader(std::string_view varVShaderSource, std::string_view varFShaderSource) {
+
+            class ShaderFree {
+            public:
+                std::array<GLuint, 2> data;
+                inline ShaderFree() {
+                    data[0] = 0;
+                    data[1] = 0;
+                }
+                inline ~ShaderFree() {
+                    glDeleteShader(data[1]);
+                    glDeleteShader(data[0]);
+                }
+            } varShaders{};
+
+            GLuint * varShader = &(varShaders.data[0]);
+            varShader[0] = glCreateShader(GL_VERTEX_SHADER);
+            varShader[1] = glCreateShader(GL_FRAGMENT_SHADER);
+
+            {
+                const GLchar * sources[] = { varVShaderSource.data(),varFShaderSource.data() };
+                GLint lengths[] = {
+                    (GLint)(varVShaderSource.size()),
+                    (GLint)(varFShaderSource.size())
+                };
+
+                glShaderSource(varShader[0], 1, &sources[0], &lengths[0]);
+                glShaderSource(varShader[1], 1, &sources[1], &lengths[1]);
+
+                glCompileShader(varShader[0]);
+                glCompileShader(varShader[1]);
+
+            }
+
+            GLuint varProgram = glCreateProgram();
+            glAttachShader(varProgram, varShader[0]);
+            glAttachShader(varProgram, varShader[1]);
+            glLinkProgram(varProgram);
+
+            if constexpr (false) {
+
+                auto printProgramInfo = [](GLuint e) {
+                    /*获得错误大小*/
+                    GLint log_length = 0;
+                    glGetProgramiv(e, GL_INFO_LOG_LENGTH, &log_length);
+                    log_length += 16;
+
+                    /*获得一段内存，并初始化为0*/
+                    sstd::string infos_;
+                    infos_.resize(log_length);
+
+                    /*获得错误并输出*/
+                    char * info = infos_.data();
+                    glGetProgramInfoLog(e, 1024, nullptr, info);
+                    qDebug() << info;
+                };
+
+                printProgramInfo(varProgram);
+            }
+
+            return varProgram;
+
+        }
+
+        void operator()() const {
+            if (mmm_RenderPack->targetProgram) {
+                return;
+            }
+
+            mmm_RenderPack->targetProgram = buildVFShader(
+                u8R"(
+/*简单顶点着色器，用于渲染一个图片*/
+#version 450
+
+layout( location = 0 ) in vec4 argPosition  ;
+layout( location = 1 ) in vec4 argTexturePos;
+out vec4 ioTexturePos ;
+
+void main(){
+    ioTexturePos = argTexturePos ;
+    gl_Position = argPosition    ;
+}
+
+)"sv,
+u8R"(
+
+/*简单片段着色器,用于渲染一个图像*/
+#version 450
+
+in  vec4 ioTexturePos                           ;
+out vec4 outColor                               ;
+layout (binding=1) uniform sampler2D argTexture ;
+
+void main(){
+    outColor = texture2D( argTexture , ioTexturePos.xy ) ;
+}
+
+)"sv);
+
+        }
+    };
+
+
+    class ConstructDrawTargetWindowVAO  final : public FunctionBasic {
+    public:
+        using FunctionBasic::FunctionBasic;
+        void operator()() const {
+            auto varPack = mmm_RenderPack.get();
+
+            if (varPack->targetVAO) {
+                return;
+            }
+
+            glCreateVertexArrays(1, &(varPack->targetVAO));
+            glBindVertexArray(varPack->targetVAO);
+            glCreateBuffers(1, &(varPack->targetVAOBuffer));
+            glCreateBuffers(1, &(varPack->targetVAOIndexBuffer));
+            class DataRow {
+            public:
+                GLfloat x, y, z, w;
+                GLfloat s, t, p, q;
+            };
+            constexpr const static std::array<DataRow, 4> varVAOData{ DataRow {-1,1,0,1,/**/0,1,0,1},
+            DataRow {-1,-1,0,1,/**/0,0,0,1},
+            DataRow {1,-1,0,1,/**/1,0,0,1},
+            DataRow {1,1,0,1,/**/1,1,0,1}
+            };
+            constexpr const static std::array<std::uint16_t, 6> varVAOIndex{
+                3,2,1,
+                3,1,0
+            };
+            glNamedBufferData(varPack->targetVAOBuffer, sizeof(varVAOData), varVAOData.data(), GL_STATIC_DRAW);
+
+            glEnableVertexAttribArray(0);
+            glVertexArrayVertexBuffer(varPack->targetVAO, 0, varPack->targetVAOBuffer, 0, sizeof(DataRow));
+            glVertexArrayAttribFormat(varPack->targetVAO, 0, 4, GL_FLOAT, false, 0);
+            glVertexArrayAttribBinding(varPack->targetVAO, 0, 0);
+
+            glEnableVertexAttribArray(1);
+            glVertexArrayVertexBuffer(varPack->targetVAO, 1, varPack->targetVAOBuffer, (sizeof(DataRow) >> 1), sizeof(DataRow));
+            glVertexArrayAttribFormat(varPack->targetVAO, 1, 4, GL_FLOAT, false, 0);
+            glVertexArrayAttribBinding(varPack->targetVAO, 1, 1);
+
+            glNamedBufferData(varPack->targetVAOIndexBuffer, sizeof(varVAOIndex), varVAOIndex.data(), GL_STATIC_DRAW);
+            glVertexArrayElementBuffer(varPack->targetVAO, varPack->targetVAOIndexBuffer);
+
+        }
+    };
+
+    class DrawTargetWindow  final : public FunctionBasic {
+    public:
+        using FunctionBasic::FunctionBasic;
+        void operator()() const {
+            auto varPack = mmm_RenderPack.get();
+
+            const auto varGLWindowSize = getSize(mmm_RenderPack);
+            glViewport(0, 0, varGLWindowSize.width(), varGLWindowSize.height());
+            glClearColor(1, 0, 0, 1);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            glUseProgram(varPack->targetProgram);
+            glBindVertexArray(varPack->targetVAO);
+            glActiveTexture(GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE0 + 1);
+            glBindTexture(GL_TEXTURE_2D, varPack->sourceFrameBufferObject->texture());
+            glBindTextureUnit(1, varPack->sourceFrameBufferObject->texture());
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+            glFinish();
+
+        }
+    };
+
+    class ConstructDrawTargetFBO final : public FunctionBasic {
+    public:
+        using FunctionBasic::FunctionBasic;
+        void operator()() const {
+
+            const auto varTargetSize = getSize( mmm_RenderPack );
+            auto varPack = mmm_RenderPack.get();
+
+            do {
+
+                if (false==bool(varPack->sourceFrameBufferObject)) {
+                    break;
+                }
+
+                if (varPack->sourceFrameBufferObject->size()!= varTargetSize) {
+                    break;
+                }
+
+                return;
+
+            } while (false);
+ 
+
+            varPack->sourceFrameBufferObject=sstd::make_unique<QOpenGLFramebufferObject>(varTargetSize,
+                QOpenGLFramebufferObject::CombinedDepthStencil);
+            varPack->sourceView->setRenderTarget(varPack->sourceFrameBufferObject.get());
+
+        }
+    };
 
 }/*namespace*/
 
@@ -78,7 +298,7 @@ void CubeRenderer::init(QWindow *w, QOpenGLContext *share) {
 
 
 
-void CubeRenderer::render(QWindow *w, QOpenGLContext *share, uint texture) {
+void CubeRenderer::render(QWindow *w, QOpenGLContext *share ) {
 
     if (!mmm_RenderPack->targetContex) {
         init(w, share);
@@ -88,11 +308,14 @@ void CubeRenderer::render(QWindow *w, QOpenGLContext *share, uint texture) {
         return;
     }
 
-    const auto varGLWindowSize = getSize(mmm_RenderPack);
+    ConstructDrawTargetWindowOpenGLProgram constructDrawTargetWindowOpenGLProgram{ mmm_RenderPack };
+    constructDrawTargetWindowOpenGLProgram();
 
-    glViewport(0, 0, varGLWindowSize.width(), varGLWindowSize.height());
-    glClearColor(1, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    ConstructDrawTargetWindowVAO constructDrawTargetWindowVAO{ mmm_RenderPack };
+    constructDrawTargetWindowVAO();
+
+    DrawTargetWindow drawTargetWindow{ mmm_RenderPack };
+    drawTargetWindow();
 
     mmm_RenderPack->targetContex->swapBuffers(w);
 }
@@ -130,9 +353,8 @@ static const QEvent::Type UPDATE = QEvent::Type(QEvent::User + 5);
 QuickRenderer::QuickRenderer()
     : m_context(nullptr),
     m_surface(nullptr),
-    m_fbo(nullptr),
     m_window(nullptr),
-    m_quickWindow(nullptr),
+//    m_quickWindow(nullptr),
     m_renderControl(nullptr),
     m_cubeRenderer(nullptr),
     m_quit(false) {
@@ -195,8 +417,8 @@ void QuickRenderer::cleanup() {
 
     m_renderControl->invalidate();
 
-    delete m_fbo;
-    m_fbo = nullptr;
+    //delete m_fbo;
+    //m_fbo = nullptr;
 
     delete m_cubeRenderer;
     m_cubeRenderer = nullptr;
@@ -208,16 +430,10 @@ void QuickRenderer::cleanup() {
 }
 
 void QuickRenderer::ensureFbo() {
-    if (m_fbo && m_fbo->size() != m_window->size() * m_window->devicePixelRatio()) {
-        delete m_fbo;
-        m_fbo = nullptr;
-    }
+       
+    ConstructDrawTargetFBO constructDrawTargetFBO{mmm_RenderPack};
+    constructDrawTargetFBO();
 
-    if (!m_fbo) {
-        m_fbo = new QOpenGLFramebufferObject(m_window->size() * m_window->devicePixelRatio(),
-            QOpenGLFramebufferObject::CombinedDepthStencil);
-        m_quickWindow->setRenderTarget(m_fbo);
-    }
 }
 
 void QuickRenderer::render(QMutexLocker *lock) {
@@ -239,14 +455,15 @@ void QuickRenderer::render(QMutexLocker *lock) {
 
     // Meanwhile on this thread continue with the actual rendering (into the FBO first).
     m_renderControl->render();
-    m_context->functions()->glFlush();
+    glFlush();
 
     // The cube renderer uses its own context, no need to bother with the state here.
 
     // Get something onto the screen using our custom OpenGL engine.
     QMutexLocker quitLock(&m_quitMutex);
-    if (!m_quit)
-        m_cubeRenderer->render(m_window, m_context, m_fbo->texture());
+    if (!m_quit) {
+        m_cubeRenderer->render(m_window, m_context );
+    }
 }
 
 void QuickRenderer::aboutToQuit() {
@@ -286,12 +503,12 @@ sstd::Window::Window()
     // Create a QQuickWindow that is associated with out render control. Note that this
     // window never gets created or shown, meaning that it will never get an underlying
     // native (platform) window.
-    m_quickWindow = new QQuickWindow(m_renderControl);
+    mmm_RenderPack->sourceView = sstd::make_unique<QQuickWindow>(m_renderControl);
 
     // Create a QML engine.
     m_qmlEngine = new QQmlEngine;
     if (!m_qmlEngine->incubationController())
-        m_qmlEngine->setIncubationController(m_quickWindow->incubationController());
+        m_qmlEngine->setIncubationController(mmm_RenderPack->sourceView->incubationController());
 
     m_quickRenderer = new QuickRenderer;
     m_quickRenderer->mmm_RenderPack = this->mmm_RenderPack;
@@ -300,7 +517,7 @@ sstd::Window::Window()
     // These live on the gui thread. Just give access to them on the render thread.
     m_quickRenderer->setSurface(m_offscreenSurface);
     m_quickRenderer->setWindow(this);
-    m_quickRenderer->setQuickWindow(m_quickWindow);
+    //m_quickRenderer->setQuickWindow(m_quickWindow);
     m_quickRenderer->setRenderControl(m_renderControl);
 
     m_quickRendererThread = new QThread;
@@ -324,22 +541,23 @@ sstd::Window::Window()
 }
 
 sstd::Window::~Window() {
+    return;
     // Release resources and move the context ownership back to this thread.
-    m_quickRenderer->mutex()->lock();
-    m_quickRenderer->requestStop();
-    m_quickRenderer->cond()->wait(m_quickRenderer->mutex());
-    m_quickRenderer->mutex()->unlock();
-
-    m_quickRendererThread->quit();
-    m_quickRendererThread->wait();
-
-    delete m_renderControl;
-    delete m_qmlComponent;
-    delete m_quickWindow;
-    delete m_qmlEngine;
-
-    delete m_offscreenSurface;
-    delete m_context;
+ //  m_quickRenderer->mutex()->lock();
+ //  m_quickRenderer->requestStop();
+ //  m_quickRenderer->cond()->wait(m_quickRenderer->mutex());
+ //  m_quickRenderer->mutex()->unlock();
+ //
+ //  m_quickRendererThread->quit();
+ //  m_quickRendererThread->wait();
+ //
+ //  delete m_renderControl;
+ //  delete m_qmlComponent;
+ //  delete m_quickWindow;
+ //  delete m_qmlEngine;
+ //
+ //  delete m_offscreenSurface;
+ //  delete m_context;
 }
 
 void sstd::Window::requestUpdate() {
@@ -406,7 +624,7 @@ void sstd::Window::run() {
     }
 
     // The root item is ready. Associate it with the window.
-    m_rootItem->setParentItem(m_quickWindow->contentItem());
+    m_rootItem->setParentItem(mmm_RenderPack->sourceView->contentItem());
 
     // Update item and rendering related geometries.
     updateSizes();
@@ -419,11 +637,17 @@ void sstd::Window::run() {
 }
 
 void sstd::Window::updateSizes() {
+
+    mmm_RenderPack->targetWindowHeight = height();
+    mmm_RenderPack->targetWindowWidth = width();
+
     // Behave like SizeRootObjectToView.
     m_rootItem->setWidth(width());
     m_rootItem->setHeight(height());
 
-    m_quickWindow->setGeometry(0, 0, width(), height());
+   
+
+    mmm_RenderPack->sourceView->setGeometry(0, 0, width(), height());
 }
 
 void sstd::Window::startQuick(const QUrl &filename) {
@@ -437,7 +661,7 @@ void sstd::Window::startQuick(const QUrl &filename) {
 void sstd::Window::exposeEvent(QExposeEvent *) {
     if (isExposed()) {
         if (!m_quickInitialized) {
-            startQuick( QStringLiteral("myqml/quickrendercontrol/main.qml") );
+            startQuick(QStringLiteral("myqml/quickrendercontrol/main.qml"));
         }
     }
 }
@@ -458,10 +682,10 @@ void sstd::Window::mousePressEvent(QMouseEvent *e) {
     // the windowPos in e is ignored and is replaced by localPos. This is necessary
     // because QQuickWindow thinks of itself as a top-level window always.
     QMouseEvent mappedEvent(e->type(), e->localPos(), e->screenPos(), e->button(), e->buttons(), e->modifiers());
-    QCoreApplication::sendEvent(m_quickWindow, &mappedEvent);
+    QCoreApplication::sendEvent(mmm_RenderPack->sourceView.get(), &mappedEvent);
 }
 
 void sstd::Window::mouseReleaseEvent(QMouseEvent *e) {
     QMouseEvent mappedEvent(e->type(), e->localPos(), e->screenPos(), e->button(), e->buttons(), e->modifiers());
-    QCoreApplication::sendEvent(m_quickWindow, &mappedEvent);
+    QCoreApplication::sendEvent(mmm_RenderPack->sourceView.get(), &mappedEvent);
 }

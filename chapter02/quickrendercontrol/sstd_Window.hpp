@@ -34,6 +34,7 @@ public:
     QWaitCondition *cond() {
         return &m_cond;
     }
+
     QMutex *mutex() {
         return &m_mutex;
     }
@@ -41,15 +42,19 @@ public:
     void setContext(QOpenGLContext *ctx) {
         m_context = ctx;
     }
+
     void setSurface(QOffscreenSurface *s) {
         m_surface = s;
     }
+
     void setWindow(QWindow *w) {
         m_window = w;
     }
+
     void setQuickWindow(QQuickWindow *w) {
-        m_quickWindow = w;
+        //m_quickWindow = w;
     }
+
     void setRenderControl(QQuickRenderControl *r) {
         m_renderControl = r;
     }
@@ -67,9 +72,8 @@ public:
     QMutex m_mutex;
     QOpenGLContext *m_context;
     QOffscreenSurface *m_surface;
-    QOpenGLFramebufferObject *m_fbo;
     QWindow *m_window;
-    QQuickWindow *m_quickWindow;
+    //QQuickWindow *m_quickWindow;
     QQuickRenderControl *m_renderControl;
     CubeRenderer *m_cubeRenderer;
     QMutex m_quitMutex;
@@ -110,7 +114,7 @@ namespace sstd {
         QOpenGLContext *m_context;
         QOffscreenSurface *m_offscreenSurface;
         QQuickRenderControl *m_renderControl;
-        QQuickWindow *m_quickWindow;
+        //QQuickWindow *m_quickWindow;
         QQmlEngine *m_qmlEngine;
         QQmlComponent *m_qmlComponent;
         QQuickItem *m_rootItem;
