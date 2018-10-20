@@ -1,52 +1,4 @@
-/****************************************************************************
-**
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** BSD License Usage
-** Alternatively, you may use this file under the terms of the BSD license
-** as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of The Qt Company Ltd nor the names of its
-**     contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
-**
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+
 
 #include "cuberenderer.h"
 #include <QOpenGLContext>
@@ -60,16 +12,14 @@
 
 CubeRenderer::CubeRenderer(QOffscreenSurface *offscreenSurface)
     : m_offscreenSurface(offscreenSurface),
-      m_context(nullptr),
-      m_program(nullptr),
-      m_vbo(nullptr),
-      m_vao(nullptr),
-      m_matrixLoc(0)
-{
+    m_context(nullptr),
+    m_program(nullptr),
+    m_vbo(nullptr),
+    m_vao(nullptr),
+    m_matrixLoc(0) {
 }
 
-CubeRenderer::~CubeRenderer()
-{
+CubeRenderer::~CubeRenderer() {
     // Use a temporary offscreen surface to do the cleanup.
     // There may not be a native window surface available anymore at this stage.
     m_context->makeCurrent(m_offscreenSurface);
@@ -82,8 +32,7 @@ CubeRenderer::~CubeRenderer()
     delete m_context;
 }
 
-void CubeRenderer::init(QWindow *w, QOpenGLContext *share)
-{
+void CubeRenderer::init(QWindow *w, QOpenGLContext *share) {
     m_context = new QOpenGLContext;
     m_context->setShareContext(share);
     m_context->setFormat(w->requestedFormat());
@@ -169,25 +118,22 @@ void CubeRenderer::init(QWindow *w, QOpenGLContext *share)
         setupVertexAttribs();
 }
 
-void CubeRenderer::resize(int w, int h)
-{
+void CubeRenderer::resize(int w, int h) {
     m_proj.setToIdentity();
     m_proj.perspective(45, w / float(h), 0.01f, 100.0f);
 }
 
-void CubeRenderer::setupVertexAttribs()
-{
+void CubeRenderer::setupVertexAttribs() {
     m_vbo->bind();
     m_program->enableAttributeArray(0);
     m_program->enableAttributeArray(1);
     m_context->functions()->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     m_context->functions()->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0,
-                                                  (const void *)(36 * 3 * sizeof(GLfloat)));
+        (const void *)(36 * 3 * sizeof(GLfloat)));
     m_vbo->release();
 }
 
-void CubeRenderer::render(QWindow *w, QOpenGLContext *share, uint texture)
-{
+void CubeRenderer::render(QWindow *w, QOpenGLContext *share, uint texture) {
     if (!m_context)
         init(w, share);
 
@@ -224,3 +170,11 @@ void CubeRenderer::render(QWindow *w, QOpenGLContext *share, uint texture)
 
     m_context->swapBuffers(w);
 }
+
+
+
+
+
+
+
+
