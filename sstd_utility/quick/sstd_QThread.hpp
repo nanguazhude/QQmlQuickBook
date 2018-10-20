@@ -203,10 +203,10 @@ namespace sstd {
     };
 
     template<typename T,typename Tuple>
-    class tuple_size;
+    class tuple_index;
 
     template<typename T, typename ... U, template<typename ...> class Tuple>
-    class tuple_size<T, Tuple<U...>> {
+    class tuple_index<T, Tuple<U...>> {
     public:
         constexpr const static std::size_t value = _1_tuple_size<sizeof...(U),0,T, _2_tuple<U...>>::value;
         static_assert(value!=(sizeof...(U)),"can not find type in tuple");

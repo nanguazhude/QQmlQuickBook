@@ -539,7 +539,7 @@ void sstd::Window::ppp_PolishSyncAndRender() {
         };
         auto varFutrues = varRenderThread->applyInThisThread(std::move(varDrawCommands));
         if (varFutrues) {
-            constexpr const static auto varIndexSync = sstd::tuple_size<DrawSourceSync,this_run>::value;
+            constexpr const static auto varIndexSync = sstd::tuple_index<DrawSourceSync,this_run>::value;
             constexpr const static auto varFinishedAll = std::tuple_size<this_run>::value - 1;
             varFutrues->data()[(isResize == false) ? varIndexSync : varFinishedAll].wait();
         }
