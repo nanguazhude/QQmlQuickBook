@@ -35,7 +35,9 @@ namespace {
     };
 
     inline std::shared_ptr<sstd::RenderPack> makeRenderPack() {
-        return sstd::make_shared<ThisRenderPack>();
+        auto varAns = sstd::make_shared<ThisRenderPack>();
+        varAns->renderThread = sstdNew<sstd::QuickThread>();
+        return varAns;
     }
 
     template<typename std_shared_ptr_sstd_renderpack>
@@ -351,8 +353,9 @@ static const QEvent::Type STOP = QEvent::Type(QEvent::User + 4);
 static const QEvent::Type UPDATE = QEvent::Type(QEvent::User + 5);
 
 QuickRenderer::QuickRenderer()
-    : m_context(nullptr),
-    m_surface(nullptr),
+    : 
+    m_context(nullptr),
+    //m_surface(nullptr),
     m_window(nullptr),
 //    m_quickWindow(nullptr),
     m_renderControl(nullptr),
@@ -400,7 +403,7 @@ bool QuickRenderer::event(QEvent *e) {
 }
 
 void QuickRenderer::init() {
-    m_context->makeCurrent(m_surface);
+    m_context->makeCurrent( mmm_RenderPack->sourceOffscreenSurface.get() );
 
     // Pass our offscreen surface to the cube renderer just so that it will
     // have something is can make current during cleanup. QOffscreenSurface,
@@ -413,7 +416,7 @@ void QuickRenderer::init() {
 }
 
 void QuickRenderer::cleanup() {
-    m_context->makeCurrent(m_surface);
+    m_context->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
 
     m_renderControl->invalidate();
 
@@ -439,7 +442,7 @@ void QuickRenderer::ensureFbo() {
 void QuickRenderer::render(QMutexLocker *lock) {
     Q_ASSERT(QThread::currentThread() != m_window->thread());
 
-    if (!m_context->makeCurrent(m_surface)) {
+    if (!m_context->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get())) {
         qWarning("Failed to make context current on render thread");
         return;
     }
@@ -522,18 +525,18 @@ sstd::Window::Window()
     //m_quickRenderer->setQuickWindow(m_quickWindow);
     m_quickRenderer->setRenderControl(m_renderControl);
 
-    m_quickRendererThread = new QThread;
+    //m_quickRendererThread = new sstd::QuickThread;
 
     // Notify the render control that some scenegraph internals have to live on
     // m_quickRenderThread.
-    m_renderControl->prepareThread(m_quickRendererThread);
+    m_renderControl->prepareThread(mmm_RenderPack->renderThread);
 
     // The QOpenGLContext and the QObject representing the rendering logic on
     // the render thread must live on that thread.
-    m_context->moveToThread(m_quickRendererThread);
-    m_quickRenderer->moveToThread(m_quickRendererThread);
+    m_context->moveToThread(mmm_RenderPack->renderThread);
+    m_quickRenderer->moveToThread(mmm_RenderPack->renderThread);
 
-    m_quickRendererThread->start();
+    //m_quickRendererThread->start();
 
     // Now hook up the signals. For simplicy we don't differentiate
     // between renderRequested (only render is needed, no sync) and

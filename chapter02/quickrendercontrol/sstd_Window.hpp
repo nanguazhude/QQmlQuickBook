@@ -44,7 +44,7 @@ public:
     }
 
     void setSurface(QOffscreenSurface *s) {
-        m_surface = s;
+        //m_surface = s;
     }
 
     void setWindow(QWindow *w) {
@@ -71,7 +71,7 @@ public:
     QWaitCondition m_cond;
     QMutex m_mutex;
     QOpenGLContext *m_context;
-    QOffscreenSurface *m_surface;
+    //QOffscreenSurface *m_surface;
     QWindow *m_window;
     //QQuickWindow *m_quickWindow;
     QQuickRenderControl *m_renderControl;
@@ -109,7 +109,7 @@ namespace sstd {
         void updateSizes();
 
         QuickRenderer *m_quickRenderer;
-        QThread *m_quickRendererThread;
+        //QThread *m_quickRendererThread;
 
         QOpenGLContext *m_context;
         QOffscreenSurface *m_offscreenSurface;
