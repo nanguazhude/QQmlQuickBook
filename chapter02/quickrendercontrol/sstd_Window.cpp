@@ -444,7 +444,7 @@ sstd::Window::~Window() {
 
 bool sstd::Window::isResizing() const {
     const auto varCurrentTime = std::chrono::steady_clock::now();
-    return (std::chrono::abs(varCurrentTime - mmm_RenderPack->lastResizeTime.load() ) < 500ms);
+    return (std::chrono::abs(varCurrentTime - mmm_RenderPack->lastResizeTime.load()) < 7s);
 }
 
 void sstd::Window::requestUpdate() {
