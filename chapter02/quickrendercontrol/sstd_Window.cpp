@@ -1,4 +1,5 @@
-﻿#include <sstd_memory.hpp>
+﻿#include <sstd_glew.hpp>
+#include <sstd_memory.hpp>
 #include <sstd_RenderPack.hpp>
 
 #include "sstd_Window.hpp"
@@ -17,6 +18,11 @@
 #include <QQuickWindow>
 #include <QQuickRenderControl>
 #include <QCoreApplication>
+#include <ConstructQSurface.hpp>
+
+namespace sstd {
+    extern QUrl getLocalFileFullPath(const QString & arg);
+}
 
 namespace {
 
@@ -35,64 +41,73 @@ namespace {
     }
 
     inline ThisRenderPack * get(const  std::shared_ptr<sstd::RenderPack> & arg) {
-        return static_cast<ThisRenderPack *>( arg.get() );
+        return static_cast<ThisRenderPack *>(arg.get());
+    }
+
+    inline QSize getSize(const std::shared_ptr<sstd::RenderPack> & arg) {
+        auto varPack = get(arg);
+        const auto varPR = varPack->targetWindowDevicePixelRatio.load();
+        const auto varW = varPack->targetWindowWidth.load();
+        const auto varH = varPack->targetWindowHeight.load();
+        return{ static_cast<int>(varW*varPR),static_cast<int>(varH*varPR) };
     }
 
 }/*namespace*/
 
-CubeRenderer::CubeRenderer(QOffscreenSurface *offscreenSurface)
-    : m_offscreenSurface(offscreenSurface),
-    m_context(nullptr),
-    m_program(nullptr),
-    m_vbo(nullptr),
-    m_vao(nullptr),
-    m_matrixLoc(0) {
+CubeRenderer::CubeRenderer(std::shared_ptr<sstd::RenderPack> arg)
+    :mmm_RenderPack(std::move(arg)) {
 }
 
 CubeRenderer::~CubeRenderer() {
-    m_context->makeCurrent(m_offscreenSurface);
+    mmm_RenderPack->targetContex->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
 
 
-    m_context->doneCurrent();
+    mmm_RenderPack->targetContex->doneCurrent();
 }
 
 void CubeRenderer::init(QWindow *w, QOpenGLContext *share) {
-    m_context = new QOpenGLContext;
-    m_context->setShareContext(share);
-    m_context->setFormat(w->requestedFormat());
-    m_context->create();
-    if (!m_context->makeCurrent(w))
+    mmm_RenderPack->targetContex = sstd::make_unique<QOpenGLContext>();
+    mmm_RenderPack->targetContex->setShareContext(share);
+    mmm_RenderPack->targetContex->setFormat(w->requestedFormat());
+    mmm_RenderPack->targetContex->create();
+    if (!mmm_RenderPack->targetContex->makeCurrent(w)) {
         return;
-
-
+    }
+    glewInitialize();
 }
 
-void CubeRenderer::resize(int w, int h) {
 
-}
 
 void CubeRenderer::render(QWindow *w, QOpenGLContext *share, uint texture) {
-    if (!m_context)
+
+    if (!mmm_RenderPack->targetContex) {
         init(w, share);
+    }
 
-    if (!m_context->makeCurrent(w))
+    if (!mmm_RenderPack->targetContex->makeCurrent(w)) {
         return;
+    }
 
+    const auto varGLWindowSize = getSize(mmm_RenderPack);
 
-    m_context->swapBuffers(w);
+    glViewport(0, 0, varGLWindowSize.width(), varGLWindowSize.height());
+    glClearColor(1, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    mmm_RenderPack->targetContex->swapBuffers(w);
 }
 
 
-namespace{
+namespace {
 
     class RenderControl : public QQuickRenderControl {
     public:
         RenderControl(sstd::Window *w) : mmm_Window(w) {
         }
 
-        QWindow *renderWindow(QPoint *offset) override{
-            if(offset){
-                *offset={0,0};
+        QWindow *renderWindow(QPoint *offset) override {
+            if (offset) {
+                *offset = { 0,0 };
             }
             return mmm_Window;
         }
@@ -150,8 +165,9 @@ bool QuickRenderer::event(QEvent *e) {
             render(&lock);
             return true;
         case RESIZE:
-            if (m_cubeRenderer)
+            if (m_cubeRenderer) {
                 m_cubeRenderer->resize(m_window->width(), m_window->height());
+            }
             return true;
         case STOP:
             cleanup();
@@ -168,7 +184,7 @@ void QuickRenderer::init() {
     // have something is can make current during cleanup. QOffscreenSurface,
     // just like QWindow, must always be created on the gui thread (as it might
     // be backed by an actual QWindow).
-    m_cubeRenderer = new CubeRenderer(m_surface);
+    m_cubeRenderer = new CubeRenderer(mmm_RenderPack);
     m_cubeRenderer->resize(m_window->width(), m_window->height());
 
     m_renderControl->initialize(m_context);
@@ -247,17 +263,17 @@ sstd::Window::Window()
     m_psrRequested(false) {
     setSurfaceType(QSurface::OpenGLSurface);
 
-    QSurfaceFormat format;
-    // Qt Quick may need a depth and stencil buffer. Always make sure these are available.
-    format.setDepthBufferSize(16);
-    format.setStencilBufferSize(8);
-    setFormat(format);
+    mmm_RenderPack = makeRenderPack();
+    mmm_RenderPack->targetWindow = this;
+
+    setFormat(sstd::getDefaultOpenGLFormat());
 
     m_context = new QOpenGLContext;
-    m_context->setFormat(format);
+    m_context->setFormat(sstd::getDefaultOpenGLFormat());
     m_context->create();
 
-    m_offscreenSurface = new QOffscreenSurface;
+    mmm_RenderPack->sourceOffscreenSurface = sstd::make_unique< QOffscreenSurface>();
+    m_offscreenSurface = mmm_RenderPack->sourceOffscreenSurface.get();
     // Pass m_context->format(), not format. Format does not specify and color buffer
     // sizes, while the context, that has just been created, reports a format that has
     // these values filled in. Pass this to the offscreen surface to make sure it will be
@@ -278,6 +294,7 @@ sstd::Window::Window()
         m_qmlEngine->setIncubationController(m_quickWindow->incubationController());
 
     m_quickRenderer = new QuickRenderer;
+    m_quickRenderer->mmm_RenderPack = this->mmm_RenderPack;
     m_quickRenderer->setContext(m_context);
 
     // These live on the gui thread. Just give access to them on the render thread.
@@ -409,8 +426,8 @@ void sstd::Window::updateSizes() {
     m_quickWindow->setGeometry(0, 0, width(), height());
 }
 
-void sstd::Window::startQuick(const QString &filename) {
-    m_qmlComponent = new QQmlComponent(m_qmlEngine, QUrl(filename));
+void sstd::Window::startQuick(const QUrl &filename) {
+    m_qmlComponent = new QQmlComponent(m_qmlEngine, filename);
     if (m_qmlComponent->isLoading())
         connect(m_qmlComponent, &QQmlComponent::statusChanged, this, &sstd::Window::run);
     else
@@ -419,8 +436,9 @@ void sstd::Window::startQuick(const QString &filename) {
 
 void sstd::Window::exposeEvent(QExposeEvent *) {
     if (isExposed()) {
-        if (!m_quickInitialized)
-            startQuick(QStringLiteral("qrc:/rendercontrol/demo.qml"));
+        if (!m_quickInitialized) {
+            startQuick( QStringLiteral("myqml/quickrendercontrol/main.qml") );
+        }
     }
 }
 

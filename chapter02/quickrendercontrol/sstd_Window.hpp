@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#include <sstd_memory.hpp>
+#include <sstd_RenderPack.hpp>
+
 #include <QWindow>
 #include <QMatrix4x4>
 #include <QThread>
@@ -53,7 +56,7 @@ public:
 
     void aboutToQuit();
 
-private:
+public:
     bool event(QEvent *e) override;
     void init();
     void cleanup();
@@ -71,6 +74,9 @@ private:
     CubeRenderer *m_cubeRenderer;
     QMutex m_quitMutex;
     bool m_quit;
+
+    std::shared_ptr<sstd::RenderPack> mmm_RenderPack;
+
 };
 
 namespace sstd {
@@ -95,7 +101,7 @@ namespace sstd {
         void polishSyncAndRender();
 
     private:
-        void startQuick(const QString &filename);
+        void startQuick(const QUrl &filename);
         void updateSizes();
 
         QuickRenderer *m_quickRenderer;
@@ -110,6 +116,9 @@ namespace sstd {
         QQuickItem *m_rootItem;
         bool m_quickInitialized;
         bool m_psrRequested;
+
+        std::shared_ptr<sstd::RenderPack> mmm_RenderPack;
+
     };
 
 }/*namespace sstd*/
