@@ -515,7 +515,7 @@ void sstd::Window::ppp_PolishSyncAndRender() {
     }
 
     if constexpr (needSync) {
-        std::tuple<
+        using this_run = std::tuple<
             DrawSourceMakeCurrent,
             ConstructDrawTargetFBO,
             DrawSourceSync,
@@ -525,7 +525,8 @@ void sstd::Window::ppp_PolishSyncAndRender() {
             ConstructDrawTargetWindowVAO,
             DrawTargetWindow,
             DrawTargetSwapBuffers
-        > varDrawCommands{
+        >;
+        this_run varDrawCommands{
             /*00*/mmm_RenderPack,
             /*01*/mmm_RenderPack,
             /*02*/mmm_RenderPack,
@@ -538,7 +539,9 @@ void sstd::Window::ppp_PolishSyncAndRender() {
         };
         auto varFutrues = varRenderThread->applyInThisThread(std::move(varDrawCommands));
         if (varFutrues) {
-            varFutrues->data()[(isResize == false) ? 2 : 8].wait();
+            constexpr const static auto varIndexSync = sstd::tuple_size<DrawSourceSync,this_run>::value;
+            constexpr const static auto varFinishedAll = std::tuple_size<this_run>::value - 1;
+            varFutrues->data()[(isResize == false) ? varIndexSync : varFinishedAll].wait();
         }
 
     } else {
