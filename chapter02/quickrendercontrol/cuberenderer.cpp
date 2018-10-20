@@ -1,4 +1,4 @@
-
+﻿
 
 #include "cuberenderer.h"
 #include <QOpenGLContext>

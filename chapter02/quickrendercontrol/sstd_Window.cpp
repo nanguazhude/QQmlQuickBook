@@ -1,4 +1,4 @@
-
+﻿
 #include "sstd_Window.hpp"
 #include "cuberenderer.h"
 #include <QOpenGLContext>
@@ -15,20 +15,6 @@
 #include <QQuickWindow>
 #include <QQuickRenderControl>
 #include <QCoreApplication>
-
-/*
-  This implementation runs the Qt Quick scenegraph's sync and render phases on a
-  separate, dedicated thread.  Rendering the cube using our custom OpenGL engine
-  happens on that thread as well.  This is similar to the built-in threaded
-  render loop, but does not support all the features. There is no support for
-  getting Animators running on the render thread for example.
-
-  We choose to use QObject's event mechanism to communicate with the QObject
-  living on the render thread. An alternative would be to subclass QThread and
-  reimplement run() with a custom event handling approach, like
-  QSGThreadedRenderLoop does. That would potentially lead to better results but
-  is also more complex.
-*/
 
 static const QEvent::Type INIT = QEvent::Type(QEvent::User + 1);
 static const QEvent::Type RENDER = QEvent::Type(QEvent::User + 2);
