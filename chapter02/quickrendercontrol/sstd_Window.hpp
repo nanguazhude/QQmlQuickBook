@@ -39,25 +39,6 @@ public:
         return &m_mutex;
     }
 
-    void setContext(QOpenGLContext *ctx) {
-        m_context = ctx;
-    }
-
-    void setSurface(QOffscreenSurface *s) {
-        //m_surface = s;
-    }
-
-    void setWindow(QWindow *w) {
-        m_window = w;
-    }
-
-    void setQuickWindow(QQuickWindow *w) {
-        //m_quickWindow = w;
-    }
-
-    void setRenderControl(QQuickRenderControl *r) {
-        m_renderControl = r;
-    }
 
     void aboutToQuit();
 
@@ -70,11 +51,11 @@ public:
 
     QWaitCondition m_cond;
     QMutex m_mutex;
-    QOpenGLContext *m_context;
+    //QOpenGLContext *m_context;
     //QOffscreenSurface *m_surface;
-    QWindow *m_window;
+    //QWindow *m_window;
     //QQuickWindow *m_quickWindow;
-    QQuickRenderControl *m_renderControl;
+    //QQuickRenderControl *m_renderControl;
     CubeRenderer *m_cubeRenderer;
     QMutex m_quitMutex;
     bool m_quit;

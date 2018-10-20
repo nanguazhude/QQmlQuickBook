@@ -378,11 +378,11 @@ static const QEvent::Type UPDATE = QEvent::Type(QEvent::User + 5);
 
 QuickRenderer::QuickRenderer()
     :
-    m_context(nullptr),
+   // m_context(nullptr),
     //m_surface(nullptr),
-    m_window(nullptr),
+    //m_window(nullptr),
     //    m_quickWindow(nullptr),
-    m_renderControl(nullptr),
+   // m_renderControl(nullptr),
     m_cubeRenderer(nullptr),
     m_quit(false) {
 }
@@ -414,9 +414,7 @@ bool QuickRenderer::event(QEvent *e) {
             render(&lock);
             return true;
         case RESIZE:
-            if (m_cubeRenderer) {
-                m_cubeRenderer->resize(m_window->width(), m_window->height());
-            }
+            
             return true;
         case STOP:
             cleanup();
@@ -427,6 +425,9 @@ bool QuickRenderer::event(QEvent *e) {
 }
 
 void QuickRenderer::init() {
+    auto m_context = mmm_RenderPack->sourceContex.get();
+    auto m_renderControl = mmm_RenderPack->sourceViewControl.get();
+    
     m_context->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
 
     // Pass our offscreen surface to the cube renderer just so that it will
@@ -434,12 +435,16 @@ void QuickRenderer::init() {
     // just like QWindow, must always be created on the gui thread (as it might
     // be backed by an actual QWindow).
     m_cubeRenderer = new CubeRenderer(mmm_RenderPack);
-    m_cubeRenderer->resize(m_window->width(), m_window->height());
+   
 
     m_renderControl->initialize(m_context);
 }
 
 void QuickRenderer::cleanup() {
+
+    auto m_context = mmm_RenderPack->sourceContex.get();
+    auto m_renderControl = mmm_RenderPack->sourceViewControl.get();
+
     m_context->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
 
     m_renderControl->invalidate();
@@ -464,6 +469,11 @@ void QuickRenderer::ensureFbo() {
 }
 
 void QuickRenderer::render(QMutexLocker *lock) {
+
+    auto m_context = mmm_RenderPack->sourceContex.get();
+    auto m_renderControl = mmm_RenderPack->sourceViewControl.get();
+    auto m_window = mmm_RenderPack->targetWindow;
+
     Q_ASSERT(QThread::currentThread() != m_window->thread());
 
     if (!m_context->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get())) {
@@ -518,13 +528,6 @@ sstd::Window::Window()
 
     m_quickRenderer = new QuickRenderer;
     m_quickRenderer->mmm_RenderPack = this->mmm_RenderPack;
-    m_quickRenderer->setContext(mmm_RenderPack->sourceContex.get());
-
-    // These live on the gui thread. Just give access to them on the render thread.
-    m_quickRenderer->setSurface(mmm_RenderPack->sourceOffscreenSurface.get());
-    m_quickRenderer->setWindow(this);
-    //m_quickRenderer->setQuickWindow(m_quickWindow);
-    m_quickRenderer->setRenderControl(mmm_RenderPack->sourceViewControl.get());
 
 
     // The QOpenGLContext and the QObject representing the rendering logic on

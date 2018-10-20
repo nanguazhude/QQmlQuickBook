@@ -8,8 +8,7 @@ public:
     ~CubeRenderer();
 
     void render(QWindow *w, QOpenGLContext *share );
-    void resize(int,int) {
-    }
+   
 
 private:
     void init(QWindow *w, QOpenGLContext *share);
