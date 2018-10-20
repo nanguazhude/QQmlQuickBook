@@ -509,7 +509,8 @@ void sstd::Window::updateSizes() {
 
 void sstd::Window::startQuick(const QUrl &filename) {
 
-    auto m_qmlComponent = sstd::sstdNew< QQmlComponent>(mmm_RenderPack->sourceQQmlEngine.get(), filename);
+    auto m_qmlComponent = 
+        sstd::sstdNew< QQmlComponent>(mmm_RenderPack->sourceQQmlEngine.get(), filename);
     m_qmlComponent->deleteLater();
 
     if (m_qmlComponent->isError()) {
@@ -519,13 +520,7 @@ void sstd::Window::startQuick(const QUrl &filename) {
         return;
     }
 
-    QObject *rootObject = m_qmlComponent->create();
-    if (m_qmlComponent->isError()) {
-        const QList<QQmlError> errorList = m_qmlComponent->errors();
-        for (const QQmlError &error : errorList)
-            qWarning() << error.url() << error.line() << error;
-        return;
-    }
+    QObject * rootObject = m_qmlComponent->create();
 
     mmm_RenderPack->sourceRootItem = qobject_cast<QQuickItem *>(rootObject);
     if (!mmm_RenderPack->sourceRootItem) {
@@ -543,13 +538,13 @@ void sstd::Window::startQuick(const QUrl &filename) {
 
     mmm_QuickInitialized = true;
 
-    // Initialize the render thread and perform the first polish/sync/render.
+    /*Initialize the render thread and perform the first polish/sync/render.*/ 
     mmm_RenderPack->renderThread->runInThisThread([varPack = mmm_RenderPack]() {
         varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
         varPack->sourceViewControl->initialize( varPack->sourceContex.get() );
     })->data()->wait();
 
-    polishSyncAndRender();
+    polishSyncAndRenderResize();
 
 }
 
