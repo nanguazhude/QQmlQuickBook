@@ -44,7 +44,6 @@ include($$PWD/this/this.pri)
 include($$PWD/../../sstd_utility/glew.pri)
 include($$PWD/../../sstd_utility/glm.pri)
 
-HEADERS += $$PWD/sstd_WindowState.hpp
 HEADERS += $$PWD/sstd_RenderPack.hpp
 SOURCES += $$PWD/sstd_RenderPack.cpp
 
@@ -52,4 +51,6 @@ include($$PWD/../../sstd_utility/sstd_quick.pri)
 
 LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
+SOURCES += $$PWD/sstd_Window.cpp
+HEADERS += $$PWD/sstd_Window.hpp
 
