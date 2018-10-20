@@ -119,12 +119,12 @@ namespace sstd {
         return{};
     }
 
-    
+
     namespace {
         std::atomic< private_quick_thread_sstd::RunEventObject *> globalObjectInMain{ nullptr };
         std::shared_ptr<std::atomic_bool> getQApplicationState() {
             static std::shared_ptr<std::atomic_bool> varAns{
-                sstd::make_shared<std::atomic_bool>(false) 
+                sstd::make_shared<std::atomic_bool>(false)
             };
             return varAns;
         }
@@ -136,7 +136,7 @@ namespace sstd {
         }
         Q_COREAPP_STARTUP_FUNCTION(updateWhenQCoreApplicationConstruct)
     }/**/
-        
+
     std::shared_ptr< const sstd::vector< std::future<void> > > ppp_run_in_main_thread(sstd::vector<std::packaged_task<void(void)>> && arg) {
         assert(qApp);
 
@@ -152,6 +152,12 @@ namespace sstd {
 
     }
 
+    std::shared_ptr< const sstd::vector< std::future<void> > > ppp_run_here(sstd::vector<std::packaged_task<void(void)>> && arg) {
+        auto varEvnet = sstd::make_unique<RunThisEvent>(std::move(arg));
+        auto varAns = varEvnet->getFutures();
+        varEvnet->run();
+        return std::move(varAns);
+    }
 
 }/*namespace sstd*/
 
@@ -172,6 +178,8 @@ void static_test() {
     varThread.runInMainThread([]() {}, []() {});
     varThread.applyInThisThread(testTuple);
     varThread.runInThisThread([]() {});
+    varThread.runHere([](){});
+    varThread.applyHere(testTuple);
 }
 
 #endif

@@ -12,12 +12,18 @@
 namespace sstd {
 
     template<typename ... Args>
+    std::shared_ptr< const sstd::vector< std::future<void> > > runHere(Args && ...);
+    template<typename Tuple>
+    std::shared_ptr< const sstd::vector< std::future<void> > > applyHere(Tuple &&);
+
+    template<typename ... Args>
     std::shared_ptr< const sstd::vector< std::future<void> > > runInMainThread(Args && ...);
     template<typename Tuple>
     std::shared_ptr< const sstd::vector< std::future<void> > > applyInMainThread(Tuple &&);
 
     /*this is private function , never used it direct ... */
     _1_SSTD_QUICK_LIBRARY_EXPORT std::shared_ptr< const sstd::vector< std::future<void> > > ppp_run_in_main_thread(sstd::vector<std::packaged_task<void(void)>> && arg);
+    _1_SSTD_QUICK_LIBRARY_EXPORT std::shared_ptr< const sstd::vector< std::future<void> > > ppp_run_here(sstd::vector<std::packaged_task<void(void)>> && );
 
     class MainThread {
     public:
@@ -28,6 +34,14 @@ namespace sstd {
         template<typename Tuple>
         static std::shared_ptr< const sstd::vector< std::future<void> > > applyInMainThread(Tuple && arg) {
             return sstd::applyInMainThread(std::forward<Tuple>(arg));
+        }
+        template<typename ... Args>
+        static std::shared_ptr< const sstd::vector< std::future<void> > > runHere(Args && ... args) {
+            return sstd::runHere(std::forward<Args>(args)...);
+        }
+        template<typename Tuple>
+        static std::shared_ptr< const sstd::vector< std::future<void> > > applyHere(Tuple && arg) {
+            return sstd::applyHere(std::forward<Tuple>(arg));
         }
     private:
         SSTD_MEMORY_DEFINE(MainThread)
@@ -87,6 +101,10 @@ namespace sstd {
 
     private:
         template<typename ... Args>
+        std::shared_ptr< const sstd::vector< std::future<void> > > friend runHere(Args && ...);
+        template<typename Tuple>
+        std::shared_ptr< const sstd::vector< std::future<void> > > friend applyHere(Tuple &&);
+        template<typename ... Args>
         std::shared_ptr< const sstd::vector< std::future<void> > > friend runInMainThread(Args && ...);
         template<typename Tuple>
         std::shared_ptr< const sstd::vector< std::future<void> > > friend applyInMainThread(Tuple &&);
@@ -107,7 +125,7 @@ namespace sstd {
         }
         template<typename Tuple, std::size_t... I>
         static inline std::shared_ptr< const sstd::vector< std::future<void> > >
-            ppp_apply(QuickThread *d, Tuple && t, const std::index_sequence<I...> &) {
+        ppp_apply(QuickThread *d, Tuple && t, const std::index_sequence<I...> &) {
             return d->runInThisThread(std::get<I>(std::forward<Tuple>(t))...);
         }
     private:
@@ -130,7 +148,7 @@ namespace sstd {
 
     template<typename Tuple, std::size_t... I>
     static inline std::shared_ptr< const sstd::vector< std::future<void> > >
-        _1_ppp_apply(Tuple && t, const std::index_sequence<I...> &) {
+    _1_ppp_apply(Tuple && t, const std::index_sequence<I...> &) {
         return runInMainThread(std::get<I>(std::forward<Tuple>(t))...);
     }
 
@@ -138,6 +156,30 @@ namespace sstd {
     std::shared_ptr< const sstd::vector< std::future<void> > > applyInMainThread(Tuple && arg) {
         const static constexpr auto varTupleSize = std::tuple_size_v<std::remove_reference_t<Tuple>>;
         return _1_ppp_apply(std::forward < Tuple >(arg), std::make_index_sequence<varTupleSize>{});
+    }
+
+    template<typename ... Args>
+    std::shared_ptr< const sstd::vector< std::future<void> > > runHere(Args && ... args){
+        if constexpr ((sizeof...(Args)) == 0) {
+            return{};
+        }else{
+            sstd::vector<std::packaged_task<void(void)>> varCall;
+            varCall.reserve(sizeof...(Args));
+            (QuickThread::ppp_push_back(&varCall, std::forward<Args>(args)), ...);
+            return runHere(std::move(varCall));
+        }
+    }
+
+    template<typename Tuple, std::size_t... I>
+    static inline std::shared_ptr< const sstd::vector< std::future<void> > >
+    _2_ppp_apply(Tuple && t, const std::index_sequence<I...> &) {
+        return runHere(std::get<I>(std::forward<Tuple>(t))...);
+    }
+
+    template<typename Tuple>
+    std::shared_ptr< const sstd::vector< std::future<void> > > applyHere(Tuple && arg){
+        const static constexpr auto varTupleSize = std::tuple_size_v<std::remove_reference_t<Tuple>>;
+        return _2_ppp_apply(std::forward < Tuple >(arg), std::make_index_sequence<varTupleSize>{});
     }
 
 }/*namespace sstd*/
