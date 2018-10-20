@@ -1,4 +1,5 @@
 ﻿#include <sstd_memory.hpp>
+#include <sstd_RenderPack.hpp>
 
 #include "sstd_Window.hpp"
 #include "cuberenderer.h"
@@ -16,6 +17,71 @@
 #include <QQuickWindow>
 #include <QQuickRenderControl>
 #include <QCoreApplication>
+
+namespace {
+
+    class ThisRenderPack : public sstd::RenderPack {
+    public:
+        GLuint targetVAO{ 0 };
+        GLuint targetVAOBuffer{ 0 };
+        GLuint targetVAOIndexBuffer{ 0 };
+        GLuint targetProgram{ 0 };
+    private:
+        SSTD_MEMORY_DEFINE(ThisRenderPack)
+    };
+
+    inline std::shared_ptr<sstd::RenderPack> makeRenderPack() {
+        return sstd::make_shared<ThisRenderPack>();
+    }
+
+    inline ThisRenderPack * get(const  std::shared_ptr<sstd::RenderPack> & arg) {
+        return static_cast<ThisRenderPack *>( arg.get() );
+    }
+
+}/*namespace*/
+
+CubeRenderer::CubeRenderer(QOffscreenSurface *offscreenSurface)
+    : m_offscreenSurface(offscreenSurface),
+    m_context(nullptr),
+    m_program(nullptr),
+    m_vbo(nullptr),
+    m_vao(nullptr),
+    m_matrixLoc(0) {
+}
+
+CubeRenderer::~CubeRenderer() {
+    m_context->makeCurrent(m_offscreenSurface);
+
+
+    m_context->doneCurrent();
+}
+
+void CubeRenderer::init(QWindow *w, QOpenGLContext *share) {
+    m_context = new QOpenGLContext;
+    m_context->setShareContext(share);
+    m_context->setFormat(w->requestedFormat());
+    m_context->create();
+    if (!m_context->makeCurrent(w))
+        return;
+
+
+}
+
+void CubeRenderer::resize(int w, int h) {
+
+}
+
+void CubeRenderer::render(QWindow *w, QOpenGLContext *share, uint texture) {
+    if (!m_context)
+        init(w, share);
+
+    if (!m_context->makeCurrent(w))
+        return;
+
+
+    m_context->swapBuffers(w);
+}
+
 
 namespace{
 
