@@ -1,4 +1,5 @@
-﻿
+﻿#include <sstd_memory.hpp>
+
 #include "sstd_Window.hpp"
 #include "cuberenderer.h"
 #include <QOpenGLContext>
@@ -15,6 +16,28 @@
 #include <QQuickWindow>
 #include <QQuickRenderControl>
 #include <QCoreApplication>
+
+namespace{
+
+    class RenderControl : public QQuickRenderControl {
+    public:
+        RenderControl(sstd::Window *w) : mmm_Window(w) {
+        }
+
+        QWindow *renderWindow(QPoint *offset) override{
+            if(offset){
+                *offset={0,0};
+            }
+            return mmm_Window;
+        }
+
+    private:
+        sstd::Window * const mmm_Window;
+    private:
+        SSTD_MEMORY_QOBJECT_DEFINE(RenderControl)
+    };
+
+}/*namesapce*/
 
 static const QEvent::Type INIT = QEvent::Type(QEvent::User + 1);
 static const QEvent::Type RENDER = QEvent::Type(QEvent::User + 2);
@@ -149,15 +172,7 @@ void QuickRenderer::aboutToQuit() {
     m_quit = true;
 }
 
-class RenderControl : public QQuickRenderControl {
-public:
-    RenderControl(QWindow *w) : m_window(w) {
-    }
-    QWindow *renderWindow(QPoint *offset) override;
 
-private:
-    QWindow *m_window;
-};
 
 sstd::Window::Window()
     : m_qmlComponent(nullptr),
