@@ -209,6 +209,7 @@ namespace sstd {
     class tuple_size<T, Tuple<U...>> {
     public:
         constexpr const static std::size_t value = _1_tuple_size<sizeof...(U),0,T, _2_tuple<U...>>::value;
+        static_assert(value!=(sizeof...(U)),"can not find type in tuple");
     };
 
 }/*namespace sstd*/
