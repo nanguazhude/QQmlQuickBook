@@ -22,6 +22,7 @@ namespace sstd {
 
     private :
         Q_SLOT void requestUpdate();
+        Q_SLOT void justRender();
         Q_SLOT void polishSyncAndRender();
         Q_SLOT void polishSyncAndRenderResize();
     private:

@@ -272,9 +272,13 @@ void main(){
         void operator()() const {
             auto varPack = mmm_RenderPack.get();
 
+            if (varPack->isClose.load()) {
+                return;
+            }
+
             const auto varGLWindowSize = getSize(mmm_RenderPack);
             glViewport(0, 0, varGLWindowSize.width(), varGLWindowSize.height());
-            glClearColor(1, 0, 0, 1);
+            glClearColor(0, 0, 0, 1);
             glClear(GL_COLOR_BUFFER_BIT);
 
             glUseProgram(varPack->targetProgram);
@@ -388,6 +392,36 @@ void main(){
         }
     };
 
+    class DestoryRenderPack final : public FunctionBasic {
+    public:
+        using FunctionBasic::FunctionBasic;
+        void operator()() const {
+            auto varPack = get(mmm_RenderPack);
+            varPack->renderThread->setLogicalQuit(true);
+
+            if (varPack->targetContex) {
+                varPack->targetContex->makeCurrent(varPack->targetWindow);
+                glDeleteProgram(varPack->targetProgram);
+                glDeleteVertexArrays(1, &(varPack->targetVAO));
+                glDeleteBuffers(1, &(varPack->targetVAOBuffer));
+                glDeleteBuffers(1, &(varPack->targetVAOIndexBuffer));
+                varPack->targetContex->doneCurrent();
+                varPack->targetContex.reset();
+            }
+
+            if (varPack->sourceContex) {
+                varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
+                varPack->sourceViewControl->invalidate();
+                varPack->sourceFrameBufferObject.reset();
+                varPack->sourceContex->doneCurrent();
+                varPack->sourceContex->moveToThread(qApp->thread());
+            }
+
+            /*the thread will delete it self ...*/
+            varPack->renderThread->quit();
+        }
+    };
+
 }/*namespace*/
 
 sstd::Window::Window() :
@@ -406,11 +440,17 @@ sstd::Window::Window() :
     // Now hook up the signals. For simplicy we don't differentiate
     // between renderRequested (only render is needed, no sync) and
     // sceneChanged (polish and sync is needed too).
-    connect(mmm_RenderPack->sourceViewControl.get(), &QQuickRenderControl::renderRequested, this, &sstd::Window::requestUpdate);
+    connect(mmm_RenderPack->sourceViewControl.get(), &QQuickRenderControl::renderRequested, this, &sstd::Window::justRender);
     connect(mmm_RenderPack->sourceViewControl.get(), &QQuickRenderControl::sceneChanged, this, &sstd::Window::requestUpdate);
 }
 
 sstd::Window::~Window() {
+    mmm_RenderPack->isClose.store(true);
+    mmm_RenderPack->renderThread->runInThisThread(DestoryRenderPack{ mmm_RenderPack })
+        ->data()->wait();
+    mmm_RenderPack->sourceContex.reset();
+    mmm_RenderPack->sourceViewControl.reset();
+    mmm_RenderPack->sourceView.reset();
 }
 
 void sstd::Window::requestUpdate() {
@@ -423,7 +463,20 @@ void sstd::Window::requestUpdate() {
     }
 }
 
+void sstd::Window::justRender() {
+    if (mmm_QuickInitialized && !mmm_psrRequested) {
+        mmm_psrRequested = true;
+        sstd::runInMainThread([this]() {
+            ppp_PolishSyncAndRender<false, false, false>();
+            mmm_psrRequested = false;
+        });
+    }
+}
+
 bool sstd::Window::event(QEvent *e) {
+    if (e->type() == QEvent::Close) {
+        mmm_RenderPack->isClose = true;
+    }
     return QWindow::event(e);
 }
 
@@ -466,13 +519,15 @@ void sstd::Window::ppp_PolishSyncAndRender() {
 
     } else {
         std::tuple<
+            DrawSourceMakeCurrent,
+            ConstructDrawTargetFBO,
+            DrawSourceRender,
             ConstructDrawTargetContext,
             ConstructDrawTargetWindowOpenGLProgram,
             ConstructDrawTargetWindowVAO,
             DrawTargetWindow,
             DrawTargetSwapBuffers
         > varDrawCommands{
-            mmm_RenderPack,
             mmm_RenderPack,
             mmm_RenderPack,
             mmm_RenderPack,
@@ -509,7 +564,7 @@ void sstd::Window::updateSizes() {
 
 void sstd::Window::startQuick(const QUrl &filename) {
 
-    auto m_qmlComponent = 
+    auto m_qmlComponent =
         sstd::sstdNew< QQmlComponent>(mmm_RenderPack->sourceQQmlEngine.get(), filename);
     m_qmlComponent->deleteLater();
 
@@ -538,10 +593,10 @@ void sstd::Window::startQuick(const QUrl &filename) {
 
     mmm_QuickInitialized = true;
 
-    /*Initialize the render thread and perform the first polish/sync/render.*/ 
+    /*Initialize the render thread and perform the first polish/sync/render.*/
     mmm_RenderPack->renderThread->runInThisThread([varPack = mmm_RenderPack]() {
         varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
-        varPack->sourceViewControl->initialize( varPack->sourceContex.get() );
+        varPack->sourceViewControl->initialize(varPack->sourceContex.get());
     })->data()->wait();
 
     polishSyncAndRenderResize();

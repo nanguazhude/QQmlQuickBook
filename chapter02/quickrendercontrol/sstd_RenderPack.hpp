@@ -22,11 +22,11 @@ namespace  sstd {
     protected:
         RenderPack()/*此类应当被继承*/;
     public:
+        std::atomic<bool> isClose{false};
         std::atomic<double> targetWindowDevicePixelRatio{ 1 };
         std::atomic<int> targetWindowWidth{ 1 };
         std::atomic<int> targetWindowHeight{ 1 };
         QWindow * targetWindow /**/ = nullptr;
-        QOpenGLContext * globalWindowContex/**/ = nullptr;
         std::unique_ptr<QOpenGLContext> targetContex/**/;
         std::unique_ptr<QQuickWindow> sourceView /**/;
         std::unique_ptr<QOpenGLContext> sourceContex /**/;
