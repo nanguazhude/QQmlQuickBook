@@ -602,12 +602,6 @@ void sstd::Window::polishSyncAndRender() {
     // happens on the render thread, not blocking other work.
 }
 
-void sstd::Window::run() {
-    //disconnect(m_qmlComponent, &QQmlComponent::statusChanged, this, &sstd::Window::run);
-
-
-}
-
 void sstd::Window::updateSizes() {
 
     mmm_RenderPack->targetWindowHeight = height();

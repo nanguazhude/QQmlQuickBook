@@ -51,11 +51,6 @@ public:
 
     QWaitCondition m_cond;
     QMutex m_mutex;
-    //QOpenGLContext *m_context;
-    //QOffscreenSurface *m_surface;
-    //QWindow *m_window;
-    //QQuickWindow *m_quickWindow;
-    //QQuickRenderControl *m_renderControl;
     CubeRenderer *m_cubeRenderer;
     QMutex m_quitMutex;
     bool m_quit;
@@ -81,7 +76,6 @@ namespace sstd {
         bool event(QEvent *e) override;
 
     private slots:
-        void run();
         void requestUpdate();
         void polishSyncAndRender();
 
@@ -90,15 +84,6 @@ namespace sstd {
         void updateSizes();
 
         QuickRenderer *m_quickRenderer;
-        //QThread *m_quickRendererThread;
-
-        //QOpenGLContext *m_context;
-        //QOffscreenSurface *m_offscreenSurface;
-        //QQuickRenderControl *m_renderControl;
-        //QQuickWindow *m_quickWindow;
-        //QQmlEngine *m_qmlEngine;
-        //QQmlComponent *m_qmlComponent;
-        //QQuickItem *m_rootItem;
         bool m_quickInitialized;
         bool m_psrRequested;
 
