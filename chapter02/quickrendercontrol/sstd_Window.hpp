@@ -73,41 +73,45 @@ private:
     bool m_quit;
 };
 
-class WindowMultiThreaded : public QWindow {
-    Q_OBJECT
+namespace sstd {
 
-public:
-    WindowMultiThreaded();
-    ~WindowMultiThreaded();
+    class Window : public QWindow {
+        Q_OBJECT
 
-protected:
-    void exposeEvent(QExposeEvent *e) override;
-    void resizeEvent(QResizeEvent *e) override;
-    void mousePressEvent(QMouseEvent *e) override;
-    void mouseReleaseEvent(QMouseEvent *e) override;
-    bool event(QEvent *e) override;
+    public:
+        Window();
+        ~Window();
 
-private slots:
-    void run();
-    void requestUpdate();
-    void polishSyncAndRender();
+    protected:
+        void exposeEvent(QExposeEvent *e) override;
+        void resizeEvent(QResizeEvent *e) override;
+        void mousePressEvent(QMouseEvent *e) override;
+        void mouseReleaseEvent(QMouseEvent *e) override;
+        bool event(QEvent *e) override;
 
-private:
-    void startQuick(const QString &filename);
-    void updateSizes();
+    private slots:
+        void run();
+        void requestUpdate();
+        void polishSyncAndRender();
 
-    QuickRenderer *m_quickRenderer;
-    QThread *m_quickRendererThread;
+    private:
+        void startQuick(const QString &filename);
+        void updateSizes();
 
-    QOpenGLContext *m_context;
-    QOffscreenSurface *m_offscreenSurface;
-    QQuickRenderControl *m_renderControl;
-    QQuickWindow *m_quickWindow;
-    QQmlEngine *m_qmlEngine;
-    QQmlComponent *m_qmlComponent;
-    QQuickItem *m_rootItem;
-    bool m_quickInitialized;
-    bool m_psrRequested;
-};
+        QuickRenderer *m_quickRenderer;
+        QThread *m_quickRendererThread;
+
+        QOpenGLContext *m_context;
+        QOffscreenSurface *m_offscreenSurface;
+        QQuickRenderControl *m_renderControl;
+        QQuickWindow *m_quickWindow;
+        QQmlEngine *m_qmlEngine;
+        QQmlComponent *m_qmlComponent;
+        QQuickItem *m_rootItem;
+        bool m_quickInitialized;
+        bool m_psrRequested;
+    };
+
+}/*namespace sstd*/
 
  

@@ -245,7 +245,7 @@ private:
     QWindow *m_window;
 };
 
-WindowMultiThreaded::WindowMultiThreaded()
+Window::Window()
     : m_qmlComponent(nullptr),
       m_rootItem(nullptr),
       m_quickInitialized(false),
@@ -260,7 +260,7 @@ WindowMultiThreaded::WindowMultiThreaded()
    
 }
 
-WindowMultiThreaded::~WindowMultiThreaded()
+Window::~Window()
 {
     // Release resources and move the context ownership back to this thread.
     m_quickRenderer->mutex()->lock();
@@ -280,7 +280,7 @@ WindowMultiThreaded::~WindowMultiThreaded()
     delete mmm_globalContex;
 }
 
-void WindowMultiThreaded::requestUpdate()
+void Window::requestUpdate()
 {
     if (m_quickInitialized && !m_psrRequested) {
         m_psrRequested = true;
@@ -288,7 +288,7 @@ void WindowMultiThreaded::requestUpdate()
     }
 }
 
-bool WindowMultiThreaded::event(QEvent *e)
+bool Window::event(QEvent *e)
 {
     if (e->type() == UPDATE) {
         polishSyncAndRender();
@@ -305,7 +305,7 @@ bool WindowMultiThreaded::event(QEvent *e)
     return QWindow::event(e);
 }
 
-void WindowMultiThreaded::polishSyncAndRender()
+void Window::polishSyncAndRender()
 {
     Q_ASSERT(QThread::currentThread() == thread());
 
@@ -321,9 +321,9 @@ void WindowMultiThreaded::polishSyncAndRender()
     // happens on the render thread, not blocking other work.
 }
 
-void WindowMultiThreaded::run()
+void Window::run()
 {
-    disconnect(m_qmlComponent, &QQmlComponent::statusChanged, this, &WindowMultiThreaded::run);
+    disconnect(m_qmlComponent, &QQmlComponent::statusChanged, this, &Window::run);
 
     if (m_qmlComponent->isError()) {
         const QList<QQmlError> errorList = m_qmlComponent->errors();
@@ -360,7 +360,7 @@ void WindowMultiThreaded::run()
     polishSyncAndRender();
 }
 
-void WindowMultiThreaded::updateSizes()
+void Window::updateSizes()
 {
     // Behave like SizeRootObjectToView.
     m_rootItem->setWidth(width());
@@ -369,18 +369,18 @@ void WindowMultiThreaded::updateSizes()
     m_quickWindow->setGeometry(0, 0, width(), height());
 }
 
-void WindowMultiThreaded::startQuick(const QUrl &filename)
+void Window::startQuick(const QUrl &filename)
 {
     m_qmlComponent = new QQmlComponent(m_qmlEngine, QUrl(filename));
     if (m_qmlComponent->isLoading())
-        connect(m_qmlComponent, &QQmlComponent::statusChanged, this, &WindowMultiThreaded::run);
+        connect(m_qmlComponent, &QQmlComponent::statusChanged, this, &Window::run);
     else
         run();
 }
 
 
 
-void WindowMultiThreaded::exposeEvent(QExposeEvent *) {
+void Window::exposeEvent(QExposeEvent *) {
 
     
 
@@ -433,8 +433,8 @@ void WindowMultiThreaded::exposeEvent(QExposeEvent *) {
     // Now hook up the signals. For simplicy we don't differentiate
     // between renderRequested (only render is needed, no sync) and
     // sceneChanged (polish and sync is needed too).
-    connect(m_renderControl, &QQuickRenderControl::renderRequested, this, &WindowMultiThreaded::requestUpdate);
-    connect(m_renderControl, &QQuickRenderControl::sceneChanged, this, &WindowMultiThreaded::requestUpdate);
+    connect(m_renderControl, &QQuickRenderControl::renderRequested, this, &Window::requestUpdate);
+    connect(m_renderControl, &QQuickRenderControl::sceneChanged, this, &Window::requestUpdate);
 
 
 
@@ -444,7 +444,7 @@ void WindowMultiThreaded::exposeEvent(QExposeEvent *) {
     //}
 }
 
-void WindowMultiThreaded::resizeEvent(QResizeEvent *)
+void Window::resizeEvent(QResizeEvent *)
 {
     // If this is a resize after the scene is up and running, recreate the fbo and the
     // Quick item and scene.
@@ -455,7 +455,7 @@ void WindowMultiThreaded::resizeEvent(QResizeEvent *)
     }
 }
 
-void WindowMultiThreaded::mousePressEvent(QMouseEvent *e)
+void Window::mousePressEvent(QMouseEvent *e)
 {
     // Use the constructor taking localPos and screenPos. That puts localPos into the
     // event's localPos and windowPos, and screenPos into the event's screenPos. This way
@@ -465,7 +465,7 @@ void WindowMultiThreaded::mousePressEvent(QMouseEvent *e)
     QCoreApplication::sendEvent(m_quickWindow, &mappedEvent);
 }
 
-void WindowMultiThreaded::mouseReleaseEvent(QMouseEvent *e)
+void Window::mouseReleaseEvent(QMouseEvent *e)
 {
     QMouseEvent mappedEvent(e->type(), e->localPos(), e->screenPos(), e->button(), e->buttons(), e->modifiers());
     QCoreApplication::sendEvent(m_quickWindow, &mappedEvent);

@@ -1,54 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** BSD License Usage
-** Alternatively, you may use this file under the terms of the BSD license
-** as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of The Qt Company Ltd nor the names of its
-**     contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
-**
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
 
-#include "window_multithreaded.h"
+#include "sstd_Window.hpp"
 #include "cuberenderer.h"
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
@@ -88,61 +39,54 @@ static const QEvent::Type UPDATE = QEvent::Type(QEvent::User + 5);
 
 QuickRenderer::QuickRenderer()
     : m_context(nullptr),
-      m_surface(nullptr),
-      m_fbo(nullptr),
-      m_window(nullptr),
-      m_quickWindow(nullptr),
-      m_renderControl(nullptr),
-      m_cubeRenderer(nullptr),
-      m_quit(false)
-{
+    m_surface(nullptr),
+    m_fbo(nullptr),
+    m_window(nullptr),
+    m_quickWindow(nullptr),
+    m_renderControl(nullptr),
+    m_cubeRenderer(nullptr),
+    m_quit(false) {
 }
 
-void QuickRenderer::requestInit()
-{
+void QuickRenderer::requestInit() {
     QCoreApplication::postEvent(this, new QEvent(INIT));
 }
 
-void QuickRenderer::requestRender()
-{
+void QuickRenderer::requestRender() {
     QCoreApplication::postEvent(this, new QEvent(RENDER));
 }
 
-void QuickRenderer::requestResize()
-{
+void QuickRenderer::requestResize() {
     QCoreApplication::postEvent(this, new QEvent(RESIZE));
 }
 
-void QuickRenderer::requestStop()
-{
+void QuickRenderer::requestStop() {
     QCoreApplication::postEvent(this, new QEvent(STOP));
 }
 
-bool QuickRenderer::event(QEvent *e)
-{
+bool QuickRenderer::event(QEvent *e) {
     QMutexLocker lock(&m_mutex);
 
     switch (int(e->type())) {
-    case INIT:
-        init();
-        return true;
-    case RENDER:
-        render(&lock);
-        return true;
-    case RESIZE:
-        if (m_cubeRenderer)
-            m_cubeRenderer->resize(m_window->width(), m_window->height());
-        return true;
-    case STOP:
-        cleanup();
-        return true;
-    default:
-        return QObject::event(e);
+        case INIT:
+            init();
+            return true;
+        case RENDER:
+            render(&lock);
+            return true;
+        case RESIZE:
+            if (m_cubeRenderer)
+                m_cubeRenderer->resize(m_window->width(), m_window->height());
+            return true;
+        case STOP:
+            cleanup();
+            return true;
+        default:
+            return QObject::event(e);
     }
 }
 
-void QuickRenderer::init()
-{
+void QuickRenderer::init() {
     m_context->makeCurrent(m_surface);
 
     // Pass our offscreen surface to the cube renderer just so that it will
@@ -155,8 +99,7 @@ void QuickRenderer::init()
     m_renderControl->initialize(m_context);
 }
 
-void QuickRenderer::cleanup()
-{
+void QuickRenderer::cleanup() {
     m_context->makeCurrent(m_surface);
 
     m_renderControl->invalidate();
@@ -173,8 +116,7 @@ void QuickRenderer::cleanup()
     m_cond.wakeOne();
 }
 
-void QuickRenderer::ensureFbo()
-{
+void QuickRenderer::ensureFbo() {
     if (m_fbo && m_fbo->size() != m_window->size() * m_window->devicePixelRatio()) {
         delete m_fbo;
         m_fbo = nullptr;
@@ -182,13 +124,12 @@ void QuickRenderer::ensureFbo()
 
     if (!m_fbo) {
         m_fbo = new QOpenGLFramebufferObject(m_window->size() * m_window->devicePixelRatio(),
-                                             QOpenGLFramebufferObject::CombinedDepthStencil);
+            QOpenGLFramebufferObject::CombinedDepthStencil);
         m_quickWindow->setRenderTarget(m_fbo);
     }
 }
 
-void QuickRenderer::render(QMutexLocker *lock)
-{
+void QuickRenderer::render(QMutexLocker *lock) {
     Q_ASSERT(QThread::currentThread() != m_window->thread());
 
     if (!m_context->makeCurrent(m_surface)) {
@@ -217,28 +158,26 @@ void QuickRenderer::render(QMutexLocker *lock)
         m_cubeRenderer->render(m_window, m_context, m_fbo->texture());
 }
 
-void QuickRenderer::aboutToQuit()
-{
+void QuickRenderer::aboutToQuit() {
     QMutexLocker lock(&m_quitMutex);
     m_quit = true;
 }
 
-class RenderControl : public QQuickRenderControl
-{
+class RenderControl : public QQuickRenderControl {
 public:
-    RenderControl(QWindow *w) : m_window(w) { }
+    RenderControl(QWindow *w) : m_window(w) {
+    }
     QWindow *renderWindow(QPoint *offset) override;
 
 private:
     QWindow *m_window;
 };
 
-WindowMultiThreaded::WindowMultiThreaded()
+sstd::Window::Window()
     : m_qmlComponent(nullptr),
-      m_rootItem(nullptr),
-      m_quickInitialized(false),
-      m_psrRequested(false)
-{
+    m_rootItem(nullptr),
+    m_quickInitialized(false),
+    m_psrRequested(false) {
     setSurfaceType(QSurface::OpenGLSurface);
 
     QSurfaceFormat format;
@@ -296,12 +235,11 @@ WindowMultiThreaded::WindowMultiThreaded()
     // Now hook up the signals. For simplicy we don't differentiate
     // between renderRequested (only render is needed, no sync) and
     // sceneChanged (polish and sync is needed too).
-    connect(m_renderControl, &QQuickRenderControl::renderRequested, this, &WindowMultiThreaded::requestUpdate);
-    connect(m_renderControl, &QQuickRenderControl::sceneChanged, this, &WindowMultiThreaded::requestUpdate);
+    connect(m_renderControl, &QQuickRenderControl::renderRequested, this, &sstd::Window::requestUpdate);
+    connect(m_renderControl, &QQuickRenderControl::sceneChanged, this, &sstd::Window::requestUpdate);
 }
 
-WindowMultiThreaded::~WindowMultiThreaded()
-{
+sstd::Window::~Window() {
     // Release resources and move the context ownership back to this thread.
     m_quickRenderer->mutex()->lock();
     m_quickRenderer->requestStop();
@@ -320,16 +258,14 @@ WindowMultiThreaded::~WindowMultiThreaded()
     delete m_context;
 }
 
-void WindowMultiThreaded::requestUpdate()
-{
+void sstd::Window::requestUpdate() {
     if (m_quickInitialized && !m_psrRequested) {
         m_psrRequested = true;
         QCoreApplication::postEvent(this, new QEvent(UPDATE));
     }
 }
 
-bool WindowMultiThreaded::event(QEvent *e)
-{
+bool sstd::Window::event(QEvent *e) {
     if (e->type() == UPDATE) {
         polishSyncAndRender();
         m_psrRequested = false;
@@ -345,8 +281,7 @@ bool WindowMultiThreaded::event(QEvent *e)
     return QWindow::event(e);
 }
 
-void WindowMultiThreaded::polishSyncAndRender()
-{
+void sstd::Window::polishSyncAndRender() {
     Q_ASSERT(QThread::currentThread() == thread());
 
     // Polishing happens on the gui thread.
@@ -361,9 +296,8 @@ void WindowMultiThreaded::polishSyncAndRender()
     // happens on the render thread, not blocking other work.
 }
 
-void WindowMultiThreaded::run()
-{
-    disconnect(m_qmlComponent, &QQmlComponent::statusChanged, this, &WindowMultiThreaded::run);
+void sstd::Window::run() {
+    disconnect(m_qmlComponent, &QQmlComponent::statusChanged, this, &sstd::Window::run);
 
     if (m_qmlComponent->isError()) {
         const QList<QQmlError> errorList = m_qmlComponent->errors();
@@ -400,8 +334,7 @@ void WindowMultiThreaded::run()
     polishSyncAndRender();
 }
 
-void WindowMultiThreaded::updateSizes()
-{
+void sstd::Window::updateSizes() {
     // Behave like SizeRootObjectToView.
     m_rootItem->setWidth(width());
     m_rootItem->setHeight(height());
@@ -409,25 +342,22 @@ void WindowMultiThreaded::updateSizes()
     m_quickWindow->setGeometry(0, 0, width(), height());
 }
 
-void WindowMultiThreaded::startQuick(const QString &filename)
-{
+void sstd::Window::startQuick(const QString &filename) {
     m_qmlComponent = new QQmlComponent(m_qmlEngine, QUrl(filename));
     if (m_qmlComponent->isLoading())
-        connect(m_qmlComponent, &QQmlComponent::statusChanged, this, &WindowMultiThreaded::run);
+        connect(m_qmlComponent, &QQmlComponent::statusChanged, this, &sstd::Window::run);
     else
         run();
 }
 
-void WindowMultiThreaded::exposeEvent(QExposeEvent *)
-{
+void sstd::Window::exposeEvent(QExposeEvent *) {
     if (isExposed()) {
         if (!m_quickInitialized)
             startQuick(QStringLiteral("qrc:/rendercontrol/demo.qml"));
     }
 }
 
-void WindowMultiThreaded::resizeEvent(QResizeEvent *)
-{
+void sstd::Window::resizeEvent(QResizeEvent *) {
     // If this is a resize after the scene is up and running, recreate the fbo and the
     // Quick item and scene.
     if (m_rootItem) {
@@ -437,8 +367,7 @@ void WindowMultiThreaded::resizeEvent(QResizeEvent *)
     }
 }
 
-void WindowMultiThreaded::mousePressEvent(QMouseEvent *e)
-{
+void sstd::Window::mousePressEvent(QMouseEvent *e) {
     // Use the constructor taking localPos and screenPos. That puts localPos into the
     // event's localPos and windowPos, and screenPos into the event's screenPos. This way
     // the windowPos in e is ignored and is replaced by localPos. This is necessary
@@ -447,8 +376,7 @@ void WindowMultiThreaded::mousePressEvent(QMouseEvent *e)
     QCoreApplication::sendEvent(m_quickWindow, &mappedEvent);
 }
 
-void WindowMultiThreaded::mouseReleaseEvent(QMouseEvent *e)
-{
+void sstd::Window::mouseReleaseEvent(QMouseEvent *e) {
     QMouseEvent mappedEvent(e->type(), e->localPos(), e->screenPos(), e->button(), e->buttons(), e->modifiers());
     QCoreApplication::sendEvent(m_quickWindow, &mappedEvent);
 }

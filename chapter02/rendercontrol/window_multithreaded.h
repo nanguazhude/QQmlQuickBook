@@ -113,13 +113,13 @@ private:
          
 };
 
-class WindowMultiThreaded : public QWindow
+class Window : public QWindow
 {
     Q_OBJECT
 
 public:
-    WindowMultiThreaded();
-    ~WindowMultiThreaded();
+    Window();
+    ~Window();
 
 protected:
     void exposeEvent(QExposeEvent *e) override;
