@@ -132,7 +132,7 @@ namespace sstd {
             /*the global data never delete ... */
             static auto * varMainObject = sstdNew<private_quick_thread_sstd::RunEventObject>(
                 getQApplicationState());
-            globalObjectInMain.store( varMainObject );
+            globalObjectInMain.store(varMainObject);
         }
         Q_COREAPP_STARTUP_FUNCTION(updateWhenQCoreApplicationConstruct)
     }/**/
@@ -141,7 +141,7 @@ namespace sstd {
         assert(qApp);
 
         auto varCallObject = globalObjectInMain.load();
-        if (nullptr == varCallObject ) {
+        if (nullptr == varCallObject) {
             return {};
         }
 
@@ -178,8 +178,12 @@ void static_test() {
     varThread.runInMainThread([]() {}, []() {});
     varThread.applyInThisThread(testTuple);
     varThread.runInThisThread([]() {});
-    varThread.runHere([](){});
+    varThread.runHere([]() {});
     varThread.applyHere(testTuple);
+    static_assert(1 == sstd::tuple_size<int, std::tuple<double, int, float> >::value);
+    static_assert(3 == sstd::tuple_size<int *, std::tuple<double, int, float> >::value);
+    static_assert(0 == sstd::tuple_size<int, std::tuple< int, float> >::value);
+    static_assert(0 == sstd::tuple_size<int, std::tuple< int > >::value);
 }
 
 #endif

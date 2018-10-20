@@ -182,6 +182,35 @@ namespace sstd {
         return _2_ppp_apply(std::forward < Tuple >(arg), std::make_index_sequence<varTupleSize>{});
     }
 
+    template<typename ... K>
+    class _2_tuple {
+    };
+
+    template<std::size_t N, std::size_t I, typename T, typename Tuple>
+    class _1_tuple_size;
+
+    template<std::size_t N, std::size_t I, typename T, typename T0, template<typename  > class Tuple>
+    class _1_tuple_size<N, I, T, Tuple<T0>> {
+    public:
+        constexpr const static std::size_t value = std::is_same_v<T, T0> ? I : N;
+    };
+
+    template<std::size_t N, std::size_t I, typename T, typename T0,typename T1,typename ...TN, template<typename ...> class Tuple>
+    class _1_tuple_size<N, I, T, Tuple<T0,T1,TN...>> {
+    public:
+        constexpr const static std::size_t value = std::is_same_v<T, T0> ? I : 
+            _1_tuple_size<N,1+I,T,Tuple<T1,TN...>>::value ;
+    };
+
+    template<typename T,typename Tuple>
+    class tuple_size;
+
+    template<typename T, typename ... U, template<typename ...> class Tuple>
+    class tuple_size<T, Tuple<U...>> {
+    public:
+        constexpr const static std::size_t value = _1_tuple_size<sizeof...(U),0,T, _2_tuple<U...>>::value;
+    };
+
 }/*namespace sstd*/
 
 
