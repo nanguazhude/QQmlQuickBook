@@ -390,195 +390,12 @@ void main(){
 
 }/*namespace*/
 
-CubeRenderer::CubeRenderer(std::shared_ptr<sstd::RenderPack> arg)
-    :mmm_RenderPack(std::move(arg)) {
-}
-
-CubeRenderer::~CubeRenderer() {
-    mmm_RenderPack->targetContex->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
-
-
-    mmm_RenderPack->targetContex->doneCurrent();
-}
-
-void CubeRenderer::init(QWindow *w, QOpenGLContext *share) {
-    mmm_RenderPack->targetContex = sstd::make_unique<QOpenGLContext>();
-    mmm_RenderPack->targetContex->setShareContext(share);
-    mmm_RenderPack->targetContex->setFormat(w->requestedFormat());
-    mmm_RenderPack->targetContex->create();
-    if (!mmm_RenderPack->targetContex->makeCurrent(w)) {
-        return;
-    }
-    glewInitialize();
-}
-
-void CubeRenderer::render(QWindow *w, QOpenGLContext *share) {
-
-    if (!mmm_RenderPack->targetContex) {
-        init(w, share);
-    }
-
-    if (!mmm_RenderPack->targetContex->makeCurrent(w)) {
-        return;
-    }
-
-    ConstructDrawTargetWindowOpenGLProgram constructDrawTargetWindowOpenGLProgram{ mmm_RenderPack };
-    constructDrawTargetWindowOpenGLProgram();
-
-    ConstructDrawTargetWindowVAO constructDrawTargetWindowVAO{ mmm_RenderPack };
-    constructDrawTargetWindowVAO();
-
-    DrawTargetWindow drawTargetWindow{ mmm_RenderPack };
-    drawTargetWindow();
-
-    mmm_RenderPack->targetContex->swapBuffers(w);
-}
-
-static const QEvent::Type INIT = QEvent::Type(QEvent::User + 1);
-static const QEvent::Type RENDER = QEvent::Type(QEvent::User + 2);
-static const QEvent::Type RESIZE = QEvent::Type(QEvent::User + 3);
-static const QEvent::Type STOP = QEvent::Type(QEvent::User + 4);
-
-static const QEvent::Type UPDATE = QEvent::Type(QEvent::User + 5);
-
-QuickRenderer::QuickRenderer()
-    :
-    // m_context(nullptr),
-     //m_surface(nullptr),
-     //m_window(nullptr),
-     //    m_quickWindow(nullptr),
-    // m_renderControl(nullptr),
-    m_cubeRenderer(nullptr),
-    m_quit(false) {
-}
-
-void QuickRenderer::requestInit() {
-    QCoreApplication::postEvent(this, new QEvent(INIT));
-}
-
-void QuickRenderer::requestRender() {
-    QCoreApplication::postEvent(this, new QEvent(RENDER));
-}
-
-void QuickRenderer::requestResize() {
-    QCoreApplication::postEvent(this, new QEvent(RESIZE));
-}
-
-void QuickRenderer::requestStop() {
-    QCoreApplication::postEvent(this, new QEvent(STOP));
-}
-
-bool QuickRenderer::event(QEvent *e) {
-    QMutexLocker lock(&m_mutex);
-
-    switch (int(e->type())) {
-        case INIT:
-            init();
-            return true;
-        case RENDER:
-            render(&lock);
-            return true;
-        case RESIZE:
-
-            return true;
-        case STOP:
-            cleanup();
-            return true;
-        default:
-            return QObject::event(e);
-    }
-}
-
-void QuickRenderer::init() {
-    auto m_context = mmm_RenderPack->sourceContex.get();
-    auto m_renderControl = mmm_RenderPack->sourceViewControl.get();
-
-    m_context->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
-
-    // Pass our offscreen surface to the cube renderer just so that it will
-    // have something is can make current during cleanup. QOffscreenSurface,
-    // just like QWindow, must always be created on the gui thread (as it might
-    // be backed by an actual QWindow).
-    m_cubeRenderer = new CubeRenderer(mmm_RenderPack);
-
-
-    m_renderControl->initialize(m_context);
-}
-
-void QuickRenderer::cleanup() {
-
-    auto m_context = mmm_RenderPack->sourceContex.get();
-    auto m_renderControl = mmm_RenderPack->sourceViewControl.get();
-
-    m_context->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
-
-    m_renderControl->invalidate();
-
-    //delete m_fbo;
-    //m_fbo = nullptr;
-
-    delete m_cubeRenderer;
-    m_cubeRenderer = nullptr;
-
-    m_context->doneCurrent();
-    m_context->moveToThread(QCoreApplication::instance()->thread());
-
-    m_cond.wakeOne();
-}
-
-void QuickRenderer::ensureFbo() {
-
-    ConstructDrawTargetFBO constructDrawTargetFBO{ mmm_RenderPack };
-    constructDrawTargetFBO();
-
-}
-
-void QuickRenderer::render(QMutexLocker *lock) {
-
-    auto m_context = mmm_RenderPack->sourceContex.get();
-    auto m_renderControl = mmm_RenderPack->sourceViewControl.get();
-    auto m_window = mmm_RenderPack->targetWindow;
-
-    Q_ASSERT(QThread::currentThread() != m_window->thread());
-
-    if (!m_context->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get())) {
-        qWarning("Failed to make context current on render thread");
-        return;
-    }
-
-    ensureFbo();
-
-    // Synchronization and rendering happens here on the render thread.
-    m_renderControl->sync();
-
-    // The gui thread can now continue.
-    m_cond.wakeOne();
-    lock->unlock();
-
-    // Meanwhile on this thread continue with the actual rendering (into the FBO first).
-    m_renderControl->render();
-    glFlush();
-
-    // The cube renderer uses its own context, no need to bother with the state here.
-
-    // Get something onto the screen using our custom OpenGL engine.
-    QMutexLocker quitLock(&m_quitMutex);
-    if (!m_quit) {
-        m_cubeRenderer->render(m_window, m_context);
-    }
-}
-
-void QuickRenderer::aboutToQuit() {
-    QMutexLocker lock(&m_quitMutex);
-    m_quit = true;
-}
-
 sstd::Window::Window()
     :
     //m_qmlComponent(nullptr),
     //m_rootItem(nullptr),
-    m_quickInitialized(false),
-    m_psrRequested(false) {
+    mmm_QuickInitialized(false),
+    mmm_psrRequested(false) {
     setSurfaceType(QSurface::OpenGLSurface);
 
     mmm_RenderPack = makeRenderPack();
@@ -589,17 +406,6 @@ sstd::Window::Window()
     ConstructRenderPack constructRenderPack{ mmm_RenderPack };
     constructRenderPack();
 
-    m_quickRenderer = new QuickRenderer;
-    m_quickRenderer->mmm_RenderPack = this->mmm_RenderPack;
-
-
-    // The QOpenGLContext and the QObject representing the rendering logic on
-    // the render thread must live on that thread.
-    //m_context->moveToThread(mmm_RenderPack->renderThread);
-    m_quickRenderer->moveToThread(mmm_RenderPack->renderThread);
-
-    //m_quickRendererThread->start();
-
     // Now hook up the signals. For simplicy we don't differentiate
     // between renderRequested (only render is needed, no sync) and
     // sceneChanged (polish and sync is needed too).
@@ -608,74 +414,61 @@ sstd::Window::Window()
 }
 
 sstd::Window::~Window() {
-    return;
-    // Release resources and move the context ownership back to this thread.
- //  m_quickRenderer->mutex()->lock();
- //  m_quickRenderer->requestStop();
- //  m_quickRenderer->cond()->wait(m_quickRenderer->mutex());
- //  m_quickRenderer->mutex()->unlock();
- //
- //  m_quickRendererThread->quit();
- //  m_quickRendererThread->wait();
- //
- //  delete m_renderControl;
- //  delete m_qmlComponent;
- //  delete m_quickWindow;
- //  delete m_qmlEngine;
- //
- //  delete m_offscreenSurface;
- //  delete m_context;
 }
 
 void sstd::Window::requestUpdate() {
-    if (m_quickInitialized && !m_psrRequested) {
-        m_psrRequested = true;
-        QCoreApplication::postEvent(this, new QEvent(UPDATE));
+    if (mmm_QuickInitialized && !mmm_psrRequested) {
+        mmm_psrRequested = true;
+        sstd::runInMainThread([this]() {
+            polishSyncAndRender();
+            mmm_psrRequested = false;
+        });
     }
 }
 
 bool sstd::Window::event(QEvent *e) {
-    if (e->type() == UPDATE) {
-        polishSyncAndRender();
-        m_psrRequested = false;
-        return true;
-    } else if (e->type() == QEvent::Close) {
-        // Avoid rendering on the render thread when the window is about to
-        // close. Once a QWindow is closed, the underlying platform window will
-        // go away, even though the QWindow instance itself is still
-        // valid. Operations like swapBuffers() are futile and only result in
-        // warnings afterwards. Prevent this.
-        m_quickRenderer->aboutToQuit();
-    }
     return QWindow::event(e);
 }
 
-void sstd::Window::polishSyncAndRender() {
-    Q_ASSERT(QThread::currentThread() == thread());
-
-    // Polishing happens on the gui thread.
-    //mmm_RenderPack->sourceViewControl.get()->polishItems();
-    // Sync happens on the render thread with the gui thread (this one) blocked.
-    //QMutexLocker lock(m_quickRenderer->mutex());
-    //m_quickRenderer->requestRender();
-    // Wait until sync is complete.
-    //m_quickRenderer->cond()->wait(m_quickRenderer->mutex());
-    // Rendering happens on the render thread without blocking the gui (main)
-    // thread. This is good because the blocking swap (waiting for vsync)
-    // happens on the render thread, not blocking other work.
+template<bool needPolish, bool needSync, bool isResize>
+void sstd::Window::ppp_PolishSyncAndRender() {
+    assert(QThread::currentThread() == thread());
 
     auto varRenderThread = mmm_RenderPack->renderThread;
-    {
+    if constexpr (needPolish) {
         std::tuple< DrawSourcePolishItems > varPolishItems{ mmm_RenderPack };
         varRenderThread->applyHere(std::move(varPolishItems));
     }
 
-    {
+    if constexpr (needSync) {
         std::tuple<
             DrawSourceMakeCurrent,
             ConstructDrawTargetFBO,
             DrawSourceSync,
             DrawSourceRender,
+            ConstructDrawTargetContext,
+            ConstructDrawTargetWindowOpenGLProgram,
+            ConstructDrawTargetWindowVAO,
+            DrawTargetWindow,
+            DrawTargetSwapBuffers
+        > varDrawCommands{
+            /*00*/mmm_RenderPack,
+            /*01*/mmm_RenderPack,
+            /*02*/mmm_RenderPack,
+            /*03*/mmm_RenderPack,
+            /*04*/mmm_RenderPack,
+            /*05*/mmm_RenderPack,
+            /*06*/mmm_RenderPack,
+            /*07*/mmm_RenderPack,
+            /*08*/mmm_RenderPack
+        };
+        auto varFutrues = varRenderThread->applyInThisThread(std::move(varDrawCommands));
+        if (varFutrues) {
+            varFutrues->data()[(isResize == false) ? 2 : 8].wait();
+        }
+
+    } else {
+        std::tuple<
             ConstructDrawTargetContext,
             ConstructDrawTargetWindowOpenGLProgram,
             ConstructDrawTargetWindowVAO,
@@ -692,29 +485,33 @@ void sstd::Window::polishSyncAndRender() {
             mmm_RenderPack,
             mmm_RenderPack
         };
-        auto varFutrues = varRenderThread->applyInThisThread(std::move(varDrawCommands));
-        if (varFutrues) {
-            varFutrues->data()[2].wait();
-        }
+        varRenderThread->applyInThisThread(std::move(varDrawCommands));
     }
 
 }
 
+void sstd::Window::polishSyncAndRender() {
+    ppp_PolishSyncAndRender<true, true, false>();
+}
+
+void sstd::Window::polishSyncAndRenderResize() {
+    ppp_PolishSyncAndRender<true, true, true>();
+}
+
 void sstd::Window::updateSizes() {
+    mmm_RenderPack->targetWindowDevicePixelRatio = this->devicePixelRatio();
+    mmm_RenderPack->targetWindowHeight = this->height();
+    mmm_RenderPack->targetWindowWidth = this->width();
 
-    mmm_RenderPack->targetWindowHeight = height();
-    mmm_RenderPack->targetWindowWidth = width();
-
-    // Behave like SizeRootObjectToView.
+    /*Behave like SizeRootObjectToView.*/
     mmm_RenderPack->sourceRootItem->setWidth(width());
     mmm_RenderPack->sourceRootItem->setHeight(height());
-
-
 
     mmm_RenderPack->sourceView->setGeometry(0, 0, width(), height());
 }
 
 void sstd::Window::startQuick(const QUrl &filename) {
+
     auto m_qmlComponent = sstd::sstdNew< QQmlComponent>(mmm_RenderPack->sourceQQmlEngine.get(), filename);
     m_qmlComponent->deleteLater();
 
@@ -747,17 +544,20 @@ void sstd::Window::startQuick(const QUrl &filename) {
     // Update item and rendering related geometries.
     updateSizes();
 
-    m_quickInitialized = true;
+    mmm_QuickInitialized = true;
 
     // Initialize the render thread and perform the first polish/sync/render.
-    m_quickRenderer->requestInit();
+    mmm_RenderPack->renderThread->runInThisThread([varPack = mmm_RenderPack]() {
+        varPack->sourceViewControl->initialize( varPack->sourceContex.get() );
+    });
+
     polishSyncAndRender();
 
 }
 
 void sstd::Window::exposeEvent(QExposeEvent *) {
     if (isExposed()) {
-        if (!m_quickInitialized) {
+        if (!mmm_QuickInitialized) {
             startQuick(QStringLiteral("myqml/quickrendercontrol/main.qml"));
         }
     }
@@ -766,7 +566,7 @@ void sstd::Window::exposeEvent(QExposeEvent *) {
 void sstd::Window::resizeEvent(QResizeEvent *) {
     if (mmm_RenderPack->sourceRootItem) {
         updateSizes();
-        polishSyncAndRender();
+        polishSyncAndRenderResize();
     }
 }
 
@@ -785,3 +585,11 @@ void sstd::Window::mouseReleaseEvent(QMouseEvent *e) {
         e->buttons(), e->modifiers());
     QCoreApplication::sendEvent(mmm_RenderPack->sourceView.get(), &varMappedEvent);
 }
+
+
+
+
+
+
+
+

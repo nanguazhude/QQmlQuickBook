@@ -20,44 +20,7 @@ class QQuickItem;
 
 class CubeRenderer;
 
-class QuickRenderer : public QObject {
-    Q_OBJECT
-
-public:
-    QuickRenderer();
-
-    void requestInit();
-    void requestRender();
-    void requestResize();
-    void requestStop();
-
-    QWaitCondition *cond() {
-        return &m_cond;
-    }
-
-    QMutex *mutex() {
-        return &m_mutex;
-    }
-
-
-    void aboutToQuit();
-
-public:
-    bool event(QEvent *e) override;
-    void init();
-    void cleanup();
-    void ensureFbo();
-    void render(QMutexLocker *lock);
-
-    QWaitCondition m_cond;
-    QMutex m_mutex;
-    CubeRenderer *m_cubeRenderer;
-    QMutex m_quitMutex;
-    bool m_quit;
-
-    std::shared_ptr<sstd::RenderPack> mmm_RenderPack;
-
-};
+ 
 
 namespace sstd {
 
@@ -75,17 +38,20 @@ namespace sstd {
         void mouseReleaseEvent(QMouseEvent *e) override;
         bool event(QEvent *e) override;
 
-    private slots:
-        void requestUpdate();
-        void polishSyncAndRender();
-
+    private :
+        Q_SLOT void requestUpdate();
+        Q_SLOT void polishSyncAndRender();
+        Q_SLOT void polishSyncAndRenderResize();
+    private:
+        template<bool needPolish,bool needSync,bool isResize>
+        void ppp_PolishSyncAndRender();
     private:
         void startQuick(const QUrl &filename);
         void updateSizes();
 
-        QuickRenderer *m_quickRenderer;
-        bool m_quickInitialized;
-        bool m_psrRequested;
+        
+        bool mmm_QuickInitialized;
+        bool mmm_psrRequested;
 
         std::shared_ptr<sstd::RenderPack> mmm_RenderPack;
 
