@@ -474,8 +474,9 @@ void QuickRenderer::aboutToQuit() {
 
 
 sstd::Window::Window()
-    : m_qmlComponent(nullptr),
-    m_rootItem(nullptr),
+    : 
+    //m_qmlComponent(nullptr),
+    //m_rootItem(nullptr),
     m_quickInitialized(false),
     m_psrRequested(false) {
     setSurfaceType(QSurface::OpenGLSurface);
@@ -506,9 +507,10 @@ sstd::Window::Window()
     mmm_RenderPack->sourceView = sstd::make_unique<QQuickWindow>(m_renderControl);
 
     // Create a QML engine.
-    m_qmlEngine = new QQmlEngine;
-    if (!m_qmlEngine->incubationController())
-        m_qmlEngine->setIncubationController(mmm_RenderPack->sourceView->incubationController());
+    mmm_RenderPack->sourceQQmlEngine =sstd::make_unique<QQmlEngine>();
+    if (!mmm_RenderPack->sourceQQmlEngine->incubationController()) {
+        mmm_RenderPack->sourceQQmlEngine->setIncubationController(mmm_RenderPack->sourceView->incubationController());
+    }
 
     m_quickRenderer = new QuickRenderer;
     m_quickRenderer->mmm_RenderPack = this->mmm_RenderPack;
@@ -599,7 +601,28 @@ void sstd::Window::polishSyncAndRender() {
 }
 
 void sstd::Window::run() {
-    disconnect(m_qmlComponent, &QQmlComponent::statusChanged, this, &sstd::Window::run);
+    //disconnect(m_qmlComponent, &QQmlComponent::statusChanged, this, &sstd::Window::run);
+
+    
+}
+
+void sstd::Window::updateSizes() {
+
+    mmm_RenderPack->targetWindowHeight = height();
+    mmm_RenderPack->targetWindowWidth = width();
+
+    // Behave like SizeRootObjectToView.
+    mmm_RenderPack->sourceRootItem->setWidth(width());
+    mmm_RenderPack->sourceRootItem->setHeight(height());
+
+   
+
+    mmm_RenderPack->sourceView->setGeometry(0, 0, width(), height());
+}
+
+void sstd::Window::startQuick(const QUrl &filename) {
+    auto m_qmlComponent = sstd::sstdNew< QQmlComponent> ( mmm_RenderPack->sourceQQmlEngine.get() , filename);
+    m_qmlComponent->deleteLater();
 
     if (m_qmlComponent->isError()) {
         const QList<QQmlError> errorList = m_qmlComponent->errors();
@@ -616,15 +639,16 @@ void sstd::Window::run() {
         return;
     }
 
-    m_rootItem = qobject_cast<QQuickItem *>(rootObject);
-    if (!m_rootItem) {
+    mmm_RenderPack->sourceRootItem = qobject_cast<QQuickItem *>(rootObject);
+    if (!mmm_RenderPack->sourceRootItem) {
         qWarning("run: Not a QQuickItem");
-        delete rootObject;
+        assert(false);
         return;
     }
 
     // The root item is ready. Associate it with the window.
-    m_rootItem->setParentItem(mmm_RenderPack->sourceView->contentItem());
+    mmm_RenderPack->sourceRootItem->setParentItem(mmm_RenderPack->sourceView->contentItem());
+    mmm_RenderPack->sourceRootItem->setParent(mmm_RenderPack->sourceView->contentItem());
 
     // Update item and rendering related geometries.
     updateSizes();
@@ -634,28 +658,7 @@ void sstd::Window::run() {
     // Initialize the render thread and perform the first polish/sync/render.
     m_quickRenderer->requestInit();
     polishSyncAndRender();
-}
 
-void sstd::Window::updateSizes() {
-
-    mmm_RenderPack->targetWindowHeight = height();
-    mmm_RenderPack->targetWindowWidth = width();
-
-    // Behave like SizeRootObjectToView.
-    m_rootItem->setWidth(width());
-    m_rootItem->setHeight(height());
-
-   
-
-    mmm_RenderPack->sourceView->setGeometry(0, 0, width(), height());
-}
-
-void sstd::Window::startQuick(const QUrl &filename) {
-    m_qmlComponent = new QQmlComponent(m_qmlEngine, filename);
-    if (m_qmlComponent->isLoading())
-        connect(m_qmlComponent, &QQmlComponent::statusChanged, this, &sstd::Window::run);
-    else
-        run();
 }
 
 void sstd::Window::exposeEvent(QExposeEvent *) {
@@ -669,7 +672,7 @@ void sstd::Window::exposeEvent(QExposeEvent *) {
 void sstd::Window::resizeEvent(QResizeEvent *) {
     // If this is a resize after the scene is up and running, recreate the fbo and the
     // Quick item and scene.
-    if (m_rootItem) {
+    if ( mmm_RenderPack->sourceRootItem ) {
         updateSizes();
         m_quickRenderer->requestResize();
         polishSyncAndRender();

@@ -115,9 +115,9 @@ namespace sstd {
         QOffscreenSurface *m_offscreenSurface;
         QQuickRenderControl *m_renderControl;
         //QQuickWindow *m_quickWindow;
-        QQmlEngine *m_qmlEngine;
-        QQmlComponent *m_qmlComponent;
-        QQuickItem *m_rootItem;
+        //QQmlEngine *m_qmlEngine;
+        //QQmlComponent *m_qmlComponent;
+        //QQuickItem *m_rootItem;
         bool m_quickInitialized;
         bool m_psrRequested;
 
