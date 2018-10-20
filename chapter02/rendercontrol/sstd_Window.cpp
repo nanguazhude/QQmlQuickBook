@@ -117,7 +117,7 @@ namespace /*渲染所需方法*/ {
             } while (false);
             varPack->sourceFrameBufferObject.reset();
             varPack->sourceFrameBufferObject =
-                sstd::make_unique<QOpenGLFramebufferObject>(QSize(varWidth, varHeight), QOpenGLFramebufferObject::CombinedDepthStencil);
+                    sstd::make_unique<QOpenGLFramebufferObject>(QSize(varWidth, varHeight), QOpenGLFramebufferObject::CombinedDepthStencil);
             mmm_RenderPack->sourceView->setRenderTarget(varPack->sourceFrameBufferObject.get());
 
         }
@@ -225,35 +225,35 @@ namespace /*渲染所需方法*/ {
             }
 
             varPack->targetProgram = buildVFShader(
-                u8R"(
-/*简单顶点着色器，用于渲染一个图片*/
-#version 450
+                        u8R"(
+                        /*简单顶点着色器，用于渲染一个图片*/
+                        #version 450
 
-layout( location = 0 ) in vec4 argPosition  ;
-layout( location = 1 ) in vec4 argTexturePos;
-out vec4 ioTexturePos ;
+                        layout( location = 0 ) in vec4 argPosition  ;
+                        layout( location = 1 ) in vec4 argTexturePos;
+                        out vec4 ioTexturePos ;
 
-void main(){
-    ioTexturePos = argTexturePos ;
-    gl_Position = argPosition    ;
-}
+                        void main(){
+                        ioTexturePos = argTexturePos ;
+                        gl_Position = argPosition    ;
+                        }
 
-)"sv,
-u8R"(
+                        )"sv,
+                        u8R"(
 
-/*简单片段着色器,用于渲染一个图像*/
-#version 450
+                        /*简单片段着色器,用于渲染一个图像*/
+                        #version 450
 
-in  vec4 ioTexturePos                           ;
-out vec4 outColor                               ;
-layout (binding=1) uniform sampler2D argTexture ;
+                        in  vec4 ioTexturePos                           ;
+                        out vec4 outColor                               ;
+                        layout (binding=1) uniform sampler2D argTexture ;
 
-void main(){
-    outColor = texture2D( argTexture , ioTexturePos.xy ) ;
-    //outColor = vec4(1,0,1,1) ;
-}
+                        void main(){
+                        outColor = texture2D( argTexture , ioTexturePos.xy ) ;
+                        //outColor = vec4(1,0,1,1) ;
+                        }
 
-)"sv);
+                        )"sv);
 
         }
 
@@ -273,10 +273,10 @@ void main(){
                 GLfloat s, t, p, q;
             };
             constexpr const static std::array<DataRow, 4> varVAOData{ DataRow {-1,1,0,1,/**/0,1,0,1},
-            DataRow {-1,-1,0,1,/**/0,0,0,1},
-            DataRow {1,-1,0,1,/**/1,0,0,1},
-            DataRow {1,1,0,1,/**/1,1,0,1}
-            };
+                                                                      DataRow {-1,-1,0,1,/**/0,0,0,1},
+                                                                                                                            DataRow {1,-1,0,1,/**/1,0,0,1},
+                                                                                                                                                                                  DataRow {1,1,0,1,/**/1,1,0,1}
+                                                                    };
             constexpr const static std::array<std::uint16_t, 6> varVAOIndex{
                 3,2,1,
                 3,1,0
@@ -388,15 +388,15 @@ namespace sstd {
 
     bool Window::event(QEvent *event) {
         switch (event->type()) {
-            case QEvent::UpdateRequest:
-            {
-                this->ppp_Init();
-                //ppp_SceneChanged();
-            }
+        case QEvent::UpdateRequest:
+        {
+            this->ppp_Init();
+            //ppp_SceneChanged();
+        }
             break;
-            case QEvent::Close:
-                break;
-            default:break;
+        case QEvent::Close:
+            break;
+        default:break;
         }
         return QWindow::event(event);
     }
@@ -460,7 +460,7 @@ namespace sstd {
     }
 
     std::shared_ptr<sstd::RenderPack> Window::makeRender() {
-    start_pos:
+start_pos:
         /*if render is make ....*/
         if (mmm_RenderPack) {
             /*考虑到运行时重装显卡驱动等情况，这个值还是每次更新 ... */
@@ -503,7 +503,7 @@ namespace sstd {
                     glewInitialize();
                     varPack->sourceViewControl->initialize(varPack->sourceContex.get());
                     varPack->sourceFrameBufferObject =
-                        sstd::make_unique<QOpenGLFramebufferObject>(QSize(512, 512), QOpenGLFramebufferObject::CombinedDepthStencil);
+                            sstd::make_unique<QOpenGLFramebufferObject>(QSize(512, 512), QOpenGLFramebufferObject::CombinedDepthStencil);
                     varPack->sourceView->setRenderTarget(varPack->sourceFrameBufferObject.get());
                     /*create opengl contex in the thread ... */
                     varPack->targetContex = sstd::make_unique<QOpenGLContext>();
@@ -518,9 +518,9 @@ namespace sstd {
             /*add signal and slot*/
             auto varRenderControl = varPack->sourceViewControl.get();
             connect(varRenderControl, &QQuickRenderControl::renderRequested,
-                this, &Window::ppp_SceneChanged, Qt::QueuedConnection);
+                    this, &Window::ppp_SceneChanged, Qt::QueuedConnection);
             connect(varRenderControl, &QQuickRenderControl::sceneChanged,
-                this, &Window::ppp_SceneChanged, Qt::QueuedConnection);
+                    this, &Window::ppp_SceneChanged, Qt::QueuedConnection);
             varPack->renderThread = mmm_RenderThread;
         }
 
@@ -534,8 +534,8 @@ namespace sstd {
         auto varRenderThread = mmm_RenderPack->renderThread;
         /*render and draw in target ... */
         std::tuple<
-            RenderSourceWindow,
-            DrawOnTarget > varDrawSteps{ mmm_RenderPack,mmm_RenderPack };
+                RenderSourceWindow,
+                DrawOnTarget > varDrawSteps{ mmm_RenderPack,mmm_RenderPack };
         varRenderThread->applyInThisThread(std::move(varDrawSteps));
 
     }
@@ -556,9 +556,9 @@ namespace sstd {
 
         /*sync render and draw in target ... */
         std::tuple<
-            SyncSourceQSGDAta,
-            RenderSourceWindow,
-            DrawOnTarget > varDrawSteps{ mmm_RenderPack , mmm_RenderPack,mmm_RenderPack };
+                SyncSourceQSGDAta,
+                RenderSourceWindow,
+                DrawOnTarget > varDrawSteps{ mmm_RenderPack , mmm_RenderPack,mmm_RenderPack };
 
         auto varFutures = varRenderThread->applyInThisThread(std::move(varDrawSteps));
         if (varFutures) {
