@@ -16,6 +16,27 @@
 #include <QQuickRenderControl>
 #include <QCoreApplication>
 
+namespace {
+
+    class RenderControl : public QQuickRenderControl {
+    public:
+        RenderControl(sstd::Window *w) : mmm_Window(w) {
+        }
+
+        QWindow *renderWindow(QPoint *offset) override {
+            if (offset) {
+                *offset = { 0,0 };
+            }
+            return mmm_Window;
+        }
+
+    private:
+        sstd::Window * const mmm_Window;
+    private:
+        SSTD_MEMORY_QOBJECT_DEFINE(RenderControl)
+    };
+
+}/*namesapce*/
 
 namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
@@ -249,27 +270,55 @@ void main(){
         using FunctionBasic::FunctionBasic;
         void operator()() const {
 
-            const auto varTargetSize = getSize( mmm_RenderPack );
+            const auto varTargetSize = getSize(mmm_RenderPack);
             auto varPack = mmm_RenderPack.get();
 
             do {
 
-                if (false==bool(varPack->sourceFrameBufferObject)) {
+                if (false == bool(varPack->sourceFrameBufferObject)) {
                     break;
                 }
 
-                if (varPack->sourceFrameBufferObject->size()!= varTargetSize) {
+                if (varPack->sourceFrameBufferObject->size() != varTargetSize) {
                     break;
                 }
 
                 return;
 
             } while (false);
- 
 
-            varPack->sourceFrameBufferObject=sstd::make_unique<QOpenGLFramebufferObject>(varTargetSize,
+
+            varPack->sourceFrameBufferObject = sstd::make_unique<QOpenGLFramebufferObject>(varTargetSize,
                 QOpenGLFramebufferObject::CombinedDepthStencil);
             varPack->sourceView->setRenderTarget(varPack->sourceFrameBufferObject.get());
+
+        }
+    };
+
+    class ConstructRenderPack final : public FunctionBasic {
+    public:
+        using FunctionBasic::FunctionBasic;
+        void operator()() const {
+            auto varPack = get(mmm_RenderPack);
+
+            varPack->sourceContex = sstd::make_unique<QOpenGLContext>();
+            varPack->sourceContex->setFormat(sstd::getDefaultOpenGLFormat());
+            varPack->sourceContex->create();
+
+            varPack->sourceOffscreenSurface = sstd::make_unique< QOffscreenSurface>();
+            varPack->sourceOffscreenSurface->setFormat(sstd::getDefaultOpenGLFormat());
+            varPack->sourceOffscreenSurface->create();
+
+            varPack->sourceViewControl = sstd::make_unique<RenderControl>(static_cast<sstd::Window *>(varPack->targetWindow));
+            varPack->sourceView = sstd::make_unique<QQuickWindow>(varPack->sourceViewControl.get());
+
+            varPack->sourceQQmlEngine = sstd::make_unique<QQmlEngine>();
+            if (!varPack->sourceQQmlEngine->incubationController()) {
+                varPack->sourceQQmlEngine->setIncubationController(varPack->sourceView->incubationController());
+            }
+
+            varPack->sourceViewControl->prepareThread(varPack->renderThread);
+            varPack->sourceContex->moveToThread(varPack->renderThread);
 
         }
     };
@@ -298,9 +347,7 @@ void CubeRenderer::init(QWindow *w, QOpenGLContext *share) {
     glewInitialize();
 }
 
-
-
-void CubeRenderer::render(QWindow *w, QOpenGLContext *share ) {
+void CubeRenderer::render(QWindow *w, QOpenGLContext *share) {
 
     if (!mmm_RenderPack->targetContex) {
         init(w, share);
@@ -322,29 +369,6 @@ void CubeRenderer::render(QWindow *w, QOpenGLContext *share ) {
     mmm_RenderPack->targetContex->swapBuffers(w);
 }
 
-
-namespace {
-
-    class RenderControl : public QQuickRenderControl {
-    public:
-        RenderControl(sstd::Window *w) : mmm_Window(w) {
-        }
-
-        QWindow *renderWindow(QPoint *offset) override {
-            if (offset) {
-                *offset = { 0,0 };
-            }
-            return mmm_Window;
-        }
-
-    private:
-        sstd::Window * const mmm_Window;
-    private:
-        SSTD_MEMORY_QOBJECT_DEFINE(RenderControl)
-    };
-
-}/*namesapce*/
-
 static const QEvent::Type INIT = QEvent::Type(QEvent::User + 1);
 static const QEvent::Type RENDER = QEvent::Type(QEvent::User + 2);
 static const QEvent::Type RESIZE = QEvent::Type(QEvent::User + 3);
@@ -353,11 +377,11 @@ static const QEvent::Type STOP = QEvent::Type(QEvent::User + 4);
 static const QEvent::Type UPDATE = QEvent::Type(QEvent::User + 5);
 
 QuickRenderer::QuickRenderer()
-    : 
+    :
     m_context(nullptr),
     //m_surface(nullptr),
     m_window(nullptr),
-//    m_quickWindow(nullptr),
+    //    m_quickWindow(nullptr),
     m_renderControl(nullptr),
     m_cubeRenderer(nullptr),
     m_quit(false) {
@@ -403,7 +427,7 @@ bool QuickRenderer::event(QEvent *e) {
 }
 
 void QuickRenderer::init() {
-    m_context->makeCurrent( mmm_RenderPack->sourceOffscreenSurface.get() );
+    m_context->makeCurrent(mmm_RenderPack->sourceOffscreenSurface.get());
 
     // Pass our offscreen surface to the cube renderer just so that it will
     // have something is can make current during cleanup. QOffscreenSurface,
@@ -433,8 +457,8 @@ void QuickRenderer::cleanup() {
 }
 
 void QuickRenderer::ensureFbo() {
-       
-    ConstructDrawTargetFBO constructDrawTargetFBO{mmm_RenderPack};
+
+    ConstructDrawTargetFBO constructDrawTargetFBO{ mmm_RenderPack };
     constructDrawTargetFBO();
 
 }
@@ -465,7 +489,7 @@ void QuickRenderer::render(QMutexLocker *lock) {
     // Get something onto the screen using our custom OpenGL engine.
     QMutexLocker quitLock(&m_quitMutex);
     if (!m_quit) {
-        m_cubeRenderer->render(m_window, m_context );
+        m_cubeRenderer->render(m_window, m_context);
     }
 }
 
@@ -477,7 +501,7 @@ void QuickRenderer::aboutToQuit() {
 
 
 sstd::Window::Window()
-    : 
+    :
     //m_qmlComponent(nullptr),
     //m_rootItem(nullptr),
     m_quickInitialized(false),
@@ -489,51 +513,23 @@ sstd::Window::Window()
 
     setFormat(sstd::getDefaultOpenGLFormat());
 
-    m_context = new QOpenGLContext;
-    m_context->setFormat(sstd::getDefaultOpenGLFormat());
-    m_context->create();
-
-    mmm_RenderPack->sourceOffscreenSurface = sstd::make_unique< QOffscreenSurface>();
-    m_offscreenSurface = mmm_RenderPack->sourceOffscreenSurface.get();
-    // Pass m_context->format(), not format. Format does not specify and color buffer
-    // sizes, while the context, that has just been created, reports a format that has
-    // these values filled in. Pass this to the offscreen surface to make sure it will be
-    // compatible with the context's configuration.
-    m_offscreenSurface->setFormat(m_context->format());
-    m_offscreenSurface->create();
-
-    m_renderControl = new RenderControl(this);
-
-    // Create a QQuickWindow that is associated with out render control. Note that this
-    // window never gets created or shown, meaning that it will never get an underlying
-    // native (platform) window.
-    mmm_RenderPack->sourceView = sstd::make_unique<QQuickWindow>(m_renderControl);
-
-    // Create a QML engine.
-    mmm_RenderPack->sourceQQmlEngine =sstd::make_unique<QQmlEngine>();
-    if (!mmm_RenderPack->sourceQQmlEngine->incubationController()) {
-        mmm_RenderPack->sourceQQmlEngine->setIncubationController(mmm_RenderPack->sourceView->incubationController());
-    }
+    ConstructRenderPack constructRenderPack{ mmm_RenderPack };
+    constructRenderPack();
 
     m_quickRenderer = new QuickRenderer;
     m_quickRenderer->mmm_RenderPack = this->mmm_RenderPack;
-    m_quickRenderer->setContext(m_context);
+    m_quickRenderer->setContext(mmm_RenderPack->sourceContex.get());
 
     // These live on the gui thread. Just give access to them on the render thread.
-    m_quickRenderer->setSurface(m_offscreenSurface);
+    m_quickRenderer->setSurface(mmm_RenderPack->sourceOffscreenSurface.get());
     m_quickRenderer->setWindow(this);
     //m_quickRenderer->setQuickWindow(m_quickWindow);
-    m_quickRenderer->setRenderControl(m_renderControl);
+    m_quickRenderer->setRenderControl(mmm_RenderPack->sourceViewControl.get());
 
-    //m_quickRendererThread = new sstd::QuickThread;
-
-    // Notify the render control that some scenegraph internals have to live on
-    // m_quickRenderThread.
-    m_renderControl->prepareThread(mmm_RenderPack->renderThread);
 
     // The QOpenGLContext and the QObject representing the rendering logic on
     // the render thread must live on that thread.
-    m_context->moveToThread(mmm_RenderPack->renderThread);
+    //m_context->moveToThread(mmm_RenderPack->renderThread);
     m_quickRenderer->moveToThread(mmm_RenderPack->renderThread);
 
     //m_quickRendererThread->start();
@@ -541,8 +537,8 @@ sstd::Window::Window()
     // Now hook up the signals. For simplicy we don't differentiate
     // between renderRequested (only render is needed, no sync) and
     // sceneChanged (polish and sync is needed too).
-    connect(m_renderControl, &QQuickRenderControl::renderRequested, this, &sstd::Window::requestUpdate);
-    connect(m_renderControl, &QQuickRenderControl::sceneChanged, this, &sstd::Window::requestUpdate);
+    connect(mmm_RenderPack->sourceViewControl.get() , &QQuickRenderControl::renderRequested, this, &sstd::Window::requestUpdate);
+    connect(mmm_RenderPack->sourceViewControl.get(), &QQuickRenderControl::sceneChanged, this, &sstd::Window::requestUpdate);
 }
 
 sstd::Window::~Window() {
@@ -592,7 +588,7 @@ void sstd::Window::polishSyncAndRender() {
     Q_ASSERT(QThread::currentThread() == thread());
 
     // Polishing happens on the gui thread.
-    m_renderControl->polishItems();
+    mmm_RenderPack->sourceViewControl.get()->polishItems();
     // Sync happens on the render thread with the gui thread (this one) blocked.
     QMutexLocker lock(m_quickRenderer->mutex());
     m_quickRenderer->requestRender();
@@ -606,7 +602,7 @@ void sstd::Window::polishSyncAndRender() {
 void sstd::Window::run() {
     //disconnect(m_qmlComponent, &QQmlComponent::statusChanged, this, &sstd::Window::run);
 
-    
+
 }
 
 void sstd::Window::updateSizes() {
@@ -618,13 +614,13 @@ void sstd::Window::updateSizes() {
     mmm_RenderPack->sourceRootItem->setWidth(width());
     mmm_RenderPack->sourceRootItem->setHeight(height());
 
-   
+
 
     mmm_RenderPack->sourceView->setGeometry(0, 0, width(), height());
 }
 
 void sstd::Window::startQuick(const QUrl &filename) {
-    auto m_qmlComponent = sstd::sstdNew< QQmlComponent> ( mmm_RenderPack->sourceQQmlEngine.get() , filename);
+    auto m_qmlComponent = sstd::sstdNew< QQmlComponent>(mmm_RenderPack->sourceQQmlEngine.get(), filename);
     m_qmlComponent->deleteLater();
 
     if (m_qmlComponent->isError()) {
@@ -675,7 +671,7 @@ void sstd::Window::exposeEvent(QExposeEvent *) {
 void sstd::Window::resizeEvent(QResizeEvent *) {
     // If this is a resize after the scene is up and running, recreate the fbo and the
     // Quick item and scene.
-    if ( mmm_RenderPack->sourceRootItem ) {
+    if (mmm_RenderPack->sourceRootItem) {
         updateSizes();
         m_quickRenderer->requestResize();
         polishSyncAndRender();

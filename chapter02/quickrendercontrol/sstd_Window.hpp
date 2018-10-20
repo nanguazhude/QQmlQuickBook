@@ -111,9 +111,9 @@ namespace sstd {
         QuickRenderer *m_quickRenderer;
         //QThread *m_quickRendererThread;
 
-        QOpenGLContext *m_context;
-        QOffscreenSurface *m_offscreenSurface;
-        QQuickRenderControl *m_renderControl;
+        //QOpenGLContext *m_context;
+        //QOffscreenSurface *m_offscreenSurface;
+        //QQuickRenderControl *m_renderControl;
         //QQuickWindow *m_quickWindow;
         //QQmlEngine *m_qmlEngine;
         //QQmlComponent *m_qmlComponent;
