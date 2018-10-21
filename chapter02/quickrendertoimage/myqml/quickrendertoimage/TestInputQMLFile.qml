@@ -4,7 +4,7 @@ Rectangle{
     
     width : 128 ;
     height : 128 ;
-    color : Qt.rgba(0.2,0.5,0.5,1)
+    color : Qt.rgba(1,0.5,0.5,1)
 
 }
 

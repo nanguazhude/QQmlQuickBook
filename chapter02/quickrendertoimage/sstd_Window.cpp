@@ -17,6 +17,20 @@ namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
 }
 
+namespace {
+    inline QString urlPathToLocalPath(const QString & arg) {
+        auto tmp = arg;
+        tmp.replace(QChar('\\'), QChar('/'));
+        if (tmp.startsWith(QStringLiteral("file:///"))) {
+            if (tmp.count(QStringLiteral(":/")) > 1) {/*windows ...*/
+                return arg.right(arg.size() - 8);
+            }
+            return arg.right(arg.size() - 7);
+        }
+        return arg;
+    }
+}/*namespace*/
+
 namespace sstd {
 
     void Window::ppp_1_start_render(const QVariant & argQmlPath, const QVariant & argSavePath) {
@@ -29,13 +43,12 @@ namespace sstd {
             disconnect(*mmm_CurrentDuty);
             mmm_CurrentDuty.reset();
             const auto varSavePath = argSavePath.toString();
-
-            QFile varFile{ varSavePath };
+            QFile varFile{ urlPathToLocalPath(varSavePath) };
             if (false == varFile.open(QIODevice::WriteOnly)) {
                 qDebug() << "can not write : " << varSavePath;
                 return;
             }
-            arg.save(&varFile,"png");
+            arg.save(&varFile, "png");
 
         });
     }
@@ -184,7 +197,7 @@ namespace sstd {
             /*create render window ...*/
             varAns->sourceWindow = sstd::make_unique<RenderView>(varAns->sourceControl.get());
             /*try load data ...*/
-            varAns->sourceWindow->setSource(path);
+            varAns->sourceWindow->setSource(QUrl::fromLocalFile(urlPathToLocalPath(path)));
             /*set render thread ...*/
             varAns->sourceControl->prepareThread(varAns->renderThread);
             varAns->sourceContex->moveToThread(varAns->renderThread);
