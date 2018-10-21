@@ -46,7 +46,44 @@ namespace sstd {
             }
 
             void setSource(const QUrl & arg) noexcept(false) {
-
+                auto varComponent = sstd::sstdNew<QQmlComponent>(&mmm_Engine, arg);
+                varComponent->deleteLater();
+                if (varComponent->status() != QQmlComponent::Ready) {
+                    if (varComponent->status() == QQmlComponent::Error) {
+                        QString varErrorString;
+                        for (const auto & varE : varComponent->errors()) {
+                            varErrorString += varE.toString();
+                            varErrorString += QChar('\n');
+                        }
+                        throw varErrorString;
+                    }
+                    throw QStringLiteral("can not load qml sync...");
+                }
+                auto varItemRaw = varComponent->create();
+                auto varItem = qobject_cast<QQuickItem *>(varItemRaw);
+                if (varItem == nullptr) {
+                    if (varItemRaw) {
+                        varItemRaw->deleteLater();
+                    }
+                    throw QStringLiteral("can not render ...");
+                }
+                const auto varWidth = varItem->width();
+                const auto varHeight = varItem->height();
+                if (varWidth < 1) {
+                    if (varItemRaw) {
+                        varItemRaw->deleteLater();
+                    }
+                    throw QStringLiteral("empty size");
+                }
+                if (varHeight < 1) {
+                    if (varItemRaw) {
+                        varItemRaw->deleteLater();
+                    }
+                    throw QStringLiteral("empty size");
+                }
+                this->setGeometry(0, 0, varWidth, varHeight);
+                varItem->setParentItem(this->contentItem());
+                varItem->setParent(this->contentItem());
             }
 
             ~RenderView() {
