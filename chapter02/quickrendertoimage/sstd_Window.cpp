@@ -12,6 +12,7 @@
 #include <QtQml/qqmlengine.h>
 #include <QtCore/qbuffer.h>
 #include <QtCore/qfile.h>
+#include <QtGui/qpainter.h>
 
 namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
@@ -295,9 +296,22 @@ namespace sstd {
         public:
             ErrorRender(const QString &arg) :mmm_ErrorString(arg) {
             }
+            static QImage getDefaultErrorImage() {
+                const static QImage varAns = []()->QImage {
+                    QImage varAns{ sstd::getLocalFileFullPath(
+                        QStringLiteral("myqml/quickrendertoimage/default_error.png"))
+                        .toLocalFile()
+                    };
+                    assert(varAns.width()>0);
+                    assert(varAns.height()>0);
+                    return varAns.convertToFormat(QImage::Format_RGBA8888) ;
+                }();
+                return varAns.copy()/*get a deep clone ...*/;
+            }
             QImage getErrorImage() const {
+                auto varAns = getDefaultErrorImage();
 
-                return {};
+                return varAns;
             }
         };
     }/*namespace*/

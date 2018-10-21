@@ -50,6 +50,7 @@ int main(int argc, char ** argv) try {
     {
         varParser.addOption({ {QStringLiteral("h"),QStringLiteral("help")},
             QStringLiteral(R"(if null input ,gui will show 
+else use :
 -i/--input xxxx.qml
 -o/--ouput xxxx.png .)") });
         varParser.addOption({ {QStringLiteral("i"),QStringLiteral("input")},
