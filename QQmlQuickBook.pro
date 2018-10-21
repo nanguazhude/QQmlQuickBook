@@ -91,8 +91,9 @@ quickrendertoimage.file = $$PWD/chapter02/quickrendertoimage/quickrendertoimage.
 quickrendertoimage.depends = buildinstall
 SUBDIRS += quickrendertoimage
 
-
-
+quickchart.file = $$PWD/chapter04/quickchart/quickchart.pro
+quickchart.depends = buildinstall
+SUBDIRS += quickchart
 
 
 
