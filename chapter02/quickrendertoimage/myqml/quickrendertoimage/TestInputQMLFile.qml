@@ -30,9 +30,9 @@ Rectangle{
 
                 DropShadow {
                         anchors.fill: parent
-                        horizontalOffset: 3
-                        verticalOffset: 3
-                        radius: 8.0
+                        horizontalOffset: 1
+                        verticalOffset: 1
+                        radius: 3.0
                         samples: 17
                         color: Qt.rgba(0.3,0.3,0.3,0.3)
                         source: _id_text

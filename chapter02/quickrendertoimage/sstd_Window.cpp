@@ -18,6 +18,84 @@ namespace sstd {
 }
 
 namespace {
+    /*这里不做缓存优化...*/
+    void flipUpDownByComputShader(GLuint varTexture,const QSize & varSize) {
+        const auto varComputeHeight = ( varSize.height() >> 1 );
+        if (varComputeHeight < 0) {
+            return;
+        }
+        GLuint varProgram{0};
+        varProgram = glCreateProgram();
+
+        {
+            auto varShaderSource = u8R"___(
+#version 450
+
+layout(local_size_x = 1       , 
+       local_size_y = 1       ,
+       local_size_z = 1    ) in ;
+
+layout(binding = 0,rgba8ui) uniform uimage2D argImageInputOutput;
+layout(location = 1)        uniform int argImageHeight;
+
+void main(void) {
+    ivec2 varPos0 = ivec2( gl_WorkGroupID.xy ) ;
+    ivec2 varPos1 = ivec2( varPos0.x,argImageHeight - varPos0.y );
+    uvec4 varColor0 = imageLoad(argImageInputOutput,varPos0 );
+    uvec4 varColor1 = imageLoad(argImageInputOutput,varPos1 );
+    imageStore(argImageInputOutput,varPos0,varColor1);
+    imageStore(argImageInputOutput,varPos1,varColor0);
+}
+
+/*一个简单的图像上下颠倒shader*/
+
+)___"sv;
+
+            auto varShader = glCreateShader(GL_COMPUTE_SHADER);
+            {
+                GLint varSL = static_cast<GLint>(varShaderSource.size());
+                const char *varS[]{ varShaderSource.data() };
+                glShaderSource(varShader, 1, varS, &varSL);
+                glCompileShader(varShader);
+                glAttachShader(varProgram, varShader);
+                glLinkProgram(varProgram);
+
+                if constexpr (false) {
+
+                    auto printProgramInfo = [](GLuint e) {
+                        /*获得错误大小*/
+                        GLint log_length = 0;
+                        glGetProgramiv(e, GL_INFO_LOG_LENGTH, &log_length);
+                        log_length += 16;
+
+                        /*获得一段内存，并初始化为0*/
+                        sstd::string infos_;
+                        infos_.resize(log_length);
+
+                        /*获得错误并输出*/
+                        char * info = infos_.data();
+                        glGetProgramInfoLog(e, 1024, nullptr, info);
+                        qDebug() << info;
+                    };
+
+                    printProgramInfo(varProgram);
+                }
+
+                glDeleteShader(varShader);
+            }
+        }
+        
+        glUseProgram(varProgram);
+        glUniform1i(1, varSize.height()-1);
+        glBindImageTexture(0, varTexture, 0, false, 0, GL_READ_WRITE, GL_RGBA8UI);
+        glDispatchCompute(varSize.width(), varComputeHeight, 1);
+        glFinish();
+        glDeleteProgram(varProgram);
+
+    }
+}/*namespace*/
+
+namespace {
     inline QString urlPathToLocalPath(const QString & arg) {
         auto tmp = arg;
         tmp.replace(QChar('\\'), QChar('/'));
@@ -93,6 +171,7 @@ namespace sstd {
                 if (!mmm_Engine.incubationController()) {
                     mmm_Engine.setIncubationController(this->incubationController());
                 }
+                this->setColor(QColor(0,0,0,0));
             }
 
             void setSource(const QUrl & arg) noexcept(false) {
@@ -217,6 +296,7 @@ namespace sstd {
             ErrorRender(const QString &arg) :mmm_ErrorString(arg) {
             }
             QImage getErrorImage() const {
+
                 return {};
             }
         };
@@ -267,9 +347,12 @@ namespace sstd {
 
             const QSize varRenderSize =
                 varRenderPack->sourceWindow->size();
-            /*create fbo ...*/
-            varRenderPack->sourceFBO = sstd::make_unique<QOpenGLFramebufferObject>(varRenderSize,
-                QOpenGLFramebufferObject::CombinedDepthStencil);
+            /*create fbo ...
+            there use default internal fotmat rgba8 ...*/
+            varRenderPack->sourceFBO = sstd::make_unique<QOpenGLFramebufferObject>(
+                varRenderSize,
+                QOpenGLFramebufferObject::CombinedDepthStencil,
+                GL_TEXTURE_2D);
             varRenderPack->sourceWindow->setRenderTarget(varRenderPack->sourceFBO.get());
             /*init render control ...*/
             varRenderPack->sourceControl->initialize(varRenderPack->sourceContex.get());
@@ -302,6 +385,10 @@ namespace sstd {
             BEGIN_TRY;
             QImage varImage{ varRenderPack->sourceFBO->size(),QImage::Format_RGBA8888 };
             const auto varTexture = varRenderPack->sourceFBO->texture();
+            /******************************************************************/
+            /*flip up down by compute shader ... */
+            flipUpDownByComputShader(varTexture, varRenderPack->sourceFBO->size());
+            /******************************************************************/
             glBindTexture(GL_TEXTURE_2D, varTexture);
             glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                 const_cast<uchar *>(varImage.constBits())/*do not clone ...*/);
