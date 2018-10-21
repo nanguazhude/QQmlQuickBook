@@ -23,6 +23,7 @@ namespace sstd {
         Q_SLOT void ppp_start_render(const QString &/*qml path*/);
         void ppp_RenderFinished(const QImage &);
         sstd::QuickThread * mmm_Thread{nullptr};
+        using Super = QQuickView;
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(Window)
     };

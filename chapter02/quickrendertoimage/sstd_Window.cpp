@@ -12,10 +12,17 @@
 #include <QtQml/qqmlengine.h>
 
 namespace sstd {
+    extern QUrl getLocalFileFullPath(const QString & arg);
+}
+
+namespace sstd {
 
     Window::Window() {
         mmm_Thread = sstdNew<sstd::QuickThread>();
         connect(this, &Window::startRender, this, &Window::ppp_start_render);
+        this->setResizeMode( Super::ResizeMode::SizeRootObjectToView );
+        this->setMinimumSize( QSize{512,128} );
+        this->setSource(getLocalFileFullPath(QStringLiteral("myqml/quickrendertoimage/main.qml")));
     }
 
     Window::~Window() {
@@ -250,9 +257,12 @@ namespace sstd {
         }, [this, varRenderPack]() {
             /*get image ...*/
             BEGIN_TRY;
+            QImage varImage{ varRenderPack->sourceFBO->size(),QImage::Format_RGBA8888 };
             const auto varTexture = varRenderPack->sourceFBO->texture();
             glBindTexture(GL_TEXTURE_2D, varTexture);
-
+            glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, 
+                const_cast<uchar *>(varImage.constBits())/*do not clone ...*/);
+            ppp_RenderFinished(varImage);
             END_TRY;
         }, [this, varRenderPack]() {
             /*destory data in this thread ...*/
