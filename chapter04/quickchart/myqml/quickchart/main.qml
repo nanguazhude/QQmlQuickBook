@@ -10,7 +10,7 @@ DemoBasic {
 }/*Window*/
 
 /*Qml Charts Example */
-
+//Qt Charts
 
 
 

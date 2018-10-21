@@ -8,6 +8,9 @@ DemoBasic{
     height : 512 ;
 
     ChartView{
+
+        antialiasing:true
+        animationOptions : ChartView.SeriesAnimations
         theme :ChartView.ChartThemeDark
         anchors.fill: parent ;
 
@@ -37,6 +40,9 @@ DemoBasic{
             axisX:  _id_axisX
             axisY: _id_axisY
         }
+
+        plotAreaColor: Qt.rgba(0,0,0,0)
+        backgroundColor: Qt.rgba(0,0,0,0)
 
     }/*ChartView*/
 
