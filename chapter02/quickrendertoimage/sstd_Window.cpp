@@ -10,6 +10,8 @@
 #include <QtGui/qopenglframebufferobject.h>
 #include <QtQuick/qquickitem.h>
 #include <QtQml/qqmlengine.h>
+#include <QtCore/qbuffer.h>
+#include <QtCore/qfile.h>
 
 namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
@@ -18,18 +20,35 @@ namespace sstd {
 namespace sstd {
 
     void Window::ppp_1_start_render(const QVariant & argQmlPath, const QVariant & argSavePath) {
+        if (mmm_CurrentDuty) {
+            qDebug() << QStringLiteral("last duty do not finished!");
+            return;
+        }
         ppp_start_render(argQmlPath.toString());
+        mmm_CurrentDuty = connect(this, &Window::renderFinished, this, [this, argSavePath](const QImage & arg) {
+            disconnect(*mmm_CurrentDuty);
+            mmm_CurrentDuty.reset();
+            const auto varSavePath = argSavePath.toString();
+
+            QFile varFile{ varSavePath };
+            if (false == varFile.open(QIODevice::WriteOnly)) {
+                qDebug() << "can not write : " << varSavePath;
+                return;
+            }
+            arg.save(&varFile,"png");
+
+        });
     }
 
     Window::Window() {
         mmm_Thread = sstdNew<sstd::QuickThread>();
         connect(this, &Window::startRender, this, &Window::ppp_start_render);
-        this->setResizeMode( Super::ResizeMode::SizeRootObjectToView );
-        this->setMinimumSize( QSize{512,128} );
+        this->setResizeMode(Super::ResizeMode::SizeRootObjectToView);
+        this->setMinimumSize(QSize{ 512,128 });
         this->setSource(getLocalFileFullPath(QStringLiteral("myqml/quickrendertoimage/main.qml")));
         auto varRoot = this->rootObject();
         if (varRoot) {
-            connect(varRoot,SIGNAL(runARender(QVariant,QVariant)),this,SLOT(ppp_1_start_render(QVariant,QVariant)));
+            connect(varRoot, SIGNAL(runARender(QVariant, QVariant)), this, SLOT(ppp_1_start_render(QVariant, QVariant)));
         }
     }
 
@@ -171,6 +190,8 @@ namespace sstd {
             varAns->sourceContex->moveToThread(varAns->renderThread);
             /*create tmp offscreensurface to openglcontex ...*/
             varAns->sourceContexSurface = sstd::make_unique<QOffscreenSurface>();
+            varAns->sourceContexSurface->setFormat(sstd::getDefaultOpenGLFormat());
+            varAns->sourceContexSurface->create();
             return std::move(varAns);
         }
 
@@ -268,7 +289,7 @@ namespace sstd {
             QImage varImage{ varRenderPack->sourceFBO->size(),QImage::Format_RGBA8888 };
             const auto varTexture = varRenderPack->sourceFBO->texture();
             glBindTexture(GL_TEXTURE_2D, varTexture);
-            glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, 
+            glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                 const_cast<uchar *>(varImage.constBits())/*do not clone ...*/);
             ppp_RenderFinished(varImage);
             END_TRY;

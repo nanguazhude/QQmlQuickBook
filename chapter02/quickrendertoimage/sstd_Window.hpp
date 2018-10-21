@@ -4,6 +4,7 @@
 #include <QtQuick/qquickview.h>
 #include <QtGui/qimage.h>
 #include <quick/sstd_QThread.hpp>
+#include <optional>
 
 namespace sstd {
 
@@ -25,6 +26,7 @@ namespace sstd {
         void ppp_RenderFinished(const QImage &);
         sstd::QuickThread * mmm_Thread{nullptr};
         using Super = QQuickView;
+        std::optional<QMetaObject::Connection> mmm_CurrentDuty;
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(Window)
     };
