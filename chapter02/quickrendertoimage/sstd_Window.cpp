@@ -13,6 +13,7 @@
 #include <QtCore/qbuffer.h>
 #include <QtCore/qfile.h>
 #include <QtGui/qpainter.h>
+#include <QtGui/qtextlayout.h>
 
 namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
@@ -309,9 +310,40 @@ namespace sstd {
                 return varAns.copy()/*get a deep clone ...*/;
             }
             QImage getErrorImage() const {
-                auto varAns = getDefaultErrorImage();
+                auto varImage = getDefaultErrorImage();
 
-                return varAns;
+                QPainter varPainter{ &varImage };
+                const auto varImageWidth = varImage.width();
+                const auto varImageHeight = varImage.height();
+                {
+                    auto varFont = varPainter.font();
+                    varFont.setPixelSize( varImageHeight/15 );
+                    varPainter.setFont(varFont);
+                }
+                double varLeading;
+                {
+                    const auto varFontMetrics = varPainter.fontMetrics();
+                    varLeading = varFontMetrics.leading();
+                }
+                QTextLayout varLayout{ mmm_ErrorString,varPainter.font() };
+                varLayout.setCacheEnabled(true) ;
+                varLayout.beginLayout();
+                double varHeight = 0;
+                for(;;){
+                     QTextLine varLine = varLayout.createLine();
+                     if (!varLine.isValid()){
+                              break;
+                     }
+                     varLine.setLineWidth(varImageWidth);
+                    varHeight+=varLeading;
+                    varLine.setPosition(QPointF(0,varHeight));
+                    varHeight += varLine.height();
+                    if(varHeight>varImageHeight){break;}
+                }
+                varLayout.endLayout();
+                varLayout.draw(&varPainter,QPointF{0,0});
+
+                return varImage;
             }
         };
     }/*namespace*/
