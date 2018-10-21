@@ -311,11 +311,13 @@ namespace sstd {
             /*destory data in this thread ...*/
             BEGIN_TRY;
             glFinish();
+            varRenderPack->sourceControl->invalidate();
             varRenderPack->sourceFBO.reset();
             varRenderPack->sourceContex->aboutToBeDestroyed();
             varRenderPack->sourceContex->doneCurrent();
             varRenderPack->sourceContex->moveToThread(qApp->thread());
             varRenderPack->renderThread->runInMainThread([this, varRenderPack]() {
+                assert(qApp->thread()==QThread::currentThread());
                 /*destory data in main thread ...*/
                 BEGIN_TRY;
                 varRenderPack->sourceWindow.reset();
