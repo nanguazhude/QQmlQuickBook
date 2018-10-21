@@ -75,7 +75,13 @@ int main(int argc, char ** argv) try {
     /*加载Qml环境*/
     auto varWindow = sstd::make_unique<sstd::Window>();
     if (varInputOutPutIsSet) {
-        
+        const auto varOutPutImageFile = varParser.value(QStringLiteral("o"));
+        varWindow->connect(varWindow.get(), &sstd::Window::renderFinished, 
+            [varOutPutImageFile](const QImage & varSaveImage) {
+            varSaveImage.save(varOutPutImageFile);
+            qApp->quit();
+        });
+        varWindow->startRender(varParser.value(QStringLiteral("i")));
     } else {
         varWindow->show();
     }
