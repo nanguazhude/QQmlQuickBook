@@ -8,6 +8,7 @@ DemoBasic{
     height : 512 ;
 
     ChartView{
+        theme :ChartView.ChartThemeDark
         anchors.fill: parent ;
 
         ValueAxis {
