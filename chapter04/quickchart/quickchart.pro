@@ -10,6 +10,8 @@ QT += quick
 QT += widgets
 QT += concurrent
 
+QT += charts
+
 include($$PWD/../../QQmlQuickBook.pri)
 include($$PWD/../../sstd_utility/sstd_quick.pri)
 DESTDIR = $$RootDestDir
@@ -26,12 +28,13 @@ RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
-QMLSOURCES += $$PWD/myqml/animationandstate/main.qml
-QMLSOURCES += $$PWD/myqml/animationandstate/main_private/MainListItem.qml
-QMLSOURCES += $$PWD/myqml/animationandstate/main_private/MainListModel.qml
-QMLSOURCES += $$PWD/myqml/animationandstate/main_private/MainListView.qml
+QMLSOURCES += $$PWD/myqml/quickchart/main.qml
+QMLSOURCES += $$PWD/myqml/quickchart/main_private/MainListItem.qml
+QMLSOURCES += $$PWD/myqml/quickchart/main_private/MainListModel.qml
+QMLSOURCES += $$PWD/myqml/quickchart/main_private/MainListView.qml
 
-QMLSOURCES += $$PWD/myqml/animationandstate/DemoBasic.qml
+QMLSOURCES += $$PWD/myqml/quickchart/DemoBasic.qml
+QMLSOURCES += $$PWD/myqml/quickchart/DemoSimpleLineChart.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES
@@ -49,6 +52,8 @@ SOURCES += $$PWD/GetLocalFullPath.cpp
 
 SOURCES += $$PWD/RootWindow.cpp
 HEADERS += $$PWD/RootWindow.hpp
+
+SOURCES += $$PWD/ForceLoadChart.cpp
 
 include($$PWD/this/this.pri)
 LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)

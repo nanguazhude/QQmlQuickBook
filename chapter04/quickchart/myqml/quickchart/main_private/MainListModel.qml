@@ -5,11 +5,11 @@ ListModel {
 
     /****/
     ListElement {
-        programName : "DemoPropertyAnimation" ;
-        programSource : "../DemoPropertyAnimation.qml";
+        programName : "DemoSimpleLineChart" ;
+        programSource : "../DemoSimpleLineChart.qml";
     }
 
-   
+
 
 }
 

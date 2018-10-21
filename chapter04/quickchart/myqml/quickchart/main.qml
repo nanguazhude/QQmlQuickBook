@@ -9,7 +9,7 @@ DemoBasic {
    }
 }/*Window*/
 
-
+/*Qml Charts Example */
 
 
 
