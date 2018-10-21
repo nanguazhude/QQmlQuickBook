@@ -3,12 +3,14 @@
 #include <sstd_memory.hpp>
 #include <sstd_RenderPack.hpp>
 #include <QWindow>
+#include <QtQuick/qquickview.h>
 
 namespace sstd {
 
-    class Window : public QWindow {
+    class Window : public QQuickView {
         Q_OBJECT
-
+    private:
+        using Super = QQuickView;
     public:
         Window();
         ~Window();
@@ -38,4 +40,4 @@ namespace sstd {
 
 }/*namespace sstd*/
 
- 
+
