@@ -9,6 +9,7 @@
 #include <QtGui/qoffscreensurface.h>
 #include <QtGui/qopenglframebufferobject.h>
 #include <QtQuick/qquickitem.h>
+#include <QtQml/qqmlengine.h>
 
 namespace sstd {
 
@@ -18,8 +19,10 @@ namespace sstd {
     }
 
     Window::~Window() {
-        mmm_Thread->setLogicalQuit(true);
-        mmm_Thread->quit();
+        mmm_Thread->runInThisThread([this]() {
+            mmm_Thread->setLogicalQuit(true);
+            mmm_Thread->quit();
+        });
     }
 
     void Window::ppp_RenderFinished(const QImage &arg) {
@@ -247,6 +250,8 @@ namespace sstd {
         }, [this, varRenderPack]() {
             /*get image ...*/
             BEGIN_TRY;
+            const auto varTexture = varRenderPack->sourceFBO->texture();
+            glBindTexture(GL_TEXTURE_2D, varTexture);
 
             END_TRY;
         }, [this, varRenderPack]() {
