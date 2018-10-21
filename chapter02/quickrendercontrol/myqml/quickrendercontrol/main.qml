@@ -12,6 +12,16 @@ Rectangle{
             height: parent.height*0.8
             anchors.centerIn: parent
             color: Qt.rgba(0.8,0,0.2,1)
+            Text {
+                anchors.fill: parent;
+                width: 238
+                height: 160
+                text: qsTr("Good Luck!")
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font.weight: Font.Normal
+                font.pixelSize: 27
+            }
         }/*Rectangle*/
     }/*Rectangle*/
 }/*Rectangle*/
