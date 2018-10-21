@@ -17,12 +17,20 @@ namespace sstd {
 
 namespace sstd {
 
+    void Window::ppp_1_start_render(const QVariant & argQmlPath, const QVariant & argSavePath) {
+        ppp_start_render(argQmlPath.toString());
+    }
+
     Window::Window() {
         mmm_Thread = sstdNew<sstd::QuickThread>();
         connect(this, &Window::startRender, this, &Window::ppp_start_render);
         this->setResizeMode( Super::ResizeMode::SizeRootObjectToView );
         this->setMinimumSize( QSize{512,128} );
         this->setSource(getLocalFileFullPath(QStringLiteral("myqml/quickrendertoimage/main.qml")));
+        auto varRoot = this->rootObject();
+        if (varRoot) {
+            connect(varRoot,SIGNAL(runARender(QVariant,QVariant)),this,SLOT(ppp_1_start_render(QVariant,QVariant)));
+        }
     }
 
     Window::~Window() {
@@ -157,7 +165,7 @@ namespace sstd {
             /*create render window ...*/
             varAns->sourceWindow = sstd::make_unique<RenderView>(varAns->sourceControl.get());
             /*try load data ...*/
-            varAns->sourceWindow->setSource(QUrl::fromLocalFile(path));
+            varAns->sourceWindow->setSource(path);
             /*set render thread ...*/
             varAns->sourceControl->prepareThread(varAns->renderThread);
             varAns->sourceContex->moveToThread(varAns->renderThread);
@@ -180,19 +188,19 @@ namespace sstd {
         };
     }/*namespace*/
 
-#define BEGIN_TRY do {  if (varRenderPack->hasError.load()) { return; } \
+#define BEGIN_TRY do { if(varRenderPack) { if (varRenderPack->hasError.load()) { return; } } \
     QImage varErrorImage ; \
     try { assert(true)/*begin try ... */
 
 #define END_TRY } catch (const QString & error) { \
-    varRenderPack->hasError.store(true); \
+    if(varRenderPack) { varRenderPack->hasError.store(true); } \
     qDebug() << error; \
     ErrorRender varError{ error }; \
     varErrorImage = varError.getErrorImage(); \
     ppp_RenderFinished(varErrorImage); \
     return; \
     } catch (...) { \
-        varRenderPack->hasError.store(true); \
+        if(varRenderPack) { varRenderPack->hasError.store(true); } \
         qDebug() << QStringLiteral("unknow error!"); \
         ErrorRender varError{ QStringLiteral("unknow error!") }; \
         varErrorImage = varError.getErrorImage(); \

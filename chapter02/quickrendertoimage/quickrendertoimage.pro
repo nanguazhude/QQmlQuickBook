@@ -25,6 +25,7 @@ RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
 QMLSOURCES += $$PWD/myqml/quickrendertoimage/main.qml
+QMLSOURCES += $$PWD/myqml/quickrendertoimage/TestInputQMLFile.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES
