@@ -34,7 +34,7 @@ namespace {
 
 #include <cstdlib>
 
-int main(int argc, char ** argv) {
+int main(int argc, char ** argv) try {
     /*高分屏支持*/
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     /*重置随机数种子*/
@@ -43,13 +43,46 @@ int main(int argc, char ** argv) {
     sstd::setDefaultFormat();
     /*初始化Qt环境*/
     Application varApp{ argc,argv };
+
+    /*分析命令行...*/
+    QCommandLineParser varParser;
+    varParser.setApplicationDescription(QStringLiteral("RenderQMLToImage"));
+    {
+        varParser.addOption({ {QStringLiteral("h"),QStringLiteral("help")},
+            QStringLiteral(R"(if null input ,gui will show 
+-i/--input xxxx.qml
+-o/--ouput xxxx.png .)") });
+        varParser.addOption({ {QStringLiteral("i"),QStringLiteral("input")},
+            QStringLiteral("input qml file name ."),
+            QStringLiteral("qmlFileName") });
+        varParser.addOption({ {QStringLiteral("o"),QStringLiteral("output")},
+            QStringLiteral("output png file name ."),
+            QStringLiteral("pngFileName") });
+    }
+
+    if (!varParser.parse(varApp.arguments())) {
+        qDebug() << varParser.errorText();
+        return -1;
+    }
+
+    bool varInputOutPutIsSet = false;
+    if ( varParser.isSet(QStringLiteral("i")) && varParser.isSet(QStringLiteral("o")) ) {
+        varInputOutPutIsSet = true;
+    }
+
     /*强制加载Qt插件*/
     loadQtPlugins();
     /*加载Qml环境*/
     auto varWindow = sstd::make_unique<sstd::Window>();
-    varWindow->show();
+    if (varInputOutPutIsSet) {
+        
+    } else {
+        varWindow->show();
+    }
     /*启动主线程事件循环程序*/
     return varApp.exec();
+} catch (...) {
+    qDebug() << QStringLiteral("main exception output!");
 }
 
 
