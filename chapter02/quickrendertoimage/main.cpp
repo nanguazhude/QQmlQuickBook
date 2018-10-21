@@ -75,21 +75,36 @@ else use :
     loadQtPlugins();
     /*加载Qml环境*/
     auto varWindow = sstd::make_unique<sstd::Window>();
+    bool isFinished = false;
     if (varInputOutPutIsSet) {
         const auto varOutPutImageFile = varParser.value(QStringLiteral("o"));
         varWindow->connect(varWindow.get(), &sstd::Window::renderFinished, 
-            [varOutPutImageFile](const QImage & varSaveImage) {
+            [varOutPutImageFile,&isFinished](const QImage & varSaveImage) {
             varSaveImage.save(varOutPutImageFile);
+            {
+                auto varQuit = sstdNew<QTimer>();
+                varQuit->connect(varQuit, &QTimer::timeout, []() {
+                    qApp->quit(); 
+                    std::exit(0);
+                });
+            }
             qApp->quit();
+            isFinished = true;
         });
         varWindow->startRender(varParser.value(QStringLiteral("i")));
     } else {
         varWindow->show();
     }
+
+    if (isFinished) {
+        return 0;
+    }
+
     /*启动主线程事件循环程序*/
     return varApp.exec();
 } catch (...) {
     qDebug() << QStringLiteral("main exception output!");
+    return 0;
 }
 
 

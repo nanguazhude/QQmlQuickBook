@@ -21,12 +21,12 @@ namespace sstd {
 
 namespace {
     /*这里不做缓存优化...*/
-    void flipUpDownByComputShader(GLuint varTexture,const QSize & varSize) {
-        const auto varComputeHeight = ( varSize.height() >> 1 );
+    void flipUpDownByComputShader(GLuint varTexture, const QSize & varSize) {
+        const auto varComputeHeight = (varSize.height() >> 1);
         if (varComputeHeight < 0) {
             return;
         }
-        GLuint varProgram{0};
+        GLuint varProgram{ 0 };
         varProgram = glCreateProgram();
 
         {
@@ -86,9 +86,9 @@ void main(void) {
                 glDeleteShader(varShader);
             }
         }
-        
+
         glUseProgram(varProgram);
-        glUniform1i(1, varSize.height()-1);
+        glUniform1i(1, varSize.height() - 1);
         glBindImageTexture(0, varTexture, 0, false, 0, GL_READ_WRITE, GL_RGBA8UI);
         glDispatchCompute(varSize.width(), varComputeHeight, 1);
         glFinish();
@@ -173,7 +173,7 @@ namespace sstd {
                 if (!mmm_Engine.incubationController()) {
                     mmm_Engine.setIncubationController(this->incubationController());
                 }
-                this->setColor(QColor(0,0,0,0));
+                this->setColor(QColor(0, 0, 0, 0));
             }
 
             void setSource(const QUrl & arg) noexcept(false) {
@@ -303,9 +303,9 @@ namespace sstd {
                         QStringLiteral("myqml/quickrendertoimage/default_error.png"))
                         .toLocalFile()
                     };
-                    assert(varAns.width()>0);
-                    assert(varAns.height()>0);
-                    return varAns.convertToFormat(QImage::Format_RGBA8888) ;
+                    assert(varAns.width() > 0);
+                    assert(varAns.height() > 0);
+                    return varAns.convertToFormat(QImage::Format_RGBA8888);
                 }();
                 return varAns.copy()/*get a deep clone ...*/;
             }
@@ -317,7 +317,7 @@ namespace sstd {
                 const auto varImageHeight = varImage.height();
                 {
                     auto varFont = varPainter.font();
-                    varFont.setPixelSize( varImageHeight/15 );
+                    varFont.setPixelSize(varImageHeight / 15);
                     varPainter.setFont(varFont);
                 }
                 double varLeading;
@@ -326,22 +326,24 @@ namespace sstd {
                     varLeading = varFontMetrics.leading();
                 }
                 QTextLayout varLayout{ mmm_ErrorString,varPainter.font() };
-                varLayout.setCacheEnabled(true) ;
+                varLayout.setCacheEnabled(true);
                 varLayout.beginLayout();
                 double varHeight = 0;
-                for(;;){
-                     QTextLine varLine = varLayout.createLine();
-                     if (!varLine.isValid()){
-                              break;
-                     }
-                     varLine.setLineWidth(varImageWidth);
-                    varHeight+=varLeading;
-                    varLine.setPosition(QPointF(0,varHeight));
+                for (;;) {
+                    QTextLine varLine = varLayout.createLine();
+                    if (!varLine.isValid()) {
+                        break;
+                    }
+                    varLine.setLineWidth(varImageWidth);
+                    varHeight += varLeading;
+                    varLine.setPosition(QPointF(0, varHeight));
                     varHeight += varLine.height();
-                    if(varHeight>varImageHeight){break;}
+                    if (varHeight > varImageHeight) {
+                        break;
+                    }
                 }
                 varLayout.endLayout();
-                varLayout.draw(&varPainter,QPointF{0,0});
+                varLayout.draw(&varPainter, QPointF{ 0,0 });
 
                 return varImage;
             }
@@ -450,7 +452,7 @@ namespace sstd {
             varRenderPack->sourceContex->doneCurrent();
             varRenderPack->sourceContex->moveToThread(qApp->thread());
             varRenderPack->renderThread->runInMainThread([this, varRenderPack]() {
-                assert(qApp->thread()==QThread::currentThread());
+                assert(qApp->thread() == QThread::currentThread());
                 /*destory data in main thread ...*/
                 BEGIN_TRY;
                 varRenderPack->sourceWindow.reset();
