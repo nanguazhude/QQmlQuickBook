@@ -87,6 +87,7 @@ else use :
                     qApp->quit(); 
                     std::exit(0);
                 });
+                varQuit->start(1);
             }
             qApp->quit();
             isFinished = true;
