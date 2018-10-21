@@ -224,7 +224,8 @@ namespace sstd {
 
 #define BEGIN_TRY do { if(varRenderPack) { if (varRenderPack->hasError.load()) { return; } } \
     QImage varErrorImage ; \
-    try { assert(true)/*begin try ... */
+    try { assert(true) \
+/*begin try ... */
 
 #define END_TRY } catch (const QString & error) { \
     if(varRenderPack) { varRenderPack->hasError.store(true); } \
