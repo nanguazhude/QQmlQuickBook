@@ -87,7 +87,9 @@ quickrendercontrol.file = $$PWD/chapter02/quickrendercontrol/quickrendercontrol.
 quickrendercontrol.depends = buildinstall
 SUBDIRS += quickrendercontrol
 
-
+quickrendertoimage.file = $$PWD/chapter02/quickrendertoimage/quickrendertoimage.pro
+quickrendertoimage.depends = buildinstall
+SUBDIRS += quickrendertoimage
 
 
 

@@ -1,5 +1,5 @@
 
-TARGET =   $$qtLibraryTarget(quickrendercontrol)
+TARGET =   $$qtLibraryTarget(quickrendertoimage)
 TEMPLATE = app
 
 QT += gui
@@ -24,7 +24,7 @@ RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 
-QMLSOURCES += $$PWD/myqml/quickrendercontrol/main.qml
+QMLSOURCES += $$PWD/myqml/quickrendertoimage/main.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES
