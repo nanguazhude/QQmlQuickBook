@@ -49,9 +49,17 @@ int main(int argc, char ** argv) {
         if (varWindow.status() != sstd::LoadState::Ready) {
             qDebug() << "can not load : " << varMainQmlFileName;
             return -1;
-        }
-        else {
+        } else {
             varWindow.show();
+            /***************************/
+            auto varRootObject = varWindow.getRootObject();
+            auto varTimer = sstdNew<QTimer>(varRootObject);
+            varTimer->connect(varTimer, &QTimer::timeout, varRootObject, [varRootObject]() {
+                qDebug() << QStringLiteral("global") << varRootObject->mapToGlobal({ 0,0 });
+                qDebug() << QStringLiteral("scene") << varRootObject->mapToScene({ 0,0 });
+            });
+            varTimer->start(1000);
+            /***************************/
         }
     }
     /*启动主线程事件循环程序*/
