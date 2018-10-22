@@ -107,7 +107,8 @@ int main(int, char **) {
             }
         };
 
-        sstd::unique_ptr<A> pb = sstd::create_unique<B>();
+        sstd::unique_ptr<A> pb,pb1;
+        pb = sstd::create_unique<B>();
         
     }
 

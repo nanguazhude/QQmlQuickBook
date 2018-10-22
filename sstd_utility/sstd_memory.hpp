@@ -42,10 +42,10 @@ namespace sstd {
         static constexpr inline void* operator new  (std::size_t, void* ptr) noexcept {
             return ptr;
         }
-        static constexpr inline void* operator new[](std::size_t, void* ptr) noexcept { 
-            return ptr; 
+        static constexpr inline void* operator new[](std::size_t, void* ptr) noexcept {
+            return ptr;
         }
-        static constexpr inline void operator delete  (void *, void *) noexcept {
+            static constexpr inline void operator delete  (void *, void *) noexcept {
         }
         static constexpr inline void operator delete[](void *, void *) noexcept {
         }
@@ -404,14 +404,20 @@ namespace sstd {
             VirtualBasic * mmm_Data;
         public:
 
-            VirtualBasicDelete(VirtualBasic * arg) :mmm_Data(arg) {
+            constexpr inline VirtualBasicDelete(VirtualBasic * arg) noexcept :mmm_Data(arg) {
             }
 
-            void operator()(void *) const {
-                delete mmm_Data;
+            constexpr inline VirtualBasicDelete() noexcept : mmm_Data{ nullptr } {
             }
 
-            VirtualBasic * get() const {
+            void operator()(void *arg) const {
+                assert(arg); 
+                delete mmm_Data; 
+                return; 
+                (void)arg;
+            }
+
+            constexpr inline VirtualBasic * get() const noexcept {
                 return mmm_Data;
             }
 
