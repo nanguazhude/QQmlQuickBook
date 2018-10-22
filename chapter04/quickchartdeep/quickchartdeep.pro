@@ -54,4 +54,6 @@ SOURCES += $$PWD/GetLocalFullPath.cpp
 include($$PWD/this/this.pri)
 LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
+HEADERS += $$PWD/SSTDChartView.hpp
+SOURCES += $$PWD/SSTDChartView.cpp
 
