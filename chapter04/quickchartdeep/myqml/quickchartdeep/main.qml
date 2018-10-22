@@ -9,8 +9,10 @@ Rectangle {
     height: 480;
     color: Qt.rgba(0.8,0.8,0.8,1);
 
-    SSTDChartView {
+    ChartView {
+
         id : _id_chart_view ;
+        SSTDChartView.chart: _id_chart_view;
         anchors.fill: parent ;
         antialiasing: true
 
