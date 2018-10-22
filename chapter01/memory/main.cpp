@@ -92,7 +92,27 @@ class TestDeleteCopyAssign {
 int main(int, char **) {
 
     {
-        boost::circular_buffer<int,sstd::allocator<int>> testBuffer(32);
+
+        class A {
+        public:
+            ~A() {
+                std::cout << __func__ << std::endl;
+            }
+        };
+
+        class B : public A {
+        public:
+            ~B() {
+                std::cout << __func__ << std::endl;
+            }
+        };
+
+        sstd::unique_ptr<A> pb = sstd::create_unique<B>();
+        
+    }
+
+    {
+        boost::circular_buffer<int, sstd::allocator<int>> testBuffer(32);
         testBuffer.push_back(1);
         testBuffer.push_back(3);
     }

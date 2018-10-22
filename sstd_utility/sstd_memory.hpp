@@ -357,3 +357,82 @@ ARG_MMM_CLASS_NAME&operator=(ARG_MMM_CLASS_NAME &&)=delete \
 #define SSTD_THIS_TTPE std::remove_reference_t< decltype(*this) >/**/
 #endif
 
+namespace sstd {
+    namespace unique {
+        class VirtualBasic {
+        public:
+            virtual ~VirtualBasic() = default;
+        private:
+            SSTD_MEMORY_DEFINE(VirtualBasic)
+        };
+
+        template<typename T>
+        class alignas(alignof(T) < alignof(int *) ? alignof(int *) : alignof(T))
+            TypedVirtualBasic : public VirtualBasic {
+            static_assert(false == std::is_reference_v < T >);
+            static_assert(false == std::is_array_v < T >);
+        public:
+#if defined(_DEBUG)
+            /*if delete T * is a error !*/
+            std::array<int*, 4> _0_delete_check_{ nullptr,nullptr,nullptr,nullptr };
+#endif
+            T mmm_RawData;
+            TypedVirtualBasic() : mmm_RawData{} {
+            }
+            template<typename T0, typename ... TN,
+                typename = std::enable_if_t<true == std::is_constructible_v<T, T0&&, TN&&...> >
+            >
+                TypedVirtualBasic(T0 && arg0, TN && ... argN) :
+                mmm_RawData(std::forward<T0>(arg0), std::forward<TN>(argN)...) {
+            }
+            template<typename T0, typename ... TN,
+                typename = int,
+                typename = std::enable_if_t<false == std::is_constructible_v<T, T0&&, TN&&...> >
+            >
+                TypedVirtualBasic(T0 && arg0, TN && ... argN) :
+                mmm_RawData{ std::forward<T0>(arg0), std::forward<TN>(argN)... } {
+            }
+
+        public:
+            TypedVirtualBasic(const TypedVirtualBasic &) = delete;
+            TypedVirtualBasic(TypedVirtualBasic&&) = delete;
+            TypedVirtualBasic&operator=(TypedVirtualBasic&&) = delete;
+            TypedVirtualBasic&operator=(const TypedVirtualBasic&) = delete;
+        };
+
+        class VirtualBasicDelete {
+            VirtualBasic * mmm_Data;
+        public:
+
+            VirtualBasicDelete(VirtualBasic * arg) :mmm_Data(arg) {
+            }
+
+            void operator()(void *) const {
+                delete mmm_Data;
+            }
+
+            VirtualBasic * get() const {
+                return mmm_Data;
+            }
+
+        public:
+            VirtualBasicDelete(const VirtualBasicDelete &) = default;
+            VirtualBasicDelete(VirtualBasicDelete &&) = default;
+            VirtualBasicDelete&operator=(const VirtualBasicDelete &) = default;
+            VirtualBasicDelete&operator=(VirtualBasicDelete &&) = default;
+        };
+    }/*namespace unique*/
+
+    template<typename T>
+    using unique_ptr = std::unique_ptr<T, unique::VirtualBasicDelete>;
+
+    template<typename T, typename ... Args>
+    unique_ptr<T> create_unique(Args &&...args) {
+        auto varWrapedPointer =
+            new unique::TypedVirtualBasic<T>(std::forward<Args>(args)...);
+        return unique_ptr<T>{
+            &(varWrapedPointer->mmm_RawData), varWrapedPointer };
+    }
+
+}/*namespace sstd*/
+
