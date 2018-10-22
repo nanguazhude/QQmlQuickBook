@@ -118,6 +118,10 @@ int main(int, char **) {
         pb = sstd::create_unique<B>();
         pb = sstd::create_unique<C>();
 
+        sstd::unique_ptr<B> pb2;
+
+        sstd::release(pb2);
+
     }
 
     {

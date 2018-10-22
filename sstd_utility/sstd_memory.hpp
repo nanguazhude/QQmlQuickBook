@@ -469,12 +469,30 @@ namespace sstd {
     template<typename T>
     using unique_ptr = std::unique_ptr<T, unique::VirtualBasicDelete>;
 
+    template<typename T>
+    inline constexpr bool is_unique_release() {
+        using U = std::remove_cv_t<T>;
+        return std::has_virtual_destructor_v<U>&&unique::is_public<U>::value;
+    }
+
+    template<typename T>
+    inline auto * release(T && arg) {
+        using U = std::remove_reference_t<T>;
+        using E = typename U::element_type;
+        using D = typename U::deleter_type;
+        static_assert(true == std::has_virtual_destructor_v<E>, 
+            "you should not release data,it was not safe!");
+        static_assert((false==std::is_same_v<D, unique::VirtualBasicDelete>)||(true== is_unique_release<E>()),
+            "you should not release data,it was not safe!");
+        return std::forward<T>(arg).release();
+    }
+
     /*design to not release data ...*/
     template<typename T, typename ... Args>
     unique_ptr<T> create_unique(Args &&...args) {
         using U = std::remove_cv_t<T>;
         using D = unique::VirtualBasicDelete;
-        if constexpr (unique::is_public<U>::value&&std::has_virtual_destructor_v<U>) {
+        if constexpr (is_unique_release<T>()) {
             auto varWrapedPointer =
                 new unique::PublicTypedVirtualBasic<U>(std::forward<Args>(args)...);
             return unique_ptr<T>{ varWrapedPointer, D(varWrapedPointer) };
