@@ -91,10 +91,13 @@ quickrendertoimage.file = $$PWD/chapter02/quickrendertoimage/quickrendertoimage.
 quickrendertoimage.depends = buildinstall
 SUBDIRS += quickrendertoimage
 
+visualcoordinates.file = $$PWD/chapter01/visualcoordinates/visualcoordinates.pro
+visualcoordinates.depends = buildinstall
+SUBDIRS += visualcoordinates
+
 quickchart.file = $$PWD/chapter04/quickchart/quickchart.pro
 quickchart.depends = buildinstall
 SUBDIRS += quickchart
-
 
 
 
