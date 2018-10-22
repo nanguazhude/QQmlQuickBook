@@ -480,9 +480,9 @@ namespace sstd {
         using U = std::remove_reference_t<T>;
         using E = typename U::element_type;
         using D = typename U::deleter_type;
-        static_assert(true == std::has_virtual_destructor_v<E>, 
+        static_assert(true == std::has_virtual_destructor_v<E>,
             "you should not release data,it was not safe!");
-        static_assert((false==std::is_same_v<D, unique::VirtualBasicDelete>)||(true== is_unique_release<E>()),
+        static_assert((false == std::is_same_v<D, unique::VirtualBasicDelete>) || (true == is_unique_release<E>()),
             "you should not release data,it was not safe!");
         return std::forward<T>(arg).release();
     }
@@ -506,3 +506,18 @@ namespace sstd {
 
 }/*namespace sstd*/
 
+namespace sstd {
+
+    template<typename T, typename D>
+    inline std::shared_ptr<T> unique_to_shared(std::unique_ptr<T, D> &&arg) noexcept {
+        if (false == bool(arg)) {
+            return{};
+        }
+        auto varAns = std::shared_ptr<T>{ arg.get(),
+            std::move(std::move(arg).get_deleter()),
+            sstd::allocator<T>{} };
+        arg.release();
+        return std::move(varAns);
+    }
+
+}/*namespace sstd*/

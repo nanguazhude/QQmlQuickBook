@@ -121,7 +121,7 @@ int main(int, char **) {
         sstd::unique_ptr<B> pb2;
 
         sstd::release(pb2);
-
+        sstd::unique_to_shared(std::move(pb2));
     }
 
     {
