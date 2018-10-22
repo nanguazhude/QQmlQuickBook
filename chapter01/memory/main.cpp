@@ -102,14 +102,22 @@ int main(int, char **) {
 
         class B : public A {
         public:
-            ~B() {
+            virtual ~B() {
+                std::cout << __func__ << std::endl;
+            }
+        };
+
+        class C : public A {
+        public:
+            ~C() {
                 std::cout << __func__ << std::endl;
             }
         };
 
         sstd::unique_ptr<A> pb,pb1;
         pb = sstd::create_unique<B>();
-        
+        pb = sstd::create_unique<C>();
+
     }
 
     {

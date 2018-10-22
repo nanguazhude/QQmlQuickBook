@@ -366,6 +366,33 @@ namespace sstd {
             SSTD_MEMORY_DEFINE(VirtualBasic)
         };
 
+        template< typename T >
+        class alignas(alignof(T) < alignof(int *) ? alignof(int *) : alignof(T))
+            PublicTypedVirtualBasic :
+            public T,
+            public VirtualBasic {
+            static_assert(false == std::is_reference_v < T >);
+            static_assert(false == std::is_array_v < T >);
+        public:
+            PublicTypedVirtualBasic() : T{} {
+            }
+            template<typename T0, typename ... TN,
+                typename = std::enable_if_t<true == std::is_constructible_v<T, T0&&, TN&&...> >
+            >
+                PublicTypedVirtualBasic(T0 && arg0, TN && ... argN) :
+                T(std::forward<T0>(arg0), std::forward<TN>(argN)...) {
+            }
+            template<typename T0, typename ... TN,
+                typename = int,
+                typename = std::enable_if_t<false == std::is_constructible_v<T, T0&&, TN&&...> >
+            >
+                PublicTypedVirtualBasic(T0 && arg0, TN && ... argN) :
+                T{ std::forward<T0>(arg0), std::forward<TN>(argN)... } {
+            }
+        private:
+            ____SSTD_MEMORY_DEFINE(PublicTypedVirtualBasic)
+        };
+
         template<typename T>
         class alignas(alignof(T) < alignof(int *) ? alignof(int *) : alignof(T))
             TypedVirtualBasic : public VirtualBasic {
@@ -411,9 +438,9 @@ namespace sstd {
             }
 
             void operator()(void *arg) const {
-                assert(arg); 
-                delete mmm_Data; 
-                return; 
+                assert(arg);
+                delete mmm_Data;
+                return;
                 (void)arg;
             }
 
@@ -427,17 +454,36 @@ namespace sstd {
             VirtualBasicDelete&operator=(const VirtualBasicDelete &) = default;
             VirtualBasicDelete&operator=(VirtualBasicDelete &&) = default;
         };
+
+
+        template<typename T, typename = void>
+        class is_public : public std::false_type {
+        };
+
+        template<typename T>
+        class is_public<T, std::void_t<PublicTypedVirtualBasic<T>>> : public std::true_type {
+        };
+
     }/*namespace unique*/
 
     template<typename T>
     using unique_ptr = std::unique_ptr<T, unique::VirtualBasicDelete>;
 
+    /*design to not release data ...*/
     template<typename T, typename ... Args>
     unique_ptr<T> create_unique(Args &&...args) {
-        auto varWrapedPointer =
-            new unique::TypedVirtualBasic<T>(std::forward<Args>(args)...);
-        return unique_ptr<T>{
-            &(varWrapedPointer->mmm_RawData), varWrapedPointer };
+        using U = std::remove_cv_t<T>;
+        using D = unique::VirtualBasicDelete;
+        if constexpr (unique::is_public<U>::value&&std::has_virtual_destructor_v<U>) {
+            auto varWrapedPointer =
+                new unique::PublicTypedVirtualBasic<U>(std::forward<Args>(args)...);
+            return unique_ptr<T>{ varWrapedPointer, D(varWrapedPointer) };
+        } else {
+            auto varWrapedPointer =
+                new unique::TypedVirtualBasic<U>(std::forward<Args>(args)...);
+            return unique_ptr<T>{
+                &(varWrapedPointer->mmm_RawData), D(varWrapedPointer) };
+        }
     }
 
 }/*namespace sstd*/
