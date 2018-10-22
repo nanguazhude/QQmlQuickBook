@@ -2,21 +2,20 @@
 
 #include <sstd_memory.hpp>
 #include <QtCharts/QtCharts>
-#include <private/declarativechart_p.h>
+#include "sstd_declarativechart_p.h"
 
 namespace sstd{
 
     class SSTDChartView : public QtCharts::DeclarativeChart {
-        Q_OBJECT
+        //Q_OBJECT
     private:
         using Super = QtCharts::DeclarativeChart;
     public:
-        SSTDChartView(QQuickItem *parent);
+        SSTDChartView(QQuickItem *parent=nullptr);
     private:
-        SSTD_MEMORY_QOBJECT_DEFINE(SSTDChartView)
+        //SSTD_MEMORY_QOBJECT_DEFINE(SSTDChartView)
     };
-
-
+    
 }/**/
 
 

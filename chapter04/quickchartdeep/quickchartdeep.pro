@@ -14,7 +14,7 @@ QT += core_private
 QT += qml_private
 QT += quick_private
 QT += widgets_private
-
+#qt_lib_charts_private
 QT += charts_private
 
 include($$PWD/../../QQmlQuickBook.pri)
