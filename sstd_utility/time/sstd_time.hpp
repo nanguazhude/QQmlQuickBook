@@ -29,6 +29,8 @@ namespace sstd {
         virtual void postFunction(std::function<void(void)>) = 0;
         /*返回队列中还存有多少函数*/
         virtual std::size_t functionsAboutToRun() const = 0;
+        /*为shared_ptr在当前线程做一个备份，当其他线程取消引用时删除*/
+        virtual void addUniqueDelete(std::shared_ptr<const void>) = 0 ;
     };
 
     _1_SSTD_CORE_EXPORT std::shared_ptr<TimerThread> getTimeStamp();

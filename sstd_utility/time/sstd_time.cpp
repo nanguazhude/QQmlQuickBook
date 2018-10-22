@@ -39,7 +39,53 @@ namespace sstd::private_thread {
         sstd::list<std::function<void(void)>> mmm_Functions;
         std::atomic<int> mmm_RunThreadCount{ 0 };
         mutable std::condition_variable mmm_Wait;
+        mutable std::shared_mutex mmm_Mutex_Data;
+        sstd::set<std::shared_ptr<const void>> mmm_Data;
     public:
+
+        void addUniqueDelete(std::shared_ptr<const void> arg) override {
+            {
+                std::unique_lock varWriteLock{ mmm_Mutex_Data };
+                mmm_Data.insert(std::move(arg));
+            }
+            mmm_Wait.notify_all();
+        }
+
+        void tryUniqueData() {
+
+            {
+                std::shared_lock varReadLock{ mmm_Mutex_Data };
+                if (mmm_Data.empty()) {
+                    return;
+                }
+            }
+
+            sstd::set<std::shared_ptr<const void>> varTmpData0;
+            {
+                std::unique_lock varWriteLock{ mmm_Mutex_Data };
+                varTmpData0 = std::move(mmm_Data);
+            }
+
+            {
+                sstd::vector<std::shared_ptr<const void>> varTmpData1{  };
+                varTmpData1.reserve(varTmpData0.size());
+                for (const auto & varI : varTmpData0) {
+                    if (varI&&varI.use_count() > 1) {
+                        varTmpData1.push_back(varI);
+                    }
+                }
+                varTmpData0.clear();
+                for (auto & varI : varTmpData1) {
+                    varTmpData0.insert(std::move(varI));
+                }
+            }
+
+            {
+                std::unique_lock varWriteLock{ mmm_Mutex_Data };
+                mmm_Data.merge(varTmpData0);
+            }
+
+        }
 
         class Runner final {
             std::shared_ptr<PrivateTimerThread> mmm_Super;
@@ -170,6 +216,14 @@ namespace sstd::private_thread {
                 })/*这里可能有虚假唤醒，无关紧要...*/;
 
                 ++mmm_Value;
+                /*增加执行函数...*/
+                {
+                    std::unique_lock varWriteLock{ mmm_Mutex_Functions };
+                    mmm_Functions.push_back([thisp = this->shared_from_this()]() {
+                        thisp->tryUniqueData();
+                    });
+                }
+
                 callFunctions();
             }/*while*/
         }
