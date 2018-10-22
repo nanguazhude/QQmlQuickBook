@@ -99,6 +99,6 @@ quickchart.file = $$PWD/chapter04/quickchart/quickchart.pro
 quickchart.depends = buildinstall
 SUBDIRS += quickchart
 
-quickchartdeep.file = $$PWD/chapter04/quickchart/quickchart.pro
+quickchartdeep.file = $$PWD/chapter04/quickchartdeep/quickchartdeep.pro
 quickchartdeep.depends = buildinstall
 SUBDIRS += quickchartdeep

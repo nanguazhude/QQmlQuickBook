@@ -1,5 +1,4 @@
-﻿Hellow World！示例
-
+﻿使用QQuickChart的私有模块
 
 
 

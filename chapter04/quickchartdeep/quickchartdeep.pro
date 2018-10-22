@@ -7,6 +7,16 @@ QT += qml
 QT += quick
 QT += widgets
 
+QT += charts
+
+QT += gui_private
+QT += core_private
+QT += qml_private
+QT += quick_private
+QT += widgets_private
+
+QT += charts_private
+
 include($$PWD/../../QQmlQuickBook.pri)
 include($$PWD/../../sstd_utility/sstd_quick.pri)
 DESTDIR = $$RootDestDir
