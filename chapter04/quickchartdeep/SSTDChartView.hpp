@@ -32,6 +32,8 @@ namespace sstd{
     public:
         Q_SLOT void seriesAdded(QtCharts::QAbstractSeries *series);
     public:
+        Q_SIGNAL void anyDomainUpdate();
+    public:
         static SSTDChartView * qmlAttachedProperties(QObject *);
     private:
         QObject * mmm_QMLChart{nullptr};

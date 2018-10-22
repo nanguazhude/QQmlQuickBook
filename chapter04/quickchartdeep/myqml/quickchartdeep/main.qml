@@ -9,12 +9,21 @@ Rectangle {
     height: 480;
     color: Qt.rgba(0.8,0.8,0.8,1);
 
+
+
     ChartView {
 
-        id : _id_chart_view ;
-        SSTDChartView.chart: _id_chart_view;
+        id : _id_chart_view  ;
         anchors.fill: parent ;
-        antialiasing: true
+        antialiasing: true   ;
+
+        /*********************************************/
+        SSTDChartView.chart: _id_chart_view;
+        signal  anyDomainUpdate()
+        Component.onCompleted: {
+            SSTDChartView.anyDomainUpdate.connect( _id_chart_view.anyDomainUpdate );
+        }
+        /*********************************************/
 
         ScatterSeries {
             id: _id_scatter1

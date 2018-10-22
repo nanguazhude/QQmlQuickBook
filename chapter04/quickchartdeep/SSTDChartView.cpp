@@ -39,6 +39,7 @@ namespace sstd {
             qDebug() << "xxx";
         });
         assert(mmm_Chart==series->chart());
+
     }
 
 }/*namespace sstd*/
