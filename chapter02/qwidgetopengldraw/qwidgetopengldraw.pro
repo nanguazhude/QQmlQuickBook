@@ -1,4 +1,11 @@
-TARGET = $$qtLibraryTarget(qwidgetopengldraw)
+
+CONFIG(debug,debug|release){
+    TARGET =   qwidgetopengldraw_debug
+}else{
+    TARGET =   qwidgetopengldraw
+}
+
+
 TEMPLATE = app
 
 QT += gui
@@ -11,9 +18,6 @@ QT += concurrent
 include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
 
-#buildinstall
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 DISTFILES += $$QMLSOURCES
 

@@ -1,4 +1,11 @@
-TARGET = $$qtLibraryTarget(qquickwindowopengldraw)
+
+CONFIG(debug,debug|release){
+    TARGET =   qquickwindowopengldraw_debug
+}else{
+    TARGET =   qquickwindowopengldraw
+}
+
+
 TEMPLATE = app
 
 QT += gui
@@ -20,10 +27,6 @@ HEADERS += \
     ApplicationEngine.hpp \
     OpenglDrawWindow.hpp \
     Application.hpp
-
-#buildinstall
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 QMLSOURCES += $$PWD/myqml/qquickwindowopengldraw/main.qml
 

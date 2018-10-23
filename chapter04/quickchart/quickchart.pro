@@ -1,6 +1,12 @@
-#qml animationandstate all in one
+#qml quickchart all in one
 
-TARGET =   $$qtLibraryTarget(quickchart)
+CONFIG(debug,debug|release){
+    TARGET =   quickchart_debug
+}else{
+    TARGET =   quickchart
+}
+
+
 TEMPLATE = app
 
 QT += gui
@@ -16,8 +22,6 @@ include($$PWD/../../QQmlQuickBook.pri)
 include($$PWD/../../sstd_utility/sstd_quick.pri)
 DESTDIR = $$RootDestDir
 
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 !win32 {
     QMAKE_LFLAGS += -Wl,-rpath .

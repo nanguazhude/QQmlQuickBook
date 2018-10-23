@@ -1,5 +1,11 @@
 
-TARGET =   $$qtLibraryTarget(quickrendercontrol)
+CONFIG(debug,debug|release){
+    TARGET =   quickrendercontrol_debug
+}else{
+    TARGET =   quickrendercontrol
+}
+
+
 TEMPLATE = app
 
 QT += gui
@@ -12,8 +18,6 @@ QT += concurrent
 include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
 
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 !win32 {
     QMAKE_LFLAGS += -Wl,-rpath .

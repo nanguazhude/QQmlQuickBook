@@ -1,4 +1,9 @@
-TARGET = $$qtLibraryTarget(chat)
+CONFIG(debug,debug|release){
+    TARGET =   chat_debug
+}else{
+    TARGET =   chat
+}
+
 TEMPLATE = app
 
 QT += gui
@@ -14,10 +19,6 @@ QT += widgets_private
 
 include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
-
-#buildinstall
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 DISTFILES +=
 

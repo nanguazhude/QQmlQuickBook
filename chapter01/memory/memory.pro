@@ -1,4 +1,11 @@
-TARGET = $$qtLibraryTarget(memory)
+
+CONFIG(debug,debug|release){
+    TARGET =   memory_debug
+}else{
+    TARGET =   memory
+}
+
+
 TEMPLATE = app
 
 QT -= gui

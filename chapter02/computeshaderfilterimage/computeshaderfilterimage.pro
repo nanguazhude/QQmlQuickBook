@@ -1,4 +1,10 @@
-TARGET = $$qtLibraryTarget(computeshaderfilterimage)
+
+CONFIG(debug,debug|release){
+    TARGET =   computeshaderfilterimage_debug
+}else{
+    TARGET =   computeshaderfilterimage
+}
+
 TEMPLATE = app
 QT += gui
 QT += qml
@@ -9,10 +15,6 @@ QT += concurrent
 
 include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
-
-#buildinstall
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 

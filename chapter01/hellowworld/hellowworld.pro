@@ -1,4 +1,10 @@
-TARGET = $$qtLibraryTarget(hellowworld)
+
+CONFIG(debug,debug|release){
+    TARGET =   hellowworld_debug
+}else{
+    TARGET =   hellowworld
+}
+
 TEMPLATE = app
 
 QT += gui
@@ -18,10 +24,6 @@ HEADERS += $$PWD/RootWindow.hpp
 
 SOURCES += $$PWD/Application.cpp
 HEADERS += $$PWD/Application.hpp
-
-#buildinstall
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 QMLSOURCES += $$PWD/myqml/hellowword/main.qml
 QMLSOURCES += $$PWD/myqml/hellowword/main_private/MainText.qml

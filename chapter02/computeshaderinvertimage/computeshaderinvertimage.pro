@@ -1,4 +1,11 @@
-TARGET = $$qtLibraryTarget(computeshaderinvertimage)
+
+CONFIG(debug,debug|release){
+    TARGET =   computeshaderinvertimage_debug
+}else{
+    TARGET =   computeshaderinvertimage
+}
+
+
 TEMPLATE = app
 
 QT += gui
@@ -10,10 +17,6 @@ QT += widgets
 include($$PWD/../../QQmlQuickBook.pri)
 include($$PWD/../../sstd_utility/sstd_quick.pri)
 DESTDIR = $$RootDestDir
-
-#buildinstall
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 

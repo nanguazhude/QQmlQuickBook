@@ -1,4 +1,11 @@
-TARGET = $$qtLibraryTarget(qsgdrawpoint)
+
+CONFIG(debug,debug|release){
+    TARGET =   qsgdrawpoint_debug
+}else{
+    TARGET =   qsgdrawpoint
+}
+
+
 TEMPLATE = app
 
 QT += gui
@@ -10,9 +17,6 @@ QT += concurrent
 
 include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
-
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 !win32 {
     QMAKE_LFLAGS += -Wl,-rpath .

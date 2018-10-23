@@ -1,5 +1,11 @@
 
-TARGET =   $$qtLibraryTarget(qmlsingleton)
+CONFIG(debug,debug|release){
+    TARGET =   qmlsingleton_debug
+}else{
+    TARGET =   qmlsingleton
+}
+
+
 TEMPLATE = app
 
 QT += gui
@@ -13,15 +19,11 @@ include($$PWD/../../QQmlQuickBook.pri)
 include($$PWD/../../sstd_utility/sstd_quick.pri)
 DESTDIR = $$RootDestDir
 
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
-
 !win32 {
     QMAKE_LFLAGS += -Wl,-rpath .
 }
 
 RESOURCES += $$PWD/../../qqmlquickglobal.qrc
-
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 

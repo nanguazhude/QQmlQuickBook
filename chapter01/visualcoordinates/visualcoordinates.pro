@@ -1,4 +1,10 @@
-TARGET = $$qtLibraryTarget(visualcoordinates)
+
+CONFIG(debug,debug|release){
+    TARGET =   visualcoordinates_debug
+}else{
+    TARGET =   visualcoordinates
+}
+
 TEMPLATE = app
 
 QT += gui
@@ -19,12 +25,7 @@ HEADERS += $$PWD/RootWindow.hpp
 SOURCES += $$PWD/Application.cpp
 HEADERS += $$PWD/Application.hpp
 
-#buildinstall
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
-
 QMLSOURCES += $$PWD/myqml/visualcoordinates/main.qml
-
 
 lupdate_only{
     SOURCES += $$QMLSOURCES

@@ -1,4 +1,10 @@
-TARGET = $$qtLibraryTarget(checkfileformat)
+
+CONFIG(debug,debug|release){
+    TARGET =   checkfileformat_debug
+}else{
+    TARGET =   checkfileformat
+}
+
 TEMPLATE = app
 
 QT += gui
@@ -12,11 +18,7 @@ include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
 
 SOURCES += $$PWD/main.cpp \
-    RootWindow.cpp
-
-#buildinstall
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
+    $$PWD/RootWindow.cpp
 
 QMLSOURCES += $$PWD/myqml/checkfileformat/main.qml
 QMLSOURCES += $$PWD/myqml/checkfileformat/SelectDir.qml

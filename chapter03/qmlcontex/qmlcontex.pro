@@ -1,5 +1,12 @@
 
-TARGET = $$qtLibraryTarget(qmlcontex)
+
+CONFIG(debug,debug|release){
+    TARGET =   qmlcontex_debug
+}else{
+    TARGET =   qmlcontex
+}
+
+
 TEMPLATE = app
 
 QT += gui
@@ -12,9 +19,6 @@ QT += concurrent
 include($$PWD/../../QQmlQuickBook.pri)
 include($$PWD/../../sstd_utility/sstd_quick.pri)
 DESTDIR = $$RootDestDir
-
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 !win32 {
     QMAKE_LFLAGS += -Wl,-rpath .

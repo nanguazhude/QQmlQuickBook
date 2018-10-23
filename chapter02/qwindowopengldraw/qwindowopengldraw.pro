@@ -1,4 +1,10 @@
-TARGET = $$qtLibraryTarget(qwindowopengldraw)
+
+CONFIG(debug,debug|release){
+    TARGET =   qwindowopengldraw_debug
+}else{
+    TARGET =   qwindowopengldraw
+}
+
 TEMPLATE = app
 
 QT += gui
@@ -10,10 +16,6 @@ QT += concurrent
 
 include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
-
-#buildinstall
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 DISTFILES += $$PWD/myqml/qwindowopengldraw/fragment.frag \
     $$PWD/myqml/qwindowopengldraw/vertex.vert
