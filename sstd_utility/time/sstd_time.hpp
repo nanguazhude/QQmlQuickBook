@@ -32,7 +32,9 @@ namespace sstd {
         /*当前线程对对象具有所有权，
         当其他线程对此对象无所有权后，
         延时删除对象
-        设计用于构造std::promise,packaged_task*/
+        设计用于构造std::promise,packaged_task
+        set_value_at_thread_exit
+        set_exception_at_thread_exit*/
         template<typename T,typename ... Args>
         std::shared_ptr<T> threadOwnCreate(Args && ...args) const {
             auto varAns = sstd::make_shared<T>(std::forward<Args>(args)...);
