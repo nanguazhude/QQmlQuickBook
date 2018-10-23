@@ -55,7 +55,7 @@ namespace {
         GCList mmm_Objecs;
         std::shared_mutex mmm_Mutex_ObjectsSet;
         GCSet mmm_ObjectsSet;
-        constexpr const static std::size_t mmm_GCStepSize{ 1024*1024 };
+        constexpr const static std::size_t mmm_GCStepSize{ 1024 * 1024 };
 
         void insert(std::shared_ptr<const void > arg) {
 

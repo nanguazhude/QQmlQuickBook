@@ -92,6 +92,16 @@ class TestDeleteCopyAssign {
 int main(int, char **) {
 
     {
+        class ATestForThreadTimeDelete {
+        public:
+            virtual ~ATestForThreadTimeDelete() {
+                std::cout << __func__ << std::endl;
+            }
+        };
+        auto varTest = sstd::getTimeStamp()->threadOwnCreate<ATestForThreadTimeDelete>();
+    }
+
+    {
 
         class A {
         public:
