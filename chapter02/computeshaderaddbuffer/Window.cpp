@@ -116,7 +116,7 @@ void Window::paintGL() {
     {/*向显卡上传数据*/
         const auto varInputGL = static_cast<GLfloat*>(
             glMapNamedBuffer(mmm_DrawData->mmm_InputBuffer, GL_WRITE_ONLY));
-        std::memcpy(varInputGL, varInput, sizeof(varInput));
+        ::memcpy(varInputGL, varInput, sizeof(varInput));
         glUnmapNamedBuffer(mmm_DrawData->mmm_InputBuffer);
     }
 
@@ -131,7 +131,7 @@ void Window::paintGL() {
     {/*从显卡获得数据*/
         const auto varOutputGL = static_cast<GLfloat*>(
             glMapNamedBuffer(mmm_DrawData->mmm_OutputBuffer, GL_READ_ONLY));
-        std::memcpy(varOutput, varOutputGL, sizeof(varOutput));
+        ::memcpy(varOutput, varOutputGL, sizeof(varOutput));
         glUnmapNamedBuffer(mmm_DrawData->mmm_OutputBuffer);
     }
 

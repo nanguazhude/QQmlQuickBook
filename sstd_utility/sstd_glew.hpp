@@ -17,7 +17,7 @@ namespace sstd {
     }
 
     inline static constexpr const char * $p$sstdGlewDebugGroupString() {
-        const static constexpr auto varAns = "sstdGlewDebugGroupString"sv;
+        const /****/ constexpr auto varAns = "sstdGlewDebugGroupString"sv;
         static_assert(varAns.size()>= $p$sstdGlewDebugGroupStringLength());
         return varAns.data();
     }

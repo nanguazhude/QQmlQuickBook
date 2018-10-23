@@ -15,43 +15,47 @@ namespace {
     }/*this_file_quick_exit()*/
 }/**/
 
+namespace {
+
+class string : public sstd::string {
+    using super = sstd::string;
+public:
+    string(const std::string_view &arg) :
+        super(arg.data(), arg.size()) {
+    }
+};
+
+template<typename T>
+struct Print {
+    static void print(const string & name, T value) {
+        qDebug()
+            << QString::fromUtf8(name.c_str())
+            << hex << value << QStringLiteral(",")
+            << dec << value;
+    }
+};
+
+template</**/>
+struct Print<std::string_view> {
+    static void print(const string & name, GLenum s, const std::string_view & value) {
+        qDebug()
+            << QString::fromUtf8(name.c_str())
+            << hex << s << QStringLiteral(",")
+            << QString::fromUtf8(value.data(), static_cast<int>(value.size()));
+
+    }
+};
+
+}/****/
+
 struct SimpleCallBack {
 
     using mutex_type = std::recursive_mutex;
-    class string : public sstd::string {
-        using super = sstd::string;
-    public:
-        string(const std::string_view &arg) :
-            super(arg.data(), arg.size()) {
-        }
-    };
-
 
     static inline mutex_type & getMutex() {
         static auto var = new mutex_type/*never delete*/;
         return *var;
     }
-
-    template<typename T>
-    struct Print {
-        static void print(const string & name, T value) {
-            qDebug()
-                << QString::fromUtf8(name.c_str())
-                << hex << value << QStringLiteral(",")
-                << dec << value;
-        }
-    };
-
-    template<>
-    struct Print<std::string_view> {
-        static void print(const string & name, GLenum s, const std::string_view & value) {
-            qDebug()
-                << QString::fromUtf8(name.c_str())
-                << hex << s << QStringLiteral(",")
-                << QString::fromUtf8(value.data(), static_cast<int>(value.size()));
-
-        }
-    };
 
     static inline std::string_view severity_to_string(GLenum i) {
         switch (i) {
