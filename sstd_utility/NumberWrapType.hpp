@@ -186,8 +186,8 @@ namespace sstd {
     private_wrap_helper::is_static_wrap_type<RightType>::value>>                        \
     inline constexpr bool operator _OP_ (const LeftType & l,const RightType & r){       \
     using namespace private_wrap_helper;                                                \
-    constexpr const static bool varIsLeftWrap= is_static_wrap_type<LeftType>::value;    \
-    constexpr const static bool varIsRightWrap= is_static_wrap_type<RightType>::value;  \
+    constexpr const /****/ bool varIsLeftWrap= is_static_wrap_type<LeftType>::value;    \
+    constexpr const /****/ bool varIsRightWrap= is_static_wrap_type<RightType>::value;  \
     if constexpr( varIsLeftWrap && varIsRightWrap ){                                    \
     return  l.mmm_value  _OP_  r.mmm_value ;                                            \
 }else if constexpr(varIsLeftWrap){                                                      \
@@ -208,7 +208,7 @@ namespace std {
     class hash< sstd::NumberWrapType<T> > {
     public:
         inline size_t operator()(const sstd::NumberWrapType<T> & arg) const noexcept {
-            return std::hash_value(static_cast<const T &>(arg));
+            return static_cast<size_t>(static_cast<const T &>(arg));
         }
     };
 
