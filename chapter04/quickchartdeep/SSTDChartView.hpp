@@ -42,10 +42,10 @@ namespace sstd{
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(SSTDChartView)
     };
-    QML_DECLARE_TYPEINFO(sstd::SSTDChartView, QML_HAS_ATTACHED_PROPERTIES)
 
 }/**/
 
+QML_DECLARE_TYPEINFO(sstd::SSTDChartView, QML_HAS_ATTACHED_PROPERTIES)
 
 
 

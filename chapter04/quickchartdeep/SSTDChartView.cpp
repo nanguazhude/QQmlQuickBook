@@ -14,7 +14,7 @@ namespace sstd {
 
     SSTDChartView * SSTDChartView::qmlAttachedProperties(QObject * obj) {
         auto varAns = sstdNew<SSTDChartView>(obj);
-        auto varDeclarativeChart = dynamic_cast<QtCharts::DeclarativeChart *>(obj);
+        auto varDeclarativeChart = reinterpret_cast<QtCharts::DeclarativeChart *>(obj);
         assert(varDeclarativeChart);
         varAns->mmm_DeclarativeChart = varDeclarativeChart;
         connect(varDeclarativeChart, SIGNAL(seriesAdded(QtCharts::QAbstractSeries *)),
