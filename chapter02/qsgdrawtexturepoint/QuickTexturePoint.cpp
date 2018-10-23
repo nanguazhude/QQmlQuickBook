@@ -161,8 +161,8 @@ void main() {
             {
                 const auto varAngle = static_cast<GLfloat>(static_cast<TexturePointMaterial*>(varNew)->mmm_Rotate *(3.141592654 / 180));
                 GLfloat varToTmp[4];
-                varToTmp[2] = std::sinf(varAngle);
-                varToTmp[3] = std::cosf(varAngle);
+                varToTmp[2] = ::sinf(varAngle);
+                varToTmp[3] = ::cosf(varAngle);
                 varToTmp[0] = varToTmp[3];
                 varToTmp[1] = -varToTmp[2];
                 varTo = QMatrix2x2{ varToTmp };

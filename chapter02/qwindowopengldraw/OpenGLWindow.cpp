@@ -8,7 +8,7 @@
 #include <QtCore/qdir.h>
 #include "OpenGLWindow.hpp"
 
-namespace {
+namespace _0_sstd_basic_gl_index{
     template<typename _T_>
     class BasicGLIndex {
     protected:
@@ -46,7 +46,7 @@ namespace {
     class GLProgram : private BasicGLIndex<GLProgram> {
     private:
         using Super = BasicGLIndex<GLProgram>;
-        template<typename T> friend class BasicGLIndex;
+        template<typename T> friend class _0_sstd_basic_gl_index::BasicGLIndex;
         static inline void _p_destory(const GLuint *a) {
             glDeleteProgram(*a);
         }
@@ -71,7 +71,7 @@ namespace {
     class GLBuffer : private BasicGLIndex<GLBuffer> {
     private:
         using Super = BasicGLIndex<GLBuffer>;
-        template<typename T> friend class BasicGLIndex;
+        template<typename T> friend class _0_sstd_basic_gl_index::BasicGLIndex;
         static inline void _p_destory(const GLuint *a) {
             glDeleteBuffers(1, a);
         }
@@ -96,7 +96,7 @@ namespace {
     class GLNamedVertexArrayObject : private BasicGLIndex<GLNamedVertexArrayObject> {
     private:
         using Super = BasicGLIndex<GLNamedVertexArrayObject>;
-        template<typename T> friend class BasicGLIndex;
+        template<typename T> friend class _0_sstd_basic_gl_index::BasicGLIndex;
         static inline void _p_destory(const GLuint *a) {
             glDeleteVertexArrays(1, a);
         }
@@ -351,6 +351,8 @@ namespace {
 
 
 }/*namespace*/
+
+using namespace _0_sstd_basic_gl_index;
 
 class OpenGLWindow::DrawData {
 public:
