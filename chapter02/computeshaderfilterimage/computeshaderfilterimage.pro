@@ -19,8 +19,8 @@ RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 include($$PWD/../../sstd_utility/glew.pri)
 include($$PWD/../../sstd_utility/glm.pri)
 
-SOURCES += $$PWD/main.cpp \
-    $$PWD/ImageView.cpp
+SOURCES += $$PWD/main.cpp
+SOURCES += $$PWD/ImageView.cpp
 SOURCES += $$PWD/Window.cpp
 
 SOURCES += $$PWD/Application.cpp
@@ -28,8 +28,8 @@ HEADERS += $$PWD/Application.hpp
 
 SOURCES += GetLocalFullPath.cpp
 
-HEADERS += $$PWD/Window.hpp \
-    $$PWD/ImageView.hpp
+HEADERS += $$PWD/Window.hpp
+HEADERS += $$PWD/ImageView.hpp
 
 DEFINES += CURRENT_DEBUG_PATH=\\\"$$PWD\\\"
 

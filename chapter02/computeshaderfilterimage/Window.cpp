@@ -7,6 +7,7 @@
 #include "ImageView.hpp"
 #include <QtCore/qurl.h>
 #include <chrono>
+#include <thread>
 
 namespace sstd {
     extern QUrl getLocalFileFullPath(const QString & arg);
