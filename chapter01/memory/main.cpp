@@ -2,6 +2,9 @@
 #include <cassert>
 #include <list>
 #include <vector>
+#include <thread>
+#include <chrono>
+using namespace std::chrono_literals;
 
 class StaticClass1 {
 public:
@@ -280,6 +283,8 @@ int main(int, char **) {
 
 #if defined( _WIN32 )
     system("pause");
+#else
+    std::this_thread::sleep_for(1s);
 #endif
 
     return 0;
