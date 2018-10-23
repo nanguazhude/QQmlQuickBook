@@ -142,11 +142,13 @@ namespace {
             if (varAboutToDelete.empty() == false) {
                 sstd::vector<std::shared_ptr<const void>> varReallyDelete;
                 varReallyDelete.reserve(varAboutToDelete.size());
+                for (const auto & varI : varAboutToDelete) {
+                    varReallyDelete.push_back(*varI.mmm_Data);
+                }
                 {
                     /*delete after unlock ...*/
                     std::unique_lock varWriteLock{ mmm_Mutex_ObjectsSet };
                     for (const auto & varI : varAboutToDelete) {
-                        varReallyDelete.push_back(*varI.mmm_Data);
                         mmm_ObjectsSet.erase(varI.mmm_Pos);
                     }
                 }
