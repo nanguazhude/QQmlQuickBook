@@ -51,11 +51,16 @@ namespace {
         };
         using GCList = sstd::list<GCObject>;
 
-        std::shared_mutex mmm_Mutex_Objecs;
+        mutable std::shared_mutex mmm_Mutex_Objecs;
         GCList mmm_Objecs;
-        std::shared_mutex mmm_Mutex_ObjectsSet;
+        mutable std::shared_mutex mmm_Mutex_ObjectsSet;
         GCSet mmm_ObjectsSet;
         constexpr const static std::size_t mmm_GCStepSize{ 1024 * 1024 };
+
+        bool empty() const {
+            std::shared_lock varReadLock{ mmm_Mutex_ObjectsSet };
+            return mmm_ObjectsSet.empty();
+        }
 
         void insert(std::shared_ptr<const void > arg) {
 
@@ -333,8 +338,9 @@ namespace sstd::private_thread {
                 })/*这里可能有虚假唤醒，无关紧要...*/;
 
                 ++mmm_Value;
-                /*增加执行函数...*/
-                {
+
+                /*增加执行GC函数...*/
+                if (false == mmm_GC.empty()) {
                     std::unique_lock varWriteLock{ mmm_Mutex_Functions };
                     mmm_Functions.push_back([thisp = this->shared_from_this()]() {
                         thisp->tryUniqueData();
