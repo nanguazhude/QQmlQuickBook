@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <sstd_memory.hpp>
