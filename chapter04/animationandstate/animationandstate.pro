@@ -1,6 +1,11 @@
 #qml animationandstate all in one
 
-TARGET =   $$qtLibraryTarget(animationandstate)
+CONFIG(debug,debug|release){
+    TARGET =   animationandstate_debug
+}else{
+    TARGET =   animationandstate
+}
+
 TEMPLATE = app
 
 QT += gui
@@ -13,9 +18,6 @@ QT += concurrent
 include($$PWD/../../QQmlQuickBook.pri)
 include($$PWD/../../sstd_utility/sstd_quick.pri)
 DESTDIR = $$RootDestDir
-
-QMAKE_POST_LINK += $$DESTDIR/$$qtLibraryTarget(buildinstall) $$PWD "myqml"
-export(QMAKE_POST_LINK)
 
 !win32 {
     QMAKE_LFLAGS += -Wl,-rpath .
@@ -57,7 +59,17 @@ SOURCES += $$PWD/RootWindow.cpp
 HEADERS += $$PWD/RootWindow.hpp
 
 include($$PWD/this/this.pri)
-LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
+
+CONFIG(debug,debug|release){
+    LIBS += -L$$RootDestDir -lsstd_core_libraryd
+    QMAKE_POST_LINK += $$DESTDIR/buildinstall_debug $$PWD "myqml"
+    export(QMAKE_POST_LINK)
+}else{
+    LIBS += -L$$RootDestDir -lsstd_core_library
+    QMAKE_POST_LINK += $$DESTDIR/buildinstall $$PWD "myqml"
+    export(QMAKE_POST_LINK)
+}
+
 
 
 

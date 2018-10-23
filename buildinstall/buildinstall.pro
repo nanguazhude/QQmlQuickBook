@@ -1,3 +1,5 @@
+#buildinstall
+
 QT -= core
 QT -= gui
 
@@ -7,7 +9,12 @@ CONFIG += console
 #CONFIG += release
 #CONFIG -= debug
 
-TARGET = $$qtLibraryTarget(buildinstall)
+CONFIG(debug,debug|release){
+    TARGET = buildinstall_debug
+}else{
+    TARGET = buildinstall
+}
+
 TEMPLATE = app
 
 include($$PWD/../QQmlQuickBook.pri)

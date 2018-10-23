@@ -1,4 +1,10 @@
-TARGET = $$qtLibraryTarget(sstd_quick_library)
+#sstd_quick_library
+CONFIG(debug,debug|release){
+    TARGET = sstd_quick_libraryd
+}else{
+    TARGET = sstd_quick_library
+}
+
 TEMPLATE = lib
 
 DEFINES *= _1_SSTD_QUICK_LIBRARY
@@ -28,9 +34,11 @@ SOURCES += \
 DEFINES *= NO_SSTD_DEBUG_CPP
 DEFINES *= NO_SSTD_TIME_CPP
 
-LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
-
-
+CONFIG(debug,debug|release){
+    LIBS += -L$$RootDestDir -lsstd_core_libraryd
+}else{
+    LIBS += -L$$RootDestDir -lsstd_core_library
+}
 
 
 

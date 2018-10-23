@@ -6,7 +6,13 @@ QT += quickwidgets
 INCLUDEPATH += $$PWD
 
 include($$PWD/../OutDirPath.pri)
-LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_quick_library)
+CONFIG(debug,debug|release){
+    LIBS += -L$$RootDestDir -lsstd_quick_libraryd
+}else{
+    LIBS += -L$$RootDestDir -lsstd_quick_library
+}
+
+
 
 
 

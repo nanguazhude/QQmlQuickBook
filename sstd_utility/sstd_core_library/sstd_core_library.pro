@@ -1,5 +1,10 @@
 
-TARGET = $$qtLibraryTarget(sstd_core_library)
+CONFIG(debug,debug|release){
+    TARGET = sstd_core_libraryd
+}else{
+    TARGET = sstd_core_library
+}
+
 TEMPLATE = lib
 
 DEFINES *= _1_SSTD_CORE_LIBRARY

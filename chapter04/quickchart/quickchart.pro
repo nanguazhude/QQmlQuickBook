@@ -56,7 +56,16 @@ HEADERS += $$PWD/RootWindow.hpp
 SOURCES += $$PWD/ForceLoadChart.cpp
 
 include($$PWD/this/this.pri)
-LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
+
+CONFIG(debug,debug|release){
+    LIBS += -L$$RootDestDir -lsstd_core_libraryd
+    QMAKE_POST_LINK += $$DESTDIR/buildinstall_debug $$PWD "myqml"
+    export(QMAKE_POST_LINK)
+}else{
+    LIBS += -L$$RootDestDir -lsstd_core_library
+    QMAKE_POST_LINK += $$DESTDIR/buildinstall $$PWD "myqml"
+    export(QMAKE_POST_LINK)
+}
 
 
 

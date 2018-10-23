@@ -28,7 +28,3 @@ HEADERS +=     $$PWD/sstd_utility/ConstructQSurface.hpp
 include($$PWD/sstd_utility/sstd_quick_debug.pri)
 include($$PWD/sstd_utility/time/time.pri)
 
-!win32 {
-    QMAKE_LFLAGS += -Wl,-rpath .
-}
-
