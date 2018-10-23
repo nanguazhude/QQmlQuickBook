@@ -17,7 +17,12 @@
 #include <limits>
 #include <utility>
 #include <type_traits>
+
+#if __has_include(<memory_resource>)
 #include <memory_resource>
+#else
+#define DO_NOT_HAVE_MEMORY_RESOURCE
+#endif
 
 #include <string>
 #include <chrono>
