@@ -20,7 +20,9 @@ HEADERS += $$PWD/global_sstd_core_library.hpp
 
 SOURCES += $$PWD/sstd_core_memory.cpp
 
-
+!win32 {
+    QMAKE_LFLAGS += -Wl,-rpath .
+}
 
 
 

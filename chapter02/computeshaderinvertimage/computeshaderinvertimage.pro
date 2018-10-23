@@ -59,3 +59,9 @@ CONFIG(debug,debug|release){
     QMAKE_POST_LINK += $$DESTDIR/buildinstall $$PWD "myqml"
     export(QMAKE_POST_LINK)
 }
+
+!win32 {
+    QMAKE_LFLAGS += -Wl,-rpath .
+}
+
+

@@ -40,7 +40,9 @@ CONFIG(debug,debug|release){
     LIBS += -L$$RootDestDir -lsstd_core_library
 }
 
-
+!win32 {
+    QMAKE_LFLAGS += -Wl,-rpath .
+}
 
 
 

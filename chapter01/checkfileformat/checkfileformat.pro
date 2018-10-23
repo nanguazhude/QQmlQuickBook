@@ -54,4 +54,8 @@ CONFIG(debug,debug|release){
     export(QMAKE_POST_LINK)
 }
 
+!win32 {
+    QMAKE_LFLAGS += -Wl,-rpath .
+}
+
 
