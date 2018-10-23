@@ -5,11 +5,11 @@ win32-msvc*{
     QMAKE_CXXFLAGS += /await
     CONFIG+=suppress_vcproj_warnings
 }else{
+    #QMAKE_CXXFLAGS += -lstdc++fs
     QMAKE_CXXFLAGS += -std=c++17
+    #set c version
+    QMAKE_CFLAGS += -std=c11
 }
-
-#set c version
-QMAKE_CFLAGS += -std=c11
 
 #set root install dir
 CONFIG += console

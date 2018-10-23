@@ -225,7 +225,7 @@ void main() {
                     }
 
                     auto varData = static_cast<GLfloat *>(glMapNamedBuffer(mmm_Buffer, GL_WRITE_ONLY));
-                    std::memcpy(varData, mmm_GLDrawData.data.data(), sizeof(mmm_GLDrawData));
+                    ::memcpy(varData, mmm_GLDrawData.data.data(), sizeof(mmm_GLDrawData));
                     glUnmapNamedBuffer(mmm_Buffer);
 
                 }

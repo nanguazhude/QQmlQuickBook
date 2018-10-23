@@ -13,6 +13,10 @@ inline QObject * QmlSigleton::instance() {
     return varAns.get();
 }
 
+QColor QmlSigleton::getMyColor() const{
+    return this->mmm_MyColor.getData();
+}
+
 static inline void registerThis() {
     qmlRegisterSingletonType<QmlSigleton>("myqml.qmlsigleton",
         1, 0,
@@ -25,9 +29,12 @@ static inline void registerThis() {
 }
 Q_COREAPP_STARTUP_FUNCTION(registerThis)
 
-
-
-
+//g++ error ???
+//namespace sstd {
+//    namespace qmlsigleton {
+//        extern template class DataItem<QColor>;
+//    }/*qmlsigleton*/
+//}/*sstd*/
 
 
 

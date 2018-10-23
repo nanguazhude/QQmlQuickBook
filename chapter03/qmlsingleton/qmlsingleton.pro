@@ -32,6 +32,7 @@ lupdate_only{
 }
 DISTFILES += $$QMLSOURCES
 
+HEADERS += $$PWD/DataItem.hpp
 HEADERS += $$PWD/QmlSigleton.hpp
 SOURCES += $$PWD/QmlSigleton.cpp
 

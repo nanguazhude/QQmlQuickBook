@@ -23,7 +23,6 @@ RESOURCES += $$PWD/../../qqmlquickglobal.qrc
 SOURCES += $$PWD/main.cpp \
     $$PWD/Application.cpp \
     $$PWD/GetLocalFullPath.cpp \
-    $$PWD/main.cpp \
     $$PWD/QmlApplicationEngine.cpp
 
 
