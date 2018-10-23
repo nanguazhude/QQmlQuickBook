@@ -13,34 +13,6 @@
 
 namespace sstd {
 
-#if defined(QT_CORE_LIB)
-
-    inline sstd::string load_file_remove_utf8(const QString & a,
-        char * b = nullptr,
-        std::streamsize c = 0) {
-
-        QFile varFile{ a };
-        if(false == varFile.open(QIODevice::ReadOnly)){
-            return {};
-        }
-
-        const auto varData = varFile.readAll();
-        const static constexpr char globalBom[] = "\xEF\xBB\xBF";
-
-        if(varData.startsWith(globalBom)){
-            return sstd::string(std::string_view{ varData.data()+3,
-            static_cast<std::size_t>(varData.size()-3)});
-        }
-
-        return sstd::string(std::string_view{ varData.data() ,
-               static_cast<std::size_t>(varData.size() )});
-
-        return {};
-        (void) b;
-        (void) c;
-    }
-#else
-
 /*读取一个utf8文件，如果有bom则去除，并为文件最后加一行空行*/
 inline sstd::string load_file_remove_utf8(const std::filesystem::path & arg,
     char * varTmpBuffer = nullptr,
@@ -84,6 +56,21 @@ inline sstd::string load_file_remove_utf8(const std::filesystem::path & arg,
     varAns += "\n"sv;
     return std::move(varAns);
 }
+
+#if defined(QT_CORE_LIB)
+
+inline sstd::string load_file_remove_utf8(const QString & a,
+    char * b = nullptr,
+    std::streamsize c = 0){
+    const auto varU8D = a.toUtf8();
+    const auto varU8Path = std::filesystem::u8path(
+        varU8D.data(),
+        varU8D.data()+varU8D.size()
+     );
+    return load_file_remove_utf8( varU8Path,b,c );
+}
+
+#else
 
 #endif
 

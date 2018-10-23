@@ -425,7 +425,7 @@ namespace _0_this_file{
                 static_cast<int>(varImages.size()/*depth*/));
 
             /*上传数据*/
-            for (int varI = 0; varI < varImages.size(); ++varI) {
+            for (unsigned int varI = 0; varI < varImages.size(); ++varI) {
                 glTextureSubImage3D(texture, 0/*level​*/, 0/*x*/, 0/*y*/, varI/*z*/,
                     varWidth, varHeight, 1,
                     GL_RGBA, GL_UNSIGNED_BYTE, varImages[varI].bits());

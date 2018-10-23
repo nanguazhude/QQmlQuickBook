@@ -7,6 +7,10 @@ win32-msvc*{
 }else{
     linux-g++*{
         LIBS += -lstdc++fs
+        CONFIG(debug,debug|release){
+        }else{
+            QMAKE_CXXFLAGS += -Wno-cpp
+        }
     }
     QMAKE_CXXFLAGS += -std=c++17
     #set c version
@@ -24,4 +28,7 @@ HEADERS +=     $$PWD/sstd_utility/ConstructQSurface.hpp
 include($$PWD/sstd_utility/sstd_quick_debug.pri)
 include($$PWD/sstd_utility/time/time.pri)
 
+!win32 {
+    QMAKE_LFLAGS += -Wl,-rpath .
+}
 
