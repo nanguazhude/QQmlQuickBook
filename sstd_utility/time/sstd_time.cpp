@@ -10,6 +10,7 @@
 #include <thread>
 #include <shared_mutex>
 #include <condition_variable>
+#include <optional>
 
 namespace sstd {
 
@@ -17,6 +18,141 @@ namespace sstd {
     }
 
 }/*namespace sstd*/
+
+namespace {
+    class SimpleGC {
+    public:
+
+        using GCSet = std::set<
+            std::shared_ptr<const void>,
+            std::owner_less<void>,
+            sstd::allocator<std::shared_ptr<const void>>>;
+        using GCSetConstPos = GCSet::const_iterator;
+
+        class GCObject {
+        public:
+            const std::shared_ptr<const void> * mmm_Data;
+            GCSetConstPos mmm_Pos;
+            std::optional< std::chrono::steady_clock::time_point > mmm_MarkDeleteTime;
+        public:
+
+            GCObject(const std::shared_ptr<const void> * a, GCSetConstPos b) :
+                mmm_Data(a),
+                mmm_Pos(std::move(b)) {
+            }
+
+            GCObject(const GCObject &) = default;
+            GCObject(GCObject &&) = default;
+            GCObject&operator=(const GCObject &) = default;
+            GCObject&operator=(GCObject &&) = default;
+
+        private:
+            SSTD_MEMORY_DEFINE(GCObject)
+        };
+        using GCList = sstd::list<GCObject>;
+
+        std::shared_mutex mmm_Mutex_Objecs;
+        GCList mmm_Objecs;
+        std::shared_mutex mmm_Mutex_ObjectsSet;
+        GCSet mmm_ObjectsSet;
+        constexpr const static std::size_t mmm_GCStepSize{ 1024 };
+
+        void insert(std::shared_ptr<const void > arg) {
+
+            if (false == bool(arg)) {
+                return;
+            }
+
+            bool varIsInsert{ false };
+            GCSetConstPos varConstPos;
+
+            {
+                std::unique_lock varWriteLock{ mmm_Mutex_ObjectsSet };
+                std::tie(varConstPos, varIsInsert) = mmm_ObjectsSet.insert(std::move(arg));
+            }
+
+            /*the data have in it ... */
+            if (false == varIsInsert) {
+                return;
+            }
+
+            {
+                /*push it to front ... */
+                std::unique_lock varWriteLock{ mmm_Mutex_Objecs };
+                mmm_Objecs.emplace_front(&(*varConstPos), std::move(varConstPos));
+            }
+
+            return;
+        }
+
+        void gcStep() {
+
+            std::size_t varAllElementSize{ 0 };
+            {
+                std::shared_lock varReadLock{ mmm_Mutex_Objecs };
+                varAllElementSize = mmm_Objecs.size();
+            }
+
+            if (varAllElementSize < 1) {
+                return;
+            }
+
+            GCList varTmpData;
+            GCList varAboutToDelete;
+            GCList varAboutToDeleteNextTime;
+
+            /*get object to gc ... */
+            if (varAllElementSize < mmm_GCStepSize) {
+                std::unique_lock varWriteLock{ mmm_Mutex_Objecs };
+                varTmpData.splice(varTmpData.begin(), std::move(mmm_Objecs));
+            } else {
+                std::unique_lock varWriteLock{ mmm_Mutex_Objecs };
+                auto varMoveFistPos = mmm_Objecs.begin();
+                auto varMoveLastPos = std::next(varMoveFistPos, mmm_GCStepSize);
+                varTmpData.splice(varTmpData.begin(),
+                    mmm_Objecs,
+                    varMoveFistPos,
+                    varMoveLastPos);
+            }
+
+            const auto varNow = std::chrono::steady_clock::now();
+            while (false == varTmpData.empty()) {
+                auto varI = varTmpData.begin();
+                if (varI->mmm_MarkDeleteTime) {
+                    if (std::chrono::abs(varNow - *(varI->mmm_MarkDeleteTime)) > 10ms) {
+                        /*about to delete ...*/
+                        varAboutToDelete.splice(varAboutToDelete.end(), varTmpData, varI);
+                        continue;
+                    }
+                } else if (varI->mmm_Data->use_count() < 2) {
+                    /*mark it to delete ...*/
+                    varI->mmm_MarkDeleteTime = varNow;
+                }
+                /*try delete next time ...*/
+                varAboutToDeleteNextTime.splice(varAboutToDeleteNextTime.end(), varTmpData, varI);
+            }
+
+            /*add try delete next time ...*/
+            if (varAboutToDeleteNextTime.empty() == false) {
+                std::unique_lock varWriteLock{ mmm_Mutex_Objecs };
+                mmm_Objecs.splice(mmm_Objecs.end(), std::move(varAboutToDeleteNextTime));
+            }
+
+            /*delete now ...*/
+            if (varAboutToDelete.empty() == false) {
+                std::unique_lock varWriteLock{ mmm_Mutex_ObjectsSet };
+                for (const auto & varI : varAboutToDelete) {
+                    /*really delete ... */
+                    mmm_ObjectsSet.erase(varI.mmm_Pos);
+                }
+            }
+
+        }
+
+    private:
+        SSTD_MEMORY_DEFINE(SimpleGC)
+    };
+}/*namespace*/
 
 namespace sstd::private_thread {
 
@@ -39,52 +175,18 @@ namespace sstd::private_thread {
         sstd::list<std::function<void(void)>> mmm_Functions;
         std::atomic<int> mmm_RunThreadCount{ 0 };
         mutable std::condition_variable mmm_Wait;
-        mutable std::shared_mutex mmm_Mutex_Data;
-        sstd::set<std::shared_ptr<const void>> mmm_Data;
+        SimpleGC mmm_GC;
     public:
 
         void addUniqueDelete(std::shared_ptr<const void> arg) override {
-            {
-                std::unique_lock varWriteLock{ mmm_Mutex_Data };
-                mmm_Data.insert(std::move(arg));
-            }
+            /*insert data ...*/
+            mmm_GC.insert(std::move(arg));
             mmm_Wait.notify_all();
         }
 
         void tryUniqueData() {
-
-            {
-                std::shared_lock varReadLock{ mmm_Mutex_Data };
-                if (mmm_Data.empty()) {
-                    return;
-                }
-            }
-
-            sstd::set<std::shared_ptr<const void>> varTmpData0;
-            {
-                std::unique_lock varWriteLock{ mmm_Mutex_Data };
-                varTmpData0 = std::move(mmm_Data);
-            }
-
-            {
-                sstd::vector<std::shared_ptr<const void>> varTmpData1{  };
-                varTmpData1.reserve(varTmpData0.size());
-                for (const auto & varI : varTmpData0) {
-                    if (varI&&varI.use_count() > 1) {
-                        varTmpData1.push_back(varI);
-                    }
-                }
-                varTmpData0.clear();
-                for (auto & varI : varTmpData1) {
-                    varTmpData0.insert(std::move(varI));
-                }
-            }
-
-            {
-                std::unique_lock varWriteLock{ mmm_Mutex_Data };
-                mmm_Data.merge(varTmpData0);
-            }
-
+            /*eval a gc ...*/
+            mmm_GC.gcStep();
         }
 
         class Runner final {
