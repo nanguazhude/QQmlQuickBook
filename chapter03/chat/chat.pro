@@ -9,9 +9,7 @@ QT += widgets
 QT += concurrent
 
 QT += gui_private
-QT += qml_private
 QT += core_private
-QT += quick_private
 QT += widgets_private
 
 include($$PWD/../../QQmlQuickBook.pri)
