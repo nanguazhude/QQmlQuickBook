@@ -6,7 +6,13 @@
 #include <cstddef>
 #include <utility>
 #include <iostream>
+
+#if __has_include(<execution>)
 #include <execution>
+#else
+#define NO_STD_EXCUTION 1
+#endif
+
 #include <algorithm>
 #include <filesystem>
 #include <functional>
@@ -176,11 +182,15 @@ inline void Duty::_p_copy_files(const CopyInformation & items) const {
         calls.emplace_back(fromDir / i, toDir / i);
     }
     std::for_each(
+            #if defined(NO_STD_EXCUTION)
+/*...*/
+            #else
 #if defined(_DEBUG)
         std::execution::seq,
 #else
         std::execution::par_unseq,
 #endif
+            #endif
         calls.cbegin(), calls.cend(),
         [](const auto & a) { _p_copy_a_file(a.first, a.second); });
 }
