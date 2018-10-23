@@ -74,7 +74,7 @@ void RootWindow::checkTheDir(QVariant arg) {
         alignas(4) char varBom[4];
         const auto varSize = varFile.read(varBom, 3);
         if (varSize < 3) { return true; }
-        return (0 != std::memcmp(globalBom, varBom, 3));
+        return (0 != ::memcmp(globalBom, varBom, 3));
     };
 
 #if defined(QT_DEBUG)
@@ -95,7 +95,7 @@ void RootWindow::checkTheDir(QVariant arg) {
         alignas(4) char varBom[4];
         const auto varSize = varFile.read(varBom, 3);
         if (varSize < 3) { return false; }
-        return (0 == std::memcmp(globalBom, varBom, 3));
+        return (0 == ::memcmp(globalBom, varBom, 3));
     };
 
 #if defined(QT_DEBUG)
@@ -165,10 +165,10 @@ QModelIndex RootWindow::index(int row, int column, const QModelIndex &parent) co
 }
 
 QModelIndex RootWindow::parent(const QModelIndex &index) const {
-    if (index.internalId() == 1) { return this->createIndex(0, 0, static_cast<std::uintptr_t>(0)); }
-    if (index.internalId() == 2) { return this->createIndex(0, 0, static_cast<std::uintptr_t>(1)); }
-    if (index.internalId() == 3) { return this->createIndex(1, 0, static_cast<std::uintptr_t>(1)); }
-    return this->createIndex(0, 0, static_cast<std::uintptr_t>(0));
+    if (index.internalId() == 1) { return this->createIndex(0, 0, static_cast<quintptr>(0)); }
+    if (index.internalId() == 2) { return this->createIndex(0, 0, static_cast<quintptr>(1)); }
+    if (index.internalId() == 3) { return this->createIndex(1, 0, static_cast<quintptr>(1)); }
+    return this->createIndex(0, 0, static_cast<quintptr>(0));
 }
 
 int RootWindow::rowCount(const QModelIndex &parent) const {
@@ -271,7 +271,7 @@ static inline bool add_utf8_bom(const QString & argFileName) try {
 
     const static constexpr char globalBom[] = "\xEF\xBB\xBF";
     if (varFileData.size() > 2) {
-        if (std::memcmp(globalBom, varFileData.data(), 3) == 0) {
+        if (::memcmp(globalBom, varFileData.data(), 3) == 0) {
             return true;
         }
     }
