@@ -140,11 +140,17 @@ namespace {
 
             /*delete now ...*/
             if (varAboutToDelete.empty() == false) {
-                std::unique_lock varWriteLock{ mmm_Mutex_ObjectsSet };
-                for (const auto & varI : varAboutToDelete) {
-                    /*really delete ... */
-                    mmm_ObjectsSet.erase(varI.mmm_Pos);
+                sstd::vector<std::shared_ptr<const void>> varReallyDelete;
+                varReallyDelete.reserve(varAboutToDelete.size());
+                {
+                    /*delete after unlock ...*/
+                    std::unique_lock varWriteLock{ mmm_Mutex_ObjectsSet };
+                    for (const auto & varI : varAboutToDelete) {
+                        varReallyDelete.push_back(*varI.mmm_Data);
+                        mmm_ObjectsSet.erase(varI.mmm_Pos);
+                    }
                 }
+                /*really delete ... */
             }
 
         }
@@ -235,6 +241,7 @@ namespace sstd::private_thread {
 
         void quit() {
             mmm_IsQuit.store(true);
+            mmm_Wait.notify_all();
         }
 
         type getCurrentTime() const override {
@@ -295,6 +302,7 @@ namespace sstd::private_thread {
                 int varWakeTimeCount = 0;
 
                 /*
+                当线程退出则退出等待
                 当等待超时则退出等待
                 当被唤醒100次之后，则退出等待
                 当被唤醒时，检查如果有函数需要运行，则退出等待；
@@ -304,6 +312,11 @@ namespace sstd::private_thread {
                 static_assert(varWaitTime > 2ms);
                 mmm_Wait.wait_for(varLocker, varWaitTime,/*continue*/
                     [this, varLockBegin, &varWakeTimeCount]() mutable ->bool {
+                    
+                    if (mmm_IsQuit.load()) {
+                        return true;
+                    }
+
                     ++varWakeTimeCount;
                     if (varWakeTimeCount > 100) {
                         return true;
