@@ -5,7 +5,9 @@ win32-msvc*{
     QMAKE_CXXFLAGS += /await
     CONFIG+=suppress_vcproj_warnings
 }else{
-    #QMAKE_CXXFLAGS += -lstdc++fs
+    linux-g++*{
+        LIBS += -lstdc++fs
+    }
     QMAKE_CXXFLAGS += -std=c++17
     #set c version
     QMAKE_CFLAGS += -std=c11
