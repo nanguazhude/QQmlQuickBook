@@ -49,6 +49,5 @@ include($$PWD/../../sstd_utility/sstd_quick.pri)
 
 LIBS += -L$$RootDestDir -l$$qtLibraryTarget(sstd_core_library)
 
-SOURCES += $$PWD/sstd_Window.cpp
-HEADERS += $$PWD/sstd_Window.hpp
+
 
