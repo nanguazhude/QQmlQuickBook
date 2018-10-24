@@ -11,6 +11,11 @@
 
 namespace sstd {
 
+    template<typename T>
+    inline void wait(const T & arg,std::size_t N) {
+        (*arg)[N]->wait();
+    }
+
     class _1_SSTD_QUICK_LIBRARY_EXPORT ObjectFuture :
         public QObject,
         public std::future<void>,

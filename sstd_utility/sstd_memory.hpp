@@ -362,8 +362,8 @@ ARG_MMM_CLASS_NAME&operator=(ARG_MMM_CLASS_NAME &&)=delete \
 #define SSTD_DECLTYPE(...) SSTD_RMCVR( decltype(__VA_ARGS__) ) /**/
 #endif
 
-#ifndef SSTD_THIS_TTPE
-#define SSTD_THIS_TTPE std::remove_reference_t< decltype(*this) >/**/
+#ifndef SSTD_THIS_TYPE
+#define SSTD_THIS_TYPE std::remove_reference_t< decltype(*this) >/**/
 #endif
 
 namespace sstd {

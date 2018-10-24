@@ -381,31 +381,34 @@ namespace sstd {
         varRenderPack = createRender(this, varQmlPath);
         END_TRY;
 
-        /*init in another thread ...*/
-        mmm_Thread->runInThisThread([this, varRenderPack]() {
-            BEGIN_TRY;
+        {
+            /*init in another thread ...*/
+            auto varFutures = mmm_Thread->runInThisThread([this, varRenderPack]() {
+                BEGIN_TRY;
 
-            if (false == varRenderPack->sourceContex->makeCurrent(varRenderPack->sourceContexSurface.get())) {
-                throw QStringLiteral("can not make current ...");
-            }
+                if (false == varRenderPack->sourceContex->makeCurrent(varRenderPack->sourceContexSurface.get())) {
+                    throw QStringLiteral("can not make current ...");
+                }
 
-            if (false == glewInitialize()) {
-                throw QStringLiteral("can not init glew ...");
-            }
+                if (false == glewInitialize()) {
+                    throw QStringLiteral("can not init glew ...");
+                }
 
-            const QSize varRenderSize =
-                varRenderPack->sourceWindow->size();
-            /*create fbo ...
-            there use default internal fotmat rgba8 ...*/
-            varRenderPack->sourceFBO = sstd::make_unique<QOpenGLFramebufferObject>(
-                varRenderSize,
-                QOpenGLFramebufferObject::CombinedDepthStencil,
-                GL_TEXTURE_2D);
-            varRenderPack->sourceWindow->setRenderTarget(varRenderPack->sourceFBO.get());
-            /*init render control ...*/
-            varRenderPack->sourceControl->initialize(varRenderPack->sourceContex.get());
-            END_TRY;
-        })->data()->get()->wait();
+                const QSize varRenderSize =
+                    varRenderPack->sourceWindow->size();
+                /*create fbo ...
+                there use default internal fotmat rgba8 ...*/
+                varRenderPack->sourceFBO = sstd::make_unique<QOpenGLFramebufferObject>(
+                    varRenderSize,
+                    QOpenGLFramebufferObject::CombinedDepthStencil,
+                    GL_TEXTURE_2D);
+                varRenderPack->sourceWindow->setRenderTarget(varRenderPack->sourceFBO.get());
+                /*init render control ...*/
+                varRenderPack->sourceControl->initialize(varRenderPack->sourceContex.get());
+                END_TRY;
+            });
+            sstd::wait(varFutures, 0);
+        }
 
         /*polish in main thread ...*/
         BEGIN_TRY;
@@ -451,7 +454,7 @@ namespace sstd {
             varRenderPack->sourceContex->aboutToBeDestroyed();
             varRenderPack->sourceContex->doneCurrent();
             varRenderPack->sourceContex->moveToThread(qApp->thread());
-            varRenderPack->renderThread->runInMainThread([this, varRenderPack]() {
+            auto varFutures = varRenderPack->renderThread->runInMainThread([this, varRenderPack]() {
                 assert(qApp->thread() == QThread::currentThread());
                 /*destory data in main thread ...*/
                 BEGIN_TRY;
@@ -461,8 +464,11 @@ namespace sstd {
                 varRenderPack->sourceContex.reset();
                 END_TRY;
             });
+            if (varFutures) {
+                sstd::wait(varFutures,0);
+            }
             END_TRY;
-        })->data()->get()->wait();
+        });
 
     }
 
