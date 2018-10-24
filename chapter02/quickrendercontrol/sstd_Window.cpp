@@ -455,7 +455,7 @@ sstd::Window::Window() :
 sstd::Window::~Window() {
     mmm_RenderPack->isClose.store(true);
     mmm_RenderPack->renderThread->runInThisThread(DestoryRenderPack{ mmm_RenderPack })
-        ->data()->wait();
+        ->data()->get()->wait();
     mmm_RenderPack->sourceContex.reset();
     mmm_RenderPack->sourceViewControl.reset();
     mmm_RenderPack->sourceView.reset();
@@ -541,7 +541,7 @@ void sstd::Window::ppp_PolishSyncAndRender() {
         if (varFutrues) {
             constexpr const static auto varIndexSync = sstd::tuple_index<DrawSourceSync,this_run>::value;
             constexpr const static auto varFinishedAll = std::tuple_size<this_run>::value - 1;
-            varFutrues->data()[(isResize == false) ? varIndexSync : varFinishedAll].wait();
+            varFutrues->data()[(isResize == false) ? varIndexSync : varFinishedAll]->wait();
         }
 
     } else {
@@ -624,7 +624,7 @@ void sstd::Window::startQuick(const QUrl &filename) {
     mmm_RenderPack->renderThread->runInThisThread([varPack = mmm_RenderPack]() {
         varPack->sourceContex->makeCurrent(varPack->sourceOffscreenSurface.get());
         varPack->sourceViewControl->initialize(varPack->sourceContex.get());
-    })->data()->wait();
+    })->data()->get()->wait();
 
     polishSyncAndRenderResize();
 

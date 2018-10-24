@@ -405,7 +405,7 @@ namespace sstd {
             /*init render control ...*/
             varRenderPack->sourceControl->initialize(varRenderPack->sourceContex.get());
             END_TRY;
-        })->data()->wait();
+        })->data()->get()->wait();
 
         /*polish in main thread ...*/
         BEGIN_TRY;
@@ -462,7 +462,7 @@ namespace sstd {
                 END_TRY;
             });
             END_TRY;
-        })->data()->wait();
+        })->data()->get()->wait();
 
     }
 

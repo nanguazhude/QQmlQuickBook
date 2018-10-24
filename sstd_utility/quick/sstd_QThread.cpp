@@ -13,27 +13,38 @@ namespace {
 
     class RunThisEvent : public QEvent {
         sstd::vector< PackType > mmm_Functions;
-        std::shared_ptr< sstd::vector< std::future<void> > > mmm_Futures;
+        std::shared_ptr< sstd::vector< sstd::ObjectFuturePointer  > > mmm_Futures;
     public:
 
         RunThisEvent(sstd::vector< PackType > && arg) :
             QEvent(getEventIndex()),
             mmm_Functions(std::move(arg)) {
-            mmm_Futures = sstd::make_shared<sstd::vector< std::future<void> >>();
+            mmm_Futures = sstd::make_shared<sstd::vector< sstd::ObjectFuturePointer  >>();
             mmm_Futures->reserve(mmm_Functions.size());
             for (auto & varI : mmm_Functions) {
-                mmm_Futures->push_back(varI.get_future());
+                mmm_Futures->emplace_back(sstd::make_shared<sstd::ObjectFuture>(varI.get_future()));
             }
         }
 
-        std::shared_ptr< const sstd::vector< std::future<void> > > getFutures()const {
+        std::shared_ptr< const sstd::vector< sstd::ObjectFuturePointer  > > getFutures()const {
             return mmm_Futures;
         }
 
         void run() {
+            const auto varSize = mmm_Functions.size();
+            auto & varFutures = *mmm_Futures;
             /*call functions in order*/
-            for (auto & varI : mmm_Functions) {
-                varI();
+            for (SSTD_DECLTYPE(varSize) varI = 0; varI < varSize; ++varI) {
+                auto & varFuture = varFutures[varI];
+                try {
+                    varFuture->beginCall();
+                } catch (...) {
+                }
+                mmm_Functions[varI]();
+                try {
+                    varFuture->endCall();
+                } catch (...) {
+                }
             }
         }
 
@@ -108,7 +119,7 @@ namespace sstd {
 
     }
 
-    std::shared_ptr< const sstd::vector< std::future<void> > > QuickThread::ppp_Call(sstd::vector<std::packaged_task<void(void)>> && arg) {
+    std::shared_ptr< const sstd::vector< ObjectFuturePointer  > > QuickThread::ppp_Call(sstd::vector<std::packaged_task<void(void)>> && arg) {
         std::shared_lock varReadLock{ mmm_Mutex };
         if (mmm_CallObject) {
             auto varEvnet = sstdNew<RunThisEvent>(std::move(arg));
@@ -137,7 +148,7 @@ namespace sstd {
         Q_COREAPP_STARTUP_FUNCTION(updateWhenQCoreApplicationConstruct)
     }/**/
 
-    std::shared_ptr< const sstd::vector< std::future<void> > > ppp_run_in_main_thread(sstd::vector<std::packaged_task<void(void)>> && arg) {
+    std::shared_ptr< const sstd::vector< ObjectFuturePointer  > > ppp_run_in_main_thread(sstd::vector<std::packaged_task<void(void)>> && arg) {
         assert(qApp);
 
         auto varCallObject = globalObjectInMain.load();
@@ -152,11 +163,29 @@ namespace sstd {
 
     }
 
-    std::shared_ptr< const sstd::vector< std::future<void> > > ppp_run_here(sstd::vector<std::packaged_task<void(void)>> && arg) {
+    std::shared_ptr< const sstd::vector< ObjectFuturePointer  > > ppp_run_here(sstd::vector<std::packaged_task<void(void)>> && arg) {
         auto varEvnet = sstd::make_unique<RunThisEvent>(std::move(arg));
         auto varAns = varEvnet->getFutures();
         varEvnet->run();
         return std::move(varAns);
+    }
+
+    ObjectFuture::ObjectFuture(std_future && arg) :std_future(std::move(arg)) {
+    }
+
+    ObjectFuture::~ObjectFuture() {
+        if (this->valid()) {
+            return;
+        }
+        mmm_IsIgnored.store(true);
+        try {
+            this->beginCall();
+        } catch (...) {
+        }
+        try {
+            this->endCall();
+        } catch (...) {
+        }
     }
 
 }/*namespace sstd*/
