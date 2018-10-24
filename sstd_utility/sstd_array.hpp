@@ -48,13 +48,20 @@ public:
     Array&operator=(const Array &) = delete;
     Array&operator=(Array&&) = default;
 public:
-    template<typename ... R>
-    Array(std::size_t N = 1, R && ... args) {
-        _0_get_this_value()->reserve(N);
+
+    Array(std::size_t N) {
         assert(N > 0);
+        _0_get_this_value()->reserve(N);
         assert((N <= _0_get_this_value()->capacity()) && "capacity should not less than N");
+    }
+
+    template<typename R1, typename R2, typename ... R>
+    Array(R1&&r1, R2 &&r2, R && ... args) : Array((sizeof...(R)) + 2) {
+        (void)push_back(std::forward<R1>(r1));
+        (void)push_back(std::forward<R2>(r2));
         (((void)push_back(std::forward<R>(args))), ...);
     }
+
 public:
 
     using element_type = T;
