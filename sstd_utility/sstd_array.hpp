@@ -85,31 +85,31 @@ namespace sstd {
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-        operator bool() const {
+        operator bool() const noexcept {
             return size() > 0;
         }
 
-        inline const_pointer data() const {
+        inline const_pointer data() const noexcept {
             return reinterpret_cast<const_pointer>(_0_get_this_value()->data());
         }
 
-        inline pointer data() {
+        inline pointer data() noexcept {
             return reinterpret_cast<pointer>(_0_get_this_value()->data());
         }
 
-        inline auto size() const {
+        inline auto size() const noexcept {
             return _0_get_this_value()->size();
         }
 
-        inline auto capacity() const {
+        inline auto capacity() const noexcept {
             return _0_get_this_value()->capacity();
         }
 
-        inline iterator begin() {
+        inline iterator begin() noexcept {
             return data();
         }
 
-        inline iterator end() {
+        inline iterator end() noexcept {
             return data() + _0_get_this_value()->size();
         }
 
