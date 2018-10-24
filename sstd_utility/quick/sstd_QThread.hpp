@@ -13,6 +13,10 @@ namespace sstd {
 
     template<typename T>
     inline void wait(const T & arg,std::size_t N) {
+        if (false == bool(arg)) {
+            return;
+        }
+        assert(N<(arg->size()));
         (*arg)[N]->wait();
     }
 
