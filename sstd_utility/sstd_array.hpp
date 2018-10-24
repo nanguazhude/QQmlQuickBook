@@ -77,6 +77,7 @@ namespace sstd {
         using index_type = std::ptrdiff_t;
         using difference_type = index_type;
         using pointer = T * ;
+        using const_pointer = T * ;
         using reference = T & ;
         using const_reference = const T &;
         using iterator = T * ;
@@ -88,8 +89,12 @@ namespace sstd {
             return size() > 0;
         }
 
-        inline pointer data() const {
-            return reinterpret_cast<T *>(const_cast<U *>((_0_get_this_value()->data())));
+        inline const_pointer data() const {
+            return reinterpret_cast<const_pointer>(_0_get_this_value()->data());
+        }
+
+        inline pointer data() {
+            return reinterpret_cast<pointer>(_0_get_this_value()->data());
         }
 
         inline auto size() const {
