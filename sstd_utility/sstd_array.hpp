@@ -2,10 +2,11 @@
 
 namespace sstd{
 
-template<typename T>
+template<typename T >
 class Array : public std::enable_shared_from_this<Array<T>> {
+    template<typename T> using A = std::allocator<T>;
     using U = std::aligned_storage_t<sizeof(T), alignof(T)>;
-    std::vector<U> mmm_Data;
+    std::vector<U, A<U>> mmm_Data;
     Array(const Array &) = delete;
     Array(Array &&) = delete;
     Array&operator=(const Array &) = delete;
@@ -13,10 +14,10 @@ class Array : public std::enable_shared_from_this<Array<T>> {
 public:
 
     inline static std::shared_ptr<Array<T>> make_array(std::size_t N) {
-        return std::make_shared<Array<T>>(N);
+        return std::allocate_shared<Array<T>>(A<Array<T>>{}, N);
     }
 
-protected:
+public:
     Array(std::size_t N = 1) {
         mmm_Data.reserve(N);
         assert((N <= mmm_Data.capacity()) && "capacity should not less than N");
@@ -36,7 +37,7 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     inline pointer data() const {
-        return static_cast<T *>(mmm_Data.data());
+        return reinterpret_cast<T *>(const_cast<U *>((mmm_Data.data())));
     }
 
     inline auto size() const {
@@ -88,6 +89,7 @@ public:
     }
 
 public:
+
     inline reverse_iterator rbegin() const noexcept {
         return std::make_reverse_iterator(end());
     }
@@ -106,6 +108,6 @@ public:
 
 };
 
-    
+
 }/*namespace sstd*/
 
