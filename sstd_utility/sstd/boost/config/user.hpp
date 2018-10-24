@@ -131,44 +131,26 @@
 // to ensure the correct libraries are selected at link time.
 // #define BOOST_LIB_BUILDID amd64
 
+#ifndef _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
+#endif
+
+#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#endif
+
 #ifndef BOOST_HAS_TR1
-#define BOOST_HAS_TR1 (1u)
+#define BOOST_HAS_TR1
 #endif
 
 #ifndef BOOST_SP_USE_STD_ATOMIC
-#define BOOST_SP_USE_STD_ATOMIC (1u)
+#define BOOST_SP_USE_STD_ATOMIC
 #endif
 
 #ifndef BOOST_AC_USE_STD_ATOMIC
-#define BOOST_AC_USE_STD_ATOMIC (1u)
+#define BOOST_AC_USE_STD_ATOMIC
 #endif
 
 #ifndef BOOST_ALL_NO_LIB
-#define BOOST_ALL_NO_LIB (1u)
+#define BOOST_ALL_NO_LIB
 #endif
-
-/***
-#ifndef BOOST_HAS_STATIC_ASSERT
-#define BOOST_HAS_STATIC_ASSERT (1u)
-#endif
-
-#ifndef BOOST_HAS_RVALUE_REFS
-#define BOOST_HAS_RVALUE_REFS (1u)
-#endif
-
-#ifndef BOOST_HAS_DECLTYPE
-#define BOOST_HAS_DECLTYPE (1u)
-#endif
-
-#ifndef BOOST_HAS_VARIADIC_TMPL
-#define BOOST_HAS_VARIADIC_TMPL (1u)
-#endif 
-
-#ifndef BOOST_HAS_PRAGMA_ONCE
-#define BOOST_HAS_PRAGMA_ONCE (1u)
-#endif 
-
-#ifndef BOOST_HAS_STDINT_H
-#define BOOST_HAS_STDINT_H (1u)
-#endif 
-***/
