@@ -122,7 +122,7 @@ namespace sstd {
             auto varMemory = &(_0_get_this_value()->emplace_back());
             T * varAns{ nullptr };
             try {
-                if constexpr (std::is_constructible_v<T, K&&...>) {
+                if constexpr ((std::is_constructible_v<T, K&&...>) && (0 != sizeof...(K))) {
                     varAns = ::new (varMemory) T(std::forward<K>(args)...);
                 } else {
                     varAns = ::new (varMemory) T{ std::forward<K>(args)... };
