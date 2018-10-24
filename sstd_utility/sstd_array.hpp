@@ -77,7 +77,7 @@ namespace sstd {
         using index_type = std::ptrdiff_t;
         using difference_type = index_type;
         using pointer = T * ;
-        using const_pointer = T * ;
+        using const_pointer = const T * ;
         using reference = T & ;
         using const_reference = const T &;
         using iterator = T * ;
