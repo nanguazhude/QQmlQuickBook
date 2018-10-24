@@ -530,3 +530,7 @@ namespace sstd {
     }
 
 }/*namespace sstd*/
+
+#include <sstd_array.hpp>
+#include <sstd_array_view.hpp>
+
