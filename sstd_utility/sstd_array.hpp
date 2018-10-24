@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <functional>
+
 namespace sstd {
 
     template<typename T >
@@ -56,9 +58,15 @@ namespace sstd {
         }
 
         template<typename R1, typename R2, typename ... R>
-        Array(R1&&r1, R2 &&r2, R && ... args) : Array((sizeof...(R)) + 2) {
-            (void)push_back(std::forward<R1>(r1));
-            (void)push_back(std::forward<R2>(r2));
+        Array(R1&&r1, R2 &&r2, R && ... args) : Array((sizeof...(R)) +
+            (false == std::is_placeholder_v<SSTD_RMCVR(R1)>) +
+            (false == std::is_placeholder_v<SSTD_RMCVR(R2)>)) {
+            if constexpr (false == std::is_placeholder_v<SSTD_RMCVR(R1)>) {
+                (void)push_back(std::forward<R1>(r1));
+            }
+            if constexpr (false == std::is_placeholder_v<SSTD_RMCVR(R2)>) {
+                (void)push_back(std::forward<R2>(r2));
+            }
             (((void)push_back(std::forward<R>(args))), ...);
         }
 
