@@ -6,6 +6,7 @@ template<typename T >
 class Array {
     template<typename T> using A = std::allocator<T>;
     using U1 = std::aligned_storage_t<sizeof(T), alignof(T)>;
+#if defined(_DEBUG)
     union U {
         T  real_;
         U1 virtual_;
@@ -30,19 +31,29 @@ class Array {
             virtual_ = std::move(a.virtual_);
         }
     };
+#else
+    using U = U1;
+#endif
     using V = std::vector < U, A< U > >;
-    std::shared_ptr< V > mmm_Data;
+    V mmm_Data;
+    inline const V * _0_get_this_value() const {
+        return &mmm_Data;
+    }
+    inline V * _0_get_this_value() {
+        return &mmm_Data;
+    }
 public:
-    Array(const Array &) = default;
+    Array(const Array &) = delete;
     Array(Array &&) = default;
-    Array&operator=(const Array &) = default;
+    Array&operator=(const Array &) = delete;
     Array&operator=(Array&&) = default;
 public:
-    Array(std::size_t N = 1) {
-        mmm_Data = std::allocate_shared< V >(A<V>{});
-        mmm_Data->reserve(N);
+    template<typename ... R>
+    Array(std::size_t N = 1, R && ... args) {
+        _0_get_this_value()->reserve(N);
         assert(N > 0);
-        assert((N <= mmm_Data->capacity()) && "capacity should not less than N");
+        assert((N <= _0_get_this_value()->capacity()) && "capacity should not less than N");
+        (((void)push_back(std::forward<R>(args))), ...);
     }
 public:
 
@@ -63,15 +74,15 @@ public:
     }
 
     inline pointer data() const {
-        return reinterpret_cast<T *>(const_cast<U *>((mmm_Data->data())));
+        return reinterpret_cast<T *>(const_cast<U *>((_0_get_this_value()->data())));
     }
 
     inline auto size() const {
-        return mmm_Data->size();
+        return _0_get_this_value()->size();
     }
 
     inline auto capacity() const {
-        return mmm_Data->capacity();
+        return _0_get_this_value()->capacity();
     }
 
     inline iterator begin() {
@@ -79,7 +90,7 @@ public:
     }
 
     inline iterator end() {
-        return data() + mmm_Data->size();
+        return data() + _0_get_this_value()->size();
     }
 
     inline const_iterator cbegin() const noexcept {
@@ -87,13 +98,13 @@ public:
     }
 
     inline const_iterator cend() const noexcept {
-        return begin() + mmm_Data->size();
+        return begin() + _0_get_this_value()->size();
     }
 
     template<typename ... K>
     inline T * push_back(K && ...args) {
         assert(size() < capacity());
-        auto varMemory = &(mmm_Data->emplace_back());
+        auto varMemory = &(_0_get_this_value()->emplace_back());
         T * varAns{ nullptr };
         try {
             if constexpr (std::is_constructible_v<T, K&&...>) {
@@ -102,7 +113,7 @@ public:
                 varAns = ::new (varMemory) T{ std::forward<K>(args)... };
             }
         } catch (...) {
-            mmm_Data->pop_back();
+            _0_get_this_value()->pop_back();
             throw;
         }
         return varAns;
@@ -110,7 +121,7 @@ public:
 
     inline ~Array() {
         if constexpr (false == std::is_trivially_destructible_v<T>) {
-            if (false == mmm_Data->empty()) {
+            if (false == _0_get_this_value()->empty()) {
                 std::destroy(begin(), end());
             }
         }
