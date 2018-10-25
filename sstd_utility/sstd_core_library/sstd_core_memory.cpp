@@ -3,6 +3,11 @@
 
 namespace sstd{
 
+    namespace unique {
+        VirtualBasic::~VirtualBasic() {
+        }
+    }/*namespace unique */
+
     void* SSTDMemory::operator new (std::size_t count) {
         return ::operator new(count);
     }

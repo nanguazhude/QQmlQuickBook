@@ -368,9 +368,9 @@ ARG_MMM_CLASS_NAME&operator=(ARG_MMM_CLASS_NAME &&)=delete \
 
 namespace sstd {
     namespace unique {
-        class VirtualBasic {
+        class _1_SSTD_CORE_EXPORT VirtualBasic {
         public:
-            virtual ~VirtualBasic() = default;
+            virtual ~VirtualBasic() ;
         private:
             SSTD_MEMORY_DEFINE(VirtualBasic)
         };
@@ -446,7 +446,7 @@ namespace sstd {
             constexpr inline VirtualBasicDelete() noexcept : mmm_Data{ nullptr } {
             }
 
-            void operator()(void *arg) const {
+            inline void operator()(void *arg) const {
                 assert(arg);
                 delete mmm_Data;
                 return;
@@ -458,10 +458,10 @@ namespace sstd {
             }
 
         public:
-            VirtualBasicDelete(const VirtualBasicDelete &) = default;
-            VirtualBasicDelete(VirtualBasicDelete &&) = default;
-            VirtualBasicDelete&operator=(const VirtualBasicDelete &) = default;
-            VirtualBasicDelete&operator=(VirtualBasicDelete &&) = default;
+            inline VirtualBasicDelete(const VirtualBasicDelete &) = default;
+            inline VirtualBasicDelete(VirtualBasicDelete &&) = default;
+            inline VirtualBasicDelete&operator=(const VirtualBasicDelete &) = default;
+            inline VirtualBasicDelete&operator=(VirtualBasicDelete &&) = default;
         };
 
 
