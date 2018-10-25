@@ -49,7 +49,7 @@
 #include <sstd/boost/geometry/algorithms/detail/overlay/pointlike_linear.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
-#include <sstd/boost/geometry/algorithms/detail/overlay/_debug_turn_info.hpp>
+#include <sstd/boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <sstd/boost/geometry/io/wkt/wkt.hpp>
 #endif
 

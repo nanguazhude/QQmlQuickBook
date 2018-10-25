@@ -56,9 +56,9 @@
 #include <sstd/boost/geometry/algorithms/detail/is_valid/is_acceptable_turn.hpp>
 #include <sstd/boost/geometry/algorithms/detail/is_valid/ring.hpp>
 
-#include <sstd/boost/geometry/algorithms/detail/is_valid/_debug_print_turns.hpp>
-#include <sstd/boost/geometry/algorithms/detail/is_valid/_debug_validity_phase.hpp>
-#include <sstd/boost/geometry/algorithms/detail/is_valid/_debug_complement_graph.hpp>
+#include <sstd/boost/geometry/algorithms/detail/is_valid/debug_print_turns.hpp>
+#include <sstd/boost/geometry/algorithms/detail/is_valid/debug_validity_phase.hpp>
+#include <sstd/boost/geometry/algorithms/detail/is_valid/debug_complement_graph.hpp>
 
 #include <sstd/boost/geometry/algorithms/dispatch/is_valid.hpp>
 

@@ -50,7 +50,7 @@
     #define BOOST_CB_ASSERT_TEMPLATED_ITERATOR_CONSTRUCTORS ((void)0);
 #endif
 
-#include <sstd/boost/circular_buffer/_debug.hpp>
+#include <sstd/boost/circular_buffer/debug.hpp>
 #include <sstd/boost/circular_buffer/details.hpp>
 #include <sstd/boost/circular_buffer/base.hpp>
 #include <sstd/boost/circular_buffer/space_optimized.hpp>

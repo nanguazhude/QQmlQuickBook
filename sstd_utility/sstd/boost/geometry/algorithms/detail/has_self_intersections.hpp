@@ -30,7 +30,7 @@
 #include <sstd/boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_HAS_SELF_INTERSECTIONS
-#  include <sstd/boost/geometry/algorithms/detail/overlay/_debug_turn_info.hpp>
+#  include <sstd/boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #  include <sstd/boost/geometry/io/dsv/write.hpp>
 #endif
 
