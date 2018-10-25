@@ -20,7 +20,7 @@
 #include <sstd/boost/config.hpp>
 
 #include <sstd/boost/bimap/relation/support/is_tag_of_member_at.hpp>
-#include <sstd/boost/bimap/detail/debug/static_error.hpp>
+#include <sstd/boost/bimap/detail/_debug/static_error.hpp>
 #include <sstd/boost/utility/enable_if.hpp>
 #include <sstd/boost/preprocessor/cat.hpp>
 

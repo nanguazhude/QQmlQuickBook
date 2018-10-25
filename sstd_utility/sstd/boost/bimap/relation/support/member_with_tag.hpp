@@ -19,7 +19,7 @@
 #include <sstd/boost/config.hpp>
 
 #include <sstd/boost/bimap/relation/member_at.hpp>
-#include <sstd/boost/bimap/detail/debug/static_error.hpp>
+#include <sstd/boost/bimap/detail/_debug/static_error.hpp>
 #include <sstd/boost/utility/enable_if.hpp>
 #include <sstd/boost/type_traits/is_same.hpp>
 #include <sstd/boost/mpl/bool.hpp>

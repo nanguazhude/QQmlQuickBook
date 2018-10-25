@@ -6,7 +6,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-/// \file detail/debug/static_error.hpp
+/// \file detail/_debug/static_error.hpp
 /// \brief Formatted compile time error
 
 #ifndef BOOST_BIMAP_DETAIL_DEBUG_STATIC_ERROR_HPP

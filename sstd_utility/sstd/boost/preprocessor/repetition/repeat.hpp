@@ -16,7 +16,7 @@
 #
 # include <sstd/boost/preprocessor/cat.hpp>
 # include <sstd/boost/preprocessor/config/config.hpp>
-# include <sstd/boost/preprocessor/debug/error.hpp>
+# include <sstd/boost/preprocessor/_debug/error.hpp>
 # include <sstd/boost/preprocessor/detail/auto_rec.hpp>
 # include <sstd/boost/preprocessor/tuple/eat.hpp>
 #

@@ -17,7 +17,7 @@
 #include <sstd/boost/algorithm/string/predicate.hpp>
 
 #include <sstd/boost/geometry/io/wkt/write.hpp>
-#include <sstd/boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#include <sstd/boost/geometry/algorithms/detail/overlay/_debug_turn_info.hpp>
 #endif // BOOST_GEOMETRY_DEBUG_TURNS
 
 

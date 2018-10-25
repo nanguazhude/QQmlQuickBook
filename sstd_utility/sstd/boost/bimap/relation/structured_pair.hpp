@@ -31,7 +31,7 @@
 #include <sstd/boost/mpl/if.hpp>
 #include <sstd/boost/mpl/vector.hpp>
 
-#include <sstd/boost/bimap/detail/debug/static_error.hpp>
+#include <sstd/boost/bimap/detail/_debug/static_error.hpp>
 #include <sstd/boost/bimap/relation/pair_layout.hpp>
 #include <sstd/boost/bimap/relation/symmetrical_base.hpp>
 #include <sstd/boost/bimap/relation/support/get.hpp>

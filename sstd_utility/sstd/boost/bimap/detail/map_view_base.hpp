@@ -36,7 +36,7 @@
 #include <sstd/boost/bimap/support/data_type_by.hpp>
 #include <sstd/boost/bimap/support/value_type_by.hpp>
 #include <sstd/boost/bimap/detail/modifier_adaptor.hpp>
-#include <sstd/boost/bimap/detail/debug/static_error.hpp>
+#include <sstd/boost/bimap/detail/_debug/static_error.hpp>
 #include <sstd/boost/bimap/detail/map_view_iterator.hpp>
 
 namespace boost {

@@ -19,7 +19,7 @@
 #include <sstd/boost/config.hpp>
 
 #include <sstd/boost/bimap/tags/tagged.hpp>
-#include <sstd/boost/bimap/detail/debug/static_error.hpp>
+#include <sstd/boost/bimap/detail/_debug/static_error.hpp>
 
 /** \struct boost::bimaps::tags::support::tag_of
 \brief Metafunction to obtain the tag of a type.

@@ -17,7 +17,7 @@
 #include <sstd/boost/geometry/util/condition.hpp>
 #include <sstd/boost/geometry/util/range.hpp>
 #include <sstd/boost/geometry/algorithms/validity_failure_type.hpp>
-#include <sstd/boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#include <sstd/boost/geometry/algorithms/detail/overlay/_debug_turn_info.hpp>
 
 
 namespace boost { namespace geometry

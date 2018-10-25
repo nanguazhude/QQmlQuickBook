@@ -18,7 +18,7 @@
 
 #include <sstd/boost/config.hpp>
 
-#include <sstd/boost/bimap/detail/debug/static_error.hpp>
+#include <sstd/boost/bimap/detail/_debug/static_error.hpp>
 #include <sstd/boost/mpl/contains.hpp>
 #include <sstd/boost/mpl/assert.hpp>
 #include <sstd/boost/static_assert.hpp>

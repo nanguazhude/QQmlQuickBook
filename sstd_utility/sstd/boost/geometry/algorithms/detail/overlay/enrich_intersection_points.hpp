@@ -23,7 +23,7 @@
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <iostream>
-#  include <sstd/boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#  include <sstd/boost/geometry/algorithms/detail/overlay/_debug_turn_info.hpp>
 #  include <sstd/boost/geometry/io/wkt/wkt.hpp>
 #  if ! defined(BOOST_GEOMETRY_DEBUG_IDENTIFIER)
 #    define BOOST_GEOMETRY_DEBUG_IDENTIFIER

@@ -32,7 +32,7 @@
 #include <sstd/boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <sstd/boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-#include <sstd/boost/geometry/algorithms/detail/turns/debug_turn.hpp>
+#include <sstd/boost/geometry/algorithms/detail/turns/_debug_turn.hpp>
 
 #include <sstd/boost/geometry/algorithms/convert.hpp>
 #include <sstd/boost/geometry/algorithms/not_implemented.hpp>

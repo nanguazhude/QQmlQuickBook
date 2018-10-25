@@ -16,7 +16,7 @@
 #
 # include <sstd/boost/preprocessor/cat.hpp>
 # include <sstd/boost/preprocessor/control/while.hpp>
-# include <sstd/boost/preprocessor/debug/error.hpp>
+# include <sstd/boost/preprocessor/_debug/error.hpp>
 # include <sstd/boost/preprocessor/detail/auto_rec.hpp>
 #
 # /* BOOST_PP_LIST_FOLD_LEFT */

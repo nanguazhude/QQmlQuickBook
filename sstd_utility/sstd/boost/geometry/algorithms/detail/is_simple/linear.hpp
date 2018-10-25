@@ -43,9 +43,9 @@
 #include <sstd/boost/geometry/algorithms/detail/is_valid/has_duplicates.hpp>
 #include <sstd/boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 
-#include <sstd/boost/geometry/algorithms/detail/is_simple/debug_print_boundary_points.hpp>
+#include <sstd/boost/geometry/algorithms/detail/is_simple/_debug_print_boundary_points.hpp>
 #include <sstd/boost/geometry/algorithms/detail/is_simple/failure_policy.hpp>
-#include <sstd/boost/geometry/algorithms/detail/is_valid/debug_print_turns.hpp>
+#include <sstd/boost/geometry/algorithms/detail/is_valid/_debug_print_turns.hpp>
 
 #include <sstd/boost/geometry/algorithms/dispatch/is_simple.hpp>
 
