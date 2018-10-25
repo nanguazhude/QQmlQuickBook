@@ -44,7 +44,8 @@ CONFIG(debug,debug|release){
     QMAKE_LFLAGS += -Wl,-rpath .
 }
 
-
+SOURCES += $$PWD/quick/sstd_geometry_2d.cpp
+HEADERS += $$PWD/quick/sstd_geometry_2d.hpp
 
 
 
