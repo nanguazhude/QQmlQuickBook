@@ -13,6 +13,14 @@
 #endif
 
 namespace this_cpp_file {
+    typedef sstd::list< sstd::Scene2DItemBasic * > DrawOrderList;
+    class Information {
+    public:
+        sstd::Scene2DItemBasic * item;
+        DrawOrderList::const_iterator itemDrawPos;
+    private:
+        SSTD_MEMORY_DEFINE(Information)
+    };
     using Number = qreal;
     typedef boost::geometry::model::point<
         Number,
@@ -20,9 +28,14 @@ namespace this_cpp_file {
         boost::geometry::cs::cartesian/*笛卡尔坐标系*/
     > Point2D/*点*/;
     typedef boost::geometry::model::box<Point2D> Box2D/*索引矩形*/;
-    typedef std::pair<Box2D, sstd::Scene2DItemBasic *> KeyValue/*键值对*/;
+    typedef std::pair<Box2D, std::shared_ptr<Information>> KeyValue/*键值对*/;
     typedef boost::geometry::index::linear<8> Algorithm/*算法*/;
-    typedef boost::geometry::index::equal_to<KeyValue> Equal/*比较*/;
+    class Equal {
+    public:
+        bool operator()(const KeyValue & a,const KeyValue & b) const {
+            return a.second->item == b.second->item;
+        }
+    };
     typedef sstd::allocator<KeyValue> Allocator/*内存*/;
     typedef boost::geometry::index::indexable<KeyValue> IndexGetter/*辅助类*/;
     typedef boost::geometry::index::rtree< KeyValue,
@@ -69,12 +82,14 @@ namespace sstd {
         };
     public:
         RTree mmm_RTree;
+        using IndexedKeyValue = this_cpp_file::KeyValue;
+        this_cpp_file::DrawOrderList mmm_DrawOrderList;
         std::map<
             sstd::unique_ptr<sstd::Scene2DItemBasic>,
-            this_cpp_file::KeyValue,
+            IndexedKeyValue,
             SetLess,
             sstd::allocator< std::pair<const sstd::unique_ptr<sstd::Scene2DItemBasic>,
-            this_cpp_file::KeyValue > > > mmm_Items;
+            IndexedKeyValue > > > mmm_Items;
 
         void insert(sstd::unique_ptr<sstd::Scene2DItemBasic> arg) {
             auto[varPos, varIsInsert] = mmm_Items.emplace(std::move(arg), this_cpp_file::KeyValue{});
@@ -82,13 +97,16 @@ namespace sstd {
                 return;
             }
             auto varData = varPos->first.get();
+            mmm_DrawOrderList.push_front(varData);
+            varPos->second.second = sstd::make_shared<this_cpp_file::Information>();
             {
                 const auto varBoundingRect = varData->boundingRect();
                 const auto varTopLeft = varBoundingRect.topLeft();
                 const auto varBottomRight = varBoundingRect.bottomRight();
-                varPos->second = { {{varTopLeft.x(),varTopLeft.y()},
-                    {varBottomRight.x(),varBottomRight.y()}},
-                    varData };
+                varPos->second.first = { {varTopLeft.x(),varTopLeft.y()},
+                    {varBottomRight.x(),varBottomRight.y()} };
+                varPos->second.second->item = varData;
+                varPos->second.second->itemDrawPos = mmm_DrawOrderList.begin();
             }
             mmm_RTree.insert(varPos->second);
         }
@@ -99,6 +117,7 @@ namespace sstd {
                 return;
             }
             mmm_RTree.remove(varPos->second);
+            mmm_DrawOrderList.erase(varPos->second.second->itemDrawPos);
             mmm_Items.erase(varPos);
         }
 
@@ -122,6 +141,7 @@ namespace sstd {
     }
 
     void Scene2D::addItem(sstd::unique_ptr<Scene2DItemBasic>item) {
+        getPrivate()->insert(std::move(item));
     }
 
 }/*namespace sstd*/
