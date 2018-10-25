@@ -32,7 +32,7 @@ namespace this_cpp_file {
     typedef boost::geometry::index::linear<8> Algorithm/*算法*/;
     class Equal {
     public:
-        bool operator()(const KeyValue & a,const KeyValue & b) const {
+        bool operator()(const KeyValue & a, const KeyValue & b) const {
             return a.second->item == b.second->item;
         }
     };
@@ -103,7 +103,8 @@ namespace sstd {
                 const auto varBoundingRect = varData->boundingRect();
                 const auto varTopLeft = varBoundingRect.topLeft();
                 const auto varBottomRight = varBoundingRect.bottomRight();
-                varPos->second.first = { {varTopLeft.x(),varTopLeft.y()},
+                varPos->second.first = {
+                    {varTopLeft.x(),varTopLeft.y()},
                     {varBottomRight.x(),varBottomRight.y()} };
                 varPos->second.second->item = varData;
                 varPos->second.second->itemDrawPos = mmm_DrawOrderList.begin();
