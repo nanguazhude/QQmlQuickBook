@@ -20,6 +20,9 @@ HEADERS += $$PWD/global_sstd_core_library.hpp
 
 SOURCES += $$PWD/sstd_core_memory.cpp
 
+SOURCES += $$PWD/sstd_geometry_2d.cpp
+HEADERS += $$PWD/sstd_geometry_2d.hpp
+
 !win32 {
     QMAKE_LFLAGS += -Wl,-rpath .
 }
