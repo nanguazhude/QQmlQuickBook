@@ -201,6 +201,10 @@ namespace sstd {
         }
     }
 
+    private_scene_2d::PrivateBasic::PrivateBasic(){
+
+    }
+
 }/*namespace sstd*/
 
 

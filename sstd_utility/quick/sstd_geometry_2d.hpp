@@ -13,14 +13,17 @@ namespace sstd {
 
         class Basic;
         class _1_SSTD_QUICK_LIBRARY_EXPORT PrivateBasic {
+            SSTD_DELETE_COPY_ASSIGN(PrivateBasic);
         public:
             virtual ~PrivateBasic();
             Basic * super{ nullptr };
+            PrivateBasic();
         private:
             SSTD_MEMORY_DEFINE(PrivateBasic)
         };
 
         class _1_SSTD_QUICK_LIBRARY_EXPORT Basic {
+            SSTD_DELETE_COPY_ASSIGN(Basic);
         public:
             virtual ~Basic();
             Basic(PrivateBasic *);
