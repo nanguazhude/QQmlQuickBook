@@ -85,7 +85,7 @@ namespace sstd {
     public:
         virtual ~Scene2D();
         Scene2D();
-        void addItem(sstd::unique_ptr<Scene2DItemBasic>);
+        void addItem( Scene2DItemBasic * );
     protected:
         Scene2D(private_scene_2d::PrivateBasic*);
     private:

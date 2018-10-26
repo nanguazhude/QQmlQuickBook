@@ -85,18 +85,18 @@ namespace sstd {
         using IndexedKeyValue = this_cpp_file::KeyValue;
         this_cpp_file::DrawOrderList mmm_DrawOrderList;
         std::map<
-            sstd::unique_ptr<sstd::Scene2DItemBasic>,
+            sstd::Scene2DItemBasic *,
             IndexedKeyValue,
             SetLess,
-            sstd::allocator< std::pair<const sstd::unique_ptr<sstd::Scene2DItemBasic>,
+            sstd::allocator< std::pair<sstd::Scene2DItemBasic * const ,
             IndexedKeyValue > > > mmm_Items;
 
-        void insert(sstd::unique_ptr<sstd::Scene2DItemBasic> arg) {
+        void insert( sstd::Scene2DItemBasic * arg) {
             auto[varPos, varIsInsert] = mmm_Items.emplace(std::move(arg), this_cpp_file::KeyValue{});
             if (false == varIsInsert) {
                 return;
             }
-            auto varData = varPos->first.get();
+            auto varData = varPos->first ;
             mmm_DrawOrderList.push_front(varData);
             varPos->second.second = sstd::make_shared<this_cpp_file::Information>();
             {
@@ -141,7 +141,7 @@ namespace sstd {
     Scene2DItemBasic::~Scene2DItemBasic() {
     }
 
-    void Scene2D::addItem(sstd::unique_ptr<Scene2DItemBasic>item) {
+    void Scene2D::addItem(Scene2DItemBasic * item) {
         getPrivate()->insert(std::move(item));
     }
 
