@@ -229,6 +229,7 @@ namespace sstd {
     }
 
     Scene2DItemBasic::Scene2DItemBasic(QObject *a) : QObject(a) {
+        this_super = this;
         connect(
             this,&Scene2DItemBasic::ppp_destory,
             this,&Scene2DItemBasic::onDesotyedThis,
@@ -236,6 +237,10 @@ namespace sstd {
     }
 
     void Scene2D::removeItem(Scene2DItemBasic *) {
+    }
+
+    private_scene_2d::DestoryScene2DItemBasic::~DestoryScene2DItemBasic() {
+        this_super->ppp_destory();
     }
 
 }/*namespace sstd*/

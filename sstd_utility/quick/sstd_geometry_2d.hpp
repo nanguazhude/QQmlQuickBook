@@ -9,6 +9,7 @@
 
 namespace sstd {
 
+    class Scene2DItemBasic;
     namespace private_scene_2d {
 
         class Basic;
@@ -42,11 +43,21 @@ namespace sstd {
             SSTD_MEMORY_DEFINE(Basic)
         };
 
+        class DestoryScene2DItemBasic {
+            SSTD_DELETE_COPY_ASSIGN(DestoryScene2DItemBasic);
+        protected:
+            Scene2DItemBasic * this_super{ nullptr };
+            virtual ~DestoryScene2DItemBasic();
+        private:
+            SSTD_MEMORY_DEFINE(DestoryScene2DItemBasic)
+        };
+
     }/**/
 
     class Scene2D;
     class _1_SSTD_QUICK_LIBRARY_EXPORT Scene2DItemBasic :
-        public QObject {
+        public QObject ,
+        public virtual private_scene_2d::DestoryScene2DItemBasic {
         Q_OBJECT
     public:
         Q_PROPERTY(QQuickItem * target READ getTarget WRITE setTarget NOTIFY targetChanged)
@@ -77,6 +88,7 @@ namespace sstd {
         Q_SLOT virtual void onSceneChanged();
     private:
         Q_SIGNAL void ppp_destory();
+        friend class private_scene_2d::DestoryScene2DItemBasic;
     public:
         SSTD_MEMORY_QOBJECT_DEFINE(Scene2DItemBasic)
     };
