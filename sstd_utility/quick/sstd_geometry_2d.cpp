@@ -205,6 +205,9 @@ namespace sstd {
 
     }
 
+    Scene2DItemBasic::Scene2DItemBasic(QObject *a) : QObject(a) {
+    }
+
 }/*namespace sstd*/
 
 

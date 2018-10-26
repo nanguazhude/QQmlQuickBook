@@ -46,14 +46,14 @@ namespace sstd {
 
     class Scene2D;
     class _1_SSTD_QUICK_LIBRARY_EXPORT Scene2DItemBasic :
-        public QObject,
-        public private_scene_2d::Basic {
+        public QObject {
         Q_OBJECT
     public:
         Q_PROPERTY(QQuickItem * target READ getTarget WRITE setTarget NOTIFY targetChanged)
     public:
         Q_PROPERTY(Scene2D * scene2D READ getScene2D WRITE setScene2D NOTIFY scene2DChanged)
     public:
+        Scene2DItemBasic(QObject * parent );
         virtual ~Scene2DItemBasic();
         virtual QRectF sceneBoundingRect() const;
         virtual std::shared_ptr< const sstd::vector<QPointF> > sceneBoundingPath() const = 0;
