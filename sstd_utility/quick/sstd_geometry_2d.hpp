@@ -1,9 +1,11 @@
 ﻿#pragma once
 
 #include <sstd_memory.hpp>
+#include <QtCore/qobject.h>
 #include "sstd_quick_library_global.hpp"
-
+#include <QtCore/qpoint.h>
 #include <QtCore/qrect.h>
+#include <QtQuick/qquickitem.h>
 
 namespace sstd {
 
@@ -39,18 +41,44 @@ namespace sstd {
 
     }/**/
 
-    class _1_SSTD_QUICK_LIBRARY_EXPORT Scene2DItemBasic {
+    class Scene2D;
+    class _1_SSTD_QUICK_LIBRARY_EXPORT Scene2DItemBasic :
+        public QObject,
+        public private_scene_2d::Basic {
+        Q_OBJECT
     public:
-
+        Q_PROPERTY(QQuickItem * target READ getTarget WRITE setTarget NOTIFY targetChanged)
+    public:
+        Q_PROPERTY(Scene2D * scene2D READ getScene2D WRITE setScene2D NOTIFY scene2DChanged)
     public:
         virtual ~Scene2DItemBasic();
-        virtual QRectF boundingRect() const = 0;
+        virtual QRectF sceneBoundingRect() const;
+        virtual std::shared_ptr< const sstd::vector<QPointF> > sceneBoundingPath() const = 0;
     public:
-        SSTD_MEMORY_DEFINE(Scene2DItemBasic)
+        QQuickItem * getTarget()const;
+        void setTarget(QQuickItem *);
+        Q_SIGNAL void targetChanged();
+    public:
+        Scene2D * getScene2D() const;
+        void setScene2D(Scene2D *);
+        Q_SIGNAL void scene2DChanged();
+    public:
+        Q_SIGNAL void sceneBoundingRectChanged();
+        Q_SIGNAL void sceneBoundingPathChanged();
+    private:
+        QQuickItem * mmm_target{ nullptr };
+        Scene2D * mmm_scene{ nullptr };
+    protected:
+        virtual void onTargetChanged();
+    public:
+        SSTD_MEMORY_QOBJECT_DEFINE(Scene2DItemBasic)
     };
 
     class _0_PrivateScene2D;
-    class _1_SSTD_QUICK_LIBRARY_EXPORT Scene2D : public private_scene_2d::Basic {
+    class _1_SSTD_QUICK_LIBRARY_EXPORT Scene2D :
+        public QQuickItem,
+        public private_scene_2d::Basic {
+        Q_OBJECT
     public:
         virtual ~Scene2D();
         Scene2D();
@@ -61,7 +89,7 @@ namespace sstd {
         friend class _0_PrivateScene2D;
         using ThisP = _0_PrivateScene2D;
     public:
-        SSTD_MEMORY_DEFINE(Scene2D)
+        SSTD_MEMORY_QOBJECT_DEFINE(Scene2D)
     };
 
 }/*namespace sstd*/

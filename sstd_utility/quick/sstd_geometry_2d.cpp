@@ -100,7 +100,7 @@ namespace sstd {
             mmm_DrawOrderList.push_front(varData);
             varPos->second.second = sstd::make_shared<this_cpp_file::Information>();
             {
-                const auto varBoundingRect = varData->boundingRect();
+                const auto varBoundingRect = varData->sceneBoundingRect();
                 const auto varTopLeft = varBoundingRect.topLeft();
                 const auto varBottomRight = varBoundingRect.bottomRight();
                 varPos->second.first = {
@@ -143,6 +143,62 @@ namespace sstd {
 
     void Scene2D::addItem(sstd::unique_ptr<Scene2DItemBasic>item) {
         getPrivate()->insert(std::move(item));
+    }
+
+    QQuickItem * Scene2DItemBasic::getTarget()const {
+        return mmm_target;
+    }
+
+    void Scene2DItemBasic::setTarget(QQuickItem * a) {
+        if (a == mmm_target) {
+            return;
+        }
+        onTargetChanged();
+        this->targetChanged();
+    }
+
+    QRectF Scene2DItemBasic::sceneBoundingRect() const {
+        const auto varPath = this->sceneBoundingPath();
+        if (false == bool(varPath)) {
+            return {};
+        }
+        if (varPath->size() < 3) {
+            return{};
+        }
+        auto[minX, maxX] = std::minmax_element(varPath->begin(), varPath->end(),
+            [](const auto &l, const auto & r) {
+            return l.x() < r.x();
+        });
+        auto[minY, maxY] = std::minmax_element(varPath->begin(), varPath->end(),
+            [](const auto &l, const auto & r) {
+            return l.y() < r.y();
+        });
+        const auto varWidth = maxX->x() - minX->x();
+        const auto varHeight = maxY->y() - minY->y();
+        if (varWidth < std::numeric_limits<double>::epsilon()) {
+            return{};
+        }
+        if (varHeight < std::numeric_limits<double>::epsilon()) {
+            return{};
+        }
+        return { minX->x(),minY->y(),varWidth,varHeight };
+    }
+
+    Scene2D * Scene2DItemBasic::getScene2D() const {
+        return mmm_scene;
+    }
+
+    void Scene2DItemBasic::setScene2D(Scene2D * a) {
+        if (a == mmm_scene) {
+            return;
+        }
+        this->scene2DChanged();
+    }
+
+    void Scene2DItemBasic::onTargetChanged() {
+        if ( mmm_scene == nullptr ) {
+            return;
+        }
     }
 
 }/*namespace sstd*/
