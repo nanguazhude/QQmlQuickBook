@@ -88,15 +88,15 @@ namespace sstd {
             sstd::Scene2DItemBasic *,
             IndexedKeyValue,
             SetLess,
-            sstd::allocator< std::pair<sstd::Scene2DItemBasic * const ,
+            sstd::allocator< std::pair<sstd::Scene2DItemBasic * const,
             IndexedKeyValue > > > mmm_Items;
 
-        void insert( sstd::Scene2DItemBasic * arg) {
+        void insert(sstd::Scene2DItemBasic * arg) {
             auto[varPos, varIsInsert] = mmm_Items.emplace(std::move(arg), this_cpp_file::KeyValue{});
             if (false == varIsInsert) {
                 return;
             }
-            auto varData = varPos->first ;
+            auto varData = varPos->first;
             mmm_DrawOrderList.push_front(varData);
             varPos->second.second = sstd::make_shared<this_cpp_file::Information>();
             {
@@ -139,6 +139,7 @@ namespace sstd {
     }
 
     Scene2DItemBasic::~Scene2DItemBasic() {
+        ppp_destory();
     }
 
     void Scene2D::addItem(Scene2DItemBasic * item) {
@@ -154,6 +155,7 @@ namespace sstd {
             return;
         }
         onTargetChanged();
+        mmm_target = a;
         this->targetChanged();
     }
 
@@ -192,13 +194,34 @@ namespace sstd {
         if (a == mmm_scene) {
             return;
         }
+        onSceneChanged();
+        mmm_scene = a;
+        if (mmm_scene) {
+            mmm_scene->addItem(this);
+        }
         this->scene2DChanged();
+    }
+
+    void Scene2DItemBasic::onSceneChanged() {
+        if (mmm_scene == nullptr) {
+            return;
+        }
+        mmm_scene->removeItem(this);
     }
 
     void Scene2DItemBasic::onTargetChanged() {
         if ( mmm_scene == nullptr ) {
             return;
         }
+        mmm_scene->removeItem(this);
+        mmm_scene->addItem( this );
+    }
+
+    void Scene2DItemBasic::onDesotyedThis() {
+        if ( mmm_scene == nullptr ) {
+            return;
+        }
+        mmm_scene->removeItem(this);
     }
 
     private_scene_2d::PrivateBasic::PrivateBasic(){
@@ -206,6 +229,13 @@ namespace sstd {
     }
 
     Scene2DItemBasic::Scene2DItemBasic(QObject *a) : QObject(a) {
+        connect(
+            this,&Scene2DItemBasic::ppp_destory,
+            this,&Scene2DItemBasic::onDesotyedThis,
+            Qt::DirectConnection);
+    }
+
+    void Scene2D::removeItem(Scene2DItemBasic *) {
     }
 
 }/*namespace sstd*/

@@ -72,7 +72,11 @@ namespace sstd {
         QQuickItem * mmm_target{ nullptr };
         Scene2D * mmm_scene{ nullptr };
     protected:
-        virtual void onTargetChanged();
+        Q_SLOT virtual void onTargetChanged();
+        Q_SLOT virtual void onDesotyedThis();
+        Q_SLOT virtual void onSceneChanged();
+    private:
+        Q_SIGNAL void ppp_destory();
     public:
         SSTD_MEMORY_QOBJECT_DEFINE(Scene2DItemBasic)
     };
@@ -86,6 +90,7 @@ namespace sstd {
         virtual ~Scene2D();
         Scene2D();
         void addItem( Scene2DItemBasic * );
+        void removeItem(Scene2DItemBasic *);
     protected:
         Scene2D(private_scene_2d::PrivateBasic*);
     private:
