@@ -2,7 +2,7 @@
 CONFIG(debug,debug|release){
     TARGET =   function_debug
 }else{
-    TARGET =   memory
+    TARGET =   function
 }
 
 TEMPLATE = app

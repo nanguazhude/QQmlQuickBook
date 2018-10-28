@@ -1,5 +1,5 @@
 ﻿
-
+#include <sstd_function.hpp>
 
 int main(int, char **) {
 

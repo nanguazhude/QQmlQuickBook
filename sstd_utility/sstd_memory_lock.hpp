@@ -5,6 +5,7 @@
 #include <utility>
 #include <type_traits>
 #include <forward_list>
+#include "sstd_memory.hpp"
 
 namespace sstd{
     template<typename T, std::size_t NEveryRowSize = 64>
@@ -40,6 +41,8 @@ private:
         _U * getData() {
             return &mmm_Data;
         }
+    private:
+        SSTD_MEMORY_DEFINE(ItemWrap)
     };
     using _RawData = std::aligned_storage_t<sizeof(ItemWrap), alignof(ItemWrap)>;
     constexpr const static std::size_t _row_size = NEveryRowSize;
@@ -87,8 +90,9 @@ private:
         RowData(RowData &&) = delete;
         RowData&operator=(const RowData &) = delete;
         RowData&operator=(RowData &&) = delete;
+        SSTD_MEMORY_DEFINE(RowData)
     };
-    std::forward_list<RowData> mmm_Data;
+    sstd::forward_list<RowData> mmm_Data;
 public:
     MemoryLock() = default;
     template<typename ... K>
@@ -114,6 +118,7 @@ public:
 private:
     MemoryLock&operator=(const MemoryLock&) = delete;
     MemoryLock(const MemoryLock&) = delete;
+    SSTD_MEMORY_DEFINE(MemoryLock)
 };
 }/*namespace sstd*/
 
