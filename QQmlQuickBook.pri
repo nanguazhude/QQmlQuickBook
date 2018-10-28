@@ -28,6 +28,8 @@ HEADERS +=     $$PWD/sstd_utility/sstd_memory_lock.hpp
 HEADERS +=     $$PWD/sstd_utility/sstd_array.hpp
 HEADERS +=     $$PWD/sstd_utility/sstd_array_view.hpp
 #####################################################$
+HEADERS +=     $$PWD/sstd_utility/sstd_function.hpp
+#####################################################$
 HEADERS +=     $$PWD/sstd_utility/ConstructQSurface.hpp
 
 include($$PWD/sstd_utility/sstd_quick_debug.pri)
