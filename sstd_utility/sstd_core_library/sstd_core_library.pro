@@ -19,6 +19,7 @@ SOURCES += $$PWD/../time/sstd_time.cpp
 HEADERS += $$PWD/global_sstd_core_library.hpp
 
 SOURCES += $$PWD/sstd_core_memory.cpp
+SOURCES += $$PWD/sstd_core_function.cpp
 
 !win32 {
     QMAKE_LFLAGS += -Wl,-rpath .

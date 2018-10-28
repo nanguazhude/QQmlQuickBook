@@ -2,6 +2,10 @@
 
 #include "sstd_memory.hpp"
 
+#ifndef _7_SSTD_FUNCTION_EXPORT_
+#define _7_SSTD_FUNCTION_EXPORT_
+#endif
+
 namespace sstd{
 
     class FunctionStack/*函数栈*/;
@@ -12,9 +16,17 @@ namespace sstd{
     class IfElseFunction/*if else*/;
     class FunctionStackState/*函数栈的数据*/;
 
+    namespace private_sstd_function_stack {
 
+        class _7_SSTD_FUNCTION_EXPORT_ DataBasic {
+            SSTD_DELETE_COPY_ASSIGN(DataBasic)
+        public:
+            virtual ~DataBasic();
+        private:
+            SSTD_MEMORY_DEFINE(DataBasic)
+        };
 
-
+    }/*private_sstd_function_stack*/
 
 
 
