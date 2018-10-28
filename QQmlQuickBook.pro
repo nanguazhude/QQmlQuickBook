@@ -23,6 +23,10 @@ memory.file = $$PWD/chapter01/memory/memory.pro
 memory.depends = buildinstall
 SUBDIRS += memory
 
+function.file = $$PWD/chapter01/function/function.pro
+function.depends = buildinstall
+SUBDIRS += function
+
 qquickwindowopengldraw.file = $$PWD/chapter02/qquickwindowopengldraw/qquickwindowopengldraw.pro
 qquickwindowopengldraw.depends = buildinstall
 SUBDIRS += qquickwindowopengldraw

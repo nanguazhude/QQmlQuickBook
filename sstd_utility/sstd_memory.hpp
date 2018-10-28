@@ -531,6 +531,7 @@ namespace sstd {
 
 }/*namespace sstd*/
 
-#include <sstd_array.hpp>
-#include <sstd_array_view.hpp>
+#include <sstd_array.hpp>/*提供一个运行时固定大小的Array*/
+#include <sstd_array_view.hpp>/*提供连续容器的查看器*/
+#include <sstd_memory_lock.hpp>/*提供一个简单的内存池*/
 
