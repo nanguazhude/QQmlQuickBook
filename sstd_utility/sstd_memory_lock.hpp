@@ -197,7 +197,7 @@ private:
             };
             DataType * mmm_data;
         protected:
-            VirtualClassBasic();
+            VirtualClassBasic() noexcept;
         public:
             virtual ~VirtualClassBasic();
         public:

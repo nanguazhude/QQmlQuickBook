@@ -53,7 +53,7 @@ namespace sstd::memory_lock {
         }
     }/*_0_private*/
 
-    VirtualClassBasic::VirtualClassBasic() : mmm_data( sstdNew<DataType>() ) {
+    VirtualClassBasic::VirtualClassBasic() noexcept : mmm_data( sstdNew<DataType>() ) {
         mmm_data->indexed_object = create_object_in_this_class<DataType::NamedObjectMap>();
     }
 
