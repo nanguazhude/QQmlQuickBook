@@ -120,6 +120,79 @@ private:
     MemoryLock(const MemoryLock&) = delete;
     SSTD_MEMORY_DEFINE(MemoryLock)
 };
+
+    namespace memory_lock {
+        namespace _0_private {
+            class _1_SSTD_CORE_EXPORT VirtualBasic {
+                SSTD_DELETE_COPY_ASSIGN(VirtualBasic);
+            private:
+            protected:
+                VirtualBasic();
+            public:
+                virtual ~VirtualBasic();
+            public:
+                SSTD_MEMORY_DEFINE(VirtualBasic)
+            };
+
+            template<typename U>
+            class ItemWrap : public VirtualBasic {
+                U mmm_Data;
+            public:
+                ItemWrap() :mmm_Data{} {
+                }
+                template<typename T1, typename ... TN,
+                    typename = std::enable_if_t<true == std::is_constructible_v<U, T1&&, TN&&...>>>
+                    ItemWrap(T1 && arg0, TN && ... args) : mmm_Data(std::forward<T1>(arg0),
+                        std::forward<TN>(args)...) {
+                }
+                template<typename T1, typename ... TN,
+                    typename = int,
+                    typename = std::enable_if_t<false == std::is_constructible_v<U, T1&&, TN&&...>>>
+                    ItemWrap(T1 && arg0, TN && ... args) : mmm_Data{ std::forward<T1>(arg0),
+                        std::forward<TN>(args)... } {
+                }
+                U * get_this_data() {
+                    return &mmm_Data;
+                }
+            };
+        }/*_0_private*/
+
+        class _1_SSTD_CORE_EXPORT VirtualClassBasic {
+            SSTD_DELETE_COPY_ASSIGN(VirtualClassBasic);
+        private:
+            class DataType : 
+                public MemoryLock< std::unique_ptr< _0_private::VirtualBasic >, 15 > {
+            public:
+
+            };
+            DataType * mmm_data;
+        protected:
+            VirtualClassBasic();
+        public:
+            virtual ~VirtualClassBasic();
+        public:
+            template<typename T,typename ... Args>
+            inline T * create_object_in_this_class(Args && ...);
+        public:
+            SSTD_MEMORY_DEFINE(VirtualClassBasic)
+        };
+
+        template<typename T, typename ... Args>
+        inline T * VirtualClassBasic::create_object_in_this_class(Args && ... args) {
+            static_assert(false==std::is_array_v<T>);
+            static_assert(false==std::is_reference_v<T>);
+            using U0 = std::remove_reference_t<T>;
+            using U1 = std::remove_cv_t<U0>;
+            using U = U1;
+            using ItemWrap = _0_private::ItemWrap<U>;
+            auto varAnsUnique = sstd::make_unique<ItemWrap>( std::forward<Args>(args)... );
+            auto varAns = varAnsUnique->get_this_data();
+            this->mmm_data->emplace_back( std::move(varAnsUnique) );
+            return varAns;
+        }
+       
+    }/*namespace memroy*/
+
 }/*namespace sstd*/
 
 

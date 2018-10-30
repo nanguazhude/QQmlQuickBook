@@ -95,6 +95,23 @@ class TestDeleteCopyAssign {
 int main(int, char **) {
 
     {
+        class Test1021 :public virtual sstd::memory_lock::VirtualClassBasic {
+            int * a;
+            int * b;
+            int * c;
+            int * d;
+        public:
+            Test1021() {
+                a = create_object_in_this_class<int>(1);
+                b = create_object_in_this_class<int>(2);
+                c = create_object_in_this_class<int>(3);
+                d = create_object_in_this_class<int>(4);
+            }
+        };
+        Test1021 test;
+    }
+
+    {
         class ATestForThreadTimeDelete {
         public:
             virtual ~ATestForThreadTimeDelete() {

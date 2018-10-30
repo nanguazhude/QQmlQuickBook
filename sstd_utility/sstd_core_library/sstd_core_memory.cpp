@@ -44,7 +44,23 @@ namespace sstd{
 
 
 
+namespace sstd::memory_lock {
 
+    namespace _0_private {
+        VirtualBasic::~VirtualBasic() {
+        }
+        VirtualBasic::VirtualBasic() {
+        }
+    }/*_0_private*/
+
+    VirtualClassBasic::VirtualClassBasic() : mmm_data( sstdNew<DataType>() ) {
+    }
+
+    VirtualClassBasic::~VirtualClassBasic() {
+        delete mmm_data;
+    }
+
+}/*namespace sstd::memory_lock*/
 
 
 
