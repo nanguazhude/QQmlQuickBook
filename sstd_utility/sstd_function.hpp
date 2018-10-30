@@ -140,9 +140,12 @@ public:
         inline T * createData(K && ... arg);
     public:
         FunctionData * call(Function * arg);
-        void error(std::string_view) const;
+        void error(std::string_view) const/*throw error!*/;
+        FunctionData *resume()/*重启标记为yield的函数*/;
+        void yield() const/*将当前函数标记为yield*/;
     protected:
         FunctionData * when_error();
+        FunctionData *next_call();
     };
 }/*namespace sstd*/
 

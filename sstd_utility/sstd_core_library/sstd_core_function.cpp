@@ -30,7 +30,7 @@ namespace sstd {
     }
 
     FunctionStackError::FunctionStackError(const std::string_view & arg) : mmm_errorString(
-        sstdNew<sstd::string>(arg)){
+        sstdNew<sstd::string>(arg)) {
     }
 
     std::shared_ptr<FunctionStackError> FunctionStackError::create(const std::string_view & arg) {
@@ -38,7 +38,7 @@ namespace sstd {
     }
 
     const sstd::string & FunctionStackError::unknowError() {
-        const static sstd::string varAns{"unknow error!"sv};
+        const static sstd::string varAns{ "unknow error!"sv };
         return varAns;
     }
 
@@ -63,20 +63,77 @@ namespace sstd {
         delete mmm_MemoryPool;
     }
 
-    FunctionData * FunctionStack::call(Function * arg) try{
+    FunctionData * FunctionStack::call(Function * arg) try {
 
         if (arg == nullptr) {
             this->error("empty input"sv);
         }
 
+        /*清除状态*/
+        this->hasError = false;
+        this->isEndl = false;
+        this->isYield = false;
+
+        /*set current ...*/
+        this->currentFunction = arg;
+
+        return next_call();
 
 
     } catch (...) {
         return when_error();
     }
 
+    FunctionData *FunctionStack::resume() try {
+        if (this->isYield == false) {
+            error("can not resume function not yield!"sv);
+        }
+        this->isYield = false;
+        this->isYieldInLoop = false;
+        return this->next_call();
+    } catch (...) {
+        return this->when_error();
+    }
+
+    void FunctionStack::yield() const {
+
+        if (isEndl) {
+            this->error("can not yield function endl!"sv);
+        }
+
+        if (hasError) {
+            this->error("can not yield function error!"sv);
+        }
+
+        const_cast<bool &>(isYield) = true;
+    }
+
+    FunctionData *FunctionStack::next_call() {
+        for (;;) {
+            currentFunction->call(this);
+            if (currentFunction->next) {
+                if (  (this->isYield) && (this->isYieldInLoop) )  {
+                    /*在while , for ,dowhile 里面yield...*/
+                    return YieldAns::create();
+                }
+                currentFunction = currentFunction->next;
+                if ( this->isYield ) {
+                    /*在非循环函数里面yield...*/
+                    return YieldAns::create();
+                }
+            } else {
+                /*获得结果*/
+                isEndl = true;
+                isYield = false;
+                hasError = false;
+                /*当前函数栈应当被删除...*/
+                return currentFunction->ans;
+            }
+        }
+    }
+
     void FunctionStack::error(std::string_view arg) const {
-        throw( FunctionStackError::create(arg) );
+        throw(FunctionStackError::create(arg));
     }
 
     FunctionData * FunctionStack::when_error() {
