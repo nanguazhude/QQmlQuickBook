@@ -131,7 +131,7 @@ public:
         public FunctionStackState {
         using memory_pool_type = sstd::MemoryLock<std::unique_ptr<private_sstd_function_stack::DataBasic>>;
         memory_pool_type * mmm_MemoryPool{ nullptr };
-        std::shared_ptr<FunctionData> * mmm_LastError{nullptr};
+        std::shared_ptr<FunctionData> * mmm_ThisError{ nullptr };
     public:
         FunctionStack();
         ~FunctionStack();
@@ -152,8 +152,10 @@ namespace sstd {
     inline T * FunctionStack::createData(K && ... arg) {
         static_assert(false == std::is_reference_v<T>);
         static_assert(false == std::is_array_v<T>);
-        mmm_MemoryPool->emplace_back(
-            sstd::make_unique< std::remove_cv_t<T> >(std::forward<K>(arg)...))->get();
+        auto varAnsUnique = sstd::make_unique< std::remove_cv_t<T> >(std::forward<K>(arg)...);
+        auto varAns = varAnsUnique.get();
+        mmm_MemoryPool->emplace_back(std::move(varAnsUnique)) ;
+        return varAns;
     }
 }/*namespace sstd*/
 

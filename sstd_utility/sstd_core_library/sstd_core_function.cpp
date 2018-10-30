@@ -47,12 +47,19 @@ namespace sstd {
         return varAns;
     }
 
+    namespace {
+        class _0_ThisError : public FunctionData {
+        public:
+            std::shared_ptr<FunctionData> data;
+        };
+    }/**/
+
     FunctionStack::FunctionStack() {
         mmm_MemoryPool = sstdNew<memory_pool_type>();
+        mmm_ThisError = &(createData< _0_ThisError >()->data);
     }
 
     FunctionStack::~FunctionStack() {
-        delete mmm_LastError;
         delete mmm_MemoryPool;
     }
 
@@ -78,19 +85,15 @@ namespace sstd {
         isYield = false;
         currentFunction = nullptr;
 
-        if (mmm_LastError == nullptr) {
-            mmm_LastError = sstdNew<std::shared_ptr<FunctionData>>();
-        }
-
         try {
             std::rethrow_exception(std::current_exception());
         } catch (const std::shared_ptr<FunctionStackError> & e) {
-            *mmm_LastError = e;
-            return mmm_LastError->get();
+            *mmm_ThisError = e;
         } catch (...) {
-            *mmm_LastError = FunctionStackError::createUnknowError();
-            return mmm_LastError->get();
+            *mmm_ThisError = FunctionStackError::createUnknowError();
         }
+
+        return mmm_ThisError->get();
     }
 
 }/*namespace sstd*/
