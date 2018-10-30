@@ -139,6 +139,9 @@ public:
         template<typename T, typename ... K>
         inline T * createData(K && ... arg);
     public:
+        template<typename T>
+        inline Function * createFunction(T && argCurrentCall, Function * argNext = nullptr, FunctionData * argAns = nullptr);
+    public:
         FunctionData * call(Function * arg);
         void error(std::string_view) const/*throw error!*/;
         FunctionData *resume()/*重启标记为yield的函数*/;
@@ -157,9 +160,31 @@ namespace sstd {
         static_assert(false == std::is_array_v<T>);
         auto varAnsUnique = sstd::make_unique< std::remove_cv_t<T> >(std::forward<K>(arg)...);
         auto varAns = varAnsUnique.get();
-        mmm_MemoryPool->emplace_back(std::move(varAnsUnique)) ;
+        mmm_MemoryPool->emplace_back(std::move(varAnsUnique));
         return varAns;
     }
+
+    template<typename T>
+    inline Function * FunctionStack::createFunction(T && argCurrentCall,
+        Function * argNext,
+        FunctionData * argAns) {
+        using U0 = std::remove_reference_t<T>;
+        using U = U0;
+        class AnsFunction final : public Function {
+            U mmm_Function;
+        public:
+            virtual void call(const FunctionStack *L) override {
+                mmm_Function(L);
+            }
+            AnsFunction(T && d) : mmm_Function(std::forward<T>(d)) {
+            }
+        };
+        auto varAns = this->createData<AnsFunction>( std::forward<T>(argCurrentCall) );
+        varAns->next = argNext;
+        varAns->ans = argAns;
+        return varAns;
+    }
+
 }/*namespace sstd*/
 
 /*提供一个C++原生实现的，类似于LUA的动态函数运行环境*/
