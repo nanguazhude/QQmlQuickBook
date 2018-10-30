@@ -153,6 +153,22 @@ namespace sstd {
         return mmm_ThisError->get();
     }
 
+    void IfElseFunction::call(const FunctionStack * L) {
+        if ( whenJudge?(whenJudge->call(L)):true ) {
+            if (whenIf) {
+                whenIf->call(L);
+                this->ans = whenIf->ans;
+                this->next = whenIf->next;
+            }
+        } else {
+            if(whenElse){
+                whenElse->call(L);
+                this->ans = whenElse->ans;
+                this->next = whenElse->next;
+            }
+        }
+    }
+
 }/*namespace sstd*/
 
 

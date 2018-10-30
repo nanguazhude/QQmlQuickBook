@@ -16,6 +16,7 @@ void test_one_add_one() {
     });
     varFunctionStack->call(varFunction);
     assert(2 == varPack->ans);
+    delete varFunctionStack;
 }
 
 /*简单测试yield...*/
@@ -37,6 +38,7 @@ void test_add_yield() {
     assert(1 == varPack->a);
     varFunctionStack->resume();
     assert(2 == varPack->a);
+    delete varFunctionStack;
 }
 
 int main(int, char **) {

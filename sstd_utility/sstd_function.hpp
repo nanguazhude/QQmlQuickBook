@@ -87,6 +87,15 @@ namespace sstd {
         friend class sstd::FunctionStack;
     };
 
+    /*if else 容器*/
+    class _7_SSTD_FUNCTION_EXPORT_ IfElseFunction final : public Function {
+    public:
+        JudgeFunction * whenJudge;
+        Function *      whenIf;
+        Function *      whenElse;
+        virtual void call(const FunctionStack * L) override;
+    };
+
     class _7_SSTD_FUNCTION_EXPORT_ FunctionStackState {
         friend class sstd::FunctionStack/*函数栈*/;
         friend class sstd::ForFunction/*for*/;
@@ -141,6 +150,8 @@ public:
     public:
         template<typename T>
         inline Function * createFunction(T && argCurrentCall, Function * argNext = nullptr, FunctionData * argAns = nullptr);
+        template<typename T>
+        inline JudgeFunction * createJudgeFunction(T && argCurrentCall);
     public:
         FunctionData * call(Function * arg);
         void error(std::string_view) const/*throw error!*/;
@@ -183,6 +194,22 @@ namespace sstd {
         varAns->next = argNext;
         varAns->ans = argAns;
         return varAns;
+    }
+
+    template<typename T>
+    inline JudgeFunction * FunctionStack::createJudgeFunction(T && argCurrentCall) {
+        using U0 = std::remove_reference_t<T>;
+        using U = U0;
+        class AnsFunction final : public JudgeFunction {
+            U mmm_Function;
+        public:
+            virtual bool call(const FunctionStack *L) override {
+                return mmm_Function(L);
+            }
+            AnsFunction(T && d) : mmm_Function(std::forward<T>(d)) {
+            }
+        };
+        return this->createData<AnsFunction>(std::forward<T>(argCurrentCall));
     }
 
 }/*namespace sstd*/
