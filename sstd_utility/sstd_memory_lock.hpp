@@ -193,11 +193,11 @@ private:
                 };
 
                 using NamedObjectMap = sstd::map< std::string_view, NamedObject >;
-                NamedObjectMap * indexed_object{nullptr};
+                NamedObjectMap indexed_object ;
             };
             DataType * mmm_data;
         protected:
-            VirtualClassBasic() noexcept;
+            VirtualClassBasic() ;
         public:
             virtual ~VirtualClassBasic();
         public:
@@ -250,7 +250,7 @@ private:
            varAnsUnique->setName(name);
            name = varAnsUnique->getName();
            this->mmm_data->emplace_back(std::move(varAnsUnique));
-           this->mmm_data->indexed_object->emplace(name, 
+           this->mmm_data->indexed_object.emplace(name, 
                DataType::NamedObject{ (void*)(varAns) });
            return varAns;
 
@@ -258,8 +258,8 @@ private:
 
         template<typename T>
         inline T * VirtualClassBasic::find_named_object_in_this_class(const std::string_view & name) const {
-            auto varPos = mmm_data->indexed_object->find(name);
-            if (varPos != mmm_data->indexed_object->end()) {
+            auto varPos = mmm_data->indexed_object.find(name);
+            if (varPos != mmm_data->indexed_object.end()) {
                 return (T *)(varPos->second.data);
             }
             return nullptr;
