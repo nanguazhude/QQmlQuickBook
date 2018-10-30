@@ -327,7 +327,7 @@ namespace sstd {
     /*typedef int is_transparent;*/
     template<typename T_>using set = std::set<T_, std::less<void>, sstd::allocator<T_>/**/>;
     template<typename K_, typename T_> using map
-        = std::map<K_, T_, std::less<void>, std::pair<const K_, T_>/**/>;
+        = std::map<K_, T_, std::less<void>, sstd::allocator< std::pair<const K_, T_> >/**/>;
     template<typename T_>using forward_list = std::forward_list<T_, sstd::allocator<T_>/**/>;
 }/*namespace sstd*/
 

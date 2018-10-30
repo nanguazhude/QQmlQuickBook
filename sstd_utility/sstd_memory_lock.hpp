@@ -155,6 +155,23 @@ private:
                     return &mmm_Data;
                 }
             };
+
+            template<typename U>
+            class NamedItemWrap : public ItemWrap<U> {
+                using Super = ItemWrap<U>;
+                sstd::string mmm_Name;
+            public:
+                template<typename ... Args>
+                NamedItemWrap(Args && ... args) : Super( std::forward<Args>(args)... ) {
+                }
+                void setName(std::string_view n) {
+                    mmm_Name = n;
+                }
+                std::string_view getName()const {
+                    return mmm_Name;
+                }
+            };
+
         }/*_0_private*/
 
         class _1_SSTD_CORE_EXPORT VirtualClassBasic {
@@ -164,6 +181,19 @@ private:
                 public MemoryLock< std::unique_ptr< _0_private::VirtualBasic >, 15 > {
             public:
 
+                class NamedObject {
+                public:
+                    void * data;
+                    NamedObject(void * d) :data(d) {
+                    }
+                    NamedObject(const NamedObject &) = default;
+                    NamedObject(NamedObject&&) = default;
+                    NamedObject&operator=(const NamedObject &) = default;
+                    NamedObject&operator=(NamedObject&&) = default;
+                };
+
+                using NamedObjectMap = sstd::map< std::string_view, NamedObject >;
+                NamedObjectMap * indexed_object{nullptr};
             };
             DataType * mmm_data;
         protected:
@@ -173,6 +203,10 @@ private:
         public:
             template<typename T,typename ... Args>
             inline T * create_object_in_this_class(Args && ...);
+            template<typename T, typename ... Args>
+            inline T * create_named_object_in_this_class(std::string_view,Args && ...);
+            template<typename T>
+            inline T * find_named_object_in_this_class(const std::string_view &) const;
         public:
             SSTD_MEMORY_DEFINE(VirtualClassBasic)
         };
@@ -189,6 +223,46 @@ private:
             auto varAns = varAnsUnique->get_this_data();
             this->mmm_data->emplace_back( std::move(varAnsUnique) );
             return varAns;
+        }
+
+        template<typename T, typename ... Args>
+        inline T * VirtualClassBasic::create_named_object_in_this_class(std::string_view name, Args && ... args) {
+            
+            if ( name.empty() ) {
+                return nullptr;
+            }
+
+           {
+                auto varAns = find_named_object_in_this_class<T>(name);
+                if (varAns) {
+                    return varAns;
+                }
+           }
+            
+           static_assert(false == std::is_array_v<T>);
+           static_assert(false == std::is_reference_v<T>);
+           using U0 = std::remove_reference_t<T>;
+           using U1 = std::remove_cv_t<U0>;
+           using U = U1;
+           using ItemWrap = _0_private::NamedItemWrap<U>;
+           auto varAnsUnique = sstd::make_unique<ItemWrap>(std::forward<Args>(args)...);
+           auto varAns = varAnsUnique->get_this_data();
+           varAnsUnique->setName(name);
+           name = varAnsUnique->getName();
+           this->mmm_data->emplace_back(std::move(varAnsUnique));
+           this->mmm_data->indexed_object->emplace(name, 
+               DataType::NamedObject{ (void*)(varAns) });
+           return varAns;
+
+        }
+
+        template<typename T>
+        inline T * VirtualClassBasic::find_named_object_in_this_class(const std::string_view & name) const {
+            auto varPos = mmm_data->indexed_object->find(name);
+            if (varPos != mmm_data->indexed_object->end()) {
+                return (T *)(varPos->second.data);
+            }
+            return nullptr;
         }
        
     }/*namespace memroy*/

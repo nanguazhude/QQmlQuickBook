@@ -105,7 +105,8 @@ int main(int, char **) {
                 a = create_object_in_this_class<int>(1);
                 b = create_object_in_this_class<int>(2);
                 c = create_object_in_this_class<int>(3);
-                d = create_object_in_this_class<int>(4);
+                d = create_named_object_in_this_class<int>("test1"sv,4);
+                assert( find_named_object_in_this_class<int>("test1"sv) == d );
             }
         };
         Test1021 test;
