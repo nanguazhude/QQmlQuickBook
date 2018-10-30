@@ -152,6 +152,7 @@ public:
         inline Function * createFunction(T && argCurrentCall, Function * argNext = nullptr, FunctionData * argAns = nullptr);
         template<typename T>
         inline JudgeFunction * createJudgeFunction(T && argCurrentCall);
+        inline Function * createIfElseFunction(JudgeFunction * whenJudge, Function * whenIf, Function * whenElse=nullptr);
     public:
         FunctionData * call(Function * arg);
         void error(std::string_view) const/*throw error!*/;
@@ -210,6 +211,16 @@ namespace sstd {
             }
         };
         return this->createData<AnsFunction>(std::forward<T>(argCurrentCall));
+    }
+
+    inline Function * FunctionStack::createIfElseFunction(JudgeFunction * whenJudge, 
+        Function * whenIf, 
+        Function * whenElse ) {
+        auto varAns = this->createData<IfElseFunction>();
+        varAns->whenJudge = whenJudge;
+        varAns->whenIf = whenIf;
+        varAns->whenElse = whenElse;
+        return varAns;
     }
 
 }/*namespace sstd*/

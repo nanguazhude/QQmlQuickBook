@@ -41,10 +41,31 @@ void test_add_yield() {
     delete varFunctionStack;
 }
 
+void simple_test_if_else(){
+    auto varFunctionStack = new sstd::FunctionStack;
+
+    class Function {
+    public:
+        int a = 0;
+    };
+    auto varPack = std::make_shared<Function>();
+
+    auto judege = varFunctionStack->createJudgeFunction([](auto) {return false; });
+    auto add1 = varFunctionStack->createFunction([varPack](auto) {varPack->a += 1; });
+    auto add2 = varFunctionStack->createFunction([varPack](auto) {varPack->a += 2; });
+    auto program = varFunctionStack->createIfElseFunction(judege,add1,add2);
+    varFunctionStack->call(program);
+
+    assert(2==varPack->a);
+
+    delete varFunctionStack;
+}
+
 int main(int, char **) {
 
     test_one_add_one();
     test_add_yield();
+    simple_test_if_else();
 
     return 0;
 }
