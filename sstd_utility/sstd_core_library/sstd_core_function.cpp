@@ -112,12 +112,12 @@ namespace sstd {
         for (;;) {
             currentFunction->call(this);
             if (currentFunction->next) {
-                if (  (this->isYield) && (this->isYieldInLoop) )  {
+                if ((this->isYield) && (this->isYieldInLoop)) {
                     /*在while , for ,dowhile 里面yield...*/
                     return YieldAns::create();
                 }
                 currentFunction = currentFunction->next;
-                if ( this->isYield ) {
+                if (this->isYield) {
                     /*在非循环函数里面yield...*/
                     return YieldAns::create();
                 }
@@ -154,20 +154,79 @@ namespace sstd {
     }
 
     void IfElseFunction::call(const FunctionStack * L) {
-        if ( whenJudge?(whenJudge->call(L)):true ) {
+        if (whenJudge ? (whenJudge->call(L)) : true) {
             if (whenIf) {
                 whenIf->call(L);
                 this->ans = whenIf->ans;
                 this->next = whenIf->next;
             }
         } else {
-            if(whenElse){
+            if (whenElse) {
                 whenElse->call(L);
                 this->ans = whenElse->ans;
                 this->next = whenElse->next;
             }
         }
     }
+
+    bool Function::set_to_yield(const FunctionStack * L) {
+        if (L->isYield) {
+            const_cast<bool &>(L->isYieldInLoop) = true;
+            return true;
+        }
+        return false;
+    }
+
+    void ForFunction::call(const FunctionStack * L) {
+        for (; (whenJudge ? (whenJudge->call(L)) : true); ) {
+            if (whenRun) {
+                whenRun->call(L);
+            }
+            if (whenNext) {
+                whenNext->call(L);
+            }
+            /*yield ? ...*/
+            if (set_to_yield(L)) {
+                return;
+            }
+        }
+        /*set the ans...*/
+        if (whenRun) {
+            this->ans = whenRun->ans;
+            this->next = whenRun->next;
+        }
+    }
+
+    void DoWhileFunction::call(const FunctionStack * L) {
+        if (whenRun) {
+            whenRun->call(L);
+            this->ans = whenRun->ans;
+        }
+        assert(whenWhile);
+        auto & varNext = whenWhile;
+        varNext->whenJudge = this->whenJudge;
+        varNext->whenRun = this->whenRun;
+        varNext->ans = this->ans;
+        this->next = varNext;
+    }
+
+    void WhileFunction::call(const FunctionStack * L) {
+        while (whenJudge ? (whenJudge->call(L)) : true) {
+            if (whenRun) {
+                whenRun->call(L);
+            }
+            /*yield*/
+            if (set_to_yield(L)) {
+                return;
+            }
+        }
+        /*set the ans...*/
+        if (whenRun) {
+            this->ans = whenRun->ans;
+            this->next = whenRun->next;
+        }
+    }
+
 
 }/*namespace sstd*/
 

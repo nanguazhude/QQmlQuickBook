@@ -88,12 +88,47 @@ namespace sstd {
     };
 
     /*if else 容器*/
-    class _7_SSTD_FUNCTION_EXPORT_ IfElseFunction final : public Function {
-    public:
+    class _7_SSTD_FUNCTION_EXPORT_ IfElseFunction final : public Function{
+        friend class sstd::FunctionStack;
+    protected:
         JudgeFunction * whenJudge;
         Function *      whenIf;
         Function *      whenElse;
+    public:
         virtual void call(const FunctionStack * L) override;
+    };
+
+    /*for 容器*/
+    class _7_SSTD_FUNCTION_EXPORT_ ForFunction final : public Function{
+        friend class sstd::FunctionStack;
+    protected:
+        Function * whenRun;
+        JudgeFunction * whenJudge;
+        Function * whenNext;
+    public:
+        virtual void call(const FunctionStack * L) override;
+    };
+
+    /*while 容器*/
+    class _7_SSTD_FUNCTION_EXPORT_ WhileFunction final : public Function{
+        friend class sstd::FunctionStack;
+        friend class sstd::DoWhileFunction;
+    protected:
+        JudgeFunction * whenJudge;
+        Function *      whenRun;
+    public:
+        virtual void call(const FunctionStack * L) override;
+    };
+
+    /*do while 容器*/
+    class _7_SSTD_FUNCTION_EXPORT_ DoWhileFunction final : public Function{
+       friend class sstd::FunctionStack;
+   protected:
+       JudgeFunction * whenJudge;
+       Function *      whenRun;
+       WhileFunction * whenWhile;
+   public:
+       virtual void call(const FunctionStack * L) override;
     };
 
     class _7_SSTD_FUNCTION_EXPORT_ FunctionStackState {
@@ -152,7 +187,10 @@ public:
         inline Function * createFunction(T && argCurrentCall, Function * argNext = nullptr, FunctionData * argAns = nullptr);
         template<typename T>
         inline JudgeFunction * createJudgeFunction(T && argCurrentCall);
-        inline Function * createIfElseFunction(JudgeFunction * whenJudge, Function * whenIf, Function * whenElse=nullptr);
+        inline Function * createIfElseFunction(JudgeFunction * whenJudge, Function * whenIf, Function * whenElse = nullptr);
+        inline ForFunction * createForFunction(JudgeFunction * whenJudge, Function * whenRun, Function * whenNext = nullptr);
+        inline WhileFunction * createWhileFunction(JudgeFunction * whenJudge, Function * whenRun);
+        inline DoWhileFunction * createDoWhileFunction(Function * whenRun, JudgeFunction * whenJudge);
     public:
         FunctionData * call(Function * arg);
         void error(std::string_view) const/*throw error!*/;
@@ -191,7 +229,7 @@ namespace sstd {
             AnsFunction(T && d) : mmm_Function(std::forward<T>(d)) {
             }
         };
-        auto varAns = this->createData<AnsFunction>( std::forward<T>(argCurrentCall) );
+        auto varAns = this->createData<AnsFunction>(std::forward<T>(argCurrentCall));
         varAns->next = argNext;
         varAns->ans = argAns;
         return varAns;
@@ -213,13 +251,38 @@ namespace sstd {
         return this->createData<AnsFunction>(std::forward<T>(argCurrentCall));
     }
 
-    inline Function * FunctionStack::createIfElseFunction(JudgeFunction * whenJudge, 
-        Function * whenIf, 
-        Function * whenElse ) {
+    inline Function * FunctionStack::createIfElseFunction(JudgeFunction * whenJudge,
+        Function * whenIf,
+        Function * whenElse) {
         auto varAns = this->createData<IfElseFunction>();
         varAns->whenJudge = whenJudge;
         varAns->whenIf = whenIf;
         varAns->whenElse = whenElse;
+        return varAns;
+    }
+
+    ForFunction * FunctionStack::createForFunction(JudgeFunction * whenJudge, Function * whenRun, Function * whenNext) {
+        auto varAns = this->createData<ForFunction>();
+        varAns->whenJudge = whenJudge;
+        varAns->whenRun = whenRun;
+        varAns->whenNext = whenNext;
+        return varAns;
+    }
+
+    inline WhileFunction * FunctionStack::createWhileFunction(JudgeFunction * whenJudge, Function * whenRun) {
+        auto varAns = this->createData<WhileFunction>();
+        varAns->whenJudge = whenJudge;
+        varAns->whenRun = whenRun;
+        return varAns;
+    }
+
+    inline DoWhileFunction * FunctionStack::createDoWhileFunction(Function * whenRun, JudgeFunction * whenJudge) {
+        auto varAns = this->createData<DoWhileFunction>();
+        varAns->whenJudge = whenJudge;
+        varAns->whenRun = whenRun;
+        varAns->whenWhile = this->createData<WhileFunction>();
+        varAns->whenWhile->whenJudge = nullptr;
+        varAns->whenWhile->whenRun = nullptr;
         return varAns;
     }
 
