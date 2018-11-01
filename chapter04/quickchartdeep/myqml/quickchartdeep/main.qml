@@ -9,8 +9,6 @@ Rectangle {
     height: 480;
     color: Qt.rgba(0.8,0.8,0.8,1);
 
-
-
     ChartView {
 
         id : _id_chart_view  ;
@@ -19,9 +17,11 @@ Rectangle {
 
         /*********************************************/
         SSTDChartView.chart: _id_chart_view;
-        signal  anyDomainUpdate()
+        signal anyDomainUpdate()
         Component.onCompleted: {
-            SSTDChartView.anyDomainUpdate.connect( _id_chart_view.anyDomainUpdate );
+            _id_chart_view.SSTDChartView.anyDomainUpdate.connect(
+                        _id_chart_view.anyDomainUpdate );
+            _id_chart_view.SSTDChartView.anyDomainUpdate();
         }
         /*********************************************/
 
@@ -35,6 +35,34 @@ Rectangle {
             XYPoint { x: 1.9; y: 1.6 }
             XYPoint { x: 2.1; y: 1.3 }
             XYPoint { x: 2.5; y: 2.1 }
+        }
+
+        Rectangle{
+            id : _id_rect
+            width: 32 ;
+            height: 32 ;
+            color: Qt.rgba(1,0,0,1)
+        }
+
+        onAnyDomainUpdate : {
+            var pos = _id_chart_view.mapToPosition( Qt.point(1.8,1.8), _id_scatter1)
+            _id_rect.x = pos.x ;
+            _id_rect.y = pos.y ;
+        }
+
+        Timer{
+            property int flipState : 0 ;
+            interval: 500;
+            running: true;
+            repeat: true
+            onTriggered: {
+                ++flipState;
+                switch(flipState){
+                case 1:{_id_chart_view.scrollLeft(32);}break;
+                case 2:{_id_chart_view.scrollRight(64);}break;
+                case 3:{_id_chart_view.scrollLeft(32);flipState=0;}break;
+                }
+            }
         }
 
     }/**/

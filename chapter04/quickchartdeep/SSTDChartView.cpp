@@ -14,11 +14,12 @@ namespace sstd {
 
     SSTDChartView * SSTDChartView::qmlAttachedProperties(QObject * obj) {
         auto varAns = sstdNew<SSTDChartView>(obj);
+        /*...*/
         auto varDeclarativeChart = reinterpret_cast<QtCharts::DeclarativeChart *>(obj);
         assert(varDeclarativeChart);
         varAns->mmm_DeclarativeChart = varDeclarativeChart;
         connect(varDeclarativeChart, SIGNAL(seriesAdded(QtCharts::QAbstractSeries *)),
-            varAns,SLOT(seriesAdded(QtCharts::QAbstractSeries *)));
+            varAns, SLOT(seriesAdded(QtCharts::QAbstractSeries *)));
         return varAns;
     }
 
@@ -35,16 +36,16 @@ namespace sstd {
         }
         auto varPrivte = static_cast<GetQAbstractSeriesPrivate*>(series)->getPrivateData();
         auto varDoMain = varPrivte->domain();
-        connect(varDoMain, &QtCharts::AbstractDomain::updated, []() {
-            qDebug() << "xxx";
+        connect(varDoMain, &QtCharts::AbstractDomain::updated, [this]() {
+            this->anyDomainUpdate();
         });
-        assert(mmm_Chart==series->chart());
+        assert(mmm_Chart == series->chart());
 
     }
 
 }/*namespace sstd*/
 
-namespace  {
+namespace {
 
     static inline void registerThis() {
         qmlRegisterType<sstd::SSTDChartView>("myqml.sstdchartview", 1, 0, "SSTDChartView");
