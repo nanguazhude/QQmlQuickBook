@@ -12,6 +12,7 @@ RootWindow::RootWindow() {
     /*创建OpenGL渲染环境*/
     this->setSurfaceType(QSurface::OpenGLSurface);
     this->setFormat(sstd::getDefaultOpenGLFormat());
+    this->create();
     /**/
     this->setTitle(trUtf8(u8R"(多线程绘制)"));
     /*固定窗口大小*/
