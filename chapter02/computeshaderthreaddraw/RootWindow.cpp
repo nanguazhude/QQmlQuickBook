@@ -13,7 +13,7 @@ RootWindow::RootWindow() {
     this->setSurfaceType(QSurface::OpenGLSurface);
     this->setFormat(sstd::getDefaultOpenGLFormat());
     /**/
-    this->setTitle(trUtf8(u8R"(Root Window)"));
+    this->setTitle(trUtf8(u8R"(多线程绘制)"));
     /*固定窗口大小*/
     this->setMinimumSize({ getRenderWidth(),getRenderHeight() });
     this->setMaximumSize({ getRenderWidth(),getRenderHeight() });
