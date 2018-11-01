@@ -1,8 +1,8 @@
 
 CONFIG(debug,debug|release){
-    TARGET =   quickchartdeep_debug
+    TARGET =   quickchartimageborder_debug
 }else{
-    TARGET =   quickchartdeep
+    TARGET =   quickchartimageborder
 }
 
 
@@ -36,7 +36,7 @@ HEADERS += $$PWD/RootWindow.hpp
 SOURCES += $$PWD/Application.cpp
 HEADERS += $$PWD/Application.hpp
 
-QMLSOURCES += $$PWD/myqml/quickchartdeep/main.qml
+QMLSOURCES += $$PWD/myqml/quickchartimageborder/main.qml
 
 lupdate_only{
     SOURCES += $$QMLSOURCES

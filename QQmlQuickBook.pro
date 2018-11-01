@@ -106,3 +106,8 @@ SUBDIRS += quickchart
 quickchartdeep.file = $$PWD/chapter04/quickchartdeep/quickchartdeep.pro
 quickchartdeep.depends = buildinstall
 SUBDIRS += quickchartdeep
+
+quickchartimageborder.file = $$PWD/chapter04/quickchartimageborder/quickchartimageborder.pro
+quickchartimageborder.depends = buildinstall
+SUBDIRS += quickchartimageborder
+
