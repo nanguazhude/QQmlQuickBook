@@ -181,16 +181,16 @@ public:
         ~FunctionStack();
         /*在当前内存池中创建对象,对象必须继承自FunctionData*/
         template<typename T, typename ... K>
-        inline T * createData(K && ... arg);
+        inline T * createData(K && ... arg) const;
     public:
         template<typename T>
-        inline Function * createFunction(T && argCurrentCall, Function * argNext = nullptr, FunctionData * argAns = nullptr);
+        inline Function * createFunction(T && argCurrentCall, Function * argNext = nullptr, FunctionData * argAns = nullptr) const;
         template<typename T>
-        inline JudgeFunction * createJudgeFunction(T && argCurrentCall);
-        inline Function * createIfElseFunction(JudgeFunction * whenJudge, Function * whenIf, Function * whenElse = nullptr);
-        inline ForFunction * createForFunction(JudgeFunction * whenJudge, Function * whenRun, Function * whenNext = nullptr);
-        inline WhileFunction * createWhileFunction(JudgeFunction * whenJudge, Function * whenRun);
-        inline DoWhileFunction * createDoWhileFunction(Function * whenRun, JudgeFunction * whenJudge);
+        inline JudgeFunction * createJudgeFunction(T && argCurrentCall) const;
+        inline Function * createIfElseFunction(JudgeFunction * whenJudge, Function * whenIf, Function * whenElse = nullptr) const;
+        inline ForFunction * createForFunction(JudgeFunction * whenJudge, Function * whenRun, Function * whenNext = nullptr) const;
+        inline WhileFunction * createWhileFunction(JudgeFunction * whenJudge, Function * whenRun) const;
+        inline DoWhileFunction * createDoWhileFunction(Function * whenRun, JudgeFunction * whenJudge) const;
     public:
         FunctionData * call(Function * arg);
         void error(std::string_view) const/*throw error!*/;
@@ -205,7 +205,7 @@ public:
 
 namespace sstd {
     template<typename T, typename ... K>
-    inline T * FunctionStack::createData(K && ... arg) {
+    inline T * FunctionStack::createData(K && ... arg) const {
         static_assert(false == std::is_reference_v<T>);
         static_assert(false == std::is_array_v<T>);
         auto varAnsUnique = sstd::make_unique< std::remove_cv_t<T> >(std::forward<K>(arg)...);
@@ -217,7 +217,7 @@ namespace sstd {
     template<typename T>
     inline Function * FunctionStack::createFunction(T && argCurrentCall,
         Function * argNext,
-        FunctionData * argAns) {
+        FunctionData * argAns) const {
         using U0 = std::remove_reference_t<T>;
         using U = U0;
         class AnsFunction final : public Function {
@@ -236,7 +236,7 @@ namespace sstd {
     }
 
     template<typename T>
-    inline JudgeFunction * FunctionStack::createJudgeFunction(T && argCurrentCall) {
+    inline JudgeFunction * FunctionStack::createJudgeFunction(T && argCurrentCall) const {
         using U0 = std::remove_reference_t<T>;
         using U = U0;
         class AnsFunction final : public JudgeFunction {
@@ -253,7 +253,7 @@ namespace sstd {
 
     inline Function * FunctionStack::createIfElseFunction(JudgeFunction * whenJudge,
         Function * whenIf,
-        Function * whenElse) {
+        Function * whenElse) const {
         auto varAns = this->createData<IfElseFunction>();
         varAns->whenJudge = whenJudge;
         varAns->whenIf = whenIf;
@@ -261,7 +261,7 @@ namespace sstd {
         return varAns;
     }
 
-    ForFunction * FunctionStack::createForFunction(JudgeFunction * whenJudge, Function * whenRun, Function * whenNext) {
+    ForFunction * FunctionStack::createForFunction(JudgeFunction * whenJudge, Function * whenRun, Function * whenNext) const {
         auto varAns = this->createData<ForFunction>();
         varAns->whenJudge = whenJudge;
         varAns->whenRun = whenRun;
@@ -269,14 +269,14 @@ namespace sstd {
         return varAns;
     }
 
-    inline WhileFunction * FunctionStack::createWhileFunction(JudgeFunction * whenJudge, Function * whenRun) {
+    inline WhileFunction * FunctionStack::createWhileFunction(JudgeFunction * whenJudge, Function * whenRun) const {
         auto varAns = this->createData<WhileFunction>();
         varAns->whenJudge = whenJudge;
         varAns->whenRun = whenRun;
         return varAns;
     }
 
-    inline DoWhileFunction * FunctionStack::createDoWhileFunction(Function * whenRun, JudgeFunction * whenJudge) {
+    inline DoWhileFunction * FunctionStack::createDoWhileFunction(Function * whenRun, JudgeFunction * whenJudge) const {
         auto varAns = this->createData<DoWhileFunction>();
         varAns->whenJudge = whenJudge;
         varAns->whenRun = whenRun;

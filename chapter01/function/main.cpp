@@ -41,7 +41,7 @@ void test_add_yield() {
     delete varFunctionStack;
 }
 
-void simple_test_if_else(){
+void simple_test_if_else() {
     auto varFunctionStack = new sstd::FunctionStack;
 
     class Function {
@@ -53,19 +53,72 @@ void simple_test_if_else(){
     auto judege = varFunctionStack->createJudgeFunction([](auto) {return false; });
     auto add1 = varFunctionStack->createFunction([varPack](auto) {varPack->a += 1; });
     auto add2 = varFunctionStack->createFunction([varPack](auto) {varPack->a += 2; });
-    auto program = varFunctionStack->createIfElseFunction(judege,add1,add2);
+    auto program = varFunctionStack->createIfElseFunction(judege, add1, add2);
     varFunctionStack->call(program);
 
-    assert(2==varPack->a);
+    assert(2 == varPack->a);
 
     delete varFunctionStack;
 }
+
+class FibonacciFunctionStack : public sstd::FunctionStack {
+public:
+
+    std::map<int, int> tmp;
+    FibonacciFunctionStack() {
+        tmp.emplace(0, 0);
+        tmp.emplace(1, 1);
+    }
+
+    void start(int a) {
+        this->call(this->createFunction([this, arg = a](auto) { eval(arg); }));
+    }
+
+    void eval(int a) {
+        auto varAns = tmp.find(a);
+        if (varAns != tmp.end()) {/*finished*/
+            return;
+        }
+
+        auto varN_1 = tmp.find(a - 1);
+        auto varN_2 = tmp.find(a - 2);
+        if ((varN_1 != tmp.end()) && (varN_2 != tmp.end())) {/*get this*/
+            tmp.emplace(a, (varN_1->second) + (varN_2->second));
+            return;
+        }
+
+        if (varN_1 == tmp.end()) {
+            buildEval(a - 1);
+        }
+
+        if (varN_2 == tmp.end()) {
+            buildEval(a - 2);
+        }
+
+    }
+
+    void buildEval(int a) {
+        auto varLastNext = currentFunction->next;
+        auto varNext = this->createFunction([this, arg = a](auto) { eval(arg); });
+        varNext->next = varLastNext;
+        currentFunction->next = varNext;
+    }
+
+};
+
+void test_fibonacci_sequence() {
+    auto varFunctionStack = new FibonacciFunctionStack;
+    varFunctionStack->start(10);
+    delete varFunctionStack;
+}
+
 
 int main(int, char **) {
 
     test_one_add_one();
     test_add_yield();
     simple_test_if_else();
+    test_fibonacci_sequence();
 
     return 0;
 }
