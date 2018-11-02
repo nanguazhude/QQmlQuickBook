@@ -62,7 +62,7 @@ Rectangle {
             _id_rect.x = pos.x ;
             _id_rect.y = pos.y ;
 
-            var pos = _id_chart_view.mapToPosition( Qt.point(1.5,1.5), _id_scatter1)
+            pos = _id_chart_view.mapToPosition( Qt.point(1.5,1.5), _id_scatter1)
             _id_rect1.x = pos.x ;
             _id_rect1.y = pos.y ;
 
