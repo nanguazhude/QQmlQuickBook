@@ -411,9 +411,13 @@ namespace this_cpp_file {
                 if (false == bool(varPack)) {
                     continue;
                 }
-                ffmpeg::avcodec_send_packet(varCodec->contex , varPack.get()  );
+                auto varError = ffmpeg::avcodec_send_packet(varCodec->contex , varPack.get()  );
                 auto varFrame = CPPAVFrame::create() ;
-                ffmpeg::avcodec_receive_frame(varCodec->contex , varFrame.get() );
+                varError = ffmpeg::avcodec_receive_frame(varCodec->contex , varFrame.get() );
+                if (varError) {
+                    continue;
+                }
+                
             }
         } catch (...) {
         }
@@ -428,6 +432,7 @@ namespace this_cpp_file {
         }
 
         void get_video_pack(std::shared_ptr<CPPAVPacket> arg) {
+            return;
             list_video.push_pack(std::move(arg));
             video_thread_wait.notify_all();
         }
@@ -440,10 +445,7 @@ namespace this_cpp_file {
                     [this]() { return need_data.load();  } );
                 int varReadNext = 16;
                 auto varPack = sstd::make_shared< CPPAVPacket >();
-                /***********************************************************************************/
-
-                /***********************************************************************************/
-                if ((ffmpeg::av_read_frame(av_contex, varPack.get()) > 0)&&(varReadNext>0)) {
+                if ((ffmpeg::av_read_frame(av_contex, varPack.get()) == 0)&&(varReadNext>0)) {
                     if ( varPack->stream_index == audio_stream_index.load()) {
                         --varReadNext;
                         get_audio_pack(std::move(varPack));
