@@ -111,3 +111,6 @@ quickchartimageborder.file = $$PWD/chapter04/quickchartimageborder/quickchartima
 quickchartimageborder.depends = buildinstall
 SUBDIRS += quickchartimageborder
 
+multimediaplayer.file = $$PWD/chapter05/multimediaplayer/multimediaplayer.pro
+multimediaplayer.depends = buildinstall
+SUBDIRS += multimediaplayer
