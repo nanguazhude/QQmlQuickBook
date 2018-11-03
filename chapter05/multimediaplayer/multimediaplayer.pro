@@ -64,7 +64,7 @@ CONFIG(debug,debug|release){
     export(QMAKE_POST_LINK)
 }
 
-
+include($$PWD/../../sstd_utility/sstd_ffmpeg/sstd_ffmpeg.pri)
 
 
 
