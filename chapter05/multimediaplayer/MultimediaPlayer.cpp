@@ -76,12 +76,14 @@ namespace this_cpp_file {
 
     class VideoStreamCodec {
     public:
-        AVCodec * codec;
+        AVCodec * codec{nullptr};
+        AVCodecContext * contex{nullptr};
     };
 
     class AudioStreamCodec {
     public:
-        AVCodec * codec;
+        AVCodec * codec{nullptr};
+        AVCodecContext * contex{nullptr};
         int sample_rate;
     };
 
@@ -368,6 +370,7 @@ namespace this_cpp_file {
         void decode_audio() try {
             std::mutex varMutex;
             while ( false == audio_thread_quit.load() ) {
+                const auto & varCodec = this->audioStreamCodec[ this->audio_stream_index.load()];
                 std::unique_lock varLock{ varMutex };
                 audio_thread_wait.wait_for(varLock, 10ms, 
                     [this]() {return need_data.load(); });
@@ -375,7 +378,8 @@ namespace this_cpp_file {
                 if (false == bool(varPack)) {
                     continue;
                 }
-
+                ffmpeg::avcodec_send_packet(varCodec->contex , varPack.get()  );
+                ffmpeg::avcodec_receive_frame(varCodec->contex ,);
             }
         } catch (...) {
         }
@@ -526,6 +530,7 @@ namespace {
     Q_COREAPP_STARTUP_FUNCTION(on_start)
 }/*namespace*/
 
+//http://www.cnblogs.com/wangguchangqing/p/5900426.html
 
 
 
