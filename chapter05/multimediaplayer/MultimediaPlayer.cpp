@@ -367,7 +367,7 @@ namespace this_cpp_file {
             qint64 readData(char *data, qint64 maxSize) override {
 
                 qint64 varRawSize{ 0 };
-                const auto varSize = ( maxSize >> 2 );
+                const auto varSize = (maxSize >> 2);
 
                 {
                     static_assert(4 == sizeof(std::pair< AudioChar, AudioChar  >));
@@ -386,9 +386,9 @@ namespace this_cpp_file {
                                 varPosBegin,
                                 varPosEnd);
                             varRawSize -= varSize;
-                        } else if( varRawSize > 0 ) {
+                        } else if (varRawSize > 0) {
                             auto varPosBegin = super->audioRawData.begin();
-                            auto varPosEnd = super->audioRawData.begin() + varRawSize ;
+                            auto varPosEnd = super->audioRawData.begin() + varRawSize;
                             varTmp = sstd::vector< std::pair< AudioChar, AudioChar > >{
                                varPosBegin,
                                varPosEnd };
@@ -396,17 +396,16 @@ namespace this_cpp_file {
                                 varPosBegin,
                                 varPosEnd);
                             varRawSize = 0;
-                        }
-                        else {
+                        } else {
                             super->setNeedData();
                             return 0;
                         }
                     }
-                    maxSize = ( varTmp.size() << 2 ) ;
+                    maxSize = (varTmp.size() << 2);
                     ::memcpy(data, varTmp.data(), maxSize);
                 }
 
-                if ( varRawSize > varSize ) {
+                if (varRawSize > varSize) {
                     super->need_data.store(false);
                 } else {
                     super->setNeedData();
@@ -646,6 +645,42 @@ namespace sstd {
 
     bool Player::ppp_construct_net() {
         return false;
+    }
+
+    PlayerThread::PlayerThread() {
+        this->moveToThread(qApp->thread());
+        connect(this, &QThread::finished, this, &QThread::deleteLater);
+
+    }
+
+    void PlayerThread::stop() {
+        this->quit();
+    }
+
+    void PlayerThread::startLocal(const QString & arg) {
+        mmm_LocalPath = arg;
+        this->start();
+    }
+
+    void PlayerThread::run() {
+        Player varPlayer;
+        if (mmm_LocalPath.isEmpty()) {
+        } else {/*local ...*/
+            varPlayer.setLocalFile(mmm_LocalPath);
+            if (varPlayer.open()) {
+                if (varPlayer.start()) {
+                    mmm_Player = &varPlayer;
+                    connect(&varPlayer, &Player::finished, this, &PlayerThread::stop);
+                } else {
+                    mmm_Error = varPlayer.getError();
+                    return;
+                }
+            } else {
+                mmm_Error = varPlayer.getError();
+                return;
+            }
+        }
+        this->exec();
     }
 
 }/*namespace sstd*/

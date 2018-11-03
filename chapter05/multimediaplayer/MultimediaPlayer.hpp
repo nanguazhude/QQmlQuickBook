@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include <QObject>
+#include <QtCore/qobject.h>
+#include <QtCore/qthread.h>
 #include <sstd_memory.hpp>
 
 namespace sstd {
@@ -13,8 +14,10 @@ namespace sstd {
         void setLocalFile(const QString &);
         inline bool open();
         bool start(double=0);
+        inline const QString & getError()const;
     public:
         Player();
+        Q_SIGNAL void finished();
     private:
         bool * mmm_IsStart;
         bool * mmm_ISLocalFile;
@@ -34,12 +37,28 @@ namespace sstd {
         return ppp_construct();
     }
 
+    inline const QString & Player::getError()const {
+        return *mmm_ErrorString;
+    }
 
-
-
-
-
-
+    class PlayerThread : public QThread {
+        Q_OBJECT
+    public:
+        PlayerThread();
+    public:
+        void stop();
+        void startLocal(const QString &);
+    protected:
+        void run() override;
+    private:
+        Player * mmm_Player{ nullptr };
+        QString mmm_LocalPath;
+        QString mmm_Error;
+    private:
+        SSTD_MEMORY_QOBJECT_DEFINE(PlayerThread)
+    };
+    
+    
 }/*namespace sstd*/
 
 
