@@ -11,10 +11,9 @@ namespace sstd {
         public virtual sstd::memory_lock::VirtualClassBasic {
         Q_OBJECT
     public:
-
         void setLocalFile(const QString &);
-        bool construct();
-        bool start();
+        inline bool open();
+        inline bool start();
     public:
         Player();
     private:
@@ -26,12 +25,15 @@ namespace sstd {
         QString * mmm_ErrorString;
     private:
         bool ppp_construct_local();
-        bool ppp_start_net();
+        bool ppp_construct_net();
+        bool ppp_construct();
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(Player)
     };
 
-
+    inline bool Player::open() {
+        ppp_construct();
+    }
 
 
 

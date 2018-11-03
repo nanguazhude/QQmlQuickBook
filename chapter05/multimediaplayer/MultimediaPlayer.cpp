@@ -187,6 +187,10 @@ namespace this_cpp_file {
             return av_length;
         }
 
+        void start() {
+
+        }
+
     public:
 
     private:
@@ -219,14 +223,14 @@ namespace sstd {
         (*mmm_LocalFileName) = arg;
     }
 
-    bool Player::construct() {
+    bool Player::ppp_construct() {
         assert((*mmm_IsStart) == false);
         assert((*mmm_IsConstruct)==false);
         (*mmm_IsConstruct) = true;
         if (*mmm_ISLocalFile) {
            return ppp_construct_local();
         } else {
-           return ppp_start_net();
+           return ppp_construct_net();
         }
     }
 
@@ -238,7 +242,7 @@ namespace sstd {
         return mmm_Private->construct_local_decode(*mmm_LocalFileName);
     }
 
-    bool Player::ppp_start_net() {
+    bool Player::ppp_construct_net() {
         return false;
     }
 
