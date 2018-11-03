@@ -347,7 +347,7 @@ namespace this_cpp_file {
         };
 
         std::shared_mutex mutexAudioRawData;
-        sstd::vector< std::pair< AudioChar, AudioChar  > > audioRawData;
+        sstd::deque< std::pair< AudioChar, AudioChar  > > audioRawData;
 
         AudioPlayer * audio_player{ nullptr };
         class AudioStream : public QIODevice {
@@ -370,17 +370,24 @@ namespace this_cpp_file {
 
                 {
                     static_assert(4 == sizeof(std::pair< AudioChar, AudioChar  >));
+                    sstd::vector< std::pair< AudioChar, AudioChar > > varTmp;
                     auto varSize = maxSize >> 2;
-                    std::unique_lock varReadLock{ super->mutexAudioRawData };
-                    varRawSize = static_cast<qint64> (super->audioRawData.size());
-                    if (varSize <= varRawSize) {
-                        ::memcpy(data, super->audioRawData.data(), maxSize);
-                        super->audioRawData.erase(
-                            super->audioRawData.begin(),
-                            super->audioRawData.begin() + varSize);
-                    } else {
-                        return 0;
+                    {
+                        std::unique_lock varReadLock{ super->mutexAudioRawData };
+                        varRawSize = static_cast<qint64> (super->audioRawData.size());
+                        if (varSize <= varRawSize) {
+                            varTmp = sstd::vector< std::pair< AudioChar, AudioChar > >{
+                                super->audioRawData.begin(),
+                                super->audioRawData.begin() + varSize
+                            };
+                            super->audioRawData.erase(
+                                super->audioRawData.begin(),
+                                super->audioRawData.begin() + varSize);
+                        } else {
+                            return 0;
+                        }
                     }
+                    ::memcpy(data, varTmp.data(), maxSize);
                 }
 
                 if (varRawSize > 1600 * 4) {
@@ -468,7 +475,6 @@ namespace this_cpp_file {
                     varFrame->nb_samples
                 );
                 std::unique_lock varReadLock{ this->mutexAudioRawData };
-                this->audioRawData.reserve(varData.size() + audioRawData.size());
                 this->audioRawData.insert(audioRawData.end(),
                     varData.begin(),
                     varData.end());

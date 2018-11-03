@@ -35,6 +35,7 @@ using namespace std::string_view_literals;
 #include <map>
 #include <set>
 #include <list>
+#include <deque>
 #include <vector>
 #include <random>
 #include <iterator>
@@ -329,6 +330,7 @@ namespace sstd {
     template<typename K_, typename T_> using map
         = std::map<K_, T_, std::less<void>, sstd::allocator< std::pair<const K_, T_> >/**/>;
     template<typename T_>using forward_list = std::forward_list<T_, sstd::allocator<T_>/**/>;
+    template<typename T_>using deque = std::deque<T_,sstd::allocator<T_>>;
 }/*namespace sstd*/
 
 using sstd::sstdNew;

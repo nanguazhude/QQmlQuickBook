@@ -1,11 +1,10 @@
-#qml quickchart all in one
+#multimediaplayer
 
 CONFIG(debug,debug|release){
     TARGET =   multimediaplayer_debug
 }else{
     TARGET =   multimediaplayer
 }
-
 
 TEMPLATE = app
 
