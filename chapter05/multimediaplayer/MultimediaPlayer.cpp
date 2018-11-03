@@ -67,9 +67,13 @@ namespace this_cpp_file {
             varFormat.setSampleRate(8000);
             varFormat.setChannelCount(2);
             varFormat.setSampleSize(16);
-            varFormat.setCodec("audio/pcm");
+            varFormat.setCodec(QStringLiteral("audio/pcm"));
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+            varFormat.setByteOrder(QAudioFormat::BigEndian);
+#else
             varFormat.setByteOrder(QAudioFormat::LittleEndian);
-            varFormat.setSampleType(QAudioFormat::UnSignedInt);
+#endif
+            varFormat.setSampleType(QAudioFormat::SignedInt);
             return varFormat;
         }();
         auto var = varAns;
@@ -100,17 +104,40 @@ namespace this_cpp_file {
 
     class VideoStreamCodec {
     public:
-        AVCodec *        codec{ nullptr };
-        AVCodecContext * contex{ nullptr };
+        ffmpeg::AVCodec *        codec{ nullptr };
+        ffmpeg::AVCodecContext * contex{ nullptr };
     private:
         SSTD_MEMORY_DEFINE(VideoStreamCodec)
     };
 
     class AudioStreamCodec {
     public:
-        AVCodec * codec{ nullptr };
-        AVCodecContext * contex{ nullptr };
-        int sample_rate;
+        ffmpeg::AVCodec * codec{ nullptr };
+        ffmpeg::AVCodecContext * contex{ nullptr };
+        int sample_rate{ 44100 };
+        ffmpeg::SwrContext * reSampleContex{ nullptr };
+        void constructReSampleContex() {
+            //https://blog.csdn.net/timesir/article/details/52904024
+            reSampleContex = ffmpeg::swr_alloc_set_opts(
+                /*s*/nullptr,
+                /*双声道*/AV_CH_LAYOUT_STEREO,
+                /*signed 16*/AV_SAMPLE_FMT_S16,
+                this->sample_rate,
+                contex->channel_layout,
+                contex->sample_fmt,
+                contex->sample_rate,
+                0,
+                nullptr
+            );
+            ffmpeg::swr_init(reSampleContex);
+        }
+        ~AudioStreamCodec() {
+            if (reSampleContex) {
+                ffmpeg::swr_free(&reSampleContex);
+            }
+        }
+    public:
+        SSTD_MEMORY_DEFINE(AudioStreamCodec)
     };
 
     class FrameImage {
@@ -283,7 +310,7 @@ namespace this_cpp_file {
                     if (audio_stream_index.load() < 0) {
                         audio_stream_index.store(static_cast<int>(i));
                     }
-
+                    codec->constructReSampleContex();
                 } else {
                     continue;
                 }
@@ -315,12 +342,12 @@ namespace this_cpp_file {
         }
 
         union AudioChar {
-            std::uint16_t uData;
+            std::int16_t uData;
             std::uint8_t cData[2];
         };
 
-        std::mutex mutexAudioRawData;
-        sstd::vector< AudioChar > audioRawData;
+        std::shared_mutex mutexAudioRawData;
+        sstd::vector< std::pair< AudioChar, AudioChar  > > audioRawData;
 
         AudioPlayer * audio_player{ nullptr };
         class AudioStream : public QIODevice {
@@ -329,6 +356,12 @@ namespace this_cpp_file {
 
             void construct(FFMPEGDecoder *a) {
                 super = a;
+                this->open(QIODevice::ReadOnly);
+            }
+
+            qint64 bytesAvailable() const {
+                std::shared_lock varLock{ super->mutexAudioRawData };
+                return super->audioRawData.size() * sizeof(super->audioRawData[0]);
             }
 
             qint64 readData(char *data, qint64 maxSize) override {
@@ -336,6 +369,7 @@ namespace this_cpp_file {
                 qint64 varRawSize{ 0 };
 
                 {
+                    static_assert(4 == sizeof(std::pair< AudioChar, AudioChar  >));
                     auto varSize = maxSize >> 2;
                     std::unique_lock varReadLock{ super->mutexAudioRawData };
                     varRawSize = static_cast<qint64> (super->audioRawData.size());
@@ -411,13 +445,33 @@ namespace this_cpp_file {
                 if (false == bool(varPack)) {
                     continue;
                 }
+                /*about to decode ...*/
                 auto varError = ffmpeg::avcodec_send_packet(varCodec->contex, varPack.get());
                 auto varFrame = CPPAVFrame::create();
+                /*decode ...*/
                 varError = ffmpeg::avcodec_receive_frame(varCodec->contex, varFrame.get());
                 if (varError) {
                     continue;
                 }
-
+                /*scale ...*/
+                //get the really pts ...
+                //varFrame->pts * ffmpeg::av_q2d (varCodec->contex->time_base);
+                //重采样
+                sstd::vector< std::pair<AudioChar, AudioChar> > varData;
+                varData.resize(varFrame->nb_samples);
+                std::uint8_t * varDataRaw[1]{ reinterpret_cast<std::uint8_t *>(varData.data()) };
+                ffmpeg::swr_convert(
+                    varCodec->reSampleContex,
+                    varDataRaw,
+                    varFrame->nb_samples,
+                    const_cast<const uint8_t **>(varFrame->extended_data),
+                    varFrame->nb_samples
+                );
+                std::unique_lock varReadLock{ this->mutexAudioRawData };
+                this->audioRawData.reserve(varData.size() + audioRawData.size());
+                this->audioRawData.insert(audioRawData.end(),
+                    varData.begin(),
+                    varData.end());
             }
         } catch (...) {
         }
@@ -478,18 +532,27 @@ namespace this_cpp_file {
             /*初始化音频*/
             /***************************************/
             if (audio_player == nullptr) {
+                const auto var = audioStreamCodec[audio_stream_index.load()]->sample_rate;
                 audio_player = create_object_in_this_class<AudioPlayer>(
-                    /*simple*/audioStreamCodec[audio_stream_index.load()]->sample_rate);
+                    /*simple*/var);
             }
             if (audio_stream == nullptr) {
                 audio_stream = create_object_in_this_class<AudioStream>();
                 audio_stream->construct(this);
             }
-            QObject::connect(audio_player, &QAudioOutput::notify, this,
+            connect(audio_player, &QAudioOutput::notify, this,
                 &FFMPEGDecoder::onNotify, Qt::DirectConnection);
+            if constexpr (false) {/*调试*/
+                connect(audio_player, &QAudioOutput::stateChanged,
+                    [this](auto s) {
+                    qDebug() << s;
+                    qDebug() << audio_player->error(); }
+                );
+            }
             /*wait for decode some data ...*/
             std::this_thread::sleep_for(32ms);
             /*start ...*/
+            audio_player->setVolume(1);
             audio_player->start(audio_stream);
             /***************************************/
 
@@ -579,9 +642,11 @@ namespace {
 //https://blog.csdn.net/xfgryujk/article/details/52986137?locationNum=11&fps=1
 //http://hasanaga.info/tag/ffmpeg-libavcodec-avformat_open_input-example/
 //https://blog.csdn.net/leixiaohua1020/article/details/8652605
+//https://blog.csdn.net/encoder1234/article/details/78832618
 //ffmpeg avformat_open_input  avcodec_send_packet avcodec_receive_frame
-
-
+//struct SwsContext （software scale） 主要用于视频图像的转换，比如格式转换： 参考    ffmpeg中的sws_scale算法性能测试
+//struct SwrContext （software resample） 主要用于音频重采样，比如采样率转换，声道转换。 参考： SwrContext重采样结构体
+//https://blog.csdn.net/jammg/article/details/52688506
 
 
 
