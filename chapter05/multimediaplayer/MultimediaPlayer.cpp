@@ -1,6 +1,8 @@
 ﻿#include "MultimediaPlayer.hpp"
 #include <QtGui/qimage.h>
 /**********************************/
+#include <QtMultimedia/qaudiooutput.h> 
+/**********************************/
 /*muti thread*/
 #include <thread>
 #include <mutex>
@@ -33,6 +35,13 @@ namespace this_cpp_file {
 #ifndef ffmpeg
 #define ffmpeg
 #endif
+      
+    class AudioPlayer : public QAudioOutput {
+    public:
+        AudioPlayer() {
+            this->setNotifyInterval(1);
+        }
+    };
 
     class VideoStreamCodec {
     public:
@@ -71,6 +80,7 @@ namespace this_cpp_file {
     }
 
     class FFMPEGDecoder : 
+        public QObject,
         public virtual sstd::memory_lock::VirtualClassBasic {
     public:
 
@@ -85,6 +95,9 @@ namespace this_cpp_file {
         }
 
         inline void stop() {
+            if (audio_player) {
+                audio_player->stop();
+            }
             /****************************************/
             if (video_thread.joinable()) {
 
@@ -187,14 +200,57 @@ namespace this_cpp_file {
             return av_length;
         }
 
-        void start() {
+        std::atomic<std::uint64_t> current_player_pos{0};
+        
+        void seek(double ) {
+        }
+
+        bool start(double arg) {
+            const auto varWanted = static_cast<std::uint64_t>( arg * 1000 );
+            assert( this->av_contex );
+            if (varWanted == current_player_pos.load()) {
+                goto play_goto;
+            }else if (arg > av_length) {
+                arg = 0;
+            } else {
+                
+            }
+            seek(arg);
+            play_goto:
+            return ppp_start( );
+        }
+
+        AudioPlayer * audio_player{nullptr};
+        class AudioStream : public QIODevice {
+        public:
+            void construct(FFMPEGDecoder *) {
+
+            }
+        } *audio_stream{nullptr};
+
+        bool ppp_start( ) {
+           
+            /*初始化音频*/
+            /***************************************/
+            if (audio_player == nullptr) {
+                audio_player = create_object_in_this_class<AudioPlayer>();
+            }
+            if (audio_stream == nullptr) {
+                audio_stream = create_object_in_this_class<AudioStream>();
+                audio_stream->construct(this);
+            }
+            QObject::connect(audio_player,&QAudioOutput::notify,this,&onNotify,Qt::DirectConnection);
+            audio_player->start(audio_stream);
+            /***************************************/
 
         }
 
     public:
-
+        void onNotify() {
+            ++current_player_pos;
+        }
     private:
-        SSTD_MEMORY_DEFINE(FFMPEGDecoder)
+        SSTD_MEMORY_QOBJECT_DEFINE(FFMPEGDecoder)
     };
 
 }/*namespace this_cpp_file*/
@@ -234,8 +290,8 @@ namespace sstd {
         }
     }
 
-    bool Player::start() {
-        return false;
+    bool Player::start(double arg) {
+        return mmm_Private->start(arg);
     }
     
     bool Player::ppp_construct_local() {
