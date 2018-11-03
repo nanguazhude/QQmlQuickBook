@@ -132,6 +132,7 @@ namespace this_cpp_file {
     inline void initFFMPEG() {
         std::call_once(getInitFFMPEGOnceFlag(), []() {
             ffmpeg::av_register_all();
+            ffmpeg::avformat_network_init();
         });
     }
 
@@ -195,7 +196,7 @@ namespace this_cpp_file {
         QByteArray av_url_data;
         AVFormatContext *av_contex{ nullptr };
         const char *av_url{ nullptr };
-        AVDictionary * av_information{ nullptr };
+        /*AVDictionary * av_information{ nullptr };*/
         QString * mmm_ErrorString;
         /*AVInputFormat *av_input_fmt{nullptr};*/
         /*AVDictionary * av_options{nullptr};*/
@@ -215,8 +216,8 @@ namespace this_cpp_file {
                 return false;
             }
             /*try to read the stream information ...*/
-            varError = ffmpeg::avformat_find_stream_info(av_contex, &av_information);
-            if ((varError != 0) || (av_information == nullptr)) {
+            varError = ffmpeg::avformat_find_stream_info(av_contex, nullptr );
+            if ( varError != 0  ) {
                 auto & varTmp = getStringTmpBuffer();
                 ffmpeg::av_strerror(varError, varTmp.data(), varTmp.size());
                 *mmm_ErrorString = QString::fromLocal8Bit(varTmp.data());
@@ -247,7 +248,6 @@ namespace this_cpp_file {
                     if (varCodec == nullptr) {
                         continue;
                     }
-
                     if (ffmpeg::avcodec_open2(codec_contex, varCodec, nullptr) < 0) {
                         continue;
                     }
@@ -279,6 +279,7 @@ namespace this_cpp_file {
                     if (audio_stream_index.load() < 0) {
                         audio_stream_index.store(static_cast<int>(i));
                     }
+
                 } else {
                     continue;
                 }
@@ -564,6 +565,7 @@ namespace {
 //https://blog.csdn.net/xfgryujk/article/details/52986137
 //https://blog.csdn.net/xfgryujk/article/details/52986137?locationNum=11&fps=1
 //http://hasanaga.info/tag/ffmpeg-libavcodec-avformat_open_input-example/
+//https://blog.csdn.net/leixiaohua1020/article/details/8652605
 //ffmpeg avformat_open_input  avcodec_send_packet avcodec_receive_frame
 
 

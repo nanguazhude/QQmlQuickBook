@@ -42,7 +42,7 @@ int main(int argc, char ** argv) {
     {
         /*main.qml完整目录*/
         const auto varMainQmlFileName =
-            sstd::getLocalFileFullPath(QStringLiteral("myqml/quickchartdeep/main.qml"));
+            sstd::getLocalFileFullPath(QStringLiteral("myqml/multimediaplayer/main.qml"));
         /*加载main.qml*/
         varWindow.load(varMainQmlFileName);
         /*检查并报错*/
