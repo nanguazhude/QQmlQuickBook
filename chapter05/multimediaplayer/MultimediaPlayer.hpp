@@ -57,8 +57,7 @@ namespace sstd {
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(PlayerThread)
     };
-    
-    
+        
 }/*namespace sstd*/
 
 

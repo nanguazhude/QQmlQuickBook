@@ -189,7 +189,12 @@ namespace this_cpp_file {
             initFFMPEG();
         }
 
+        bool is_stoped{false};
         inline void stop() {
+            if (is_stoped) {
+                return;
+            }
+            is_stoped = true;
             need_data.store(false);
             video_thread_quit.store(true);
             audio_thread_quit.store(true);
@@ -321,7 +326,7 @@ namespace this_cpp_file {
             return av_length;
         }
 
-        std::atomic<std::uint64_t> current_player_pos{ 0 };
+        std::atomic<std::uint64_t> current_player_pos{ 0 }/*ms*/;
 
         void seek(double) {
         }
@@ -520,7 +525,8 @@ namespace this_cpp_file {
                     [this]() { return need_data.load();  });
                 int varReadNext = 16;
                 auto varPack = sstd::make_shared< CPPAVPacket >();
-                if ((ffmpeg::av_read_frame(av_contex, varPack.get()) == 0) && (varReadNext > 0)) {
+                bool isReadNoError = (ffmpeg::av_read_frame(av_contex, varPack.get()) == 0);
+                if (isReadNoError && (varReadNext > 0)) {
                     if (varPack->stream_index == audio_stream_index.load()) {
                         --varReadNext;
                         get_audio_pack(std::move(varPack));
@@ -570,6 +576,13 @@ namespace this_cpp_file {
                     qDebug() << audio_player->error(); }
                 );
             }
+            connect(audio_player, &QAudioOutput::stateChanged,
+                [this](auto s) {
+                if (s == QAudio::StoppedState) {
+                    super->finished();
+                    this->stop();
+                }
+            });
             /*wait for decode some data ...*/
             std::this_thread::sleep_for(32ms);
             /*start ...*/
@@ -583,6 +596,7 @@ namespace this_cpp_file {
         std::atomic< int > video_stream_index{ -1 };
         std::atomic< int > audio_stream_index{ -1 };
         std::atomic_bool need_data{ false };
+
         void setNeedData() {
             need_data.store(true);
             video_thread_wait.notify_all();
@@ -591,8 +605,13 @@ namespace this_cpp_file {
         }
 
     public:
+        sstd::Player * super;
         void onNotify() {
-            ++current_player_pos;
+            const auto varValue = ++current_player_pos;
+            if ((varValue / 1000.0) > av_length) {
+                super->finished();
+                this->stop();
+            }
         }
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(FFMPEGDecoder)
@@ -615,7 +634,7 @@ namespace sstd {
         mmm_LocalFileName = create_object_in_this_class<QString>();
         mmm_Private = create_object_in_this_class<PlayerPrivate>();
         mmm_Private->mmm_ErrorString = mmm_ErrorString;
-
+        mmm_Private->super = this;
     }
 
     void Player::setLocalFile(const QString & arg) {
