@@ -1,4 +1,4 @@
-/*
+﻿/*
  * filter layer
  * Copyright (c) 2007 Bobby Bingham
  *
