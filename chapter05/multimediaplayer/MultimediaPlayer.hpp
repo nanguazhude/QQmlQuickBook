@@ -31,7 +31,7 @@ namespace sstd {
     };
 
     inline bool Player::open() {
-        ppp_construct();
+        return ppp_construct();
     }
 
 

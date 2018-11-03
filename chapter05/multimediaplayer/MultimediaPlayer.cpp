@@ -1,5 +1,6 @@
 ﻿#include "MultimediaPlayer.hpp"
 #include <QtGui/qimage.h>
+#include <QtCore/qcoreapplication.h>
 /**********************************/
 #include <QtMultimedia/qaudiooutput.h> 
 /**********************************/
@@ -224,12 +225,40 @@ namespace this_cpp_file {
         class AudioStream : public QIODevice {
         public:
             void construct(FFMPEGDecoder *) {
-
             }
+
+            qint64 readData(char *data, qint64 maxSize) override {
+                return maxSize;
+            }
+
+            qint64 writeData(const char *, qint64 ) override {
+                return 0;
+            }
+
         } *audio_stream{nullptr};
+
+
+        void start_audio() {
+
+        }
+
+        void start_video() {
+
+        }
+
+        void decode_audio() {
+
+        }
+
+        void decode_video() {
+
+        }
 
         bool ppp_start( ) {
            
+            start_audio();
+            start_video();
+
             /*初始化音频*/
             /***************************************/
             if (audio_player == nullptr) {
@@ -239,11 +268,17 @@ namespace this_cpp_file {
                 audio_stream = create_object_in_this_class<AudioStream>();
                 audio_stream->construct(this);
             }
-            QObject::connect(audio_player,&QAudioOutput::notify,this,&onNotify,Qt::DirectConnection);
+            QObject::connect(audio_player,&QAudioOutput::notify,this,
+                &FFMPEGDecoder::onNotify,Qt::DirectConnection);
             audio_player->start(audio_stream);
             /***************************************/
 
         }
+
+        int video_stream_index{0};
+        int audio_stream_index{0};
+
+
 
     public:
         void onNotify() {
@@ -305,7 +340,12 @@ namespace sstd {
 }/*namespace sstd*/
 
 
-
+namespace {
+    void on_start() {
+        this_cpp_file::initFFMPEG();
+    }
+    Q_COREAPP_STARTUP_FUNCTION(on_start)
+}/*namespace*/
 
 
 
