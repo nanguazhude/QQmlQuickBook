@@ -238,7 +238,7 @@ namespace this_cpp_file {
 
         void constructAVLength() {
             assert(av_contex);
-            av_length = (av_contex->duration)  * (1'000'000.0 / AV_TIME_BASE);
+            av_length = (av_contex->duration)  * (1.0 / AV_TIME_BASE);
         }
 
         /*error!*/
