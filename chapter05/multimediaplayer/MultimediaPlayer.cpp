@@ -367,30 +367,46 @@ namespace this_cpp_file {
             qint64 readData(char *data, qint64 maxSize) override {
 
                 qint64 varRawSize{ 0 };
+                const auto varSize = ( maxSize >> 2 );
 
                 {
                     static_assert(4 == sizeof(std::pair< AudioChar, AudioChar  >));
                     sstd::vector< std::pair< AudioChar, AudioChar > > varTmp;
-                    auto varSize = maxSize >> 2;
+                    assert(0 == (maxSize & 3));
                     {
                         std::unique_lock varReadLock{ super->mutexAudioRawData };
                         varRawSize = static_cast<qint64> (super->audioRawData.size());
                         if (varSize <= varRawSize) {
+                            auto varPosBegin = super->audioRawData.begin();
+                            auto varPosEnd = super->audioRawData.begin() + varSize;
                             varTmp = sstd::vector< std::pair< AudioChar, AudioChar > >{
-                                super->audioRawData.begin(),
-                                super->audioRawData.begin() + varSize
-                            };
+                                varPosBegin,
+                                varPosEnd };
                             super->audioRawData.erase(
-                                super->audioRawData.begin(),
-                                super->audioRawData.begin() + varSize);
-                        } else {
+                                varPosBegin,
+                                varPosEnd);
+                            varRawSize -= varSize;
+                        } else if( varRawSize > 0 ) {
+                            auto varPosBegin = super->audioRawData.begin();
+                            auto varPosEnd = super->audioRawData.begin() + varRawSize ;
+                            varTmp = sstd::vector< std::pair< AudioChar, AudioChar > >{
+                               varPosBegin,
+                               varPosEnd };
+                            super->audioRawData.erase(
+                                varPosBegin,
+                                varPosEnd);
+                            varRawSize = 0;
+                        }
+                        else {
+                            super->setNeedData();
                             return 0;
                         }
                     }
+                    maxSize = ( varTmp.size() << 2 ) ;
                     ::memcpy(data, varTmp.data(), maxSize);
                 }
 
-                if (varRawSize > 1600 * 4) {
+                if ( varRawSize > varSize ) {
                     super->need_data.store(false);
                 } else {
                     super->setNeedData();
