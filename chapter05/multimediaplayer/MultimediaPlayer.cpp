@@ -94,12 +94,16 @@ namespace this_cpp_file {
         AudioPlayer(int rate ) : QAudioOutput(getAudioDeveceInfo(rate ),getAudioFormat( rate )){
             this->setNotifyInterval(1);
         }
+    private:
+        SSTD_MEMORY_QOBJECT_DEFINE(AudioPlayer)
     };
 
     class VideoStreamCodec {
     public:
-        AVCodec * codec{nullptr};
+        AVCodec *        codec{nullptr};
         AVCodecContext * contex{nullptr};
+    private:
+        SSTD_MEMORY_DEFINE(VideoStreamCodec)
     };
 
     class AudioStreamCodec {
@@ -436,6 +440,9 @@ namespace this_cpp_file {
                     [this]() { return need_data.load();  } );
                 int varReadNext = 16;
                 auto varPack = sstd::make_shared< CPPAVPacket >();
+                /***********************************************************************************/
+
+                /***********************************************************************************/
                 if ((ffmpeg::av_read_frame(av_contex, varPack.get()) > 0)&&(varReadNext>0)) {
                     if ( varPack->stream_index == audio_stream_index.load()) {
                         --varReadNext;
@@ -481,6 +488,7 @@ namespace this_cpp_file {
             audio_player->start(audio_stream);
             /***************************************/
 
+            return true;
         }
 
         std::atomic< int > video_stream_index{-1};

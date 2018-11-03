@@ -12,7 +12,7 @@ namespace sstd {
     public:
         void setLocalFile(const QString &);
         inline bool open();
-        inline bool start(double=0);
+        bool start(double=0);
     public:
         Player();
     private:
