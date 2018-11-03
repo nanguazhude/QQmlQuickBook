@@ -487,6 +487,9 @@ namespace this_cpp_file {
             }
             QObject::connect(audio_player,&QAudioOutput::notify,this,
                 &FFMPEGDecoder::onNotify,Qt::DirectConnection);
+            /*wait for decode some data ...*/
+            std::this_thread::sleep_for(32ms);
+            /*start ...*/
             audio_player->start(audio_stream);
             /***************************************/
 
