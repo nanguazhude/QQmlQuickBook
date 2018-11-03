@@ -38,6 +38,28 @@ namespace this_cpp_file {
 #ifndef ffmpeg
 #define ffmpeg
 #endif
+
+    class CPPAVPacket : public ffmpeg::AVPacket {
+    public:
+        CPPAVPacket() {
+            ffmpeg::av_init_packet(this);
+        }
+        ~CPPAVPacket() {
+            ffmpeg::av_packet_unref(this);
+        }
+    };
+
+    class CPPAVFrame : public ffmpeg::AVFrame {
+    public:
+        static std::shared_ptr<CPPAVFrame> create() {
+            auto varAnsPointer = ffmpeg::av_frame_alloc();
+            auto varAns = std::shared_ptr<ffmpeg::AVFrame>{ varAnsPointer, [](auto * d) {
+                ffmpeg::av_frame_free(&d);
+            } };
+            return { varAns,reinterpret_cast<CPPAVFrame *>(varAnsPointer) };
+        }
+        /*av_frame_unref*/
+    };
       
     inline QAudioFormat getAudioFormat(int rate = 8000 ) {
         static const auto varAns = []() {
@@ -200,6 +222,7 @@ namespace this_cpp_file {
                 *mmm_ErrorString = QString::fromLocal8Bit(varTmp.data());
                 return false;
             }
+            constructCodec();
             constructAVLength();
             return true;
         }
@@ -213,6 +236,7 @@ namespace this_cpp_file {
             av_length = (av_contex->duration)  * (1'000'000.0 / AV_TIME_BASE);
         }
 
+        /*error!*/
         void constructCodec() {
             assert(av_contex);
             for (unsigned int i = 0; i < av_contex->nb_streams; ++i) {
@@ -223,12 +247,14 @@ namespace this_cpp_file {
                     if (varCodec == nullptr) {
                         continue;
                     }
+
                     if (ffmpeg::avcodec_open2(codec_contex, varCodec, nullptr) < 0) {
                         continue;
                     }
                     auto codec = create_object_in_this_class< VideoStreamCodec >();
                     videoStreamCodec.emplace(static_cast<int>(i),codec);
                     codec->codec = varCodec;
+                    codec->contex = codec_contex;
                     /*set stream index ...*/
                     if ( video_stream_index.load()<0 ) {
                         video_stream_index.store( static_cast<int>(i) );
@@ -239,12 +265,14 @@ namespace this_cpp_file {
                     if (varCodec == nullptr) {
                         continue;
                     }
+                    /*avcodec_close*/
                     if (ffmpeg::avcodec_open2(codec_contex, varCodec, nullptr) < 0) {
                         continue;
                     }
                     auto codec = create_object_in_this_class< AudioStreamCodec >();
-                    audioStreamCodec.emplace(static_cast<int>(i),codec);
+                    audioStreamCodec.emplace( static_cast<int>(i) , codec );
                     codec->codec = varCodec;
+                    codec->contex = codec_contex;
                     /*******************************************/
                     codec->sample_rate = codec_contex->sample_rate;
                     /*set stream index ...*/
@@ -333,14 +361,14 @@ namespace this_cpp_file {
 
         class ThreadSafePacketList {
             mutable std::shared_mutex mmm_Mutex;
-            sstd::list< std::shared_ptr<AVPacket> > mmm_Data;
+            sstd::list< std::shared_ptr<CPPAVPacket> > mmm_Data;
         public:
-            void push_pack(std::shared_ptr<AVPacket> arg) {
+            void push_pack(std::shared_ptr<CPPAVPacket> arg) {
                 std::unique_lock varWriteLock{ mmm_Mutex };
                 mmm_Data.push_back(std::move(arg));
             }
-            std::shared_ptr<AVPacket> pop_front() {
-                std::shared_ptr<AVPacket> varAns;
+            std::shared_ptr<CPPAVPacket> pop_front() {
+                std::shared_ptr<CPPAVPacket> varAns;
                 do{
                     std::unique_lock varWriteLock{ mmm_Mutex };
                     if (mmm_Data.empty()) {
@@ -379,7 +407,8 @@ namespace this_cpp_file {
                     continue;
                 }
                 ffmpeg::avcodec_send_packet(varCodec->contex , varPack.get()  );
-                ffmpeg::avcodec_receive_frame(varCodec->contex ,);
+                auto varFrame = CPPAVFrame::create() ;
+                ffmpeg::avcodec_receive_frame(varCodec->contex , varFrame.get() );
             }
         } catch (...) {
         }
@@ -388,12 +417,12 @@ namespace this_cpp_file {
 
         }
 
-        void get_audio_pack(std::shared_ptr<AVPacket> arg) {
+        void get_audio_pack(std::shared_ptr<CPPAVPacket> arg) {
             list_audio.push_pack(std::move(arg));
             audio_thread_wait.notify_all();
         }
 
-        void get_video_pack(std::shared_ptr<AVPacket> arg) {
+        void get_video_pack(std::shared_ptr<CPPAVPacket> arg) {
             list_video.push_pack(std::move(arg));
             video_thread_wait.notify_all();
         }
@@ -405,7 +434,7 @@ namespace this_cpp_file {
                 read_next_thread_wait.wait_for(varLock,10ms,
                     [this]() { return need_data.load();  } );
                 int varReadNext = 16;
-                auto varPack = sstd::make_shared< AVPacket >();
+                auto varPack = sstd::make_shared< CPPAVPacket >();
                 if ((ffmpeg::av_read_frame(av_contex, varPack.get()) > 0)&&(varReadNext>0)) {
                     if ( varPack->stream_index == audio_stream_index.load()) {
                         --varReadNext;
@@ -531,9 +560,11 @@ namespace {
 }/*namespace*/
 
 //http://www.cnblogs.com/wangguchangqing/p/5900426.html
-
-
-
+//https://blog.csdn.net/chuyouyinghe/article/details/78611121
+//https://blog.csdn.net/xfgryujk/article/details/52986137
+//https://blog.csdn.net/xfgryujk/article/details/52986137?locationNum=11&fps=1
+//http://hasanaga.info/tag/ffmpeg-libavcodec-avformat_open_input-example/
+//ffmpeg avformat_open_input  avcodec_send_packet avcodec_receive_frame
 
 
 
