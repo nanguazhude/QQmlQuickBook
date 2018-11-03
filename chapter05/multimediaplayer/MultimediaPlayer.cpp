@@ -34,7 +34,7 @@ extern "C" {
 }
 /**********************************/
 namespace this_cpp_file {
-    
+
 #ifndef ffmpeg
 #define ffmpeg
 #endif
@@ -60,8 +60,8 @@ namespace this_cpp_file {
         }
         /*av_frame_unref*/
     };
-      
-    inline QAudioFormat getAudioFormat(int rate = 8000 ) {
+
+    inline QAudioFormat getAudioFormat(int rate = 8000) {
         static const auto varAns = []() {
             QAudioFormat varFormat;
             varFormat.setSampleRate(8000);
@@ -81,7 +81,7 @@ namespace this_cpp_file {
 
         QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
 
-        if (!info.isFormatSupported(getAudioFormat(rate ))) {
+        if (!info.isFormatSupported(getAudioFormat(rate))) {
             qWarning() << "Raw audio format not supported by backend, cannot play audio.";
             std::exit(-999);
         }
@@ -91,7 +91,7 @@ namespace this_cpp_file {
 
     class AudioPlayer : public QAudioOutput {
     public:
-        AudioPlayer(int rate ) : QAudioOutput(getAudioDeveceInfo(rate ),getAudioFormat( rate )){
+        AudioPlayer(int rate) : QAudioOutput(getAudioDeveceInfo(rate), getAudioFormat(rate)) {
             this->setNotifyInterval(1);
         }
     private:
@@ -100,24 +100,24 @@ namespace this_cpp_file {
 
     class VideoStreamCodec {
     public:
-        AVCodec *        codec{nullptr};
-        AVCodecContext * contex{nullptr};
+        AVCodec *        codec{ nullptr };
+        AVCodecContext * contex{ nullptr };
     private:
         SSTD_MEMORY_DEFINE(VideoStreamCodec)
     };
 
     class AudioStreamCodec {
     public:
-        AVCodec * codec{nullptr};
-        AVCodecContext * contex{nullptr};
+        AVCodec * codec{ nullptr };
+        AVCodecContext * contex{ nullptr };
         int sample_rate;
     };
 
     class FrameImage {
     public:
-        int width {0}/*宽*/;
-        int height{0}/*高*/;
-        double pts{0}/*播放时间戳*/;
+        int width{ 0 }/*宽*/;
+        int height{ 0 }/*高*/;
+        double pts{ 0 }/*播放时间戳*/;
 
     };
 
@@ -155,8 +155,8 @@ namespace this_cpp_file {
         std::condition_variable audio_thread_wait;
         std::condition_variable read_next_thread_wait;
 
-        sstd::map<int,VideoStreamCodec *> videoStreamCodec;
-        sstd::map<int,AudioStreamCodec *> audioStreamCodec;
+        sstd::map<int, VideoStreamCodec *> videoStreamCodec;
+        sstd::map<int, AudioStreamCodec *> audioStreamCodec;
 
         inline FFMPEGDecoder() {
             initFFMPEG();
@@ -220,8 +220,8 @@ namespace this_cpp_file {
                 return false;
             }
             /*try to read the stream information ...*/
-            varError = ffmpeg::avformat_find_stream_info(av_contex, nullptr );
-            if ( varError != 0  ) {
+            varError = ffmpeg::avformat_find_stream_info(av_contex, nullptr);
+            if (varError != 0) {
                 auto & varTmp = getStringTmpBuffer();
                 ffmpeg::av_strerror(varError, varTmp.data(), varTmp.size());
                 *mmm_ErrorString = QString::fromLocal8Bit(varTmp.data());
@@ -256,12 +256,12 @@ namespace this_cpp_file {
                         continue;
                     }
                     auto codec = create_object_in_this_class< VideoStreamCodec >();
-                    videoStreamCodec.emplace(static_cast<int>(i),codec);
+                    videoStreamCodec.emplace(static_cast<int>(i), codec);
                     codec->codec = varCodec;
                     codec->contex = codec_contex;
                     /*set stream index ...*/
-                    if ( video_stream_index.load()<0 ) {
-                        video_stream_index.store( static_cast<int>(i) );
+                    if (video_stream_index.load() < 0) {
+                        video_stream_index.store(static_cast<int>(i));
                     }
                 } else if (codec_contex->codec_type == AVMEDIA_TYPE_AUDIO) {
                     /*初始化音频解码器...*/
@@ -274,7 +274,7 @@ namespace this_cpp_file {
                         continue;
                     }
                     auto codec = create_object_in_this_class< AudioStreamCodec >();
-                    audioStreamCodec.emplace( static_cast<int>(i) , codec );
+                    audioStreamCodec.emplace(static_cast<int>(i), codec);
                     codec->codec = varCodec;
                     codec->contex = codec_contex;
                     /*******************************************/
@@ -324,7 +324,7 @@ namespace this_cpp_file {
 
         AudioPlayer * audio_player{ nullptr };
         class AudioStream : public QIODevice {
-            FFMPEGDecoder * super{nullptr};
+            FFMPEGDecoder * super{ nullptr };
         public:
 
             void construct(FFMPEGDecoder *a) {
@@ -332,9 +332,9 @@ namespace this_cpp_file {
             }
 
             qint64 readData(char *data, qint64 maxSize) override {
-                
-                qint64 varRawSize{0};
-                
+
+                qint64 varRawSize{ 0 };
+
                 {
                     auto varSize = maxSize >> 2;
                     std::unique_lock varReadLock{ super->mutexAudioRawData };
@@ -349,10 +349,10 @@ namespace this_cpp_file {
                     }
                 }
 
-                if ( varRawSize > 1600*4 ) {
+                if (varRawSize > 1600 * 4) {
                     super->need_data.store(false);
                 } else {
-                    super->setNeedData( );
+                    super->setNeedData();
                 }
 
                 return maxSize;
@@ -374,12 +374,12 @@ namespace this_cpp_file {
             }
             std::shared_ptr<CPPAVPacket> pop_front() {
                 std::shared_ptr<CPPAVPacket> varAns;
-                do{
+                do {
                     std::unique_lock varWriteLock{ mmm_Mutex };
                     if (mmm_Data.empty()) {
                         break;
                     }
-                    varAns = std::move( mmm_Data.front() );
+                    varAns = std::move(mmm_Data.front());
                     mmm_Data.pop_front();
                 } while (false);
                 return std::move(varAns);
@@ -402,22 +402,22 @@ namespace this_cpp_file {
 
         void decode_audio() try {
             std::mutex varMutex;
-            while ( false == audio_thread_quit.load() ) {
-                const auto & varCodec = this->audioStreamCodec[ this->audio_stream_index.load()];
+            while (false == audio_thread_quit.load()) {
+                const auto & varCodec = this->audioStreamCodec[this->audio_stream_index.load()];
                 std::unique_lock varLock{ varMutex };
-                audio_thread_wait.wait_for(varLock, 10ms, 
+                audio_thread_wait.wait_for(varLock, 10ms,
                     [this]() {return need_data.load(); });
                 auto varPack = list_audio.pop_front();
                 if (false == bool(varPack)) {
                     continue;
                 }
-                auto varError = ffmpeg::avcodec_send_packet(varCodec->contex , varPack.get()  );
-                auto varFrame = CPPAVFrame::create() ;
-                varError = ffmpeg::avcodec_receive_frame(varCodec->contex , varFrame.get() );
+                auto varError = ffmpeg::avcodec_send_packet(varCodec->contex, varPack.get());
+                auto varFrame = CPPAVFrame::create();
+                varError = ffmpeg::avcodec_receive_frame(varCodec->contex, varFrame.get());
                 if (varError) {
                     continue;
                 }
-                
+
             }
         } catch (...) {
         }
@@ -440,16 +440,16 @@ namespace this_cpp_file {
         void read_next() try {
             std::mutex varMutex;
             while (false == read_next_thread_quit.load()) {
-                std::unique_lock varLock{varMutex};
-                read_next_thread_wait.wait_for(varLock,10ms,
-                    [this]() { return need_data.load();  } );
+                std::unique_lock varLock{ varMutex };
+                read_next_thread_wait.wait_for(varLock, 10ms,
+                    [this]() { return need_data.load();  });
                 int varReadNext = 16;
                 auto varPack = sstd::make_shared< CPPAVPacket >();
-                if ((ffmpeg::av_read_frame(av_contex, varPack.get()) == 0)&&(varReadNext>0)) {
-                    if ( varPack->stream_index == audio_stream_index.load()) {
+                if ((ffmpeg::av_read_frame(av_contex, varPack.get()) == 0) && (varReadNext > 0)) {
+                    if (varPack->stream_index == audio_stream_index.load()) {
                         --varReadNext;
                         get_audio_pack(std::move(varPack));
-                    } else if (varPack->stream_index == video_stream_index.load() ) {
+                    } else if (varPack->stream_index == video_stream_index.load()) {
                         --varReadNext;
                         get_video_pack(std::move(varPack));
                     }
@@ -464,8 +464,8 @@ namespace this_cpp_file {
             read_next_thread = std::thread([this]() mutable { this->read_next(); });
         }
 
-        bool ppp_start( ) {
-           
+        bool ppp_start() {
+
             if (audio_stream_index.load() < 0) {
                 (*mmm_ErrorString) = QStringLiteral("empty audo");
                 return false;
@@ -485,8 +485,8 @@ namespace this_cpp_file {
                 audio_stream = create_object_in_this_class<AudioStream>();
                 audio_stream->construct(this);
             }
-            QObject::connect(audio_player,&QAudioOutput::notify,this,
-                &FFMPEGDecoder::onNotify,Qt::DirectConnection);
+            QObject::connect(audio_player, &QAudioOutput::notify, this,
+                &FFMPEGDecoder::onNotify, Qt::DirectConnection);
             /*wait for decode some data ...*/
             std::this_thread::sleep_for(32ms);
             /*start ...*/
@@ -496,9 +496,9 @@ namespace this_cpp_file {
             return true;
         }
 
-        std::atomic< int > video_stream_index{-1};
-        std::atomic< int > audio_stream_index{-1};
-        std::atomic_bool need_data{false};
+        std::atomic< int > video_stream_index{ -1 };
+        std::atomic< int > audio_stream_index{ -1 };
+        std::atomic_bool need_data{ false };
         void setNeedData() {
             need_data.store(true);
             video_thread_wait.notify_all();
@@ -533,28 +533,28 @@ namespace sstd {
         mmm_Private->mmm_ErrorString = mmm_ErrorString;
 
     }
-    
+
     void Player::setLocalFile(const QString & arg) {
-        assert((*mmm_IsStart)==false);
+        assert((*mmm_IsStart) == false);
         (*mmm_ISLocalFile) = true;
         (*mmm_LocalFileName) = arg;
     }
 
     bool Player::ppp_construct() {
         assert((*mmm_IsStart) == false);
-        assert((*mmm_IsConstruct)==false);
+        assert((*mmm_IsConstruct) == false);
         (*mmm_IsConstruct) = true;
         if (*mmm_ISLocalFile) {
-           return ppp_construct_local();
+            return ppp_construct_local();
         } else {
-           return ppp_construct_net();
+            return ppp_construct_net();
         }
     }
 
     bool Player::start(double arg) {
         return mmm_Private->start(arg);
     }
-    
+
     bool Player::ppp_construct_local() {
         return mmm_Private->construct_local_decode(*mmm_LocalFileName);
     }
