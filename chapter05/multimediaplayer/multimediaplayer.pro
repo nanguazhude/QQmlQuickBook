@@ -15,7 +15,7 @@ QT += core
 QT += quick
 QT += widgets
 QT += concurrent
-
+QT += multimedia
 QT += charts
 
 include($$PWD/../../QQmlQuickBook.pri)
