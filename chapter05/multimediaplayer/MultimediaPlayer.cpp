@@ -623,9 +623,11 @@ namespace this_cpp_file {
                 if (varCodec->reSampleContex == nullptr) {
                     varCodec->constructReSampleContex();
                 }
+                QImage varAnsImage{ varCodec->width,varCodec->height ,QImage::Format_RGBA8888 };
                 ffmpeg::sws_scale( varCodec->reSampleContex ,
                     nullptr,nullptr,
-                    1,1,nullptr,nullptr);
+                    1,1, 
+                    varAnsImage.constBits(),nullptr);
             }
         }
 
