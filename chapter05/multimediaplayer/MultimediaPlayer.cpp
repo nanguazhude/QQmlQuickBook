@@ -365,7 +365,7 @@ namespace this_cpp_file {
         };
 
         std::shared_mutex mutexAudioRawData;
-        sstd::deque< std::pair< AudioChar, AudioChar  > > audioRawData;
+        sstd::deque< std::pair< AudioChar , AudioChar > > audioRawData;
 
         AudioPlayer * audio_player{ nullptr };
         class AudioStream : public QIODevice {
@@ -538,7 +538,9 @@ namespace this_cpp_file {
                 this->audioRawData.insert(audioRawData.end(),
                     varData.begin(),
                     varData.end());
-                this->audioRawData.shrink_to_fit();
+                if (std::rand() & 1) {/*remove data do not used*/
+                    this->audioRawData.shrink_to_fit();
+                }
             }
         } catch (...) {
         }
