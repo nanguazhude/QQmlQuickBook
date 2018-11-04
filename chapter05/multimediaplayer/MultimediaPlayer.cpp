@@ -58,6 +58,7 @@ namespace this_cpp_file {
         static std::shared_ptr<CPPAVFrame> create() {
             auto varAnsPointer = ffmpeg::av_frame_alloc();
             auto varAns = std::shared_ptr<ffmpeg::AVFrame>{ varAnsPointer, [](auto * d) {
+                ffmpeg::av_frame_unref(d);
                 ffmpeg::av_frame_free(&d);
             } };
             return { varAns,reinterpret_cast<CPPAVFrame *>(varAnsPointer) };
@@ -499,6 +500,15 @@ namespace this_cpp_file {
                     varCodec->frame = CPPAVFrame::create();
                 }
                 auto varFrame = varCodec->frame ;
+                class FrameLock {
+                    CPPAVFrame * const d;
+                public:
+                    FrameLock( CPPAVFrame * f ):d(f) {
+                    }
+                    ~FrameLock() {
+                        ffmpeg::av_frame_unref(d);
+                    }
+                }varLockFrame{ varFrame.get() };
                 /*decode ...*/
                 varError = ffmpeg::avcodec_receive_frame(varCodec->contex, varFrame.get());
                 if (varError) {
