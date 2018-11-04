@@ -44,9 +44,10 @@ namespace this_cpp_file {
     public:
         static std::shared_ptr<CPPAVPacket> create() {
             auto varAnsPointer = ffmpeg::av_packet_alloc();
+            ffmpeg::av_init_packet(varAnsPointer);
             auto varAns = std::shared_ptr<ffmpeg::AVPacket>{ varAnsPointer, [](auto * d) {
                ffmpeg::av_packet_unref(d);
-               ffmpeg::av_packet_free(&d);
+               ffmpeg::av_packet_free(&d); 
            } };
             return { varAns,reinterpret_cast<CPPAVPacket *>(varAnsPointer) };
         }
@@ -776,6 +777,4 @@ namespace {
 //struct SwrContext （software resample） 主要用于音频重采样，比如采样率转换，声道转换。 参考： SwrContext重采样结构体
 //https://blog.csdn.net/jammg/article/details/52688506
 //https://blog.csdn.net/Chasing_Chasing/article/details/79092190
-
-
 
