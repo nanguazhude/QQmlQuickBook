@@ -1,9 +1,11 @@
 ﻿#include "MultimediaPlayer.hpp"
+#include "private_FFMPEGDecoder.hpp"
+/**********************************/
 #include <QtGui/qimage.h>
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qdebug.h>
 /**********************************/
-#include <QtMultimedia/qaudiooutput.h> 
+#include <QtMultimedia/qaudiooutput.h>
 /**********************************/
 /*muti thread*/
 #include <thread>
@@ -35,7 +37,7 @@ extern "C" {
 /**********************************/
 namespace this_cpp_file {
 
-    
+
 #ifndef ffmpeg
 #define ffmpeg /**//*模拟c++命名空间*//**/
 #endif
@@ -200,7 +202,7 @@ namespace this_cpp_file {
     }
 
     class FFMPEGDecoder :
-        public QObject,
+        public sstd_private::FFMPEGDecoderPrivate ,
         public virtual sstd::memory_lock::VirtualClassBasic {
     public:
 
@@ -362,22 +364,30 @@ namespace this_cpp_file {
             return av_length;
         }
 
-        std::atomic<std::uint64_t> current_player_pos{ 0 }/*ms*/;
+        std::atomic_bool need_reinit_current_player_pos{ false };
+        std::atomic<std::uint64_t> current_player_pos{ 0 }/*当前播放时间，单位 ：ms*/;
+        std::atomic<std::uint64_t> start_player_pos{ 0 }/*开始播放时刻，单位 ： ms*/;
+        void seek(double arg) {
+            /*初始化一个值...*/
+            current_player_pos.store(arg * 1000);
+            start_player_pos.store(current_player_pos.load());
+            time_in_audio_buffer.store(0);
+            /*标记current_player_pos为dirty*/
+            need_reinit_current_player_pos = true;
+            /*进行定位...*/
 
-        void seek(double) {
         }
 
         bool start(double arg) {
+            notify_count.store(9999);
             const auto varWanted = static_cast<std::uint64_t>(arg * 1000);
             assert(this->av_contex);
-            if (varWanted == current_player_pos.load()) {
+            if (varWanted == current_player_pos.load()) /*继续播放...*/ {
                 goto play_goto;
-            } else if (arg > av_length) {
+            } else if (arg > av_length) {/*从头播放...*/
                 arg = 0;
-            } else {
-
             }
-            seek(arg);
+            this->seek(arg);
         play_goto:
             return ppp_start();
         }
@@ -389,6 +399,7 @@ namespace this_cpp_file {
 
         std::shared_mutex mutexAudioRawData;
         sstd::deque< std::pair< AudioChar, AudioChar > > audioRawData;
+        std::atomic<double> time_in_audio_buffer{ 0 };
 
         AudioPlayer * audio_player{ nullptr };
         class AudioStream : public QIODevice {
@@ -453,6 +464,11 @@ namespace this_cpp_file {
                 } else {
                     super->setNeedData();
                 }
+
+                /************************************/
+                auto varReadMS = (maxSize >> 2) / double(audioCodec->contex->sample_rate)*1000.0;
+                super->time_in_audio_buffer = varReadMS + super->time_in_audio_buffer.load();
+                /************************************/
 
                 return maxSize;
             }
@@ -545,7 +561,11 @@ namespace this_cpp_file {
                 }
                 /*scale ...*/
                 //get the really pts ...
-                //varFrame->pts * ffmpeg::av_q2d (varCodec->contex->time_base);
+                if (need_reinit_current_player_pos.load()) {
+                    auto varPts = varFrame->pts * ffmpeg::av_q2d(varCodec->contex->time_base);
+                    current_player_pos.store(varPts * 1000);
+                    start_player_pos.store(current_player_pos.load());
+                }
                 //重采样
                 sstd::vector< std::pair<AudioChar, AudioChar> > varData;
                 varData.resize(varFrame->nb_samples);
@@ -641,13 +661,15 @@ namespace this_cpp_file {
                     varFrame->height,
                     out,
                     out_size);
-
-                auto varFrameImage = sstd::make_shared<FrameImage>();
-                varFrameImage->data = varAnsImage;
-                varFrameImage->pts = varFrame->pts * ffmpeg::av_q2d(varCodec->contex->time_base);
-
-                std::unique_lock varWriteLock{ mutexVideoRawData };
-                videoRawData.push_back(std::move(varFrameImage));
+                
+                {
+                    auto varFrameImage = sstd::make_shared<FrameImage>();
+                    varFrameImage->data = varAnsImage;
+                    varFrameImage->pts = varFrame->pts * ffmpeg::av_q2d(varCodec->contex->time_base);
+                    std::unique_lock varWriteLock{ mutexVideoRawData };
+                    videoRawData.push_back(std::move(varFrameImage));
+                }
+                               
             }/*while...*/
         }
 
@@ -806,11 +828,16 @@ namespace this_cpp_file {
 
     public:
         sstd::Player * super;
+        std::atomic<int> notify_count{9999};
         void onNotify() {
             const auto varValue = ++current_player_pos;
             if ((varValue / 1000.0) > av_length) {
                 super->finished();
                 this->stop();
+            }
+            ++notify_count;
+            if (notify_count.load() > 10) {
+                notify_count = 0;
             }
         }
     private:

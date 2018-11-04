@@ -50,6 +50,7 @@ HEADERS += $$PWD/RootWindow.hpp
 
 SOURCES += $$PWD/MultimediaPlayer.cpp
 HEADERS += $$PWD/MultimediaPlayer.hpp
+HEADERS += $$PWD/private_FFMPEGDecoder.hpp
 
 include($$PWD/this/this.pri)
 
