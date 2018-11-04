@@ -521,6 +521,7 @@ namespace this_cpp_file {
                     const_cast<const uint8_t **>(varFrame->extended_data),
                     varFrame->nb_samples
                 );
+                varCodec->destoryReSampleContex();
                 std::unique_lock varReadLock{ this->mutexAudioRawData };
                 this->audioRawData.insert(audioRawData.end(),
                     varData.begin(),
@@ -537,7 +538,6 @@ namespace this_cpp_file {
         }
 
         void get_audio_pack(std::shared_ptr<CPPAVPacket> arg) {
-            return;
             list_audio.push_pack(std::move(arg));
             audio_thread_wait.notify_all();
         }
@@ -637,7 +637,7 @@ namespace this_cpp_file {
             std::this_thread::sleep_for(32ms);
             /*start ...*/
             audio_player->setVolume(1);
-            //audio_player->start(audio_stream);
+            audio_player->start(audio_stream);
             /***************************************/
 
             return true;
