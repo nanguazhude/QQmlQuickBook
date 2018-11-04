@@ -288,7 +288,6 @@ namespace this_cpp_file {
                 varAnsImage = varFirstImage;
                 break;
 
-
             } while (false);
 
             if (varCurrentPtsTime != last_image_pts.load()) {

@@ -52,6 +52,9 @@ SOURCES += $$PWD/MultimediaPlayer.cpp
 HEADERS += $$PWD/MultimediaPlayer.hpp
 HEADERS += $$PWD/private_FFMPEGDecoder.hpp
 
+SOURCES += $$PWD/ImageNode.cpp
+HEADERS += $$PWD/ImageNode.hpp
+
 include($$PWD/this/this.pri)
 
 CONFIG(debug,debug|release){
