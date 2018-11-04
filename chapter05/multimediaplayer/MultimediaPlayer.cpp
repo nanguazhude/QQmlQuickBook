@@ -534,7 +534,6 @@ namespace this_cpp_file {
                     const_cast<const uint8_t **>(varFrame->extended_data),
                     varFrame->nb_samples
                 );
-                varCodec->destoryReSampleContex();
                 std::unique_lock varReadLock{ this->mutexAudioRawData };
                 this->audioRawData.insert(audioRawData.end(),
                     varData.begin(),
