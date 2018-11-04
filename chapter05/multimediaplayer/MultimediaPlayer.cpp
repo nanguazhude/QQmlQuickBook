@@ -561,6 +561,45 @@ namespace this_cpp_file {
             video_thread_wait.notify_all();
         }
 
+        class PackPool {
+            enum  {
+                raise_size=8
+            };
+            std::shared_mutex mmm_pool_Mutex;
+            sstd::vector< std::shared_ptr<CPPAVPacket> > mmm_pool_Data;
+            static void init_size_(sstd::vector< std::shared_ptr<CPPAVPacket> > * arg) {
+                arg->resize(raise_size);
+                for (auto & i : *arg) {
+                    i = CPPAVPacket::create();
+                }
+            }
+        public:
+            PackPool() {
+                init_size_(&mmm_pool_Data) ;
+            }
+            std::shared_ptr<CPPAVPacket> getAPacket() {
+                std::unique_lock varWriteLock{ mmm_pool_Mutex };
+                std::sort(mmm_pool_Data.begin(), mmm_pool_Data.end(), [](const auto & l,const auto & r) {
+                    return l.use_count() < r.use_count();
+                });
+                if (mmm_pool_Data[0].use_count() == 1) {
+                    qDebug() << mmm_pool_Data.size();
+                    for (auto & i : mmm_pool_Data ) {
+                        if (i.use_count()==1) {
+                            ffmpeg::av_packet_unref(i.get());
+                        } else {
+                            break;
+                        }
+                    }
+                    return mmm_pool_Data[0];
+                }
+                sstd::vector< std::shared_ptr<CPPAVPacket> > varTmp;
+                init_size_(&varTmp);
+                mmm_pool_Data.insert(mmm_pool_Data.end(), varTmp.begin(), varTmp.end());
+                return varTmp[0];
+            }
+        } mmm_PackPool;
+
         void read_next() try {
             std::mutex varMutex;
             while (false == read_next_thread_quit.load()) {
@@ -576,7 +615,7 @@ namespace this_cpp_file {
                     }
                 }
                 int varReadNext = 16;
-                auto varPack = CPPAVPacket::create();
+                auto varPack = mmm_PackPool.getAPacket() ;
                 bool isReadNoError = (ffmpeg::av_read_frame(av_contex, varPack.get()) == 0);
                 if (isReadNoError && (varReadNext > 0)) {
                     if (varPack->stream_index == audio_stream_index.load()) {
