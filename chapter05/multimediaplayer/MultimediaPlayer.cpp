@@ -202,7 +202,7 @@ namespace this_cpp_file {
     }
 
     class FFMPEGDecoder :
-        public sstd_private::FFMPEGDecoderPrivate ,
+        public sstd_private::FFMPEGDecoderPrivate,
         public virtual sstd::memory_lock::VirtualClassBasic {
     public:
 
@@ -221,7 +221,82 @@ namespace this_cpp_file {
 
         inline FFMPEGDecoder() {
             initFFMPEG();
+            connect(this, &FFMPEGDecoder::checkImageChange,
+                this, &FFMPEGDecoder::doCheckImageChange, Qt::QueuedConnection);
         }
+
+        std::atomic<double> last_image_pts{ -1 };
+        void doCheckImageChange() {
+            auto varCurrentAudio = audio_stream_index.load();
+            if (varCurrentAudio < 0) {
+                return;
+            }
+            int varSampleInBuffer{ 0 };
+            if (audio_player) {
+                varSampleInBuffer = ((audio_player->bytesFree()) >> 2);
+            }
+            auto & varCodec = audioStreamCodec[varCurrentAudio];
+            auto varTimeNotInBuffer = varSampleInBuffer / double(varCodec->contex->sample_rate)*1000.0;
+            auto varTimeInBuffer = this->time_in_audio_buffer.load();
+            auto varStartPos = start_player_pos.load();
+            auto varCurrentTime = varTimeNotInBuffer - varTimeInBuffer + varStartPos;
+            varCurrentTime /= 1000/*convert to s*/;
+
+            QImage varAnsImage;
+            double varCurrentPtsTime{ 0 };
+            double varFirstPts{ 0 };
+            QImage varFirstImage;
+            {
+                std::shared_lock varReadLock{ mutexVideoRawData };
+                if (videoRawData.empty()) {
+                    return;
+                }
+                varFirstPts = videoRawData[0]->pts;
+                varFirstImage = videoRawData[0]->data;
+            }
+
+            do {
+
+                if (varCurrentTime > varFirstPts) {
+
+                    std::unique_lock varWriteLock{ mutexVideoRawData };
+                    auto varPos = videoRawData.begin();
+                    const auto varEnd = videoRawData.end();
+
+                    for (; varPos != varEnd; ++varPos) {
+                        if (varCurrentTime > ((*varPos)->pts)) {
+                            continue;
+                        } else {
+                            break/*for*/;
+                        }
+                    }
+
+                    auto varAns = varPos - 1;
+                    if (varAns == videoRawData.begin()) {
+
+                    } else {
+                        varCurrentPtsTime = (*varAns)->pts;
+                        varAnsImage = (*varAns)->data;
+                        videoRawData.erase(videoRawData.begin(), varAns);
+                        break/*do*/;
+
+                    }
+
+                }
+
+                varCurrentPtsTime = varFirstPts;
+                varAnsImage = varFirstImage;
+                break;
+
+
+            } while (false);
+
+            if (varCurrentPtsTime != last_image_pts.load()) {
+                last_image_pts.store(varCurrentPtsTime);
+                imageChanged(varAnsImage);
+            }
+
+        }/*doCheckImageChange*/
 
         bool is_stoped{ false };
         inline void stop() {
@@ -661,7 +736,7 @@ namespace this_cpp_file {
                     varFrame->height,
                     out,
                     out_size);
-                
+
                 {
                     auto varFrameImage = sstd::make_shared<FrameImage>();
                     varFrameImage->data = varAnsImage;
@@ -669,7 +744,7 @@ namespace this_cpp_file {
                     std::unique_lock varWriteLock{ mutexVideoRawData };
                     videoRawData.push_back(std::move(varFrameImage));
                 }
-                               
+
             }/*while...*/
         }
 
@@ -828,7 +903,7 @@ namespace this_cpp_file {
 
     public:
         sstd::Player * super;
-        std::atomic<int> notify_count{9999};
+        std::atomic<int> notify_count{ 9999 };
         void onNotify() {
             const auto varValue = ++current_player_pos;
             if ((varValue / 1000.0) > av_length) {
@@ -837,6 +912,7 @@ namespace this_cpp_file {
             }
             ++notify_count;
             if (notify_count.load() > 10) {
+                this->checkImageChange();
                 notify_count = 0;
             }
         }
