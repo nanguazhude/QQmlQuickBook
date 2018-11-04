@@ -35,6 +35,7 @@ extern "C" {
 /**********************************/
 namespace this_cpp_file {
 
+/*模拟c++命名空间*/
 #ifndef ffmpeg
 #define ffmpeg
 #endif
@@ -251,7 +252,7 @@ namespace this_cpp_file {
         /*AVInputFormat *av_input_fmt{nullptr};*/
         /*AVDictionary * av_options{nullptr};*/
         double av_length{ 0 };
-        /**/
+        /*this must run in main thread ...*/
         inline bool construct_local_decode(const QString & arg) {
             assert(av_contex == nullptr);
             av_url_data = arg.toLocal8Bit();
@@ -287,7 +288,6 @@ namespace this_cpp_file {
             av_length = (av_contex->duration)  * (1.0 / AV_TIME_BASE);
         }
 
-        /*error!*/
         void constructCodec() {
             assert(av_contex);
             for (unsigned int i = 0; i < av_contex->nb_streams; ++i) {

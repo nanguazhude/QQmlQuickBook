@@ -130,7 +130,6 @@ namespace sstd {
         return{};
     }
 
-
     namespace {
         std::atomic< private_quick_thread_sstd::RunEventObject *> globalObjectInMain{ nullptr };
         std::shared_ptr<std::atomic_bool> getQApplicationState() {
