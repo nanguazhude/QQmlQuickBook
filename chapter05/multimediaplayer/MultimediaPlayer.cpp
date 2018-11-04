@@ -566,11 +566,10 @@ namespace this_cpp_file {
                 raise_size=8
             };
             std::shared_mutex mmm_pool_Mutex;
-            sstd::vector< std::shared_ptr<CPPAVPacket> > mmm_pool_Data;
-            static void init_size_(sstd::vector< std::shared_ptr<CPPAVPacket> > * arg) {
-                arg->resize(raise_size);
-                for (auto & i : *arg) {
-                    i = CPPAVPacket::create();
+            sstd::list< std::shared_ptr<CPPAVPacket> > mmm_pool_Data;
+            static void init_size_(sstd::list< std::shared_ptr<CPPAVPacket> > * arg) {
+                for (int i = 0; i < raise_size;++i) {
+                    arg->push_back(CPPAVPacket::create());
                 }
             }
         public:
@@ -590,10 +589,8 @@ namespace this_cpp_file {
                     }
                 }/*for...*/
                 if (bool(varAns) == false) {
-                    sstd::vector< std::shared_ptr<CPPAVPacket> > varTmp;
-                    init_size_(&varTmp);
-                    varAns = varTmp[0];
-                    mmm_pool_Data.insert(mmm_pool_Data.end(), varTmp.begin(), varTmp.end());
+                    init_size_(&mmm_pool_Data);
+                    varAns = *mmm_pool_Data.rbegin();
                 }
                 return std::move(varAns);
             }
