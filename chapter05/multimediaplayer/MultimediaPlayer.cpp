@@ -35,7 +35,7 @@ extern "C" {
 /**********************************/
 namespace this_cpp_file {
 
-/*模拟c++命名空间*/
+    /*模拟c++命名空间*/
 #ifndef ffmpeg
 #define ffmpeg
 #endif
@@ -48,7 +48,7 @@ namespace this_cpp_file {
             ffmpeg::av_init_packet(varAnsPointer);
             auto varAns = std::shared_ptr<ffmpeg::AVPacket>{ varAnsPointer, [](auto * d) {
                ffmpeg::av_packet_unref(d);
-               ffmpeg::av_packet_free(&d); 
+               ffmpeg::av_packet_free(&d);
            } };
             return { varAns,reinterpret_cast<CPPAVPacket *>(varAnsPointer) };
         }
@@ -113,6 +113,22 @@ namespace this_cpp_file {
     public:
         ffmpeg::AVCodec *        codec{ nullptr };
         ffmpeg::AVCodecContext * contex{ nullptr };
+        int width{ 512 };
+        int height{ 512 };
+        SwsContext *  reSampleContex{ nullptr };
+        std::shared_ptr< CPPAVFrame > frame;
+        void constructReSampleContex() {
+
+        }
+
+        void destoryReSampleContex() {
+
+        }
+
+        ~VideoStreamCodec() {
+            destoryReSampleContex();
+            frame.reset();
+        }
     private:
         SSTD_MEMORY_DEFINE(VideoStreamCodec)
     };
@@ -365,7 +381,7 @@ namespace this_cpp_file {
         };
 
         std::shared_mutex mutexAudioRawData;
-        sstd::deque< std::pair< AudioChar , AudioChar > > audioRawData;
+        sstd::deque< std::pair< AudioChar, AudioChar > > audioRawData;
 
         AudioPlayer * audio_player{ nullptr };
         class AudioStream : public QIODevice {
@@ -473,7 +489,7 @@ namespace this_cpp_file {
         }
 
         void start_video() {
-            //video_thread = std::thread([this]()mutable { decode_video(); });
+            video_thread = std::thread([this]()mutable { decode_video(); });
         }
 
         void decode_audio() try {
@@ -497,6 +513,9 @@ namespace this_cpp_file {
                 }
                 /*about to decode ...*/
                 auto varError = ffmpeg::avcodec_send_packet(varCodec->contex, varPack.get());
+                if (varError) {
+                    continue;
+                }
                 if (false == bool(varCodec->frame)) {
                     varCodec->frame = CPPAVFrame::create();
                 }
@@ -546,8 +565,55 @@ namespace this_cpp_file {
         }
 
         void decode_video() {
+            const auto varVideoStreamIndex = this->video_stream_index.load();
+            if (varVideoStreamIndex < 0) {
+                return;
+            }
             std::mutex varMutex;
-            while (false == audio_thread_quit.load()) {
+            while (false == video_thread_quit.load()) {
+                const auto & varCodec = this->videoStreamCodec[varVideoStreamIndex];
+                std::unique_lock varLock{ varMutex };
+                video_thread_wait.wait_for(varLock, 10ms,
+                    [this]() mutable {return need_data.load(); });
+                {
+                    if (false == need_data.load()) {
+                        continue;
+                    }
+                    if (video_thread_quit.load()) {
+                        return;
+                    }
+                }
+                auto varPack = list_video.pop_front();
+                if (false == bool(varPack)) {
+                    continue;
+                }
+                /*about to decode ...*/
+                auto varError = ffmpeg::avcodec_send_packet(varCodec->contex, varPack.get());
+                if (varError) {
+                    continue;
+                }
+                if (false == bool(varCodec->frame)) {
+                    varCodec->frame = CPPAVFrame::create();
+                }
+                auto varFrame = varCodec->frame;
+                class FrameLock {
+                    CPPAVFrame * const d;
+                    CPPAVPacket * const p;
+                public:
+                    FrameLock(CPPAVFrame * f, CPPAVPacket *b) :d(f), p(b) {
+                    }
+                    ~FrameLock() {
+                        ffmpeg::av_frame_unref(d);
+                        ffmpeg::av_packet_unref(p);
+                    }
+                }varLockFrame{ varFrame.get(),varPack.get() };
+                /*decode ...*/
+                varError = ffmpeg::avcodec_receive_frame(varCodec->contex, varFrame.get());
+                if (varError) {
+                    continue;
+                }
+                /*重采样*/
+
             }
         }
 
@@ -557,30 +623,29 @@ namespace this_cpp_file {
         }
 
         void get_video_pack(std::shared_ptr<CPPAVPacket> arg) {
-            return;
             list_video.push_pack(std::move(arg));
             video_thread_wait.notify_all();
         }
 
         class PackPool {
-            enum  {
-                raise_size=8
+            enum {
+                raise_size = 8
             };
             std::shared_mutex mmm_pool_Mutex;
             sstd::list< std::shared_ptr<CPPAVPacket> > mmm_pool_Data;
             static void init_size_(sstd::list< std::shared_ptr<CPPAVPacket> > * arg) {
-                for (int i = 0; i < raise_size;++i) {
+                for (int i = 0; i < raise_size; ++i) {
                     arg->push_back(CPPAVPacket::create());
                 }
             }
         public:
             PackPool() {
-                init_size_(&mmm_pool_Data) ;
+                init_size_(&mmm_pool_Data);
             }
             std::shared_ptr<CPPAVPacket> getAPacket() {
                 std::unique_lock varWriteLock{ mmm_pool_Mutex };
                 std::shared_ptr<CPPAVPacket> varAns;
-                for ( auto & i : mmm_pool_Data ) {
+                for (auto & i : mmm_pool_Data) {
                     if (i.use_count() > 1) {
                         continue;
                     }
@@ -612,7 +677,7 @@ namespace this_cpp_file {
                     }
                 }
                 int varReadNext = 16;
-                auto varPack = mmm_PackPool.getAPacket() ;
+                auto varPack = mmm_PackPool.getAPacket();
                 bool isReadNoError = (ffmpeg::av_read_frame(av_contex, varPack.get()) == 0);
                 if (isReadNoError && (varReadNext > 0)) {
                     if (varPack->stream_index == audio_stream_index.load()) {
