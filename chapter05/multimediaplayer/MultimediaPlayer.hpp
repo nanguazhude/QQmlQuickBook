@@ -2,6 +2,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qthread.h>
 #include <sstd_memory.hpp>
+#include <quick/sstd_QThread.hpp>
 
 namespace sstd {
 
@@ -41,22 +42,31 @@ namespace sstd {
         return *mmm_ErrorString;
     }
 
-    class PlayerThread : public QThread {
+    class PlayerThread : public sstd::QuickThread {
         Q_OBJECT
     public:
         PlayerThread();
     public:
         void stop();
-        void startLocal(const QString &);
-    protected:
-        void run() override;
+        void start(Player *,double=0);
+        inline void start();
     private:
+        double mmm_StartPos{0};
         Player * mmm_Player{ nullptr };
-        QString mmm_LocalPath;
-        QString mmm_Error;
+        using Super = sstd::QuickThread;
+    protected:
+        inline void quit();
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(PlayerThread)
     };
+
+    inline void PlayerThread::start() {
+        Super::start();
+    }
+
+    inline void PlayerThread::quit() {
+        Super::quit();
+    }
         
 }/*namespace sstd*/
 

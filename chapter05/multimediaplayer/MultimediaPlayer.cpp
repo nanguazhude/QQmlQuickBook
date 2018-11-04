@@ -189,7 +189,7 @@ namespace this_cpp_file {
             initFFMPEG();
         }
 
-        bool is_stoped{false};
+        bool is_stoped{ false };
         inline void stop() {
             if (is_stoped) {
                 return;
@@ -352,7 +352,7 @@ namespace this_cpp_file {
         };
 
         std::shared_mutex mutexAudioRawData;
-        sstd::deque< std::pair< AudioChar, AudioChar  > > audioRawData;
+        sstd::vector< std::pair< AudioChar, AudioChar  > > audioRawData;
 
         AudioPlayer * audio_player{ nullptr };
         class AudioStream : public QIODevice {
@@ -373,6 +373,7 @@ namespace this_cpp_file {
 
                 qint64 varRawSize{ 0 };
                 const auto varSize = (maxSize >> 2);
+                auto audioCodec = super->audioStreamCodec[ super->audio_stream_index ];
 
                 {
                     static_assert(4 == sizeof(std::pair< AudioChar, AudioChar  >));
@@ -410,8 +411,8 @@ namespace this_cpp_file {
                     ::memcpy(data, varTmp.data(), maxSize);
                 }
 
-                if (varRawSize > varSize) {
-                    super->need_data.store(false);
+                if (varRawSize > audioCodec->sample_rate ) {
+                    //super->need_data.store(false);
                 } else {
                     super->setNeedData();
                 }
@@ -458,7 +459,7 @@ namespace this_cpp_file {
         }
 
         void start_video() {
-
+            //video_thread = std::thread([this]()mutable { decode_video(); });
         }
 
         void decode_audio() try {
@@ -466,8 +467,15 @@ namespace this_cpp_file {
             while (false == audio_thread_quit.load()) {
                 const auto & varCodec = this->audioStreamCodec[this->audio_stream_index.load()];
                 std::unique_lock varLock{ varMutex };
-                audio_thread_wait.wait_for(varLock, 10ms,
-                    [this]() {return need_data.load(); });
+                audio_thread_wait.wait_for(varLock, 10ms);
+                {
+                    if (false == need_data.load()) {
+                        continue;
+                    }
+                    if (audio_thread_quit.load()) {
+                        return;
+                    }
+                }
                 auto varPack = list_audio.pop_front();
                 if (false == bool(varPack)) {
                     continue;
@@ -498,12 +506,15 @@ namespace this_cpp_file {
                 this->audioRawData.insert(audioRawData.end(),
                     varData.begin(),
                     varData.end());
+                this->audioRawData.shrink_to_fit();
             }
         } catch (...) {
         }
 
         void decode_video() {
-
+            std::mutex varMutex;
+            while (false == audio_thread_quit.load()) {
+            }
         }
 
         void get_audio_pack(std::shared_ptr<CPPAVPacket> arg) {
@@ -521,8 +532,15 @@ namespace this_cpp_file {
             std::mutex varMutex;
             while (false == read_next_thread_quit.load()) {
                 std::unique_lock varLock{ varMutex };
-                read_next_thread_wait.wait_for(varLock, 10ms,
-                    [this]() { return need_data.load();  });
+                read_next_thread_wait.wait_for(varLock, 10ms);
+                if(false){
+                    if (false == need_data.load()) {
+                        continue;
+                    }
+                    if (read_next_thread_quit.load()) {
+                        return;
+                    }
+                }
                 int varReadNext = 16;
                 auto varPack = sstd::make_shared< CPPAVPacket >();
                 bool isReadNoError = (ffmpeg::av_read_frame(av_contex, varPack.get()) == 0);
@@ -545,7 +563,12 @@ namespace this_cpp_file {
             read_next_thread = std::thread([this]() mutable { this->read_next(); });
         }
 
+        QMetaObject::Connection on_finished_connect;
         bool ppp_start() {
+
+            if (on_finished_connect) {
+                disconnect(on_finished_connect);
+            }
 
             if (audio_stream_index.load() < 0) {
                 (*mmm_ErrorString) = QStringLiteral("empty audo");
@@ -576,13 +599,19 @@ namespace this_cpp_file {
                     qDebug() << audio_player->error(); }
                 );
             }
-            connect(audio_player, &QAudioOutput::stateChanged,
-                [this](auto s) {
-                if (s == QAudio::StoppedState) {
-                    super->finished();
-                    this->stop();
-                }
-            });
+
+            {
+                on_finished_connect = connect(audio_player, &QAudioOutput::stateChanged,
+                    [this](auto s) {
+                    if (on_finished_connect) {
+                        disconnect(on_finished_connect);
+                    }
+                    if (s == QAudio::StoppedState) {
+                        super->finished();
+                    }
+                });
+            }
+
             /*wait for decode some data ...*/
             std::this_thread::sleep_for(32ms);
             /*start ...*/
@@ -623,6 +652,7 @@ namespace sstd {
 
     class PlayerPrivate : public this_cpp_file::FFMPEGDecoder {
     public:
+
     };
 
     Player::Player() {
@@ -667,43 +697,30 @@ namespace sstd {
     }
 
     PlayerThread::PlayerThread() {
-        this->moveToThread(qApp->thread());
-        connect(this, &QThread::finished, this, &QThread::deleteLater);
 
     }
 
     void PlayerThread::stop() {
-        this->quit();
-    }
-
-    void PlayerThread::startLocal(const QString & arg) {
-        mmm_LocalPath = arg;
-        this->start();
-    }
-
-    void PlayerThread::run() {
-        Player varPlayer;
-        if (mmm_LocalPath.isEmpty()) {
-        } else {/*local ...*/
-            varPlayer.setLocalFile(mmm_LocalPath);
-            if (varPlayer.open()) {
-                if (varPlayer.start()) {
-                    mmm_Player = &varPlayer;
-                    connect(&varPlayer, &Player::finished, this, &PlayerThread::stop);
-                } else {
-                    mmm_Error = varPlayer.getError();
-                    return;
-                }
-            } else {
-                mmm_Error = varPlayer.getError();
-                return;
+        this->runInThisThread([this]() {
+            if (mmm_Player) {
+                delete mmm_Player;
+                mmm_Player = nullptr;
             }
-        }
-        this->exec();
+            this->quit();
+        });
+    }
+
+    void PlayerThread::start(Player * argPlayer, double argTime) {
+        mmm_Player = argPlayer;
+        argPlayer->moveToThread(this);
+        connect(argPlayer, &Player::finished, this, &PlayerThread::stop);
+        connect(this, &PlayerThread::finished, this, &PlayerThread::stop);
+        this->runInThisThread([argPlayer, argTime]() {
+            argPlayer->start(argTime);
+        });
     }
 
 }/*namespace sstd*/
-
 
 namespace {
     void on_start() {
