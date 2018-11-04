@@ -579,24 +579,23 @@ namespace this_cpp_file {
             }
             std::shared_ptr<CPPAVPacket> getAPacket() {
                 std::unique_lock varWriteLock{ mmm_pool_Mutex };
-                std::sort(mmm_pool_Data.begin(), mmm_pool_Data.end(), [](const auto & l,const auto & r) {
-                    return l.use_count() < r.use_count();
-                });
-                if (mmm_pool_Data[0].use_count() == 1) {
-                    qDebug() << mmm_pool_Data.size();
-                    for (auto & i : mmm_pool_Data ) {
-                        if (i.use_count()==1) {
-                            ffmpeg::av_packet_unref(i.get());
-                        } else {
-                            break;
-                        }
+                std::shared_ptr<CPPAVPacket> varAns;
+                for ( auto & i : mmm_pool_Data ) {
+                    if (i.use_count() > 1) {
+                        continue;
                     }
-                    return mmm_pool_Data[0];
+                    ffmpeg::av_packet_unref(i.get());
+                    if (bool(varAns) == false) {
+                        varAns = i;
+                    }
+                }/*for...*/
+                if (bool(varAns) == false) {
+                    sstd::vector< std::shared_ptr<CPPAVPacket> > varTmp;
+                    init_size_(&varTmp);
+                    varAns = varTmp[0];
+                    mmm_pool_Data.insert(mmm_pool_Data.end(), varTmp.begin(), varTmp.end());
                 }
-                sstd::vector< std::shared_ptr<CPPAVPacket> > varTmp;
-                init_size_(&varTmp);
-                mmm_pool_Data.insert(mmm_pool_Data.end(), varTmp.begin(), varTmp.end());
-                return varTmp[0];
+                return std::move(varAns);
             }
         } mmm_PackPool;
 
