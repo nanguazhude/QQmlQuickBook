@@ -40,16 +40,20 @@ namespace this_cpp_file {
 #endif
 
     class CPPAVPacket : public ffmpeg::AVPacket {
+        CPPAVPacket() = default;
     public:
-        CPPAVPacket() {
-            ffmpeg::av_init_packet(this);
-        }
-        ~CPPAVPacket() {
-            ffmpeg::av_packet_unref(this);
+        static std::shared_ptr<CPPAVPacket> create() {
+            auto varAnsPointer = ffmpeg::av_packet_alloc();
+            auto varAns = std::shared_ptr<ffmpeg::AVPacket>{ varAnsPointer, [](auto * d) {
+               ffmpeg::av_packet_unref(d);
+               ffmpeg::av_packet_free(&d);
+           } };
+            return {varAns,reinterpret_cast<CPPAVPacket *>(varAnsPointer) };
         }
     };
 
     class CPPAVFrame : public ffmpeg::AVFrame {
+        CPPAVFrame() = default;
     public:
         static std::shared_ptr<CPPAVFrame> create() {
             auto varAnsPointer = ffmpeg::av_frame_alloc();
@@ -116,6 +120,7 @@ namespace this_cpp_file {
         ffmpeg::AVCodecContext * contex{ nullptr };
         int sample_rate{ 44100 };
         ffmpeg::SwrContext * reSampleContex{ nullptr };
+        std::shared_ptr< CPPAVFrame > frame;
         void constructReSampleContex() {
             //https://blog.csdn.net/timesir/article/details/52904024
             reSampleContex = ffmpeg::swr_alloc_set_opts(
@@ -131,11 +136,18 @@ namespace this_cpp_file {
             );
             ffmpeg::swr_init(reSampleContex);
         }
-        ~AudioStreamCodec() {
+
+        void destoryReSampleContex() {
             if (reSampleContex) {
                 ffmpeg::swr_free(&reSampleContex);
             }
         }
+
+        ~AudioStreamCodec() {
+            destoryReSampleContex();
+            frame.reset();
+        }
+
     public:
         SSTD_MEMORY_DEFINE(AudioStreamCodec)
     };
@@ -315,7 +327,6 @@ namespace this_cpp_file {
                     if (audio_stream_index.load() < 0) {
                         audio_stream_index.store(static_cast<int>(i));
                     }
-                    codec->constructReSampleContex();
                 } else {
                     continue;
                 }
@@ -352,7 +363,7 @@ namespace this_cpp_file {
         };
 
         std::shared_mutex mutexAudioRawData;
-        sstd::vector< std::pair< AudioChar, AudioChar  > > audioRawData;
+        sstd::deque< std::pair< AudioChar, AudioChar  > > audioRawData;
 
         AudioPlayer * audio_player{ nullptr };
         class AudioStream : public QIODevice {
@@ -403,6 +414,7 @@ namespace this_cpp_file {
                                 varPosEnd);
                             varRawSize = 0;
                         } else {
+                            qDebug() << "data not enough ... ";
                             super->setNeedData();
                             return 0;
                         }
@@ -411,8 +423,8 @@ namespace this_cpp_file {
                     ::memcpy(data, varTmp.data(), maxSize);
                 }
 
-                if (varRawSize > audioCodec->sample_rate ) {
-                    //super->need_data.store(false);
+                if (varRawSize > std::max<qint64>( varSize, audioCodec->sample_rate/36 ) ) {
+                    super->need_data.store(false);
                 } else {
                     super->setNeedData();
                 }
@@ -467,7 +479,8 @@ namespace this_cpp_file {
             while (false == audio_thread_quit.load()) {
                 const auto & varCodec = this->audioStreamCodec[this->audio_stream_index.load()];
                 std::unique_lock varLock{ varMutex };
-                audio_thread_wait.wait_for(varLock, 10ms);
+                audio_thread_wait.wait_for(varLock, 10ms,
+                    [this]() mutable {return need_data.load(); });
                 {
                     if (false == need_data.load()) {
                         continue;
@@ -482,7 +495,10 @@ namespace this_cpp_file {
                 }
                 /*about to decode ...*/
                 auto varError = ffmpeg::avcodec_send_packet(varCodec->contex, varPack.get());
-                auto varFrame = CPPAVFrame::create();
+                if (false==bool( varCodec->frame )) {
+                    varCodec->frame = CPPAVFrame::create();
+                }
+                auto varFrame = varCodec->frame ;
                 /*decode ...*/
                 varError = ffmpeg::avcodec_receive_frame(varCodec->contex, varFrame.get());
                 if (varError) {
@@ -495,6 +511,9 @@ namespace this_cpp_file {
                 sstd::vector< std::pair<AudioChar, AudioChar> > varData;
                 varData.resize(varFrame->nb_samples);
                 std::uint8_t * varDataRaw[1]{ reinterpret_cast<std::uint8_t *>(varData.data()) };
+                if (varCodec->reSampleContex == nullptr) {
+                    varCodec->constructReSampleContex();
+                }
                 ffmpeg::swr_convert(
                     varCodec->reSampleContex,
                     varDataRaw,
@@ -518,6 +537,7 @@ namespace this_cpp_file {
         }
 
         void get_audio_pack(std::shared_ptr<CPPAVPacket> arg) {
+            return;
             list_audio.push_pack(std::move(arg));
             audio_thread_wait.notify_all();
         }
@@ -532,8 +552,9 @@ namespace this_cpp_file {
             std::mutex varMutex;
             while (false == read_next_thread_quit.load()) {
                 std::unique_lock varLock{ varMutex };
-                read_next_thread_wait.wait_for(varLock, 10ms);
-                if(false){
+                read_next_thread_wait.wait_for(varLock, 10ms, 
+                    [this]() mutable {return need_data.load(); });
+                {
                     if (false == need_data.load()) {
                         continue;
                     }
@@ -542,7 +563,7 @@ namespace this_cpp_file {
                     }
                 }
                 int varReadNext = 16;
-                auto varPack = sstd::make_shared< CPPAVPacket >();
+                auto varPack =  CPPAVPacket::create() ;
                 bool isReadNoError = (ffmpeg::av_read_frame(av_contex, varPack.get()) == 0);
                 if (isReadNoError && (varReadNext > 0)) {
                     if (varPack->stream_index == audio_stream_index.load()) {
@@ -616,7 +637,7 @@ namespace this_cpp_file {
             std::this_thread::sleep_for(32ms);
             /*start ...*/
             audio_player->setVolume(1);
-            audio_player->start(audio_stream);
+            //audio_player->start(audio_stream);
             /***************************************/
 
             return true;
@@ -740,7 +761,7 @@ namespace {
 //struct SwsContext （software scale） 主要用于视频图像的转换，比如格式转换： 参考    ffmpeg中的sws_scale算法性能测试
 //struct SwrContext （software resample） 主要用于音频重采样，比如采样率转换，声道转换。 参考： SwrContext重采样结构体
 //https://blog.csdn.net/jammg/article/details/52688506
-
+//https://blog.csdn.net/Chasing_Chasing/article/details/79092190
 
 
 
