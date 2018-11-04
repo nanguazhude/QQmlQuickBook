@@ -115,14 +115,21 @@ namespace this_cpp_file {
         ffmpeg::AVCodecContext * contex{ nullptr };
         int width{ 512 };
         int height{ 512 };
-        SwsContext *  reSampleContex{ nullptr };
+        ffmpeg::SwsContext *  reSampleContex{ nullptr };
         std::shared_ptr< CPPAVFrame > frame;
         void constructReSampleContex() {
-
+            reSampleContex = ffmpeg::sws_getContext(
+                width, height, contex->pix_fmt,
+                width, height, AV_PIX_FMT_RGBA,
+                SWS_FAST_BILINEAR, nullptr, nullptr, nullptr
+            );
         }
 
         void destoryReSampleContex() {
-
+            if (reSampleContex) {
+                ffmpeg::sws_freeContext(reSampleContex);
+                reSampleContex = nullptr;
+            }
         }
 
         ~VideoStreamCodec() {
@@ -613,7 +620,12 @@ namespace this_cpp_file {
                     continue;
                 }
                 /*重采样*/
-
+                if (varCodec->reSampleContex == nullptr) {
+                    varCodec->constructReSampleContex();
+                }
+                ffmpeg::sws_scale( varCodec->reSampleContex ,
+                    nullptr,nullptr,
+                    1,1,nullptr,nullptr);
             }
         }
 
