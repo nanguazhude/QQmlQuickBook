@@ -48,7 +48,7 @@ namespace this_cpp_file {
                ffmpeg::av_packet_unref(d);
                ffmpeg::av_packet_free(&d);
            } };
-            return {varAns,reinterpret_cast<CPPAVPacket *>(varAnsPointer) };
+            return { varAns,reinterpret_cast<CPPAVPacket *>(varAnsPointer) };
         }
     };
 
@@ -385,7 +385,7 @@ namespace this_cpp_file {
 
                 qint64 varRawSize{ 0 };
                 const auto varSize = (maxSize >> 2);
-                auto audioCodec = super->audioStreamCodec[ super->audio_stream_index ];
+                auto audioCodec = super->audioStreamCodec[super->audio_stream_index];
 
                 {
                     static_assert(4 == sizeof(std::pair< AudioChar, AudioChar  >));
@@ -424,7 +424,7 @@ namespace this_cpp_file {
                     ::memcpy(data, varTmp.data(), maxSize);
                 }
 
-                if (varRawSize > std::max<qint64>( varSize, audioCodec->sample_rate/36 ) ) {
+                if (varRawSize > std::max<qint64>(varSize, audioCodec->sample_rate / 36)) {
                     super->need_data.store(false);
                 } else {
                     super->setNeedData();
@@ -496,19 +496,21 @@ namespace this_cpp_file {
                 }
                 /*about to decode ...*/
                 auto varError = ffmpeg::avcodec_send_packet(varCodec->contex, varPack.get());
-                if (false==bool( varCodec->frame )) {
+                if (false == bool(varCodec->frame)) {
                     varCodec->frame = CPPAVFrame::create();
                 }
-                auto varFrame = varCodec->frame ;
+                auto varFrame = varCodec->frame;
                 class FrameLock {
                     CPPAVFrame * const d;
+                    CPPAVPacket * const p;
                 public:
-                    FrameLock( CPPAVFrame * f ):d(f) {
+                    FrameLock(CPPAVFrame * f, CPPAVPacket *b) :d(f), p(b) {
                     }
                     ~FrameLock() {
                         ffmpeg::av_frame_unref(d);
+                        ffmpeg::av_packet_unref(p);
                     }
-                }varLockFrame{ varFrame.get() };
+                }varLockFrame{ varFrame.get(),varPack.get() };
                 /*decode ...*/
                 varError = ffmpeg::avcodec_receive_frame(varCodec->contex, varFrame.get());
                 if (varError) {
@@ -562,7 +564,7 @@ namespace this_cpp_file {
             std::mutex varMutex;
             while (false == read_next_thread_quit.load()) {
                 std::unique_lock varLock{ varMutex };
-                read_next_thread_wait.wait_for(varLock, 10ms, 
+                read_next_thread_wait.wait_for(varLock, 10ms,
                     [this]() mutable {return need_data.load(); });
                 {
                     if (false == need_data.load()) {
@@ -573,7 +575,7 @@ namespace this_cpp_file {
                     }
                 }
                 int varReadNext = 16;
-                auto varPack =  CPPAVPacket::create() ;
+                auto varPack = CPPAVPacket::create();
                 bool isReadNoError = (ffmpeg::av_read_frame(av_contex, varPack.get()) == 0);
                 if (isReadNoError && (varReadNext > 0)) {
                     if (varPack->stream_index == audio_stream_index.load()) {
@@ -582,6 +584,8 @@ namespace this_cpp_file {
                     } else if (varPack->stream_index == video_stream_index.load()) {
                         --varReadNext;
                         get_video_pack(std::move(varPack));
+                    } else {/*the pack will never be used ...*/
+                        ffmpeg::av_packet_unref(varPack.get());
                     }
                 }
 
