@@ -35,9 +35,9 @@ extern "C" {
 /**********************************/
 namespace this_cpp_file {
 
-    /*模拟c++命名空间*/
+    
 #ifndef ffmpeg
-#define ffmpeg
+#define ffmpeg /**//*模拟c++命名空间*//**/
 #endif
 
     class CPPAVPacket : public ffmpeg::AVPacket {
@@ -120,8 +120,9 @@ namespace this_cpp_file {
         void constructReSampleContex() {
             reSampleContex = ffmpeg::sws_getContext(
                 width, height, contex->pix_fmt,
-                width, height, AV_PIX_FMT_RGBA,
-                SWS_FAST_BILINEAR, nullptr, nullptr, nullptr
+                width, height, AV_PIX_FMT_RGBA/**/,
+                /**/SWS_FAST_BILINEAR/**/,
+                nullptr, nullptr, nullptr
             );
         }
 
@@ -180,15 +181,8 @@ namespace this_cpp_file {
 
     class FrameImage {
     public:
-        int width{ 0 }/*宽*/;
-        int height{ 0 }/*高*/;
-        double pts{ 0 }/*播放时间戳*/;
-
-    };
-
-    class FrameAudio {
-    public:
-        double pts{ 0 }/*播放时间戳*/;
+        double pts{ 0 }/*播放时间戳 : 单位s */;
+        QImage data/*数据*/;
     };
 
     /*初始化ffmpeg时使用的环境*/
@@ -297,6 +291,10 @@ namespace this_cpp_file {
                 *mmm_ErrorString = QString::fromLocal8Bit(varTmp.data());
                 return false;
             }
+            /***********************************/
+            ffmpeg::av_find_best_stream(av_contex, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+            ffmpeg::av_find_best_stream(av_contex, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
+            /***********************************/
             constructCodec();
             constructAVLength();
             return true;
@@ -328,6 +326,8 @@ namespace this_cpp_file {
                     videoStreamCodec.emplace(static_cast<int>(i), codec);
                     codec->codec = varCodec;
                     codec->contex = codec_contex;
+                    codec->width = codec_contex->width;
+                    codec->height = codec_contex->height;
                     /*set stream index ...*/
                     if (video_stream_index.load() < 0) {
                         video_stream_index.store(static_cast<int>(i));
@@ -571,6 +571,8 @@ namespace this_cpp_file {
         } catch (...) {
         }
 
+        std::shared_mutex mutexVideoRawData;
+        sstd::vector< std::shared_ptr<FrameImage> > videoRawData;
         void decode_video() {
             const auto varVideoStreamIndex = this->video_stream_index.load();
             if (varVideoStreamIndex < 0) {
@@ -620,15 +622,33 @@ namespace this_cpp_file {
                     continue;
                 }
                 /*重采样*/
-                if (varCodec->reSampleContex == nullptr) {
+                if (nullptr == varCodec->reSampleContex) {
                     varCodec->constructReSampleContex();
                 }
                 QImage varAnsImage{ varCodec->width,varCodec->height ,QImage::Format_RGBA8888 };
-                ffmpeg::sws_scale( varCodec->reSampleContex ,
-                    nullptr,nullptr,
-                    1,1, 
-                    varAnsImage.constBits(),nullptr);
-            }
+                ffmpeg::uint8_t * out[1]{ const_cast<ffmpeg::uint8_t *>(varAnsImage.constBits()) };
+                int out_size[4]{ varAnsImage.bytesPerLine(),
+                    0,
+                    0,
+                    0 };
+                //https://stackoverflow.com/questions/13088749/efficient-conversion-of-avframe-to-qimage
+                /*av_image_fill_linesizes(out_size, AV_PIX_FMT_RGBA, varFrame->width);*/
+                ffmpeg::sws_scale(
+                    varCodec->reSampleContex,
+                    varFrame->data,
+                    varFrame->linesize,
+                    0,
+                    varFrame->height,
+                    out,
+                    out_size);
+
+                auto varFrameImage = sstd::make_shared<FrameImage>();
+                varFrameImage->data = varAnsImage;
+                varFrameImage->pts = varFrame->pts * ffmpeg::av_q2d(varCodec->contex->time_base);
+
+                std::unique_lock varWriteLock{ mutexVideoRawData };
+                videoRawData.push_back(std::move(varFrameImage));
+            }/*while...*/
         }
 
         void get_audio_pack(std::shared_ptr<CPPAVPacket> arg) {

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <QtCore/qobject.h>
 #include <QtCore/qthread.h>
+#include <QtGui/qimage.h>
 #include <sstd_memory.hpp>
 #include <quick/sstd_QThread.hpp>
 
@@ -19,6 +20,7 @@ namespace sstd {
     public:
         Player();
         Q_SIGNAL void finished();
+        Q_SIGNAL void imageChanged(const QImage & );
     private:
         bool * mmm_IsStart;
         bool * mmm_ISLocalFile;
