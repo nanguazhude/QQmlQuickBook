@@ -982,7 +982,8 @@ namespace sstd {
 
     bool Player::start(QThread * argt, double arg) {
         this->moveToThread(argt);
-        return mmm_Private->start(argt, arg);
+        (*mmm_IsStart) = mmm_Private->start(argt, arg);
+        return *mmm_IsStart;
     }
 
     bool Player::ppp_construct_local() {
@@ -1010,6 +1011,10 @@ namespace sstd {
     }
 
     void PlayerThread::start(Player * argPlayer, double argTime) {
+        if (argPlayer == nullptr) {
+            return;
+        }
+        mmm_isPlayerSet = true;
         mmm_Player = argPlayer;
         argPlayer->moveToThread(this);
         connect(argPlayer, &Player::finished, this, &PlayerThread::stop);
