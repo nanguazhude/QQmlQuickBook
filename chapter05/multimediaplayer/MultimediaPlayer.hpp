@@ -15,7 +15,7 @@ namespace sstd {
     public:
         void setLocalFile(const QString &);
         inline bool open();
-        bool start(double=0);
+        bool start(QThread *, double=0);
         inline const QString & getError()const;
     public:
         Player();

@@ -8,7 +8,7 @@ namespace sstd {
 
 namespace  {
 
-    void start_this(){
+    inline void start_this(){
 
 
 

@@ -42,6 +42,7 @@ namespace this_cpp_file {
 #define ffmpeg /**//*模拟c++命名空间*//**/
 #endif
 
+    /*将C语言AVPcket包装成C++模式*/
     class CPPAVPacket : public ffmpeg::AVPacket {
         CPPAVPacket() = default;
     public:
@@ -51,11 +52,12 @@ namespace this_cpp_file {
             auto varAns = std::shared_ptr<ffmpeg::AVPacket>{ varAnsPointer, [](auto * d) {
                ffmpeg::av_packet_unref(d);
                ffmpeg::av_packet_free(&d);
-           } };
+           } , sstd::allocator<ffmpeg::AVPacket>{} };
             return { varAns,reinterpret_cast<CPPAVPacket *>(varAnsPointer) };
         }
     };
 
+    /*将C语言AVFrame包装成C++模式*/
     class CPPAVFrame : public ffmpeg::AVFrame {
         CPPAVFrame() = default;
     public:
@@ -64,13 +66,15 @@ namespace this_cpp_file {
             auto varAns = std::shared_ptr<ffmpeg::AVFrame>{ varAnsPointer, [](auto * d) {
                 ffmpeg::av_frame_unref(d);
                 ffmpeg::av_frame_free(&d);
-            } };
+            },sstd::allocator<ffmpeg::AVFrame>{} };
             return { varAns,reinterpret_cast<CPPAVFrame *>(varAnsPointer) };
         }
-        /*av_frame_unref*/
     };
 
+    /*构造QAudioFormat*/
     inline QAudioFormat getAudioFormat(int rate = 8000) {
+        /****************************************************************/
+        /*统一将音频转为双声道，signed 16 整型，但采样频率不变*/
         static const auto varAns = []() {
             QAudioFormat varFormat;
             varFormat.setSampleRate(8000);
@@ -85,13 +89,16 @@ namespace this_cpp_file {
             varFormat.setSampleType(QAudioFormat::SignedInt);
             return varFormat;
         }();
+        /****************************************************************/
         auto var = varAns;
         var.setSampleRate(rate);
         return var;
     }
 
+    /*构造QAudioDeviceInfo*/
     inline QAudioDeviceInfo getAudioDeveceInfo(int rate = 8000) {
 
+        /*采用默认输出设备*/
         QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
 
         if (!info.isFormatSupported(getAudioFormat(rate))) {
@@ -102,15 +109,18 @@ namespace this_cpp_file {
         return info;
     }
 
+    /*音频输出设备*/
     class AudioPlayer : public QAudioOutput {
     public:
-        AudioPlayer(int rate) : QAudioOutput(getAudioDeveceInfo(rate), getAudioFormat(rate)) {
+        AudioPlayer(int rate) :
+            QAudioOutput(getAudioDeveceInfo(rate), getAudioFormat(rate)) {
             this->setNotifyInterval(1);
         }
     private:
         SSTD_MEMORY_QOBJECT_DEFINE(AudioPlayer)
     };
 
+    /*video stream 解码类*/
     class VideoStreamCodec {
     public:
         ffmpeg::AVCodec *        codec{ nullptr };
@@ -143,6 +153,7 @@ namespace this_cpp_file {
         SSTD_MEMORY_DEFINE(VideoStreamCodec)
     };
 
+    /*audio stream 解码类*/
     class AudioStreamCodec {
     public:
         ffmpeg::AVCodec * codec{ nullptr };
@@ -181,13 +192,14 @@ namespace this_cpp_file {
         SSTD_MEMORY_DEFINE(AudioStreamCodec)
     };
 
+    /*解码视频数据包装*/
     class FrameImage {
     public:
         double pts{ 0 }/*播放时间戳 : 单位s */;
         QImage data/*数据*/;
     };
 
-    /*初始化ffmpeg时使用的环境*/
+    /*初始化ffmpeg时使用的环境变量*/
     inline std::once_flag & getInitFFMPEGOnceFlag() {
         static std::once_flag varAns;
         return varAns;
@@ -201,28 +213,36 @@ namespace this_cpp_file {
         });
     }
 
+    /*解码器*/
     class FFMPEGDecoder :
         public sstd_private::FFMPEGDecoderPrivate,
         public virtual sstd::memory_lock::VirtualClassBasic {
     public:
 
+        /*video 解码线程*/
         std::thread video_thread;
-        std::thread audio_thread;
-        std::thread read_next_thread;
         std::atomic_bool video_thread_quit{ false };
-        std::atomic_bool audio_thread_quit{ false };
-        std::atomic_bool read_next_thread_quit{ false };
         std::condition_variable video_thread_wait;
+
+        /*audio 解码线程*/
+        std::thread audio_thread;
+        std::atomic_bool audio_thread_quit{ false };
         std::condition_variable audio_thread_wait;
+
+        /*解包线程*/
+        std::thread read_next_thread;
+        std::atomic_bool read_next_thread_quit{ false };
         std::condition_variable read_next_thread_wait;
 
+        /*可用解码器*/
         sstd::map<int, VideoStreamCodec *> videoStreamCodec;
         sstd::map<int, AudioStreamCodec *> audioStreamCodec;
 
         inline FFMPEGDecoder() {
             initFFMPEG();
             connect(this, &FFMPEGDecoder::checkImageChange,
-                this, &FFMPEGDecoder::doCheckImageChange, Qt::QueuedConnection);
+                this, &FFMPEGDecoder::doCheckImageChange, 
+                Qt::QueuedConnection);
         }
 
         std::atomic<double> last_image_pts{ -1 };
@@ -327,10 +347,12 @@ namespace this_cpp_file {
                 read_next_thread.join();
             }
             /****************************************/
-            if (av_contex) {
-                avformat_close_input(&av_contex);
-                av_contex = nullptr;
-            }
+            /*the av contex destruct must run in main thread ... */
+            sstd::runInMainThread([this]() {
+                if (av_contex) {
+                    avformat_close_input(&av_contex);
+                }
+            });
         }
         using av_error_tmp_buffer_type = std::array<char, 1024 * 1024>;
         inline static av_error_tmp_buffer_type & getStringTmpBuffer() {
@@ -452,7 +474,8 @@ namespace this_cpp_file {
 
         }
 
-        bool start(double arg) {
+        bool start(QThread * argt, double arg) {
+            this->moveToThread(argt);
             notify_count.store(9999);
             const auto varWanted = static_cast<std::uint64_t>(arg * 1000);
             assert(this->av_contex);
@@ -925,7 +948,7 @@ namespace sstd {
 
     class PlayerPrivate : public this_cpp_file::FFMPEGDecoder {
     public:
-
+        SSTD_MEMORY_QOBJECT_DEFINE(PlayerPrivate)
     };
 
     Player::Player() {
@@ -957,11 +980,14 @@ namespace sstd {
         }
     }
 
-    bool Player::start(double arg) {
-        return mmm_Private->start(arg);
+    bool Player::start(QThread * argt, double arg) {
+        this->moveToThread(argt);
+        return mmm_Private->start(argt, arg);
     }
 
     bool Player::ppp_construct_local() {
+        /*this function must run in main thread ... */
+        assert( QThread::currentThread() == ( qApp->thread() ) )      ;
         return mmm_Private->construct_local_decode(*mmm_LocalFileName);
     }
 
@@ -976,7 +1002,7 @@ namespace sstd {
     void PlayerThread::stop() {
         this->runInThisThread([this]() {
             if (mmm_Player) {
-                delete mmm_Player;
+                delete mmm_Player   ;
                 mmm_Player = nullptr;
             }
             this->quit();
@@ -988,8 +1014,8 @@ namespace sstd {
         argPlayer->moveToThread(this);
         connect(argPlayer, &Player::finished, this, &PlayerThread::stop);
         connect(this, &PlayerThread::finished, this, &PlayerThread::stop);
-        this->runInThisThread([argPlayer, argTime]() {
-            argPlayer->start(argTime);
+        this->runInThisThread([argPlayer, argTime,this]() {
+            argPlayer->start(this,argTime);
         });
     }
 
