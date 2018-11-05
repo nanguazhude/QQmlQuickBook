@@ -52,8 +52,8 @@ SOURCES += $$PWD/MultimediaPlayer.cpp
 HEADERS += $$PWD/MultimediaPlayer.hpp
 HEADERS += $$PWD/private_FFMPEGDecoder.hpp
 
-SOURCES += $$PWD/ImageNode.cpp
-HEADERS += $$PWD/ImageNode.hpp
+SOURCES += $$PWD/PlayerItem.cpp
+HEADERS += $$PWD/PlayerItem.hpp
 
 include($$PWD/this/this.pri)
 
