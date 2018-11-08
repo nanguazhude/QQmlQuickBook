@@ -107,14 +107,8 @@ void test_boost_context() {
     }
 
     
-    {
-        std::promise<void> promise;
-        
-    }
-
-
-    std::thread([]() { system("pause"); }).join();
-    //system("pause");
+    //std::thread([]() { system("pause"); }).join();
+    
 }
 
 //https://cloud.tencent.com/developer/article/1173539

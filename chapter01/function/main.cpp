@@ -35,9 +35,12 @@ void test_add_yield() {
         varPack->a = 1;
         L->yield();
         ++(varPack->a);
+        L->yield();
     }, varFunction1);
     varFunctionStack->call(varFunction2);
     assert(1 == varPack->a);
+    varFunctionStack->resume();
+    assert(2 == varPack->a);
     varFunctionStack->resume();
     assert(3 == varPack->a);
     delete varFunctionStack;
@@ -114,14 +117,13 @@ void test_fibonacci_sequence() {
     delete varFunctionStack;
 }
 
-
 int main(int, char **) {
 
-    //test_one_add_one();
+    test_one_add_one();
     test_add_yield();
-    //simple_test_if_else();
-    //test_fibonacci_sequence();
-    //test_boost_context();
+    simple_test_if_else();
+    test_fibonacci_sequence();
+    test_boost_context();
 
     return 0;
 }

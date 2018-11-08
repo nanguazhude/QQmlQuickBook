@@ -79,7 +79,7 @@ namespace sstd {
         void resume() {
             mmm_Fiber = std::move(mmm_Fiber).resume();
         }
- 
+
     };
 
     FunctionStack::FunctionStack() {
@@ -134,7 +134,7 @@ namespace sstd {
             this->error("can not yield function error!"sv);
         }
         const_cast<bool &>(isYield) = true;
-        auto f = reinterpret_cast<boost::context::fiber *>(this->mmm_FiberRun)  ;
+        auto f = reinterpret_cast<boost::context::fiber *>(this->mmm_FiberRun);
         (*f) = std::move(*f).resume();
     }
 
