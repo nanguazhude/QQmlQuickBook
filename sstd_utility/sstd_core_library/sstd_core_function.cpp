@@ -73,23 +73,19 @@ namespace sstd {
             mmm_Fiber = std::move(arg);
             return *this;
         }
-        template<typename Fun, typename =
-            std::enable_if_t<false == std::is_same_v<Fiber, std::remove_cv_t<
-            std::remove_reference_t< Fun > > > > >
-            inline Fiber(Fun &&arg) : mmm_Fiber(std::forward<Fun>(arg)) {
-        }
         inline operator bool() const {
             return bool(mmm_Fiber);
         }
         void resume() {
             mmm_Fiber = std::move(mmm_Fiber).resume();
         }
+ 
     };
 
     FunctionStack::FunctionStack() {
         mmm_MemoryPool = sstdNew<memory_pool_type>();
         mmm_ThisError = &(createData< _0_ThisError >()->data);
-        mmm_Fiber = createData<Fiber>();
+        mmm_FiberCall = createData<Fiber>();
     }
 
     FunctionStack::~FunctionStack() {
@@ -116,7 +112,6 @@ namespace sstd {
 
         return next_call();
 
-
     } catch (...) {
         return when_error();
     }
@@ -139,16 +134,20 @@ namespace sstd {
             this->error("can not yield function error!"sv);
         }
         const_cast<bool &>(isYield) = true;
-        mmm_Fiber->resume();
+        auto f = reinterpret_cast<boost::context::fiber *>(this->mmm_FiberRun)  ;
+        (*f) = std::move(*f).resume();
     }
 
     FunctionData *FunctionStack::next_call() {
         assert(currentFunction);
 
-        if (false == bool(*mmm_Fiber)) {
-            *mmm_Fiber = boost::context::fiber(std::allocator_arg,
+        if (false == bool(*mmm_FiberCall)) {
+            *mmm_FiberCall = boost::context::fiber(std::allocator_arg,
                 boost::context::protected_fixedsize_stack{ 10 * 1024 * 1024 },
                 [this](boost::context::fiber && f) ->boost::context::fiber {
+
+                this->mmm_FiberRun = &f;
+
                 for (;;) {
 
                     try {
@@ -159,6 +158,7 @@ namespace sstd {
                     }
 
                     if (currentFunction->next) {
+                        currentFunction = currentFunction->next;
                         continue;
                     } else {
                         /*获得结果*/
@@ -172,7 +172,7 @@ namespace sstd {
             });
         }/***************************************/
 
-        mmm_Fiber->resume();
+        mmm_FiberCall->resume();
 
         if (isYield) {
             return YieldAns::create();

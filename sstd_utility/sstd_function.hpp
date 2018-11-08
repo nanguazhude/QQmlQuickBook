@@ -186,7 +186,8 @@ public:
         memory_pool_type * mmm_MemoryPool{ nullptr };
         std::shared_ptr<FunctionData> * mmm_ThisError{ nullptr };
         class Fiber;
-        Fiber * mmm_Fiber{ nullptr };
+        Fiber * mmm_FiberCall{ nullptr };
+        void * mmm_FiberRun{ nullptr };
     public:
         FunctionStack();
         ~FunctionStack();
@@ -209,7 +210,7 @@ public:
         void yield() const/*将当前函数标记为yield*/;
     protected:
         FunctionData * when_error();
-        FunctionData *next_call();
+        FunctionData * next_call();
         FunctionData * ppp_call(Function * arg);
     };
 }/*namespace sstd*/

@@ -25,20 +25,21 @@ void test_add_yield() {
     auto varFunctionStack = new sstd::FunctionStack;
     class Function {
     public:
-        int a = 0;
+        int a = 5555;
     };
     auto varPack = std::make_shared<Function>();
     auto varFunction1 = varFunctionStack->createFunction([varPack](const auto *) {
         ++(varPack->a);
     });
     auto varFunction2 = varFunctionStack->createFunction([varPack](const auto * L) {
+        varPack->a = 1;
         L->yield();
         ++(varPack->a);
     }, varFunction1);
     varFunctionStack->call(varFunction2);
     assert(1 == varPack->a);
     varFunctionStack->resume();
-    assert(2 == varPack->a);
+    assert(3 == varPack->a);
     delete varFunctionStack;
 }
 
@@ -116,11 +117,11 @@ void test_fibonacci_sequence() {
 
 int main(int, char **) {
 
-    test_one_add_one();
+    //test_one_add_one();
     test_add_yield();
-    simple_test_if_else();
-    test_fibonacci_sequence();
-    test_boost_context();
+    //simple_test_if_else();
+    //test_fibonacci_sequence();
+    //test_boost_context();
 
     return 0;
 }
