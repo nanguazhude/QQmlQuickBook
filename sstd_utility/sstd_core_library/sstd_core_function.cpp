@@ -1,4 +1,7 @@
 ﻿#include "../sstd_function.hpp"
+/*use boost::context::fiber*/
+#include <boost/context/fiber.hpp>
+#include <boost/context/protected_fixedsize_stack.hpp>
 
 namespace sstd {
 
@@ -48,15 +51,46 @@ namespace sstd {
     }
 
     namespace {
+
         class _0_ThisError : public FunctionData {
         public:
             std::shared_ptr<FunctionData> data;
         };
+
+        class _0_ThisFiber : 
+            public boost::context::fiber ,
+            public FunctionData {
+            using Super = boost::context::fiber;
+            using Stack = boost::context::protected_fixedsize_stack;
+        public:
+            template<typename Fun, typename =
+                std::enable_if_t<false == std::is_same_v<_0_ThisFiber, std::remove_cv_t<
+                std::remove_reference_t< Fun > > > > >
+                inline _0_ThisFiber(Fun &&);
+            _0_ThisFiber(_0_ThisFiber &&) = default;
+            _0_ThisFiber&operator=(_0_ThisFiber &&) = default;
+            _0_ThisFiber() = default;
+        public:
+            _0_ThisFiber(const _0_ThisFiber &) = delete;
+            _0_ThisFiber&operator=(const _0_ThisFiber &) = delete;
+        };
+
+        template<typename Fun, typename >
+        inline  _0_ThisFiber::_0_ThisFiber(Fun && arg) :
+            Super(std::allocator_arg, Stack{ 10 * 1024 * 1024 }, std::forward<Fun>(arg)) {
+        }
+
     }/**/
+
+    class FunctionStack::Fiber : public _0_ThisFiber {
+    public:
+        using _0_ThisFiber::_0_ThisFiber;
+    };
 
     FunctionStack::FunctionStack() {
         mmm_MemoryPool = sstdNew<memory_pool_type>();
         mmm_ThisError = &(createData< _0_ThisError >()->data);
+        mmm_Fiber = createData<Fiber>();
     }
 
     FunctionStack::~FunctionStack() {
@@ -71,8 +105,8 @@ namespace sstd {
 
         /*清除状态*/
         this->hasError = false;
-        this->isEndl = false;
-        this->isYield = false;
+        this->isEndl   = false;
+        this->isYield  = false;
 
         /*set current ...*/
         this->currentFunction = arg;

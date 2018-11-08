@@ -176,6 +176,8 @@ public:
         using memory_pool_type = sstd::MemoryLock<std::unique_ptr<private_sstd_function_stack::DataBasic>>;
         memory_pool_type * mmm_MemoryPool{ nullptr };
         std::shared_ptr<FunctionData> * mmm_ThisError{ nullptr };
+        class Fiber;
+        Fiber * mmm_Fiber{ nullptr };
     public:
         FunctionStack();
         ~FunctionStack();

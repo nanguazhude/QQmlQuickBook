@@ -1,9 +1,32 @@
-﻿#include <sstd_memory_lock.hpp>
+﻿#include <sstd_memory.hpp>
 #include <boost/context/fiber.hpp>
 #include <boost/context/protected_fixedsize_stack.hpp>
 
+#include <future>
+
 extern void test_boost_context();
 #include <iostream>
+
+class Fiber : public boost::context::fiber {
+    using Super = boost::context::fiber;
+    using Stack = boost::context::protected_fixedsize_stack;
+public:
+    template<typename Fun , typename = 
+        std::enable_if_t<false == std::is_same_v<Fiber, std::remove_cv_t<
+        std::remove_reference_t< Fun > > > > >
+    inline Fiber(Fun &&);
+    Fiber(Fiber &&) = default;
+    Fiber&operator=(Fiber &&) = default;
+    Fiber() = default;
+public:
+    Fiber(const Fiber &)=delete;
+    Fiber&operator=(const Fiber &)=delete;
+};
+
+template<typename Fun ,typename >
+inline Fiber::Fiber(Fun && arg) :
+    Super(std::allocator_arg, Stack{ 10 * 1024 * 1024 },std::forward<Fun>(arg)) {
+}
 
 void test_boost_context() {
 
@@ -55,15 +78,15 @@ void test_boost_context() {
 
     }
 
-    {/*virtual memory ...*/
+    if constexpr (true) {/*virtual memory ...*/
         enum {
-            test_memory_size = 1024 
+            test_memory_size = 1024
         };
         using fiber = boost::context::fiber;
         std::vector<fiber *> fibers;
         fibers.reserve(test_memory_size);
-        for (auto i = 0; i < test_memory_size ; ++i) {
-            fibers.push_back( new fiber(std::allocator_arg, boost::context::protected_fixedsize_stack{ 1024 * 1024 }, [](fiber && f)->fiber {
+        for (auto i = 0; i < test_memory_size; ++i) {
+            fibers.push_back(new fiber(std::allocator_arg, boost::context::protected_fixedsize_stack{ 1024 * 1024 }, [](fiber && f)->fiber {
                 class Lock {
                 public:
                     Lock() {
@@ -76,13 +99,18 @@ void test_boost_context() {
                 f = std::move(f).resume();
                 std::cout << "2"sv << std::endl;
                 return std::move(f);
-            }) );
+            }));
         }
         for (auto i : fibers) {
             *i = std::move(*i).resume();
         }
     }
 
+    
+    {
+        std::promise<void> promise;
+        
+    }
 
 
     std::thread([]() { system("pause"); }).join();
