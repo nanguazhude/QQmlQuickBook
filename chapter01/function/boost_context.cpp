@@ -5,6 +5,23 @@
 extern void test_boost_context();
 #include <iostream>
 
+class X12 {
+public:
+    void * data;
+    void malloc() {
+        data = std::malloc(1024*1024);
+    }
+    void free() {
+        std::free( data );
+    }
+    X12() {
+        this->malloc();
+    }
+    ~X12() {
+        this->free();
+    }
+};
+
 void test_boost_context() {
 
     {
@@ -55,10 +72,20 @@ void test_boost_context() {
 
     }
 
+    std::thread(
+        []() {
+        X12 p[10000];
+        //for (int i = 0; i < 10000; ++i) {
+        //    p[i].malloc();
+        //}
+        std::this_thread::sleep_for( 1024s );
+    }).detach();
+ 
 
+    system("pause");
 }
 
-
-
-
+//https://cloud.tencent.com/developer/article/1173539
+//https://www.sohu.com/a/233039447_827544
+//https://blog.csdn.net/weiwenhp/article/details/8507207
 
