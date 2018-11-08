@@ -57,34 +57,31 @@ namespace sstd {
             std::shared_ptr<FunctionData> data;
         };
 
-        class _0_ThisFiber : 
-            public boost::context::fiber ,
-            public FunctionData {
-            using Super = boost::context::fiber;
-            using Stack = boost::context::protected_fixedsize_stack;
-        public:
-            template<typename Fun, typename =
-                std::enable_if_t<false == std::is_same_v<_0_ThisFiber, std::remove_cv_t<
-                std::remove_reference_t< Fun > > > > >
-                inline _0_ThisFiber(Fun &&);
-            _0_ThisFiber(_0_ThisFiber &&) = default;
-            _0_ThisFiber&operator=(_0_ThisFiber &&) = default;
-            _0_ThisFiber() = default;
-        public:
-            _0_ThisFiber(const _0_ThisFiber &) = delete;
-            _0_ThisFiber&operator=(const _0_ThisFiber &) = delete;
-        };
-
-        template<typename Fun, typename >
-        inline  _0_ThisFiber::_0_ThisFiber(Fun && arg) :
-            Super(std::allocator_arg, Stack{ 10 * 1024 * 1024 }, std::forward<Fun>(arg)) {
-        }
-
     }/**/
 
-    class FunctionStack::Fiber : public _0_ThisFiber {
+    class FunctionStack::Fiber : public FunctionData {
+        boost::context::fiber mmm_Fiber;
     public:
-        using _0_ThisFiber::_0_ThisFiber;
+        Fiber() = default;
+        Fiber(Fiber &&) = delete;
+        Fiber&operator=(Fiber && arg) {
+            if (this == &arg) {
+                return *this;
+            }
+            mmm_Fiber = std::move(arg.mmm_Fiber);
+            return *this;
+        }
+        template<typename Fun, typename =
+            std::enable_if_t<false == std::is_same_v<Fiber, std::remove_cv_t<
+            std::remove_reference_t< Fun > > > > >
+            inline Fiber(Fun &&arg) : mmm_Fiber(std::forward<Fun>(arg)) {
+        }
+        inline operator bool() const {
+            return bool(mmm_Fiber);
+        }
+        void resume() {
+            mmm_Fiber = std::move(mmm_Fiber).resume();
+        }
     };
 
     FunctionStack::FunctionStack() {
@@ -97,7 +94,11 @@ namespace sstd {
         delete mmm_MemoryPool;
     }
 
-    FunctionData * FunctionStack::call(Function * arg) try {
+    FunctionData * FunctionStack::call(Function * arg) {
+        return ppp_call(arg);
+    }
+
+    FunctionData * FunctionStack::ppp_call(Function * arg) try {
 
         if (arg == nullptr) {
             this->error("empty input"sv);
@@ -105,8 +106,8 @@ namespace sstd {
 
         /*清除状态*/
         this->hasError = false;
-        this->isEndl   = false;
-        this->isYield  = false;
+        this->isEndl = false;
+        this->isYield = false;
 
         /*set current ...*/
         this->currentFunction = arg;
@@ -123,47 +124,60 @@ namespace sstd {
             error("can not resume function not yield!"sv);
         }
         this->isYield = false;
-        this->isYieldInLoop = false;
         return this->next_call();
     } catch (...) {
         return this->when_error();
     }
 
     void FunctionStack::yield() const {
-
         if (isEndl) {
             this->error("can not yield function endl!"sv);
         }
-
         if (hasError) {
             this->error("can not yield function error!"sv);
         }
-
         const_cast<bool &>(isYield) = true;
+        mmm_Fiber->resume();
     }
 
     FunctionData *FunctionStack::next_call() {
-        for (;;) {
-            currentFunction->call(this);
-            if (currentFunction->next) {
-                if ((this->isYield) && (this->isYieldInLoop)) {
-                    /*在while , for ,dowhile 里面yield...*/
-                    return YieldAns::create();
+
+        if (false == bool(*mmm_Fiber)) {
+            *mmm_Fiber = std::move(Fiber([this](boost::context::fiber && f) ->boost::context::fiber {
+                for (;;) {
+
+                    try {
+                        this->currentFunction->call(this);
+                    } catch (...) {
+                        this->when_error();
+                        return std::move(f);
+                    }
+
+                    if (currentFunction->next) {
+                        continue;
+                    } else {
+                        /*获得结果*/
+                        isEndl = true;
+                        isYield = false;
+                        hasError = false;
+                        return std::move(f);
+                    }
+
                 }
-                currentFunction = currentFunction->next;
-                if (this->isYield) {
-                    /*在非循环函数里面yield...*/
-                    return YieldAns::create();
-                }
-            } else {
-                /*获得结果*/
-                isEndl = true;
-                isYield = false;
-                hasError = false;
-                /*当前函数栈应当被删除...*/
-                return currentFunction->ans;
-            }
+            }));
+        }/***************************************/
+
+        mmm_Fiber->resume();
+
+        if (isYield) {
+            return YieldAns::create();
         }
+
+        if (hasError) {
+            return this->mmm_ThisError->get();
+        }
+
+        return currentFunction->ans;
     }
 
     void FunctionStack::error(std::string_view arg) const {
@@ -203,14 +217,6 @@ namespace sstd {
         }
     }
 
-    bool Function::set_to_yield(const FunctionStack * L) {
-        if (L->isYield) {
-            const_cast<bool &>(L->isYieldInLoop) = true;
-            return true;
-        }
-        return false;
-    }
-
     void ForFunction::call(const FunctionStack * L) {
         for (; (whenJudge ? (whenJudge->call(L)) : true); ) {
             if (whenRun) {
@@ -218,10 +224,6 @@ namespace sstd {
             }
             if (whenNext) {
                 whenNext->call(L);
-            }
-            /*yield ? ...*/
-            if (set_to_yield(L)) {
-                return;
             }
         }
         /*set the ans...*/
@@ -248,10 +250,6 @@ namespace sstd {
         while (whenJudge ? (whenJudge->call(L)) : true) {
             if (whenRun) {
                 whenRun->call(L);
-            }
-            /*yield*/
-            if (set_to_yield(L)) {
-                return;
             }
         }
         /*set the ans...*/

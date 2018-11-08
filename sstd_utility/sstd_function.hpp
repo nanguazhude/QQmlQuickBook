@@ -69,8 +69,6 @@ namespace sstd {
         FunctionData * ans{ nullptr }/*只有当next==nullptr才应当设置这个值*/;
         virtual void call(const FunctionStack *) = 0;
     protected:
-        bool set_to_yield(const FunctionStack *);
-    protected:
         friend class sstd::FunctionStack;
     };
 
@@ -142,7 +140,6 @@ namespace sstd {
         friend class sstd::Function/*function*/;
     protected:
         Function * currentFunction{ nullptr };
-        bool isYieldInLoop{ false };
         virtual ~FunctionStackState();
     public:
         bool isEndl{ false };
@@ -201,6 +198,7 @@ public:
     protected:
         FunctionData * when_error();
         FunctionData *next_call();
+        FunctionData * ppp_call(Function * arg);
     };
 }/*namespace sstd*/
 
