@@ -1,5 +1,6 @@
 ﻿
 #include <sstd_function.hpp>
+extern void test_boost_context();
 
 /*简单测试...*/
 void test_one_add_one() {
@@ -119,6 +120,7 @@ int main(int, char **) {
     test_add_yield();
     simple_test_if_else();
     test_fibonacci_sequence();
+    test_boost_context();
 
     return 0;
 }

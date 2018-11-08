@@ -17,6 +17,7 @@ include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
 
 SOURCES += $$PWD/main.cpp
+SOURCES += $$PWD/boost_context.cpp
 
 #force add application dir to library search dir
 !win32 {
