@@ -11,21 +11,21 @@ class Fiber : public boost::context::fiber {
     using Super = boost::context::fiber;
     using Stack = boost::context::protected_fixedsize_stack;
 public:
-    template<typename Fun , typename = 
+    template<typename Fun, typename =
         std::enable_if_t<false == std::is_same_v<Fiber, std::remove_cv_t<
         std::remove_reference_t< Fun > > > > >
-    inline Fiber(Fun &&);
+        inline Fiber(Fun &&);
     Fiber(Fiber &&) = default;
     Fiber&operator=(Fiber &&) = default;
     Fiber() = default;
 public:
-    Fiber(const Fiber &)=delete;
-    Fiber&operator=(const Fiber &)=delete;
+    Fiber(const Fiber &) = delete;
+    Fiber&operator=(const Fiber &) = delete;
 };
 
-template<typename Fun ,typename >
+template<typename Fun, typename >
 inline Fiber::Fiber(Fun && arg) :
-    Super(std::allocator_arg, Stack{ 10 * 1024 * 1024 },std::forward<Fun>(arg)) {
+    Super(std::allocator_arg, Stack{ 10 * 1024 * 1024 }, std::forward<Fun>(arg)) {
 }
 
 void test_boost_context() {
@@ -106,9 +106,83 @@ void test_boost_context() {
         }
     }
 
-    
+
+
+    {
+        class Function;
+        class Data {
+        public:
+            std::vector<int> data;
+            std::forward_list< std::shared_ptr<Function> > call_list;
+        };
+
+        class Function : public boost::context::fiber {
+        public:
+            using Super = boost::context::fiber;
+            Data * data;
+            int arg;
+            bool isfinished = false;
+            Function(Data * d, int a) :data(d), arg(a) {
+                Super::operator=(Super([this](Super &&arg)->Super {
+                    return this->call_function(std::move(arg)); }));
+            }
+            Super call_function(Super && f) {
+
+                if (arg < data->data.size()) {
+                    isfinished = true;
+                    return std::move(f);
+                }
+
+                auto input0 = arg - 1;
+                auto input1 = arg - 2;
+                auto ans0 = 1;
+                auto ans1 = 2;
+
+            redo_input_0:
+                if (input0 < data->data.size()) {
+                    ans0 = data->data[input0];
+                } else {
+                    data->call_list.push_front(std::make_shared< Function >(data, input0));
+                    f = std::move(f).resume();
+                    goto redo_input_0;
+                }
+
+            redo_input_1:
+                if (input1 < data->data.size()) {
+                    ans1 = data->data[input1];
+                } else {
+                    data->call_list.push_front(std::make_shared< Function >(data, input1));
+                    f = std::move(f).resume();
+                    goto redo_input_1;
+                }
+
+                data->data.push_back(ans1 + ans0);
+                std::cout << "get value : "sv << arg << std::endl;
+                isfinished = true;
+                return std::move(f);
+            }
+        };
+
+        Data varData;
+        varData.data.push_back(0);
+        varData.data.push_back(1);
+        varData.data.push_back(1);
+        varData.call_list.push_front(std::make_shared< Function >(&varData, 10));
+
+        while (varData.call_list.empty() == false) {
+            if (varData.call_list.front()->isfinished) {
+                varData.call_list.pop_front();
+                continue;
+            }
+            varData.call_list.front()->Super::operator=(
+                std::move(*varData.call_list.front()).resume());
+        }
+
+
+    }
+
     //std::thread([]() { system("pause"); }).join();
-    
+
 }
 
 //https://cloud.tencent.com/developer/article/1173539
