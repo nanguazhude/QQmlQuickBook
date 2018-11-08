@@ -64,11 +64,8 @@ namespace sstd {
     public:
         Fiber() = default;
         Fiber(Fiber &&) = delete;
-        Fiber&operator=(Fiber && arg) {
-            if (this == &arg) {
-                return *this;
-            }
-            mmm_Fiber = std::move(arg.mmm_Fiber);
+        Fiber&operator=(boost::context::fiber && arg) {
+            mmm_Fiber = std::move(arg);
             return *this;
         }
         template<typename Fun, typename =
@@ -143,7 +140,7 @@ namespace sstd {
     FunctionData *FunctionStack::next_call() {
 
         if (false == bool(*mmm_Fiber)) {
-            *mmm_Fiber = std::move(Fiber([this](boost::context::fiber && f) ->boost::context::fiber {
+            *mmm_Fiber = boost::context::fiber([this](boost::context::fiber && f) ->boost::context::fiber {
                 for (;;) {
 
                     try {
@@ -164,7 +161,7 @@ namespace sstd {
                     }
 
                 }
-            }));
+            }) ;
         }/***************************************/
 
         mmm_Fiber->resume();
