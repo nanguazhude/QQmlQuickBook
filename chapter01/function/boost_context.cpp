@@ -1,26 +1,9 @@
 ﻿#include <sstd_memory_lock.hpp>
 #include <boost/context/fiber.hpp>
-
+#include <boost/context/protected_fixedsize_stack.hpp>
 
 extern void test_boost_context();
 #include <iostream>
-
-class X12 {
-public:
-    void * data;
-    void malloc() {
-        data = std::malloc(1024*1024);
-    }
-    void free() {
-        std::free( data );
-    }
-    X12() {
-        this->malloc();
-    }
-    ~X12() {
-        this->free();
-    }
-};
 
 void test_boost_context() {
 
@@ -51,7 +34,7 @@ void test_boost_context() {
 
     {
         using fiber = boost::context::fiber;
-        fiber f(std::allocator_arg, boost::context::fixedsize_stack{ 128 * 1024 }, [](fiber && f)->fiber {
+        fiber f(std::allocator_arg, boost::context::protected_fixedsize_stack{ 128 * 1024 }, [](fiber && f)->fiber {
             class Lock {
             public:
                 Lock() {
@@ -60,10 +43,10 @@ void test_boost_context() {
                 ~Lock() {
                     std::cout << "End Lock"sv << std::endl;
                 }
-            } lock ;
+            } lock;
             f = std::move(f).resume();
             std::cout << "2"sv << std::endl;
-            return std::move(f)  ;
+            return std::move(f);
         });
 
         f = std::move(f).resume();
@@ -72,17 +55,28 @@ void test_boost_context() {
 
     }
 
-    std::thread(
-        []() {
-        X12 p[10000];
-        //for (int i = 0; i < 10000; ++i) {
-        //    p[i].malloc();
-        //}
-        std::this_thread::sleep_for( 1024s );
+    std::thread([] {
+        using fiber = boost::context::fiber;
+        for (auto i = 0; i < 1000; ++i) {
+            new fiber(std::allocator_arg, boost::context::protected_fixedsize_stack{ 1024 * 1024 }, [](fiber && f)->fiber {
+                class Lock {
+                public:
+                    Lock() {
+                        std::cout << "Begin Lock"sv << std::endl;
+                    }
+                    ~Lock() {
+                        std::cout << "End Lock"sv << std::endl;
+                    }
+                } lock;
+                f = std::move(f).resume();
+                std::cout << "2"sv << std::endl;
+                return std::move(f);
+            });
+        }
     }).detach();
- 
 
-    system("pause");
+    std::thread([]() { system("pause"); }).join();
+    //system("pause");
 }
 
 //https://cloud.tencent.com/developer/article/1173539
