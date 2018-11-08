@@ -34,12 +34,25 @@ void test_boost_context() {
 
     {
         using fiber = boost::context::fiber;
-        fiber f(std::allocator_arg, boost::context::fixedsize_stack{ 8*1024 }, [](fiber && f)->fiber {
-            std::cout << "Hellow World"sv << std::endl;
-            return std::move(f);
+        fiber f(std::allocator_arg, boost::context::fixedsize_stack{ 128 * 1024 }, [](fiber && f)->fiber {
+            class Lock {
+            public:
+                Lock() {
+                    std::cout << "Begin Lock"sv << std::endl;
+                }
+                ~Lock() {
+                    std::cout << "End Lock"sv << std::endl;
+                }
+            } lock ;
+            f = std::move(f).resume();
+            std::cout << "2"sv << std::endl;
+            return std::move(f)  ;
         });
 
         f = std::move(f).resume();
+        std::cout << "1"sv << std::endl;
+        f = std::move(f).resume();
+
     }
 
 
