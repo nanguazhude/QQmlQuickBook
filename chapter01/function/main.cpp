@@ -28,10 +28,10 @@ void test_add_yield() {
         int a = 5555;
     };
     auto varPack = std::make_shared<Function>();
-    auto varFunction1 = varFunctionStack->createFunction([varPack](const auto *) {
+    auto varFunction1 = varFunctionStack->createFunction([varPack](const sstd::FunctionStack *) {
         ++(varPack->a);
     });
-    auto varFunction2 = varFunctionStack->createFunction([varPack](const auto * L) {
+    auto varFunction2 = varFunctionStack->createFunction([varPack](const sstd::FunctionStack * L) {
         varPack->a = 1;
         L->yield();
         ++(varPack->a);
