@@ -1,8 +1,8 @@
 ﻿#include "sstd_geometry_2d.hpp"
-#include "../sstd/boost/circular_buffer.hpp"
-#include "../sstd/boost/bimap.hpp"
-#include "../sstd/boost/geometry.hpp"
-#include "../sstd/boost/geometry/index/rtree.hpp"
+#include <boost/circular_buffer.hpp>
+#include <boost/bimap.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/index/rtree.hpp>
 
 #ifndef getPrivate
 #define getPrivate() static_cast< ThisP * >( getThisPrivate() )

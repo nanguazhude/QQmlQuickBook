@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../sstd/boost/config.hpp"
+#include <boost/config.hpp>
 
 #if defined(_1_SSTD_CORE_LIBRARY)
 

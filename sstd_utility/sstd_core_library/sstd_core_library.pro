@@ -25,6 +25,7 @@ SOURCES += $$PWD/sstd_core_function.cpp
     QMAKE_LFLAGS += -Wl,-rpath .
 }
 
+include($$PWD/../sstd_boost/sstd_boost.pri)
 
 
 
