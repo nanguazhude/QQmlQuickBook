@@ -39,6 +39,9 @@ namespace sstd {
             inline virtual bool isYield() const {
                 return false;
             }
+            inline virtual bool isEmpty() const {
+                return false;
+            }
         private:
             SSTD_MEMORY_DEFINE(DataBasic)
         };
@@ -56,6 +59,15 @@ namespace sstd {
         static YieldAns * create();
     protected:
         friend class sstd::FunctionStack;
+    };
+
+    class _7_SSTD_FUNCTION_EXPORT_ EmptyAns :
+        public private_sstd_function_stack::DataBasic {
+    public:
+        inline virtual bool isEmpty() const override {
+            return true;
+        }
+        static EmptyAns * create();
     };
 
     class _7_SSTD_FUNCTION_EXPORT_ Function :

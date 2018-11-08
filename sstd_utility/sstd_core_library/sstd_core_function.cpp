@@ -19,6 +19,11 @@ namespace sstd {
         return varAns;
     }
 
+    EmptyAns * EmptyAns::create() {
+        const static auto varAns = sstdNew<EmptyAns>();
+        return varAns;
+    }
+
     Function::~Function() {
     }
 
@@ -138,6 +143,7 @@ namespace sstd {
     }
 
     FunctionData *FunctionStack::next_call() {
+        assert(currentFunction);
 
         if (false == bool(*mmm_Fiber)) {
             *mmm_Fiber = boost::context::fiber(std::allocator_arg,
@@ -176,7 +182,12 @@ namespace sstd {
             return this->mmm_ThisError->get();
         }
 
-        return currentFunction->ans;
+        assert(currentFunction);
+        if (currentFunction->ans) {
+            return currentFunction->ans;
+        }
+
+        return EmptyAns::create();
     }
 
     void FunctionStack::error(std::string_view arg) const {
