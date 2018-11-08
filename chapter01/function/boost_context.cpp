@@ -55,10 +55,15 @@ void test_boost_context() {
 
     }
 
-    std::thread([] {
+    {/*virtual memory ...*/
+        enum {
+            test_memory_size = 1024 
+        };
         using fiber = boost::context::fiber;
-        for (auto i = 0; i < 1000; ++i) {
-            new fiber(std::allocator_arg, boost::context::protected_fixedsize_stack{ 1024 * 1024 }, [](fiber && f)->fiber {
+        std::vector<fiber *> fibers;
+        fibers.reserve(test_memory_size);
+        for (auto i = 0; i < test_memory_size ; ++i) {
+            fibers.push_back( new fiber(std::allocator_arg, boost::context::protected_fixedsize_stack{ 1024 * 1024 }, [](fiber && f)->fiber {
                 class Lock {
                 public:
                     Lock() {
@@ -71,9 +76,14 @@ void test_boost_context() {
                 f = std::move(f).resume();
                 std::cout << "2"sv << std::endl;
                 return std::move(f);
-            });
+            }) );
         }
-    }).detach();
+        for (auto i : fibers) {
+            *i = std::move(*i).resume();
+        }
+    }
+
+
 
     std::thread([]() { system("pause"); }).join();
     //system("pause");
