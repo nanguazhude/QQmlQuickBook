@@ -37,5 +37,8 @@ include($$PWD/sstd_utility/time/time.pri)
 include($$PWD/sstd_utility/sstd_boost/sstd_boost.pri)
 win32{
     QMAKE_LIBDIR += $$RootDestDir
+}else{
+    LIBS += -lboost_context
+    LIBS += -lboost_system
 }
 

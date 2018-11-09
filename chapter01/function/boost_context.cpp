@@ -120,7 +120,7 @@ void test_boost_context() {
         public:
             using Super = boost::context::fiber;
             Data * data;
-            int arg;
+            unsigned int arg;
             bool isfinished = false;
             Function(Data * d, int a) :data(d), arg(a) {
                 Super::operator=(Super([this](Super &&arg)->Super {
