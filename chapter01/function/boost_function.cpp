@@ -21,7 +21,10 @@ void test_boost_function(){
 
 
     {
-        boost::packaged_task<int(void)> test  ;
+        boost::packaged_task<int(void)> test(boost::allocator_arg, 
+            std::allocator<int>{}, 
+            []() {return 0; });
+        //auto f = test.get_future();
     }
 
 }
