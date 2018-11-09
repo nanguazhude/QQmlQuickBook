@@ -1,6 +1,8 @@
 ﻿#include <boost/function.hpp>
 #include <iostream>
 #include <memory_resource>
+#include <boost/thread.hpp>
+#include <future>
 
 void test_boost_function(){
 
