@@ -27,7 +27,14 @@ SOURCES += $$PWD/sstd_core_function.cpp
 
 include($$PWD/../sstd_boost/sstd_boost.pri)
 
-
+win32 {
+CONFIG(debug,debug|release){
+    LIBS += -L$$PWD/windows_jemalloc -ljemallocd
+}else{
+    LIBS += -L$$PWD/windows_jemalloc -ljemalloc
+}
+    INCLUDEPATH += $$PWD/windows_jemalloc/include
+}
 
 
 

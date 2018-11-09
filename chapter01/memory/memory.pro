@@ -18,6 +18,7 @@ include($$PWD/../../QQmlQuickBook.pri)
 DESTDIR = $$RootDestDir
 
 SOURCES += $$PWD/main.cpp
+SOURCES += $$PWD/test_intrusive_ptr.cpp
 
 #force add application dir to library search dir
 !win32 {
