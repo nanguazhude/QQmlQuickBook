@@ -43,7 +43,7 @@ namespace sstd {
         using std_future::valid;
         using std_future::wait_for;
         using std_future::wait_until;
-        const bool isIgnored() const volatile {
+        bool isIgnored() const volatile {
             return mmm_IsIgnored.load();
         }
     public:
