@@ -34,6 +34,9 @@ CONFIG(debug,debug|release){
     LIBS += -L$$PWD/windows_jemalloc -ljemalloc
 }
     INCLUDEPATH += $$PWD/windows_jemalloc/include
+}else{
+    LIBS += -L$$RootDestDir -ljemalloc
+    INCLUDEPATH += $$PWD/posix_jemalloc/include
 }
 
 

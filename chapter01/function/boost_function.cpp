@@ -1,6 +1,10 @@
 ﻿#include <boost/function.hpp>
 #include <iostream>
+#if __has_include(<memory_resource>)
 #include <memory_resource>
+#else
+#include <memory>
+#endif
 #include <boost/thread.hpp>
 #include <future>
 
