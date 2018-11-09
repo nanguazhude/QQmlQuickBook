@@ -41,4 +41,4 @@ win32{
     LIBS += -lboost_context
     LIBS += -lboost_system
 }
-
+DEFINES *= BOOST_THREAD_PROVIDES_FUTURE_CTOR_ALLOCATORS

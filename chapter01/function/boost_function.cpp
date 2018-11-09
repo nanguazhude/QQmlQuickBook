@@ -15,6 +15,15 @@ void test_boost_function(){
     }, std::allocator<int>{});
     hellowWorld();
 
+    {/*测试allocator*/
+        std::promise<int> p( std::allocator_arg,std::allocator<int>{} );
+    }
+
+
+    {
+        boost::packaged_task<int(void)> test  ;
+    }
+
 }
 
 
