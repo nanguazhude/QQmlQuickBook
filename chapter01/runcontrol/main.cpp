@@ -10,6 +10,9 @@
 #include <ctime>
 #include <cstdlib>
 
+#include <thread>
+#include <iostream>
+
 #include <boost/context/fiber.hpp>
 
 #include "RootWindow.hpp"
@@ -58,31 +61,13 @@ void mainSwapFunction(Fiber * argFiber) {
     );
 };
 
-
-class IOService : public boost::asio::execution_context::service {
-    using Super = boost::asio::execution_context::service;
-public:
-    IOService(boost::asio::execution_context & arg) : Super(arg) {
-    }
-    void shutdown() {
-    }
-    void notify_fork(boost::asio::execution_context::fork_event ) override {
-        qDebug() << "????";
-    }
-
-    
-
-};
-
- 
-
 class IOContext : public boost::asio::io_context {
     using Super = boost::asio::io_context;
 public:
     IOContext() {
-        boost::asio::add_service(*this,sstdNew<IOService>(*this));
     }
-    
+    ~IOContext() {
+    }
 };
 
 
@@ -136,13 +121,22 @@ int main(int argc, char ** argv) {
     auto varNetWorkFunction = [](Fiber && argFiber)->Fiber {
         IOContext varNetworkContext;
         while (varMainPack.isQuit == false) {
-            while (varNetworkContext.poll_one()) {
-                 
+            {
+                int varIndex = 1024/*添加最多执行次数*/;
+                while (varNetworkContext.poll_one()) {
+                    --varIndex;
+                    if (varIndex < 0) {
+                        break;
+                    }
+                }
             }
-            boost::asio::post(varNetworkContext, 
-                []() {qDebug() << "do something about network!"; });
+            boost::asio::post(varNetworkContext,
+                []() {
+                std::cout << std::this_thread::get_id() <<std::endl ;
+            });
             argFiber = std::move(argFiber).resume() /*切换到主调度函数*/;
         }
+        
         return std::move(argFiber);
     };
 
