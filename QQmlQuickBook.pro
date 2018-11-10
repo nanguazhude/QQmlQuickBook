@@ -114,3 +114,8 @@ SUBDIRS += quickchartimageborder
 multimediaplayer.file = $$PWD/chapter05/multimediaplayer/multimediaplayer.pro
 multimediaplayer.depends = buildinstall
 SUBDIRS += multimediaplayer
+
+runcontrol.file = $$PWD/chapter01/runcontrol/runcontrol.pro
+runcontrol.depends = buildinstall
+SUBDIRS += runcontrol
+
