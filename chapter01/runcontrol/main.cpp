@@ -1,4 +1,6 @@
-﻿/*引入各个模块的头文件*/
+﻿#define  _WIN32_WINNT 0x0501
+#include <boost/asio.hpp>
+/*引入各个模块的头文件*/
 #include <QtGui>
 #include <QtQml>
 #include <QtCore>
@@ -49,19 +51,47 @@ void mainSwapFunction(Fiber * argFiber) {
     }
     /*1ms之后再次运行此函数*/
     QTimer::singleShot(1, &varMainPack, [argFiber]() {
-        if ( varMainPack.isQuit ) {
+        if (varMainPack.isQuit) {
             return;
         }
         mainSwapFunction(argFiber); }
     );
 };
 
+
+class IOService : public boost::asio::execution_context::service {
+    using Super = boost::asio::execution_context::service;
+public:
+    IOService(boost::asio::execution_context & arg) : Super(arg) {
+    }
+    void shutdown() {
+    }
+    void notify_fork(boost::asio::execution_context::fork_event ) override {
+        qDebug() << "????";
+    }
+
+    
+
+};
+
+ 
+
+class IOContext : public boost::asio::io_context {
+    using Super = boost::asio::io_context;
+public:
+    IOContext() {
+        boost::asio::add_service(*this,sstdNew<IOService>(*this));
+    }
+    
+};
+
+
 int main(int argc, char ** argv) {
     {
         varMainPack.argc = argc;
         varMainPack.argv = argv;
     }
-    
+
     auto varMainFunction = [](Fiber && argFiber) ->Fiber {
         /*高分屏支持*/
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -104,8 +134,13 @@ int main(int argc, char ** argv) {
     };
 
     auto varNetWorkFunction = [](Fiber && argFiber)->Fiber {
+        IOContext varNetworkContext;
         while (varMainPack.isQuit == false) {
-            qDebug() << "do something about network!";
+            while (varNetworkContext.poll_one()) {
+                 
+            }
+            boost::asio::post(varNetworkContext, 
+                []() {qDebug() << "do something about network!"; });
             argFiber = std::move(argFiber).resume() /*切换到主调度函数*/;
         }
         return std::move(argFiber);
@@ -123,11 +158,11 @@ int main(int argc, char ** argv) {
     );
 
     /*主调度函数*/
-    while ( varMainPack.isQuit == false ) {
-        varMain    = std::move(varMain).resume();
+    while (varMainPack.isQuit == false) {
+        varMain = std::move(varMain).resume();
         varNetWork = std::move(varNetWork).resume();
     }
-    
+
     return varMainPack.ans;
 }
 
