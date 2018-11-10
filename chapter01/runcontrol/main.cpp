@@ -8,6 +8,8 @@
 #include <ctime>
 #include <cstdlib>
 
+#include <boost/context/fiber.hpp>
+
 #include "RootWindow.hpp"
 #include "Application.hpp"
 
@@ -28,33 +30,104 @@ namespace {
 
 }/*namespace*/
 
-int main(int argc, char ** argv) {
-    /*高分屏支持*/
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    /*重置随机数种子*/
-    resetRandom();
-    /*初始化Qt环境*/
-    Application varApp(argc, argv);
-    /*强制加载Qt插件*/
-    loadQtPlugins();
-    /*初始化Qml/Quick引擎*/
-    RootWindow varWindow;
-    {
-        /*main.qml完整目录*/
-        const auto varMainQmlFileName =
-            sstd::getLocalFileFullPath(QStringLiteral("myqml/runcontrol/main.qml"));
-        /*加载main.qml*/
-        varWindow.load(varMainQmlFileName);
-        /*检查并报错*/
-        if (varWindow.status() != sstd::LoadState::Ready) {
-            qDebug() << "can not load : " << varMainQmlFileName;
-            return -1;
-        }
-        else {
-            varWindow.show();
-        }
+constexpr const static std::size_t varMainStackSize = 1024 * 1024 * 10;
+class MainPack : public QObject {
+public:
+    int argc;
+    char ** argv;
+    int ans{ 0 };
+    bool isQuit{ false };
+} varMainPack;
+using Fiber = boost::context::fiber;
+
+void mainSwapFunction(Fiber * argFiber) {
+    if (*argFiber) {
+        /*处理完当前Qt事件队列中的所有事件*/
+        qApp->processEvents();
+        /*切换到主调度函数*/
+        *argFiber = std::move(*argFiber).resume();
     }
-    /*启动主线程事件循环程序*/
-    return varApp.exec();
+    /*1ms之后再次运行此函数*/
+    QTimer::singleShot(1, &varMainPack, [argFiber]() {
+        if ( varMainPack.isQuit ) {
+            return;
+        }
+        mainSwapFunction(argFiber); }
+    );
+};
+
+int main(int argc, char ** argv) {
+    {
+        varMainPack.argc = argc;
+        varMainPack.argv = argv;
+    }
+    
+    auto varMainFunction = [](Fiber && argFiber) ->Fiber {
+        /*高分屏支持*/
+        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        /*重置随机数种子*/
+        resetRandom();
+        /*初始化Qt环境*/
+        Application varApp(varMainPack.argc, varMainPack.argv);
+        /*此协程退出，标记为主函数退出*/
+        class MainLock {
+        public:
+            MainLock() = default;
+            ~MainLock() {
+                varMainPack.isQuit = true;
+            }
+        } varMainLock{};
+        /*强制加载Qt插件*/
+        loadQtPlugins();
+        /*初始化Qml/Quick引擎*/
+        RootWindow varWindow;
+        {
+            /*main.qml完整目录*/
+            const auto varMainQmlFileName =
+                sstd::getLocalFileFullPath(QStringLiteral("myqml/runcontrol/main.qml"));
+            /*加载main.qml*/
+            varWindow.load(varMainQmlFileName);
+            /*检查并报错*/
+            if (varWindow.status() != sstd::LoadState::Ready) {
+                qDebug() << "can not load : " << varMainQmlFileName;
+                varMainPack.ans = -1;
+                return std::move(argFiber);
+            } else {
+                varWindow.show();
+            }
+        }
+        /*启动轮询切换到主调度函数*/
+        mainSwapFunction(&argFiber);
+        /*启动主线程事件循环程序*/
+        varMainPack.ans = varApp.exec();
+        return std::move(argFiber);
+    };
+
+    auto varNetWorkFunction = [](Fiber && argFiber)->Fiber {
+        while (varMainPack.isQuit == false) {
+            qDebug() << "do something about network!";
+            argFiber = std::move(argFiber).resume() /*切换到主调度函数*/;
+        }
+        return std::move(argFiber);
+    };
+
+    Fiber varMain(
+        std::allocator_arg,
+        boost::context::fixedsize_stack(varMainStackSize),
+        varMainFunction);
+
+    Fiber varNetWork(
+        std::allocator_arg,
+        boost::context::fixedsize_stack(varMainStackSize),
+        varNetWorkFunction
+    );
+
+    /*主调度函数*/
+    while ( varMainPack.isQuit == false ) {
+        varMain    = std::move(varMain).resume();
+        varNetWork = std::move(varNetWork).resume();
+    }
+    
+    return varMainPack.ans;
 }
 
