@@ -129,7 +129,6 @@ namespace sstd {
                 return;
             }
             arg.save(&varFile, "png");
-
         });
     }
 

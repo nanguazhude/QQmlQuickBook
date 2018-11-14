@@ -77,7 +77,8 @@ else use :
     auto varWindow = sstd::make_unique<sstd::Window>();
     bool isFinished = false;
     if (varInputOutPutIsSet) {
-        const auto varOutPutImageFile = varParser.value(QStringLiteral("o"));
+        QDir varDir;
+        const auto varOutPutImageFile = varDir.absoluteFilePath(varParser.value(QStringLiteral("o")) ) ;
         varWindow->connect(varWindow.get(), &sstd::Window::renderFinished, 
             [varOutPutImageFile,&isFinished](const QImage & varSaveImage) {
             varSaveImage.save(varOutPutImageFile);
@@ -91,8 +92,9 @@ else use :
             }
             qApp->quit();
             isFinished = true;
+            std::exit(0);
         });
-        varWindow->startRender(varParser.value(QStringLiteral("i")));
+        varWindow->startRender(varDir.absoluteFilePath(varParser.value(QStringLiteral("i"))));
     } else {
         varWindow->show();
     }
