@@ -178,8 +178,9 @@ namespace sstd {
             void setSource(const QUrl & arg) noexcept(false) {
                 auto varComponent = sstd::sstdNew<QQmlComponent>(&mmm_Engine, arg);
                 varComponent->deleteLater();
-                if (varComponent->status() != QQmlComponent::Ready) {
-                    if (varComponent->status() == QQmlComponent::Error) {
+                auto varState = varComponent->status();
+                if (varState != QQmlComponent::Ready) {
+                    if (varState == QQmlComponent::Error) {
                         QString varErrorString;
                         for (const auto & varE : varComponent->errors()) {
                             varErrorString += varE.toString();
@@ -190,6 +191,18 @@ namespace sstd {
                     throw QStringLiteral("can not load qml sync...");
                 }
                 auto varItemRaw = varComponent->create();
+                varState = varComponent->status();
+                if (varState != QQmlComponent::Ready) {
+                    if (varState == QQmlComponent::Error) {
+                        QString varErrorString;
+                        for (const auto & varE : varComponent->errors()) {
+                            varErrorString += varE.toString();
+                            varErrorString += QChar('\n');
+                        }
+                        throw varErrorString;
+                    }
+                    throw QStringLiteral("can not load qml sync...");
+                }
                 auto varItem = qobject_cast<QQuickItem *>(varItemRaw);
                 if (varItem == nullptr) {
                     if (varItemRaw) {
