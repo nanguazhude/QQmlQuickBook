@@ -8,7 +8,7 @@ const sstd_virtual_basic::sstd_type_index & sstd_virtual_basic::sstd_get_type_in
 }
 
 sstd_virtual_basic::sstd_virtual_basic() noexcept {
-    mmm_objects = new std::map< sstd_type_index, void * >;
+    mmm_objects = new _01_00_private_sstd_virtual_basic::map< sstd_type_index, void * >;
     sstd_add_object_cast(this->sstd_get_type_index(), this);
 }
 

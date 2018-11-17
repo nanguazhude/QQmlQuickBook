@@ -14,6 +14,11 @@
 #include <forward_list>
 
 namespace _01_00_private_sstd_virtual_basic {
+    using string = std::string;
+    template<typename T>
+    using forward_list = std::forward_list<T>;
+    template<typename K,typename T>
+    using map = std::map<K,T>;
     template<typename T, typename U>
     class alignas((alignof(T) > alignof(void *)) ? alignof(T) : alignof(void *)) object_wrap final : public U{
         T mmm_data;
@@ -53,7 +58,7 @@ namespace _01_00_private_sstd_virtual_basic {
         object() noexcept;
     };
     class named_object : public object {
-        using string_type = object_wrap<std::string, object>;
+        using string_type = object_wrap<_01_00_private_sstd_virtual_basic::string, object>;
         string_type * mmm_name{ nullptr };
     public:
         named_object() noexcept;
@@ -85,11 +90,11 @@ public:
     std::shared_ptr< std::recursive_mutex > sstd_get_class_mutex() const noexcept /*此函数线程安全*/;
 private:
     using mutex_t_t = _01_00_private_sstd_virtual_basic::object_wrap<std::shared_ptr< std::recursive_mutex >, private_object_t>;
-    using maped_named_objects_t = std::map< std::string_view, private_object_t * >;
-    using mmm_objects_in_this_t = std::forward_list< std::unique_ptr< private_object_t > >;
+    using maped_named_objects_t = _01_00_private_sstd_virtual_basic::map< std::string_view, private_object_t * >;
+    using mmm_objects_in_this_t = _01_00_private_sstd_virtual_basic::forward_list< std::unique_ptr< private_object_t > >;
     using maped_named_objects_t_t = _01_00_private_sstd_virtual_basic::object_wrap<maped_named_objects_t, private_object_t>;
     using mmm_objects_in_this_t_t = _01_00_private_sstd_virtual_basic::object_wrap<mmm_objects_in_this_t, private_object_t>;
-    std::map< sstd_type_index, void * > * mmm_objects;
+    _01_00_private_sstd_virtual_basic::map< sstd_type_index, void * > * mmm_objects;
     maped_named_objects_t_t * mmm_named_objects{ nullptr };
     mmm_objects_in_this_t_t * mmm_objects_in_this{ nullptr };
     mutable std::atomic< mutex_t_t * > mmm_mutex{ nullptr };
