@@ -8,7 +8,7 @@ const sstd_virtual_basic::sstd_type_index & sstd_virtual_basic::sstd_get_type_in
 }
 
 sstd_virtual_basic::sstd_virtual_basic() noexcept {
-    mmm_objects = new _01_00_private_sstd_virtual_basic::map< sstd_type_index, void * >;
+    mmm_objects = new items_map_t_t;
     sstd_add_object_cast(this->sstd_get_type_index(), this);
 }
 
@@ -21,12 +21,12 @@ sstd_virtual_basic::~sstd_virtual_basic() {
 }
 
 void sstd_virtual_basic::sstd_add_object_cast(const sstd_type_index & k, void * v) {
-    mmm_objects->emplace(k, v);
+    mmm_objects->get_type_data()->emplace(k, v);
 }
 
 void * sstd_virtual_basic::sstd_find_object(const sstd_type_index & k) const {
-    auto varPos = (std::as_const(*mmm_objects).find(k));
-    if (varPos == (std::as_const(*mmm_objects).end())) {
+    auto varPos = (std::as_const(*(mmm_objects->get_type_data())).find(k));
+    if (varPos == (std::as_const(*(mmm_objects->get_type_data())).end())) {
         return nullptr;
     }
     return varPos->second;
@@ -108,6 +108,7 @@ std::shared_ptr< std::recursive_mutex > sstd_virtual_basic::sstd_get_class_mutex
         const bool varSetValue = mmm_mutex.compare_exchange_strong(varTmp, varAns);
         if (varSetValue) {
             varAns = varData;
+            assert(varAns == mmm_mutex.load());
         } else {
             delete varData;
             varAns = varTmp;

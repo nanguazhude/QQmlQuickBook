@@ -94,7 +94,9 @@ private:
     using mmm_objects_in_this_t = _01_00_private_sstd_virtual_basic::forward_list< std::unique_ptr< private_object_t > >;
     using maped_named_objects_t_t = _01_00_private_sstd_virtual_basic::object_wrap<maped_named_objects_t, private_object_t>;
     using mmm_objects_in_this_t_t = _01_00_private_sstd_virtual_basic::object_wrap<mmm_objects_in_this_t, private_object_t>;
-    _01_00_private_sstd_virtual_basic::map< sstd_type_index, void * > * mmm_objects;
+    using items_map_t = _01_00_private_sstd_virtual_basic::map< sstd_type_index, void * >;
+    using items_map_t_t = _01_00_private_sstd_virtual_basic::object_wrap<items_map_t, private_object_t>;
+    items_map_t_t * mmm_objects;
     maped_named_objects_t_t * mmm_named_objects{ nullptr };
     mmm_objects_in_this_t_t * mmm_objects_in_this{ nullptr };
     mutable std::atomic< mutex_t_t * > mmm_mutex{ nullptr };
