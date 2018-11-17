@@ -13,7 +13,7 @@
 #include <string_view>
 #include <forward_list>
 
-namespace _01_00_private_sstd_virtual_basic {
+namespace _01_00_pstdv {
     using string = std::string;
     template<typename T>
     using forward_list = std::forward_list<T>;
@@ -58,7 +58,7 @@ namespace _01_00_private_sstd_virtual_basic {
         object() noexcept;
     };
     class named_object : public object {
-        using string_type = object_wrap<_01_00_private_sstd_virtual_basic::string, object>;
+        using string_type = object_wrap<_01_00_pstdv::string, object>;
         string_type * mmm_name{ nullptr };
     public:
         named_object() noexcept;
@@ -73,7 +73,7 @@ class sstd_register_virtual_basic;
 class sstd_virtual_basic {
 protected:
     using type_index_t = std::type_index;
-    using private_object_t = _01_00_private_sstd_virtual_basic::object;
+    using private_object_t = _01_00_pstdv::object;
 public:
     using sstd_type_index = std::pair<std::size_t, type_index_t>;
     template<typename T>
@@ -89,13 +89,13 @@ public:
     }
     std::shared_ptr< std::recursive_mutex > sstd_get_class_mutex() const noexcept /*此函数线程安全*/;
 private:
-    using mutex_t_t = _01_00_private_sstd_virtual_basic::object_wrap<std::shared_ptr< std::recursive_mutex >, private_object_t>;
-    using maped_named_objects_t = _01_00_private_sstd_virtual_basic::map< std::string_view, private_object_t * >;
-    using mmm_objects_in_this_t = _01_00_private_sstd_virtual_basic::forward_list< std::unique_ptr< private_object_t > >;
-    using maped_named_objects_t_t = _01_00_private_sstd_virtual_basic::object_wrap<maped_named_objects_t, private_object_t>;
-    using mmm_objects_in_this_t_t = _01_00_private_sstd_virtual_basic::object_wrap<mmm_objects_in_this_t, private_object_t>;
-    using items_map_t = _01_00_private_sstd_virtual_basic::map< sstd_type_index, void * >;
-    using items_map_t_t = _01_00_private_sstd_virtual_basic::object_wrap<items_map_t, private_object_t>;
+    using mutex_t_t = _01_00_pstdv::object_wrap<std::shared_ptr< std::recursive_mutex >, private_object_t>;
+    using maped_named_objects_t = _01_00_pstdv::map< std::string_view, private_object_t * >;
+    using mmm_objects_in_this_t = _01_00_pstdv::forward_list< std::unique_ptr< private_object_t > >;
+    using maped_named_objects_t_t = _01_00_pstdv::object_wrap<maped_named_objects_t, private_object_t>;
+    using mmm_objects_in_this_t_t = _01_00_pstdv::object_wrap<mmm_objects_in_this_t, private_object_t>;
+    using items_map_t = _01_00_pstdv::map< sstd_type_index, void * >;
+    using items_map_t_t = _01_00_pstdv::object_wrap<items_map_t, private_object_t>;
     items_map_t_t * mmm_objects;
     maped_named_objects_t_t * mmm_named_objects{ nullptr };
     mmm_objects_in_this_t_t * mmm_objects_in_this{ nullptr };
@@ -133,8 +133,8 @@ private:
 template<typename T, typename ... U>
 inline T * sstd_virtual_basic::sstd_create_object_in_this_class(U && ...args) {
     using sstd_this_type_1 = std::remove_cv_t< T >;
-    using sstd_this_object_1 = _01_00_private_sstd_virtual_basic::object;
-    using sstd_this_wrap_1 = _01_00_private_sstd_virtual_basic::object_wrap<sstd_this_type_1, sstd_this_object_1>;
+    using sstd_this_object_1 = _01_00_pstdv::object;
+    using sstd_this_wrap_1 = _01_00_pstdv::object_wrap<sstd_this_type_1, sstd_this_object_1>;
     std::unique_ptr varAnsUnique = std::make_unique<sstd_this_wrap_1>(std::forward<U>(args)...);
     auto varAns = reinterpret_cast<T *>(varAnsUnique->get_data());
     this->insert_object(std::move(varAnsUnique));
@@ -144,8 +144,8 @@ inline T * sstd_virtual_basic::sstd_create_object_in_this_class(U && ...args) {
 template<typename T, typename ... U>
 inline T * sstd_virtual_basic::sstd_create_named_object_in_this_class(std::string_view name, U && ... args) {
     using sstd_this_type_1 = std::remove_cv_t< T >;
-    using sstd_this_object_1 = _01_00_private_sstd_virtual_basic::named_object;
-    using sstd_this_wrap_1 = _01_00_private_sstd_virtual_basic::object_wrap<sstd_this_type_1, sstd_this_object_1>;
+    using sstd_this_object_1 = _01_00_pstdv::named_object;
+    using sstd_this_wrap_1 = _01_00_pstdv::object_wrap<sstd_this_type_1, sstd_this_object_1>;
     std::unique_ptr varAnsUnique = std::make_unique<sstd_this_wrap_1>(std::forward<U>(args)...);
     auto varAns = reinterpret_cast<T *>(varAnsUnique->get_data());
     varAnsUnique->set_name(name);
@@ -206,7 +206,7 @@ protected:
     inline void * sstd_find_named_object(const std::string_view & name) const {
         return this->sstd_get_virtual_basic()->sstd_find_named_object(name);
     }
-    std::shared_ptr< std::recursive_mutex > sstd_get_class_mutex() const noexcept/*线程安全*/ {
+    inline std::shared_ptr< std::recursive_mutex > sstd_get_class_mutex() const noexcept/*线程安全*/ {
         return this->sstd_get_virtual_basic()
             ->sstd_get_class_mutex();
     }
@@ -261,7 +261,7 @@ inline T111 * sstd_create_object_in_this_class(U && ...args) { \
     return sstd_register_virtual_basic<sstd_this_type_>:: \
     template sstd_create_object_in_this_class<T111>(std::forward<U>(args)...); \
 } \
-std::shared_ptr< std::recursive_mutex > sstd_get_class_mutex() const noexcept{ \
+inline std::shared_ptr< std::recursive_mutex > sstd_get_class_mutex() const noexcept{ \
     using sstd_this_type_ = std::remove_cv_t< \
         std::remove_reference_t< decltype(*this) > >; \
     return sstd_register_virtual_basic<sstd_this_type_>:: \

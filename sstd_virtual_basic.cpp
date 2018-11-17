@@ -17,7 +17,7 @@ sstd_virtual_basic::~sstd_virtual_basic() {
     delete mmm_named_objects;
     delete mmm_objects_in_this;
     delete mmm_objects;
-    delete mmm_mutex;
+    delete mmm_mutex.load();
 }
 
 void sstd_virtual_basic::sstd_add_object_cast(const sstd_type_index & k, void * v) {
@@ -74,26 +74,26 @@ void * sstd_virtual_basic::sstd_find_named_object(const std::string_view &name) 
     return varPos->second->get_data();
 }
 
-void _01_00_private_sstd_virtual_basic::named_object::set_name(const std::string_view & name) {
+void _01_00_pstdv::named_object::set_name(const std::string_view & name) {
     *(mmm_name->get_type_data()) = name;
 }
 
-std::string_view _01_00_private_sstd_virtual_basic::named_object::get_name() const {
+std::string_view _01_00_pstdv::named_object::get_name() const {
     return *(mmm_name->get_type_data());
 }
 
-_01_00_private_sstd_virtual_basic::named_object::named_object() noexcept {
+_01_00_pstdv::named_object::named_object() noexcept {
     mmm_name = new string_type;
 }
 
-_01_00_private_sstd_virtual_basic::named_object::~named_object() noexcept {
+_01_00_pstdv::named_object::~named_object() noexcept {
     delete mmm_name;
 }
 
-_01_00_private_sstd_virtual_basic::object::~object() noexcept {
+_01_00_pstdv::object::~object() noexcept {
 }
 
-_01_00_private_sstd_virtual_basic::object::object() noexcept {
+_01_00_pstdv::object::object() noexcept {
 }
 
 std::shared_ptr< std::recursive_mutex > sstd_virtual_basic::sstd_get_class_mutex() const noexcept {
@@ -104,13 +104,15 @@ std::shared_ptr< std::recursive_mutex > sstd_virtual_basic::sstd_get_class_mutex
 
     {
         auto varData = new mutex_t_t;
-        (*(varAns->get_type_data())) = std::make_shared< std::recursive_mutex >();
+        (*(varData->get_type_data())) = std::make_shared< std::recursive_mutex >();
         mutex_t_t * varTmp{ nullptr };
-        const bool varSetValue = mmm_mutex.compare_exchange_strong(varTmp, varAns);
+        const bool varSetValue = mmm_mutex.compare_exchange_strong(varTmp, varData);
         if (varSetValue) {
             varAns = varData;
             assert(varAns == mmm_mutex.load());
         } else {
+            assert(varTmp==mmm_mutex.load());
+            assert(varData!=varTmp);
             delete varData;
             varAns = varTmp;
             assert(varAns == nullptr);
