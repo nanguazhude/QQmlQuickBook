@@ -112,7 +112,7 @@ public:
     inline T * sstd_create_object_in_this_class(U && ...);
     template<typename T, typename ... U>
     inline T * sstd_create_named_object_in_this_class(std::string_view, U && ...);
-    void * sstd_find_named_object(const std::string_view &) const;
+    void * sstd_find_named_object(const std::string_view &) const noexcept;
 protected:
     void sstd_add_object_cast(const sstd_type_index & k, void * v);
 public:

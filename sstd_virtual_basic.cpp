@@ -25,8 +25,9 @@ void sstd_virtual_basic::sstd_add_object_cast(const sstd_type_index & k, void * 
 }
 
 void * sstd_virtual_basic::sstd_find_object(const sstd_type_index & k) const {
-    auto varPos = (std::as_const(*(mmm_objects->get_type_data())).find(k));
-    if (varPos == (std::as_const(*(mmm_objects->get_type_data())).end())) {
+    const auto & varMap = std::as_const(*(mmm_objects->get_type_data()));
+    auto varPos = varMap.find(k);
+    if (varPos == varMap.end()) {
         return nullptr;
     }
     return varPos->second;
@@ -64,7 +65,7 @@ void sstd_virtual_basic::insert_named_object(const std::string_view &name, std::
     get_objects_list()->push_front(std::move(arg));
 }
 
-void * sstd_virtual_basic::sstd_find_named_object(const std::string_view &name) const {
+void * sstd_virtual_basic::sstd_find_named_object(const std::string_view &name) const noexcept {
     auto varMap = const_cast<sstd_virtual_basic *>(this)->get_named_objects();
     auto varPos = varMap->find(name);
     if (varPos == varMap->end()) {
