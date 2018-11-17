@@ -31,7 +31,7 @@ private:
 public:
     virtual ~sstd_virtual_basic();
     virtual const sstd_type_index & sstd_get_type_index() const;
-    inline sstd_virtual_basic * get_virtual_basic() const {
+    inline sstd_virtual_basic * sstd_get_virtual_basic() const {
         return const_cast<sstd_virtual_basic *>(this);
     }
     inline sstd_virtual_basic() {
@@ -99,16 +99,16 @@ protected:
         using sstd_this_type_ = std::remove_cv_t< std::remove_reference_t< T > >;
         this->sstd_add_object_cast(this->sstd_get_type_index(), static_cast<sstd_this_type_ *>(this));
     }
-    inline sstd_virtual_basic * get_virtual_basic() const {
+    inline sstd_virtual_basic * sstd_get_virtual_basic() const {
         using sstd_this_type_ = std::remove_cv_t< std::remove_reference_t< T > >;
         return static_cast<const sstd_virtual_basic *>( 
-            static_cast<const sstd_this_type_ *>(this))->get_virtual_basic();
+            static_cast<const sstd_this_type_ *>(this))->sstd_get_virtual_basic();
     }
     inline void * sstd_find_object(const sstd_type_index & k) const {
-        return this->get_virtual_basic()->sstd_find_object(k);
+        return this->sstd_get_virtual_basic()->sstd_find_object(k);
     }
     inline void sstd_add_object_cast(const sstd_type_index & k, void * v) {
-        return this->get_virtual_basic()->sstd_add_object_cast(k,v);
+        return this->sstd_get_virtual_basic()->sstd_add_object_cast(k,v);
     }
 };
 
@@ -130,10 +130,10 @@ inline void * sstd_find_object(const sstd_type_index & k) const { \
         std::remove_reference_t< decltype(*this) > >; \
     return sstd_register_virtual_basic<sstd_this_type_>::sstd_find_object(k); \
 } \
-inline sstd_virtual_basic * get_virtual_basic() const { \
+inline sstd_virtual_basic * sstd_get_virtual_basic() const { \
     using sstd_this_type_ = std::remove_cv_t< \
         std::remove_reference_t< decltype(*this) > >; \
-    return sstd_register_virtual_basic<sstd_this_type_>::get_virtual_basic(); \
+    return sstd_register_virtual_basic<sstd_this_type_>::sstd_get_virtual_basic(); \
 } \
 protected: \
 inline void sstd_add_object_cast(const sstd_type_index & k, void * v) { \
