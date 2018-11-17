@@ -104,11 +104,11 @@ std::shared_ptr< std::recursive_mutex > sstd_virtual_basic::sstd_get_class_mutex
 
     {
         auto varData = new mutex_t_t;
-        (*(varData->get_type_data())) = std::make_shared< std::recursive_mutex >();
         mutex_t_t * varTmp{ nullptr };
         const bool varSetValue = mmm_mutex.compare_exchange_strong(varTmp, varData);
         if (varSetValue) {
             varAns = varData;
+            (*(varData->get_type_data())) = std::make_shared< std::recursive_mutex >();
             assert(varAns == mmm_mutex.load());
         } else {
             assert(varTmp==mmm_mutex.load());
